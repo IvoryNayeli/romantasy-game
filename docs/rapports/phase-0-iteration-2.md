@@ -4,7 +4,7 @@
 
 ## 1. En bref
 
-- Tes 7 remarques sont traitées : 6 faites, 1 faite avec une réserve de ma part (le point 1, l'écriture inclusive, qui demande ta relecture des formulations).
+- Tes 7 remarques sont traitées. La première (écriture inclusive) change beaucoup de textes et demande ta relecture attentive, notamment des cartes.
 - L'écriture inclusive est appliquée aux règles, aux 40 cartes, au README et aux documents du projet, avec une convention écrite pour les phases suivantes.
 - Les agents n'ont toujours jamais tourné : l'essai à blanc reste ta vérification n° 4 du rapport de l'itération 1.
 
@@ -53,7 +53,7 @@ Il n'y a pas de test automatique en phase 0. Contrôles faits par recherche dans
 - Dans `docs/cartes-source.md`, une recherche des pronoms et formes féminines (`elle`, `celle`, `joueuse`, `voisine`, `chacune`, `compagne`, `première qui`) ne trouve que des cas légitimes : « Comme elle » (la rose de la carte Épreuve 3), « la première neige », « la première personne ».
 - Anciennes formulations (« Au fil des échanges », « S'en défaire », « ### Utilisation », « Terminez les échanges ») : absentes des documents de référence. La seule mention de la phrase refusée est dans `docs/SUIVI.md` et `docs/regles.md`, pour interdire de l'ajouter.
 - Comptage : 20 Révélations, 20 Épreuves, 9 cartes à effet durable (lignes numérotées commençant par 🔁).
-- Aucun défaut signalé par l'éditeur sur `.github/` à la première itération. Je n'ai pas relancé de vérification sur ces fichiers pour cette itération.
+- Vérification des erreurs de format par l'éditeur sur `.github/`, `docs/` et `README.md`, relancée après les modifications : aucune erreur.
 
 ## 5. Ce qui n'a pas été vérifié
 
