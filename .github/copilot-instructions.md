@@ -1,6 +1,6 @@
 # Instructions communes du projet romantasy-game
 
-Jeu de soirée multijoueur pour téléphone, sur le thème de la romantasy. Page web (HTML, CSS, JavaScript sans framework), Firebase Realtime Database au plan Spark gratuit. Détails dans `docs/PROJET.md`.
+Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Page web (HTML, CSS, JavaScript sans framework), Firebase Realtime Database au plan Spark gratuit. Détails dans `docs/PROJET.md`.
 
 ## Avant toute action
 

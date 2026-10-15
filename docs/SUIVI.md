@@ -19,7 +19,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 | Phase | Intitulé | Statut | Itération | Dernier rapport |
 |---|---|---|---|---|
-| 0 | Fondations | prête pour relecture | 2 | [phase-0-iteration-2](rapports/phase-0-iteration-2.md) |
+| 0 | Fondations | prête pour relecture | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | à faire | 0 | |
 | 2 | Écrans et design | à faire | 0 | |
 | 3 | Moteur de jeu | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 0 : relecture de [rapports/phase-0-iteration-2.md](rapports/phase-0-iteration-2.md) par la propriétaire (remarques de l'itération 1 traitées), puis « Phase 0 validée » ou « Phase 0, remarques : … ». L'essai à blanc de la chaîne (« Teste la chaîne », nouvelle session) reste à faire.
+Phase 0 : relecture de [rapports/phase-0-iteration-3.md](rapports/phase-0-iteration-3.md) par la propriétaire (remarques des itérations 1 et 2 traitées), puis « Phase 0 validée » ou « Phase 0, remarques : … ». L'essai à blanc de la chaîne (« Teste la chaîne », nouvelle session) reste à faire.
 
 ## Journal
 
@@ -38,6 +38,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 
 - 2026-10-15 | phase 0 | Dépôt créé et lié à GitHub, documents de référence, instructions communes, trois agents `romantasy-*`, modèle de rapport. Reste : relecture et validation, essai à blanc de la chaîne dans une nouvelle session.
 - 2026-10-15 | phase 0, itération 2 | Remarques de la propriétaire traitées : écriture inclusive (règles, 40 cartes, documents, instructions), README (section « Lancer le jeu », section agents clarifiée, « s'en défaire » retirée), « au fil de la partie », phrase des effets durables validée, phrase de fin refusée. Rapport : [phase-0-iteration-2](rapports/phase-0-iteration-2.md). Reste : relecture et validation, essai à blanc de la chaîne.
+- 2026-10-15 | phase 0, itération 3 | Trois remarques du README traitées : « multijoueur sur téléphone », « meneur de jeu », liste des documents déplacée dans la section sur les agents Copilot. Même description alignée dans les instructions communes. `checks.json` supprimé. Rapport : [phase-0-iteration-3](rapports/phase-0-iteration-3.md). Reste : relecture et validation, essai à blanc de la chaîne.
 
 ## Défauts ouverts
 
@@ -55,3 +56,4 @@ Aucun.
 - Phrase sur les effets durables (« Certaines cartes Épreuve produisent un effet qui dure. Il prend fin dès qu'il a provoqué un échange de butins. ») : validée le 2026-10-15.
 - Phrase « Terminez les échanges en cours avant d'ouvrir vos butins » : refusée le 2026-10-15, ne pas l'ajouter.
 - Projet inclusif : validé le 2026-10-15 (convention dans [PROJET.md](PROJET.md)).
+- « meneur de jeu » (et non « meneur(se) ») dans la description du README : demandé par la propriétaire le 2026-10-15. Exception volontaire à la convention inclusive, ne pas la « corriger ».

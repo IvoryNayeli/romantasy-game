@@ -11,3 +11,11 @@ Reproduites mot pour mot.
 5. Dans les règles, section but du jeu, remplace "au fil des échanges" par "au fil de la partie"
 6. Je valide la phrase : Certaines cartes Épreuve produisent un effet qui dure. Il prend fin dès qu'il a provoqué un échange de butins.
 7. Ne pas mettre la phrase "Terminez les échanges en cours avant d'ouvrir vos butins."
+
+## Itération 2 (reçues le 2026-10-15)
+
+Reproduites mot pour mot.
+
+1. Remplace "Jeu de soirée multijoueur pour téléphone" par "Jeu de soirée multijoueur sur téléphone"
+2. Remplace "L'application joue le rôle de meneur(se) " par "L'application joue le rôle de meneur"
+3. La liste suivante va dans la section "Développement du projet avec des agents Copilot" : Règles et textes validés : docs/regles.md ; Décisions du projet : docs/PROJET.md ; Plan des phases : docs/PLAN.md ; État d'avancement : docs/SUIVI.md

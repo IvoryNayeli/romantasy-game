@@ -1,11 +1,6 @@
 # romantasy-game
 
-Jeu de soirée multijoueur pour téléphone, sur le thème de la romantasy. Chaque joueur(se) ouvre un simple lien dans son navigateur (rien à installer). L'application joue le rôle de meneur(se) de jeu : elle tire les cartes, annonce les tours et compte jusqu'à la fin. Les butins, eux, sont de vrais sacs que les joueur(se)s s'échangent.
-
-- Règles et textes validés : [docs/regles.md](docs/regles.md)
-- Décisions du projet : [docs/PROJET.md](docs/PROJET.md)
-- Plan des phases : [docs/PLAN.md](docs/PLAN.md)
-- État d'avancement : [docs/SUIVI.md](docs/SUIVI.md)
+Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaque joueur(se) ouvre un simple lien dans son navigateur (rien à installer). L'application joue le rôle de meneur de jeu : elle tire les cartes, annonce les tours et compte jusqu'à la fin. Les butins, eux, sont de vrais sacs que les joueur(se)s s'échangent.
 
 ## Lancer le jeu
 
@@ -21,7 +16,12 @@ Jeu de soirée multijoueur pour téléphone, sur le thème de la romantasy. Chaq
 
 > Cette section décrit comment le projet est **construit**, pas comment on y joue. Elle ne s'adresse qu'à la personne qui développe le jeu, avec les agents de développement de VS Code.
 
-Le projet est construit phase par phase (voir [docs/PLAN.md](docs/PLAN.md)), avec trois agents Copilot définis dans [.github/agents/](.github/agents/) :
+- Règles et textes validés : [docs/regles.md](docs/regles.md)
+- Décisions du projet : [docs/PROJET.md](docs/PROJET.md)
+- Plan des phases : [docs/PLAN.md](docs/PLAN.md)
+- État d'avancement : [docs/SUIVI.md](docs/SUIVI.md)
+
+Le projet est construit phase par phase, avec trois agents Copilot définis dans [.github/agents/](.github/agents/) :
 
 | Agent | Rôle |
 |---|---|
