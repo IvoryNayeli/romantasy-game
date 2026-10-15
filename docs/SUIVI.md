@@ -20,7 +20,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | Phase | Intitulé | Statut | Itération | Dernier rapport |
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
-| 1 | Contenu | prête pour relecture | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
+| 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
 | 2 | Écrans et design | à faire | 0 | |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 1 (contenu) prête pour relecture (branche `phase-1`, itération 1). Attente de la propriétaire : « Phase 1 validée » ou « Phase 1, remarques : … ». Questions du rapport (section 7) : apostrophes, « sac » dans `rev-16`, « elle » dans `epr-03`.
+Phase 2 (écrans et design), à lancer avec « Lance la phase 2 » (`romantasy-chef-de-phase`). Aucun prérequis supplémentaire. À la phase 2, refaire le contrôle des réglages en dur (4 tours, 5 joueur(se)s) maintenant qu'il y aura du code, et indiquer dans le README comment lancer les tests (`node --test tests/`, Node.js nécessaire).
 
 ## Journal
 
@@ -43,6 +43,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 - 2026-10-15 | phase 1, démarrage | Essai à blanc de la chaîne réussi (développeur et testeur appelés, chacun a écrit sa ligne). Décisions de la propriétaire consignées. `checks.json` ajouté au `.gitignore`. Branche `phase-1` créée. Reste : contenu, tests, rapport.
 - 2026-10-15 | phase 1, itération 1 | Développement : `cartes.json` (40 cartes), `emblemes.json`, `codes.json`, `config.json`, script `scripts/generer-cartes-a-relire.js` et `docs/cartes-a-relire.md`, 14 tests dans `tests/` (`node --test tests/`), tous verts. Reste : test, rapport.
 - 2026-10-15 | phase 1, rapport | Test indépendant : verdict `tout passe`, 8 tests de conformité ajoutés par le testeur (22 tests, tous verts, relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-1-iteration-1](rapports/phase-1-iteration-1.md), rapport du testeur : [phase-1-test](rapports/phase-1-test.md). Reste : relecture et validation.
+- 2026-10-15 | phase 1 validée | Validation explicite de la propriétaire (« Phase 1 validée »), avec ses réponses aux trois questions du rapport. Fusion de `phase-1` dans `main`, tag `phase-1`. Reste : phase 2.
 
 ## Défauts ouverts
 
@@ -50,15 +51,17 @@ Aucun.
 
 ## Décisions à confirmer
 
-- Typographie des apostrophes : la propriétaire a répondu « format JSON ». Interprétation retenue : apostrophe droite (`'`), valide telle quelle dans le JSON, donc aucune conversion. À confirmer à la relecture du rapport de la phase 1.
-- Carte `rev-16` (« un seul sac ») : le mot « sac » est interdit dans les textes du jeu, mais le texte validé est conservé, avec exception dans les tests. À garder ou reformuler.
-- Carte `epr-03` (« Comme elle, murmure… ») : « elle » désigne la rose, exception dans les tests. À confirmer.
+Aucune.
 
 ## Risques reportés
 
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
 
 ## Décisions confirmées
+
+- Apostrophes : apostrophe droite (`'`) conservée dans le JSON, confirmé le 2026-10-15.
+- Carte `rev-16` (« un seul sac ») : gardée telle quelle, avec son exception dans les tests, confirmé le 2026-10-15.
+- Carte `epr-03` (« Comme elle, murmure… », « elle » = la rose) : confirmée, avec son exception dans les tests, le 2026-10-15.
 
 - Cartes Révélation 4 (« un personnage masculin ») et 9 (« un homme gentil… un homme problématique ») : laissées telles quelles (2026-10-15).
 - Formulations inclusives des 40 cartes et des règles, et libellés `effet` des 9 cartes durables de [cartes-source.md](cartes-source.md) : confirmés (2026-10-15).
