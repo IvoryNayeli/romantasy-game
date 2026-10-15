@@ -1,0 +1,220 @@
+[
+  {
+    "id": "rev-01",
+    "type": "revelation",
+    "texte": "Une malédiction frappe le groupe. Qui serait la première personne à chercher une solution sur Google ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-02",
+    "type": "revelation",
+    "texte": "Le roi organise un grand bal. Qui serait chargé(e) de choisir vos tenues ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-03",
+    "type": "revelation",
+    "texte": "Une prophétie annonce que l'un(e) d'entre vous est l'héritier(ère) caché(e) du trône. Qui réorganise déjà la déco du palais ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-04",
+    "type": "revelation",
+    "texte": "Un personnage masculin clame : « Je ne laisserai personne lui faire du mal ! » Qui serait immédiatement conquis(e) ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-05",
+    "type": "revelation",
+    "texte": "Le héros vient de commettre l'impardonnable… mais il est torse nu. Qui lui pardonne en premier ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-06",
+    "type": "revelation",
+    "texte": "Sur une porte, on lit : « N'ENTREZ SURTOUT PAS. » Qui entre quand même ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-07",
+    "type": "revelation",
+    "texte": "Chacun(e) peut choisir une créature magique pour compagnon. Qui serait la personne la plus assortie à une licorne ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-08",
+    "type": "revelation",
+    "texte": "Vous devez passer une soirée à la cour sans révéler votre identité. Qui serait le/la meilleur(e) espion(ne) ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-09",
+    "type": "revelation",
+    "texte": "Entre une vie paisible avec un homme gentil et une vie dangereuse avec un homme problématique mais beaucoup trop sexy, qui choisit la seconde ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-10",
+    "type": "revelation",
+    "texte": "Une potion permet de parler aux animaux pendant une journée. Qui serait la première personne à la tester ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-11",
+    "type": "revelation",
+    "texte": "Un grimoire contient toutes les conversations de votre groupe depuis six ans. Qui aurait le courage de le lire ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-12",
+    "type": "revelation",
+    "texte": "Le groupe s'infiltre dans un camp ennemi. Qui se fait repérer en deux minutes après avoir marché sur une branche ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-13",
+    "type": "revelation",
+    "texte": "Le love interest chuchote : « Tu es à moi. » Qui roule des yeux au lieu de fondre ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-14",
+    "type": "revelation",
+    "texte": "On vous propose de sauver le monde ou de dormir douze heures d'affilée. Qui hésite sincèrement ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-15",
+    "type": "revelation",
+    "texte": "Vous traversez en secret la forêt enchantée pendant une semaine. Qui aurait pensé aux provisions, à la carte et aux chaussettes de rechange ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-16",
+    "type": "revelation",
+    "texte": "Le groupe part à l'aventure avec un seul sac. Qui y glisserait discrètement des douceurs pour tout le monde ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-17",
+    "type": "revelation",
+    "texte": "La reine vous invite à un thé royal. Qui connaîtrait l'étiquette sur le bout des doigts ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-18",
+    "type": "revelation",
+    "texte": "La première neige tombe sur le royaume. Qui sort aussitôt en profiter ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-19",
+    "type": "revelation",
+    "texte": "Chez un vieux marchand de grimoires, une reliure bleu nuit constellée d'étoiles attire votre regard. Qui l'achèterait uniquement pour sa couverture ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "rev-20",
+    "type": "revelation",
+    "texte": "Le roi vous charge de retracer les lignées des grandes maisons du royaume. Qui connaîtrait chaque alliance et chaque secret de famille ? Échange ton butin avec cette personne."
+  },
+  {
+    "id": "epr-01",
+    "type": "epreuve",
+    "texte": "Dis « Je te suivrai au bout du monde » à la personne à ta gauche, avec le plus de conviction possible. Si cette personne est charmé(e), échangez vos butins."
+  },
+  {
+    "id": "epr-02",
+    "type": "epreuve",
+    "texte": "Une créature magique arrive. Imite son cri ou sa façon de se déplacer. La première personne qui devine la créature échange son butin avec toi."
+  },
+  {
+    "id": "epr-03",
+    "type": "epreuve",
+    "texte": "Le héros t'offre une rose enchantée qui murmure des compliments. Comme elle, murmure trois compliments à la personne de ton choix, puis échangez vos butins."
+  },
+  {
+    "id": "epr-04",
+    "type": "epreuve",
+    "texte": "Le prince et sa promise ouvrent le bal. Avec la personne de ton choix, faites une révérence synchronisée, puis échangez vos butins."
+  },
+  {
+    "id": "epr-05",
+    "type": "epreuve",
+    "texte": "Un barde chante la gloire du héros. Fredonne un air connu, sans les paroles. La première personne qui trouve le titre échange son butin avec toi."
+  },
+  {
+    "id": "epr-06",
+    "type": "epreuve",
+    "duree": "fin_partie",
+    "effet": "Vouvoie tout le monde",
+    "texte": "Sort de la cour royale : jusqu'à la fin de la partie, vouvoie tout le monde. Si tu craques, échange ton butin avec la personne que tu as tutoyée."
+  },
+  {
+    "id": "epr-07",
+    "type": "epreuve",
+    "duree": "fin_partie",
+    "effet": "Mot interdit annoncé",
+    "texte": "Choisis un mot (« amour », « destin », « épée »…) et annonce-le à voix haute. La première personne qui le prononce avant la fin de la partie échange son butin avec toi."
+  },
+  {
+    "id": "epr-08",
+    "type": "epreuve",
+    "duree": "prochain_tour",
+    "effet": "Souverain(e) : un échange à décréter",
+    "texte": "Tu es souverain(e) jusqu'à ton prochain tour. Tu peux décréter un seul échange de butins entre deux personnes de ton choix."
+  },
+  {
+    "id": "epr-09",
+    "type": "epreuve",
+    "duree": "fin_partie",
+    "effet": "Prophétie en cours",
+    "texte": "Prédis un événement banal pour la suite de la partie (exemple : « Avant la fin, quelqu'un dira “dragon” »). Si ta prophétie se réalise, échange ton butin avec la personne qui l'a réalisée."
+  },
+  {
+    "id": "epr-10",
+    "type": "epreuve",
+    "texte": "Pense en secret à une créature fantastique (dragon, licorne, griffon…). Les autres te posent des questions à tour de rôle, auxquelles tu réponds seulement par « oui » ou « non ». La première personne qui trouve la créature échange son butin avec toi."
+  },
+  {
+    "id": "epr-11",
+    "type": "epreuve",
+    "texte": "Dis « Le destin m'a mené(e) jusqu'à toi » à la personne à ta droite, avec toute la solennité d'un héros ou d'une héroïne de légende. Si cette personne rit, échangez vos butins."
+  },
+  {
+    "id": "epr-12",
+    "type": "epreuve",
+    "texte": "Le royaume organise une remise de médailles. Remets une médaille imaginaire à la personne de ton choix en expliquant son exploit, puis échangez vos butins."
+  },
+  {
+    "id": "epr-13",
+    "type": "epreuve",
+    "texte": "Une alliance entre deux royaumes est scellée. Serre la main de la personne à ta droite avec la plus grande solennité, puis échangez vos butins."
+  },
+  {
+    "id": "epr-14",
+    "type": "epreuve",
+    "duree": "fin_partie",
+    "effet": "Gardien(ne) du trésor : ne pas sourire",
+    "texte": "Le roi te nomme gardien(ne) du trésor du royaume. Jusqu'à la fin de la partie, surveille ton butin avec un air très sérieux. Si tu souris, échange ton butin avec la première personne qui t'a vu(e) sourire."
+  },
+  {
+    "id": "epr-15",
+    "type": "epreuve",
+    "texte": "La reine te demande de nommer un bébé dragon. Demande des idées aux autres, puis échange ton butin avec la personne dont le nom te plaît le plus."
+  },
+  {
+    "id": "epr-16",
+    "type": "epreuve",
+    "duree": "prochain_tour",
+    "effet": "Sort du silence : chuchote",
+    "texte": "Le sort du silence est lancé. Jusqu'à ton prochain tour, tu ne parles qu'en chuchotant. Si tu élèves la voix, échange ton butin avec la première personne qui l'a remarqué."
+  },
+  {
+    "id": "epr-17",
+    "type": "epreuve",
+    "duree": "prochain_tour",
+    "effet": "Transformé(e) en chat : miaule",
+    "texte": "Te voilà transformé(e) en chat. Jusqu'à ton prochain tour, miaule à la place de dire « oui » et « non ». Si tu oublies, échange ton butin avec la première personne qui te le rappelle."
+  },
+  {
+    "id": "epr-18",
+    "type": "epreuve",
+    "duree": "prochain_tour",
+    "effet": "Sort de l'écho : répète la personne à ta gauche",
+    "texte": "Sort de l'écho : jusqu'à ton prochain tour, répète les trois derniers mots de chaque phrase de la personne à ta gauche. Si tu te trompes, échange ton butin avec cette personne."
+  },
+  {
+    "id": "epr-19",
+    "type": "epreuve",
+    "duree": "prochain_tour",
+    "effet": "Compliment obligatoire",
+    "texte": "Sort du compliment obligatoire : jusqu'à ton prochain tour, commence par un compliment chaque fois que tu t'adresses à quelqu'un. Si tu oublies, échange ton butin avec la personne à qui tu aurais dû le faire."
+  },
+  {
+    "id": "epr-20",
+    "type": "epreuve",
+    "texte": "Un portail s'ouvre vers le passé. Raconte un souvenir que tu as d'une personne du groupe, sans la nommer. La première personne qui se reconnaît échange son butin avec toi."
+  }
+]
