@@ -1,0 +1,25 @@
+# Dépendances et sorties de tests
+node_modules/
+test-results/
+playwright-report/
+coverage/
+
+# Firebase
+.firebase/
+*-debug.log
+firebase-debug.log
+ui-debug.log
+
+# Secrets : ne jamais versionner
+.env
+.env.*
+*.pem
+*.key
+serviceAccount*.json
+
+# Éditeur et système
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
