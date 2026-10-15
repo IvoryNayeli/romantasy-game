@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | à faire | 0 | |
+| 2 | Écrans et design | en cours | 1 | |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design), à lancer avec « Lance la phase 2 » (`romantasy-chef-de-phase`). Aucun prérequis supplémentaire. À la phase 2, refaire le contrôle des réglages en dur (4 tours, 5 joueur(se)s) maintenant qu'il y aura du code, et indiquer dans le README comment lancer les tests (`node --test tests/`, Node.js nécessaire).
+Phase 2 (écrans et design) en cours, itération 1 : développement, puis test, puis rapport. À la phase 2, refaire le contrôle des réglages en dur (4 tours, 5 joueur(se)s) maintenant qu'il y aura du code, et indiquer dans le README comment lancer les tests (`node --test tests/`, Node.js nécessaire).
 
 ## Journal
 
@@ -44,6 +44,8 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 - 2026-10-15 | phase 1, itération 1 | Développement : `cartes.json` (40 cartes), `emblemes.json`, `codes.json`, `config.json`, script `scripts/generer-cartes-a-relire.js` et `docs/cartes-a-relire.md`, 14 tests dans `tests/` (`node --test tests/`), tous verts. Reste : test, rapport.
 - 2026-10-15 | phase 1, rapport | Test indépendant : verdict `tout passe`, 8 tests de conformité ajoutés par le testeur (22 tests, tous verts, relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-1-iteration-1](rapports/phase-1-iteration-1.md), rapport du testeur : [phase-1-test](rapports/phase-1-test.md). Reste : relecture et validation.
 - 2026-10-15 | phase 1 validée | Validation explicite de la propriétaire (« Phase 1 validée »), avec ses réponses aux trois questions du rapport. Fusion de `phase-1` dans `main`, tag `phase-1`. Reste : phase 2.
+
+- 2026-10-15 | phase 2, démarrage | Branche `phase-2` créée depuis `main` (phase 1 validée, 22 tests verts). Statut `en cours`, itération 1. Reste : développement, test, rapport.
 
 ## Défauts ouverts
 
