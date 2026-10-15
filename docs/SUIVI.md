@@ -20,7 +20,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | Phase | Intitulé | Statut | Itération | Dernier rapport |
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
-| 1 | Contenu | en test | 1 | |
+| 1 | Contenu | prête pour relecture | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
 | 2 | Écrans et design | à faire | 0 | |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 1 (contenu) en test sur la branche `phase-1` (itération 1) : développement terminé, vérification par le testeur, puis rapport.
+Phase 1 (contenu) prête pour relecture (branche `phase-1`, itération 1). Attente de la propriétaire : « Phase 1 validée » ou « Phase 1, remarques : … ». Questions du rapport (section 7) : apostrophes, « sac » dans `rev-16`, « elle » dans `epr-03`.
 
 ## Journal
 
@@ -42,6 +42,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 - 2026-10-15 | phase 0 validée | Validation explicite de la propriétaire (« Phase 0 validée »). Fusion de `phase-0` dans `main`, tag `phase-0`. Aucune remarque en attente à la validation. Reste : phase 1.
 - 2026-10-15 | phase 1, démarrage | Essai à blanc de la chaîne réussi (développeur et testeur appelés, chacun a écrit sa ligne). Décisions de la propriétaire consignées. `checks.json` ajouté au `.gitignore`. Branche `phase-1` créée. Reste : contenu, tests, rapport.
 - 2026-10-15 | phase 1, itération 1 | Développement : `cartes.json` (40 cartes), `emblemes.json`, `codes.json`, `config.json`, script `scripts/generer-cartes-a-relire.js` et `docs/cartes-a-relire.md`, 14 tests dans `tests/` (`node --test tests/`), tous verts. Reste : test, rapport.
+- 2026-10-15 | phase 1, rapport | Test indépendant : verdict `tout passe`, 8 tests de conformité ajoutés par le testeur (22 tests, tous verts, relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-1-iteration-1](rapports/phase-1-iteration-1.md), rapport du testeur : [phase-1-test](rapports/phase-1-test.md). Reste : relecture et validation.
 
 ## Défauts ouverts
 
@@ -50,6 +51,8 @@ Aucun.
 ## Décisions à confirmer
 
 - Typographie des apostrophes : la propriétaire a répondu « format JSON ». Interprétation retenue : apostrophe droite (`'`), valide telle quelle dans le JSON, donc aucune conversion. À confirmer à la relecture du rapport de la phase 1.
+- Carte `rev-16` (« un seul sac ») : le mot « sac » est interdit dans les textes du jeu, mais le texte validé est conservé, avec exception dans les tests. À garder ou reformuler.
+- Carte `epr-03` (« Comme elle, murmure… ») : « elle » désigne la rose, exception dans les tests. À confirmer.
 
 ## Risques reportés
 
