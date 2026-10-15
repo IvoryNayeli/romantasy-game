@@ -23,3 +23,6 @@ serviceAccount*.json
 .DS_Store
 Thumbs.db
 *.swp
+
+# Fichiers générés par l'éditeur
+checks.json

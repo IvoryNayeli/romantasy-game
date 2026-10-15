@@ -1,0 +1,12 @@
+[
+  { "id": "dragon", "nom": "Dragon", "emoji": "🐉" },
+  { "id": "sorciere", "nom": "Sorcière", "emoji": "🧙" },
+  { "id": "vampire", "nom": "Vampire", "emoji": "🧛" },
+  { "id": "fee", "nom": "Fée", "emoji": "🧚" },
+  { "id": "elfe", "nom": "Elfe", "emoji": "🧝" },
+  { "id": "loup-garou", "nom": "Loup-garou", "emoji": "🐺" },
+  { "id": "sirene", "nom": "Sirène", "emoji": "🧜" },
+  { "id": "phenix", "nom": "Phénix", "emoji": "🔥" },
+  { "id": "licorne", "nom": "Licorne", "emoji": "🦄" },
+  { "id": "chevalier", "nom": "Chevalier", "emoji": "🛡️" }
+]
