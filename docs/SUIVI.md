@@ -20,7 +20,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | Phase | Intitulé | Statut | Itération | Dernier rapport |
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
-| 1 | Contenu | en cours | 1 | |
+| 1 | Contenu | en test | 1 | |
 | 2 | Écrans et design | à faire | 0 | |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 1 (contenu) en cours sur la branche `phase-1` (itération 1) : développement puis tests.
+Phase 1 (contenu) en test sur la branche `phase-1` (itération 1) : développement terminé, vérification par le testeur, puis rapport.
 
 ## Journal
 
@@ -41,6 +41,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 - 2026-10-15 | phase 0, itération 3 | Trois remarques du README traitées : « multijoueur sur téléphone », « meneur de jeu », liste des documents déplacée dans la section sur les agents Copilot. Même description alignée dans les instructions communes. `checks.json` supprimé. Rapport : [phase-0-iteration-3](rapports/phase-0-iteration-3.md). Reste : relecture et validation, essai à blanc de la chaîne.
 - 2026-10-15 | phase 0 validée | Validation explicite de la propriétaire (« Phase 0 validée »). Fusion de `phase-0` dans `main`, tag `phase-0`. Aucune remarque en attente à la validation. Reste : phase 1.
 - 2026-10-15 | phase 1, démarrage | Essai à blanc de la chaîne réussi (développeur et testeur appelés, chacun a écrit sa ligne). Décisions de la propriétaire consignées. `checks.json` ajouté au `.gitignore`. Branche `phase-1` créée. Reste : contenu, tests, rapport.
+- 2026-10-15 | phase 1, itération 1 | Développement : `cartes.json` (40 cartes), `emblemes.json`, `codes.json`, `config.json`, script `scripts/generer-cartes-a-relire.js` et `docs/cartes-a-relire.md`, 14 tests dans `tests/` (`node --test tests/`), tous verts. Reste : test, rapport.
 
 ## Défauts ouverts
 
