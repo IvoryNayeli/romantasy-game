@@ -14,6 +14,7 @@ Jeu de soirée multijoueur pour téléphone, sur le thème de la romantasy. Page
 - Tout en français : interface, commentaires, documentation, messages de commit.
 - Messages de commit courts, un par étape cohérente, préfixés par la phase, par exemple `phase 1 : ajout des 40 cartes`.
 - Pas d'emojis dans les documents ou les messages, sauf ceux de l'interface (emblèmes).
+- **Écriture inclusive partout** (interface, règles, cartes, documentation) : convention dans `docs/PROJET.md` (parenthèses : joueur(se), voyageur(euse), chacun(e) ; formulations neutres : « cette personne »). Ne jamais écrire « joueuse », « elle » ou « celle » pour désigner un(e) joueur(se). Identifiants de code neutres (`joueur`, `joueurs`).
 - Pas de refonte, de fonctionnalité ou de dépendance non demandées. Rester simple.
 
 ## Déroulement par phases
@@ -23,6 +24,7 @@ Jeu de soirée multijoueur pour téléphone, sur le thème de la romantasy. Page
 - Le statut `validée` n'est écrit que par `romantasy-chef-de-phase`, et seulement après un message explicite de la propriétaire dans la conversation en cours (« Phase N validée »). Jamais déduit d'un silence ou d'un « ça a l'air bien ».
 - Chaque phase se termine par un rapport pour la propriétaire (`docs/rapports/phase-N-iteration-M.md`, voir `docs/rapports/MODELE.md`), puis un arrêt. On ne propose pas d'enchaîner.
 - Mettre à jour `docs/SUIVI.md` avant chaque commit de fin d'étape.
+- Le README garde deux parties distinctes : le jeu (section « Lancer le jeu ») et le développement avec les agents Copilot. Dès qu'une phase change la façon de lancer ou d'ouvrir le jeu, mettre à jour « Lancer le jeu » dans la même phase.
 
 ## Git
 
@@ -37,5 +39,5 @@ Jeu de soirée multijoueur pour téléphone, sur le thème de la romantasy. Page
 - Tout reste gratuit. Jamais de plan Blaze, de service payant ni de carte bancaire.
 - Les tests automatiques visent uniquement l'émulateur Firebase local et refusent de tourner sur une adresse non locale.
 - Les écoutes Firebase portent sur le chemin de la partie en cours, jamais sur la racine de la base.
-- Réglages (4 tours, 5 joueuses maximum) uniquement dans `public/data/config.json`, jamais écrits en dur ailleurs.
+- Réglages (4 tours, 5 joueur(se)s maximum) uniquement dans `public/data/config.json`, jamais écrits en dur ailleurs.
 - Vocabulaire des textes du jeu : « butin », jamais « poche » ni « sac ».

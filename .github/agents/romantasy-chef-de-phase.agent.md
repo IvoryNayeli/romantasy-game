@@ -67,7 +67,9 @@ Condition : la propriétaire a écrit explicitement « Phase N validée » dans 
   - pas de « tout fonctionne » : chaque affirmation renvoie à un test, un fichier ou une action de vérification ;
   - le statut du rapport doit être identique à celui de `SUIVI.md` ;
   - « Où le voir, comment le vérifier » donne des actions précises : fichier à ouvrir, commande à lancer, lien à cliquer, résultat attendu ;
-  - phases réseau (4, 5, 6) : section sur la consommation Firebase à consulter dans la console.
+  - phases réseau (4, 5, 6) : section sur la consommation Firebase à consulter dans la console ;
+  - si la phase change la façon de lancer le jeu, vérifier que la section « Lancer le jeu » du README est à jour et dire dans le rapport comment la contrôler ;
+  - le rapport lui-même respecte l'écriture inclusive pour les joueur(se)s du jeu.
 - Une ligne par rapport est ajoutée au journal de `SUIVI.md`, avec son lien.
 
 ## Essai à blanc (« Teste la chaîne »)

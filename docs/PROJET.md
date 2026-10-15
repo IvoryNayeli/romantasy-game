@@ -7,8 +7,9 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 - **Tout est gratuit.** Aucune carte bancaire, jamais de plan Blaze Firebase.
 - **Pas d'application à installer** : une page web, accessible par un lien. Pas de PWA, pas de mode hors ligne.
 - **Pas de son.**
-- **Une seule partie jouée à la fois par groupe**, 5 joueuses maximum, 4 tours par joueuse (réglages dans `config.json`, jamais écrits en dur ailleurs).
+- **Une seule partie jouée à la fois par groupe**, 5 joueur(se)s maximum, 4 tours par joueur(se) (réglages dans `config.json`, jamais écrits en dur ailleurs).
 - Langue de l'interface, des commentaires et des commits : **français**.
+- **Écriture inclusive** dans tous les textes du jeu (interface, règles, cartes) et dans le vocabulaire du projet. Convention validée : parenthèses pour les noms et les accords (joueur(se), voyageur(euse), chacun(e), prêt(e), tou(te)s), avec l'article « le/la » devant un nom ; formulation neutre dès qu'elle est plus simple (« cette personne », « la première personne qui… », « la personne à ta gauche »), à la place de « elle » ou « celle » quand on désigne un(e) joueur(se). Les noms de créatures des emblèmes et les personnages des cartes (le héros, le roi, la reine) restent tels quels. Dans le code, les identifiants restent neutres (`joueur`, `joueurs`).
 - Dépôt GitHub **public** : aucun secret versionné. Les identifiants Firebase du navigateur sont publics par conception, à isoler dans un fichier de configuration identifié comme tel.
 
 ## Technique
@@ -18,7 +19,7 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 - Hébergement : GitHub Pages (publie la branche `main`).
 - Les cartes sont chargées depuis le site (`public/data/cartes.json`), pas depuis la base. La base ne contient que l'état de la partie.
 - L'état de la partie (tour, carte, compteur, effets) vit dans Firebase, pas sur le téléphone de l'hôte.
-- Écran allumé : API Wake Lock. Reconnexion automatique : l'identité de chaque joueuse est mémorisée sur son téléphone. Une joueuse déconnectée est marquée « absente » sans être retirée. Si c'est son tour et qu'elle est absente, n'importe quelle joueuse peut passer son tour après quelques secondes.
+- Écran allumé : API Wake Lock. Reconnexion automatique : l'identité de chaque joueur(se) est mémorisée sur son téléphone. Un(e) joueur(se) déconnecté(e) est marqué(e) « absent(e) » sans être retiré(e). Si c'est son tour et qu'il ou elle est absent(e), n'importe quel(le) joueur(se) peut passer son tour après quelques secondes.
 - Plan Spark : 100 connexions simultanées, 1 Go de stockage, 10 Go par mois de téléchargements de la base, 10 Go de transfert d'hébergement. Pas de Cloud Functions : toute la logique tourne dans les navigateurs.
 - Écoutes de la base uniquement sur le chemin de la partie en cours, jamais à la racine. Taille de l'état et nombre d'écritures par tour bornés.
 - Suppression de la partie à la fin, expiration des parties abandonnées.
@@ -29,8 +30,8 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 
 - 40 cartes : 20 Révélations et 20 Épreuves. Source dans [cartes-source.md](cartes-source.md), à convertir en `public/data/cartes.json` en phase 1.
 - Une carte n'est jouée qu'une seule fois par partie.
-- Comme chaque joueuse choisit le type, une pile doit pouvoir fournir 20 cartes (5 joueuses × 4 tours).
-- Effets durables : champ `duree` valant `prochain_tour` (jusqu'à son prochain tour) ou `fin_partie`, et champ `effet` (libellé court du bandeau). Absents pour les cartes immédiates. Plusieurs effets peuvent se cumuler sur une joueuse. Un effet disparaît quand il a provoqué un échange de butins, ou à son échéance. Un bouclier sur la carte annule l'effet.
+- Comme chaque joueur(se) choisit le type, une pile doit pouvoir fournir 20 cartes (5 joueur(se)s × 4 tours).
+- Effets durables : champ `duree` valant `prochain_tour` (jusqu'à son prochain tour) ou `fin_partie`, et champ `effet` (libellé court du bandeau). Absents pour les cartes immédiates. Plusieurs effets peuvent se cumuler sur un(e) joueur(se). Un effet disparaît quand il a provoqué un échange de butins, ou à son échéance. Un bouclier sur la carte annule l'effet.
 - Format d'une carte :
 
 ```json

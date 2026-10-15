@@ -20,7 +20,7 @@ Les règles communes (`.github/copilot-instructions.md`) s'appliquent. Les atten
 2. Si le statut de la phase n'est pas `en test`, le dire et t'arrêter.
 3. Vérifier la branche (`git branch --show-current`) et que l'arbre de travail est propre.
 4. Écrire les tests manquants dans `tests/` pour tout ce que la phase promet, puis **relancer tous les tests de la phase**, pas seulement ceux des correctifs, pour détecter les régressions.
-5. Contrôler aussi par lecture : respect de `docs/regles.md` (textes, vocabulaire « butin »), de `docs/PROJET.md` (gratuité, pas de secret, écoutes Firebase, réglages dans `config.json`), qualité des fichiers livrés.
+5. Contrôler aussi par lecture : respect de `docs/regles.md` (textes, vocabulaire « butin », écriture inclusive : aucune forme exclusivement féminine pour désigner un(e) joueur(se)), de `docs/PROJET.md` (gratuité, pas de secret, écoutes Firebase, réglages dans `config.json`), de la section « Lancer le jeu » du README (exacte et à jour pour la phase), qualité des fichiers livrés.
 6. Vérifier que le développeur n'a pas modifié de texte validé : comparer à `docs/regles.md` et `docs/cartes-source.md`.
 7. Écrire ou mettre à jour `docs/rapports/phase-N-test.md` : un défaut par identifiant (D1, D2…), avec statut (`ouvert`, `corrigé`, `vérifié`), description, comment le reproduire, résultat attendu et obtenu. Pour chaque défaut déjà connu, indiquer s'il est toujours ouvert ou vérifié.
 8. Commit (tests et rapport seulement), push.
