@@ -225,7 +225,7 @@ test('design : boutons et zones tactiles d\'au moins 48 px de haut', () => {
   assert.ok(enPixels('var(--hauteur-bouton)', v) >= 48);
   assert.ok(enPixels('var(--hauteur-tactile-min)', v) >= 48);
   const cibles = {
-    '.bouton': 'min-height', '.bouton-reglage': 'min-height', '.bouton-retour': 'height',
+    '.bouton': 'min-height', '.bouton-retour': 'height',
     '.champ': 'min-height', '.embleme-choix': 'min-height', '.demo-lien': 'min-height',
   };
   for (const [selecteur, prop] of Object.entries(cibles)) {
@@ -284,24 +284,24 @@ test('design : bandeau d\'effet durable sur la carte révélée et dans l\'atten
   for (const c of durables) assert.ok(c.effet && c.effet.length > 0, `${c.id} : effet manquant`);
 });
 
-test('animations : retournement 3D, fondu, lueur, étincelles et réglage « réduire les animations »', () => {
+test('animations : retournement 3D, fondu, lueur, étincelles ; désactivées par le réglage système, sans option dans le jeu', () => {
   for (const nom of ['retournement', 'fondu', 'lueur', 'scintille']) assert.match(css, new RegExp(`@keyframes ${nom}\\b`), `animation ${nom}`);
   assert.match(css, /perspective:/);
   assert.match(css, /backface-visibility:\s*hidden/);
   assert.match(css, /rotateY\(180deg\)/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/, 'demande du système');
-  assert.match(css, /:root\[data-animations="reduites"\]/, 'réglage manuel');
-  const reduit = css.match(/:root\[data-animations="reduites"\]\s*\{([^}]*)\}/)[1];
+  const reduit = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*:root\s*\{([^}]*)\}/)[1];
   for (const anim of ['--anim-fondu', '--anim-flip', '--anim-lueur', '--anim-scintille']) {
     assert.match(reduit, new RegExp(`${anim}:\\s*none`), `${anim} non désactivée`);
   }
-  assert.match(css, /body\[data-ecran="accueil"\]\s*\.etincelles/, 'étincelles sur l\'accueil');
-  const html = lirePublic('index.html');
-  assert.match(html, /id="reglage-animations"[^>]*aria-pressed/);
-  assert.match(html, /Réduire les animations/);
-  const reglage = lirePublic('js', 'reglages.js');
-  assert.match(reglage, /prefers-reduced-motion/);
-  assert.match(reglage, /localStorage/);
+  // Remarque de la propriétaire : plus d'option « Réduire les animations » (bouton, réglage mémorisé, code, textes).
+  assert.ok(!existe('js', 'reglages.js'), 'js/reglages.js doit être supprimé');
+  for (const f of listerFichiers(PUBLIC, /\.(html|css|js)$/)) {
+    const source = fs.readFileSync(f, 'utf8');
+    assert.doesNotMatch(source, /réduire les animations|reglage-animations|bouton-reglage|data-animations|localStorage|romantasy\.animations/i,
+      `${path.relative(RACINE, f)} : reste de l'option d'animations`);
+  }
+  assert.doesNotMatch(lire('README.md'), /Réduire les animations/i);
 });
 
 test('textes : l\'interface reprend les textes validés de docs/regles.md', async () => {

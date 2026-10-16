@@ -36,7 +36,7 @@ function bandeauEffet(effet, duree, perspective) {
 }
 
 // Carte révélée : en-tête (couleur + symbole + nom du type), texte, bandeau si effet durable.
-// Le retournement 3D est une animation CSS jouée à l'affichage (supprimée si animations réduites).
+// Le retournement 3D est une animation CSS jouée à l'affichage.
 function carteEl(carte, perspective) {
   const type = T.types[carte.type];
   return h('article', { classe: `carte carte-${carte.type}`, 'data-carte': carte.id },

@@ -44,10 +44,6 @@ Le nombre de tours et de joueur(se)s maximum vient uniquement de `public/data/co
 
 Si la page ne s'ouvre pas, vérifier que le pare-feu de l'ordinateur autorise le port 8000 et que le Wi-Fi n'isole pas les appareils entre eux (c'est parfois le cas des réseaux d'invité).
 
-### Réduire les animations
-
-Le bouton « Réduire les animations » (en haut à droite de chaque écran) supprime le retournement des cartes, les fondus, les lueurs et les étincelles. Le réglage est aussi activé automatiquement quand le téléphone ou l'ordinateur demande de réduire les animations.
-
 ### Plus tard
 
 | À partir de | Ce qui sera documenté ici |

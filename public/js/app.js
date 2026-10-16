@@ -3,7 +3,6 @@
 // Écrans : accueil, regles, salle, choix, carte, attente, transition, fin (voir README et demo.html).
 
 import { chargerDonnees } from './donnees.js';
-import { initReglageAnimations } from './reglages.js';
 import { adresse, h } from './dom.js';
 import * as ecrans from './ecrans.js';
 import { erreurs } from './textes.js';
@@ -58,7 +57,6 @@ document.addEventListener('click', (evenement) => {
 
 window.addEventListener('popstate', () => afficher());
 
-initReglageAnimations();
 chargerDonnees()
   .then((d) => { donnees = d; afficher(true); })
   .catch(erreurChargement);
