@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | en cours | 1 | |
+| 2 | Écrans et design | en test | 1 | |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -46,6 +46,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 - 2026-10-15 | phase 1 validée | Validation explicite de la propriétaire (« Phase 1 validée »), avec ses réponses aux trois questions du rapport. Fusion de `phase-1` dans `main`, tag `phase-1`. Reste : phase 2.
 
 - 2026-10-15 | phase 2, démarrage | Branche `phase-2` créée depuis `main` (phase 1 validée, 22 tests verts). Statut `en cours`, itération 1. Reste : développement, test, rapport.
+- 2026-10-15 | phase 2, itération 1 | Développement : polices Cinzel et Cormorant Garamond hébergées (woff2, OFL), `index.html`, `css/style.css`, `js/` (app, écrans, textes, données fictives, réglage des animations), huit écrans (accueil, règles, salle d'attente, choix, carte révélée, attente, transition de 2 secondes, fin), page `demo.html` (liens vers chaque écran et les 40 cartes), README mis à jour, 23 tests ajoutés dont le contrôle des réglages en dur (45 tests, tous verts). Reste : test indépendant, rapport.
 
 ## Défauts ouverts
 
@@ -53,7 +54,14 @@ Aucun.
 
 ## Décisions à confirmer
 
-Aucune.
+Choix de la phase 2 qui ne sont pas écrits dans les documents (à confirmer par la propriétaire dans le rapport) :
+
+- Libellés d'interface absents de `regles.md` : « Je suis prêt(e) », « Ton prénom », « Ton emblème », « Code de la partie », « Joueur(se)s », étiquettes « hôte » et « toi », « Invoquer » et « Annuler » (boîte de confirmation du bouclier), « Effet durable », « Effets en cours », durées « Jusqu'à ton prochain tour », « Jusqu'à son prochain tour », « Jusqu'à la fin de la partie », « Retour à l'accueil » (étiquette du bouton de retour), « Réduire les animations ».
+- Écran « Rejoindre une partie » (saisie du code) : non décrit, renvoyé à la phase 4. En phase 2, « Rejoindre une partie » ouvre la salle d'attente en simple joueur(se).
+- Nombre minimal de joueur(se)s prêt(e)s pour commencer (2, de `regles.md`) : constante dans `public/js/fictif.js`, car absente de `config.json`.
+- Titre de l'onglet : « Romantasy ».
+- Icônes (épée, étoile, bouclier) : dessins SVG simples faits pour le projet, en attendant game-icons.net (phase 7).
+- `demo.html` et le paramètre `?ecran=` : outils de validation de la phase 2, à retirer ou masquer en phase 7.
 
 ## Risques reportés
 
