@@ -26,7 +26,7 @@ function ecrans(donnees) {
     ]),
     groupe('Salle d\'attente', [
       lien('Hôte, une personne déjà là', { ecran: 'salle', hote: 1, autres: 1 }),
-      lien('Hôte, prêt(e), prêt à commencer', { ecran: 'salle', hote: 1, autres: 1, prenom: 'Noa', embleme: 'sirene', pret: 1 }),
+      lien('Hôte, prêt(e), prêt(e) à commencer', { ecran: 'salle', hote: 1, autres: 1, prenom: 'Noa', embleme: 'sirene', pret: 1 }),
       lien('Joueur(se) qui rejoint', { ecran: 'salle', autres: 2 }),
       lien('Hôte seul(e) dans la salle', { ecran: 'salle', hote: 1, autres: 0 }),
       lien('Dernière place de la salle', { ecran: 'salle', autres: joueursMax - 1 }),
