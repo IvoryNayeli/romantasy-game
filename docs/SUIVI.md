@@ -51,6 +51,8 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 
 - 2026-10-15 | phase 2, rapport | Test indépendant en deux passages : 4 défauts mineurs au premier (D1 à D4), tous corrigés ; deuxième passage `tout passe`, 72 tests sur 72 (relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-2-iteration-1](rapports/phase-2-iteration-1.md), rapport du testeur : [phase-2-test](rapports/phase-2-test.md). Reste : relecture et validation.
 
+- 2026-10-16 | phase 2, remarques | Quatre remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (retrait de « Réduire les animations », parcours « Créer » et « Rejoindre », nouvelle charte graphique copiée dans [charte-graphique](charte-graphique.md)). Statut `en cours (itération 2)`. Reste : développement, test complet, rapport.
+
 ## Défauts ouverts
 
 Aucun.
