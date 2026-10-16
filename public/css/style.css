@@ -1,0 +1,737 @@
+/* Romantasy : feuille de style unique. Mobile d'abord (cibles : 360 et 412 px de large).
+   Palette et typographie : docs/PROJET.md. Aucune police ni ressource externe. */
+
+/* ---------- Polices hébergées avec le site (licence OFL, voir public/fonts/) ---------- */
+@font-face {
+  font-family: 'Cinzel';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/Cinzel-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/Cinzel-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/CormorantGaramond-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/CormorantGaramond-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/CormorantGaramond-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+  src: url('../fonts/CormorantGaramond-500-italic.woff2') format('woff2');
+}
+
+/* ---------- Variables : palette, tailles minimales, animations ---------- */
+:root {
+  /* Palette (docs/PROJET.md) */
+  --fond: #14101F;
+  --fond-haut: #2A1B3D;
+  --surface: #221A33;
+  --or: #D4AF6A;
+  --texte: #F3ECE0;
+  --epreuve: #B3263E;
+  --revelation: #6C4FD1;
+  --secondaire: #A79BBE;
+
+  --or-voile: rgba(212, 175, 106, 0.16);
+  --lueur-epreuve: rgba(179, 38, 62, 0.65);
+  --lueur-revelation: rgba(108, 79, 209, 0.7);
+
+  --police-titre: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --police-texte: 'Cormorant Garamond', Garamond, Georgia, serif;
+  --police-emoji: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+
+  /* Accessibilité : tailles minimales (contrôlées par les tests automatiques) */
+  --hauteur-bouton: 3.5rem;       /* 56 px, minimum exigé : 48 px */
+  --hauteur-tactile-min: 3rem;    /* 48 px */
+  --taille-texte-carte: 1.375rem; /* 22 px, minimum exigé : 20 px */
+  --taille-texte: 1.25rem;        /* 20 px */
+
+  --rayon: 14px;
+  --marge-g: max(1rem, env(safe-area-inset-left));
+  --marge-d: max(1rem, env(safe-area-inset-right));
+
+  /* Animations : durées et noms, remplacés par « none » quand les animations sont réduites */
+  --d-fondu: 0.5s;
+  --d-flip: 0.9s;
+  --delai-flip: 0.25s;
+  --anim-fondu: fondu;
+  --anim-flip: retournement;
+  --anim-lueur: lueur;
+  --anim-scintille: scintille;
+  --anim-pulse: pulse;
+}
+
+/* Réglage « réduire les animations » : choix manuel (attribut posé par js/reglages.js)
+   ou demande du système avant que le script ne s'exécute. */
+:root[data-animations="reduites"] {
+  --d-fondu: 0s;
+  --d-flip: 0s;
+  --delai-flip: 0s;
+  --anim-fondu: none;
+  --anim-flip: none;
+  --anim-lueur: none;
+  --anim-scintille: none;
+  --anim-pulse: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-animations]) {
+    --d-fondu: 0s;
+    --d-flip: 0s;
+    --delai-flip: 0s;
+    --anim-fondu: none;
+    --anim-flip: none;
+    --anim-lueur: none;
+    --anim-scintille: none;
+    --anim-pulse: none;
+  }
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--fond);
+  color: var(--texte);
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, var(--fond) 0%, var(--fond-haut) 100%);
+  font-family: var(--police-texte), var(--police-emoji);
+  font-size: var(--taille-texte);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-x: hidden;
+}
+
+:focus-visible {
+  outline: 3px solid var(--texte);
+  outline-offset: 3px;
+}
+
+h1, h2, h3 { margin: 0; }
+
+.page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 3.5rem;
+  padding: env(safe-area-inset-top) var(--marge-d) 0 var(--marge-g);
+}
+.entete-gauche { display: flex; align-items: center; min-width: var(--hauteur-tactile-min); }
+
+.ecran-zone { flex: 1; display: flex; flex-direction: column; outline: none; }
+
+.ecran {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--marge-d) 0 var(--marge-g);
+  animation: var(--anim-fondu) var(--d-fondu) ease-out both;
+}
+
+.noscript { padding: 1rem; text-align: center; }
+
+/* ---------- Réglage animations et retour ---------- */
+.bouton-reglage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--hauteur-tactile-min);
+  padding: 0.25rem 0.9rem;
+  border: 1px solid var(--secondaire);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--secondaire);
+  font: 600 1rem/1.1 var(--police-texte);
+  cursor: pointer;
+}
+.bouton-reglage .icone { width: 1.1rem; height: 1.1rem; fill: currentColor; }
+.bouton-reglage[aria-pressed="true"] {
+  border: 2px solid var(--or);
+  background: var(--or-voile);
+  color: var(--or);
+}
+.bouton-reglage[aria-pressed="true"]::after {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--or);
+}
+
+.bouton-retour {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hauteur-tactile-min);
+  height: var(--hauteur-tactile-min);
+  border-radius: 50%;
+  border: 1px solid var(--secondaire);
+  color: var(--or);
+  text-decoration: none;
+}
+.bouton-retour .icone { width: 1.5rem; height: 1.5rem; }
+
+/* ---------- Icônes ---------- */
+.icone { width: 1.5rem; height: 1.5rem; fill: currentColor; flex: none; }
+
+/* ---------- Boutons ---------- */
+.bouton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: var(--hauteur-bouton);
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--or);
+  border-radius: var(--rayon);
+  font-family: var(--police-titre);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.bouton-principal { background: var(--or); color: var(--fond); }
+.bouton-secondaire { background: transparent; color: var(--or); }
+.bouton:hover { filter: brightness(1.1); }
+.bouton:active { transform: translateY(1px); }
+.bouton:disabled {
+  background: var(--surface);
+  border-color: var(--surface);
+  color: var(--secondaire);
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* Barre d'actions collée en bas de l'écran */
+.barre-bas {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: auto calc(-1 * var(--marge-d)) 0 calc(-1 * var(--marge-g));
+  padding: 1.5rem var(--marge-d) max(1rem, env(safe-area-inset-bottom)) var(--marge-g);
+  background: linear-gradient(to bottom, rgba(20, 16, 31, 0) 0, rgba(20, 16, 31, 0.94) 1.25rem);
+}
+
+/* ---------- Textes ---------- */
+.texte { margin: 0 0 1rem; font-size: var(--taille-texte); font-weight: 500; line-height: 1.4; overflow-wrap: break-word; }
+.texte-centre { text-align: center; }
+.texte strong { font-weight: 700; color: var(--or); }
+
+h2 {
+  margin: 1.75rem 0 0.5rem;
+  color: var(--or);
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Accueil et fin ---------- */
+.accueil-corps, .fin-corps { margin: auto 0; padding: 2rem 0; text-align: center; }
+.accueil-salut {
+  margin: 0;
+  color: var(--or);
+  font-size: 2.25rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.15;
+  text-shadow: 0 0 18px rgba(212, 175, 106, 0.35);
+}
+.ornement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--or);
+}
+.ornement::before, .ornement::after {
+  content: '';
+  width: 4rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--or));
+}
+.ornement::after { transform: scaleX(-1); }
+.ornement .icone { width: 1.25rem; height: 1.25rem; }
+
+/* Étincelles dorées (accueil uniquement) : points en dégradé radial, animés en opacité et en translation */
+.etincelles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+body[data-ecran="accueil"] .etincelles { opacity: 1; }
+.etincelles::before, .etincelles::after {
+  content: '';
+  position: absolute;
+  inset: -20px 0;
+  opacity: 0.5;
+  animation: var(--anim-scintille) 6s ease-in-out infinite;
+  background:
+    radial-gradient(circle, #D4AF6A 0 1.5px, transparent 2.5px) 8% 12% / 12px 12px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1px, transparent 2px) 27% 33% / 10px 10px no-repeat,
+    radial-gradient(circle, #F3ECE0 0 1px, transparent 2px) 46% 8% / 10px 10px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 2px, transparent 3px) 71% 21% / 14px 14px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1px, transparent 2px) 90% 38% / 10px 10px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1.5px, transparent 2.5px) 15% 58% / 12px 12px no-repeat,
+    radial-gradient(circle, #F3ECE0 0 1px, transparent 2px) 52% 64% / 10px 10px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 2px, transparent 3px) 83% 72% / 14px 14px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1px, transparent 2px) 34% 88% / 10px 10px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1.5px, transparent 2.5px) 63% 92% / 12px 12px no-repeat;
+}
+.etincelles::after {
+  animation-duration: 8s;
+  animation-delay: -3s;
+  background:
+    radial-gradient(circle, #D4AF6A 0 1.5px, transparent 2.5px) 20% 22% / 12px 12px no-repeat,
+    radial-gradient(circle, #F3ECE0 0 1px, transparent 2px) 38% 45% / 10px 10px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 2px, transparent 3px) 58% 28% / 14px 14px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1px, transparent 2px) 78% 8% / 10px 10px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1.5px, transparent 2.5px) 93% 55% / 12px 12px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 1px, transparent 2px) 5% 78% / 10px 10px no-repeat,
+    radial-gradient(circle, #D4AF6A 0 2px, transparent 3px) 44% 80% / 14px 14px no-repeat,
+    radial-gradient(circle, #F3ECE0 0 1px, transparent 2px) 74% 86% / 10px 10px no-repeat;
+}
+
+/* ---------- Règles ---------- */
+.regles-corps { padding-bottom: 0.5rem; }
+.regles-corps h2:first-child { margin-top: 0.5rem; }
+.liste-types { margin: 0 0 1rem; padding: 0; list-style: none; }
+.liste-types li { display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.75rem; }
+.liste-types .texte { margin: 0; }
+.type-puce { width: 1.75rem; height: 1.75rem; margin-top: 0.15rem; padding: 0.3rem; border-radius: 8px; color: var(--texte); box-sizing: content-box; }
+.type-epreuve .type-puce { background: var(--epreuve); }
+.type-revelation .type-puce { background: var(--revelation); }
+
+/* ---------- Compteur et titres de tour ---------- */
+.compteur {
+  margin: 0.25rem 0 0;
+  color: var(--secondaire);
+  font-family: var(--police-titre);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+.titre-tour {
+  margin: auto 0 1.5rem;
+  color: var(--or);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.ecran-attente .titre-tour { margin: 1rem 0 0.5rem; font-size: 1.35rem; }
+.nom-actif { display: inline-flex; align-items: center; gap: 0.4rem; vertical-align: middle; }
+
+.embleme { font-family: var(--police-emoji); font-size: 1.75rem; line-height: 1; flex: none; }
+.embleme-grand { font-size: 3.5rem; }
+.embleme-vide {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px dashed var(--secondaire);
+  border-radius: 50%;
+}
+
+/* ---------- Choix de carte (dos) ---------- */
+.dos-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: auto; padding-bottom: 2rem; }
+.dos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-width: 0;
+  aspect-ratio: 2 / 3;
+  padding: 0.75rem 0.5rem;
+  border: 2px solid var(--or);
+  border-radius: 16px;
+  color: var(--texte);
+  text-decoration: none;
+  animation: var(--anim-lueur) 3.2s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+}
+.dos-epreuve { background: radial-gradient(circle at 50% 35%, #D13A54 0%, var(--epreuve) 55%, #6E1424 100%); --lueur: var(--lueur-epreuve); }
+.dos-revelation { background: radial-gradient(circle at 50% 35%, #8A70E8 0%, var(--revelation) 55%, #3C2A86 100%); --lueur: var(--lueur-revelation); }
+.dos:active { transform: translateY(2px); }
+.dos-cadre {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 2px solid var(--or);
+  border-radius: 50%;
+  background: rgba(20, 16, 31, 0.35);
+  color: var(--texte);
+}
+.dos-symbole { width: 2.5rem; height: 2.5rem; }
+.dos-nom {
+  font-family: var(--police-titre);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Carte révélée ---------- */
+.carte {
+  --couleur-type: var(--epreuve);
+  --lueur: var(--lueur-epreuve);
+  margin: 1rem 0 1.25rem;
+  perspective: 1200px;
+}
+.carte-revelation { --couleur-type: var(--revelation); --lueur: var(--lueur-revelation); }
+
+.carte-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  animation: var(--anim-flip) var(--d-flip) cubic-bezier(0.3, 0.7, 0.3, 1) var(--delai-flip) both;
+}
+.carte-face {
+  overflow: hidden;
+  border: 2px solid var(--or);
+  border-radius: 18px;
+  background: var(--surface);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: var(--anim-lueur) 3.2s ease-in-out infinite;
+}
+.carte-dos {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--or);
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 40%, var(--couleur-type) 0%, #14101F 130%);
+  color: var(--texte);
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.carte-dos-symbole { width: 4rem; height: 4rem; }
+
+.carte-entete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  background: var(--couleur-type);
+  color: var(--texte);
+  font-family: var(--police-titre);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.carte-symbole { width: 1.6rem; height: 1.6rem; }
+
+.carte-texte {
+  margin: 0;
+  padding: 1.25rem;
+  font-size: var(--taille-texte-carte);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+}
+
+/* Bandeau d'effet durable */
+.bandeau-effet {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem 1rem;
+  border-top: 2px solid var(--or);
+  background: var(--or-voile);
+}
+.bandeau-icone { width: 1.5rem; height: 1.5rem; margin-top: 0.1rem; color: var(--or); }
+.bandeau-corps { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.bandeau-legende {
+  color: var(--or);
+  font-family: var(--police-titre);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.bandeau-texte { font-size: 1.25rem; font-weight: 700; line-height: 1.25; overflow-wrap: break-word; }
+.bandeau-duree { color: var(--secondaire); font-size: 1.05rem; font-weight: 600; }
+
+/* ---------- Attente ---------- */
+.attente-message {
+  margin: 0.5rem 0 1.5rem;
+  color: var(--secondaire);
+  font-size: var(--taille-texte);
+  font-style: italic;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.effets-en-cours {
+  margin: 0 0 0.5rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--or);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+.effets-titre {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+}
+.effets-titre .icone { width: 1.1rem; height: 1.1rem; }
+.effets-liste { margin: 0; padding: 0; list-style: none; }
+.effets-item { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.6rem 0; border-top: 1px solid rgba(167, 155, 190, 0.3); }
+.effets-item:first-child { padding-top: 0; border-top: 0; }
+.effets-joueur { display: flex; align-items: center; gap: 0.4rem; color: var(--or); font-weight: 700; }
+.effets-joueur .embleme { font-size: 1.25rem; }
+.effets-texte { font-size: 1.2rem; font-weight: 700; line-height: 1.25; overflow-wrap: break-word; }
+
+/* ---------- Transition de 2 secondes ---------- */
+.ecran-transition .transition-corps {
+  margin: auto 0;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+.transition-icone { color: var(--or); animation: var(--anim-pulse) 1.6s ease-in-out infinite; }
+.transition-icone .icone { width: 4rem; height: 4rem; filter: drop-shadow(0 0 12px rgba(212, 175, 106, 0.7)); }
+.transition-bouclier .transition-icone { color: var(--secondaire); }
+.transition-texte {
+  margin: 0;
+  color: var(--or);
+  font-family: var(--police-titre);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Salle d'attente ---------- */
+.salle-corps { padding-bottom: 0.5rem; }
+.code-libelle {
+  margin: 0.5rem 0 0.5rem;
+  color: var(--secondaire);
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+.code-partie {
+  margin: 0 0 1rem;
+  padding: 0.9rem 0.5rem;
+  border: 2px solid var(--or);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--or);
+  font-family: var(--police-titre);
+  font-size: clamp(1.5rem, 8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-shadow: 0 0 16px rgba(212, 175, 106, 0.4);
+  overflow-wrap: anywhere;
+  animation: var(--anim-lueur) 3.2s ease-in-out infinite;
+  --lueur: rgba(212, 175, 106, 0.45);
+}
+
+.liste-joueurs { display: flex; flex-direction: column; gap: 0.5rem; margin: 0 0 0.5rem; padding: 0; list-style: none; }
+.joueur-ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  min-height: var(--hauteur-tactile-min);
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(167, 155, 190, 0.35);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.joueur-soi { border-color: var(--or); }
+.joueur-libre { border: 2px dashed rgba(167, 155, 190, 0.45); background: transparent; }
+.joueur-prenom { flex: 1 1 5rem; min-width: 0; font-size: var(--taille-texte); font-weight: 700; overflow-wrap: anywhere; }
+.joueur-prenom-vide { color: var(--secondaire); }
+.joueur-etiquettes { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.etiquette {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.05rem 0.55rem;
+  border: 1px solid var(--secondaire);
+  border-radius: 999px;
+  color: var(--secondaire);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.etiquette .icone { width: 0.9rem; height: 0.9rem; stroke: currentColor; }
+.etiquette-pret { border-color: var(--or); color: var(--or); }
+
+.formulaire { margin-top: 0.5rem; }
+.etiquette-champ {
+  display: block;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--or);
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.champ {
+  display: block;
+  width: 100%;
+  min-height: var(--hauteur-bouton);
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--secondaire);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--texte);
+  font: 600 1.375rem/1.2 var(--police-texte);
+}
+.champ:focus { border-color: var(--or); outline: none; box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.35); }
+
+.grille-emblemes { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: 0.5rem; }
+.embleme-choix {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-width: 0;
+  min-height: 4.5rem;
+  padding: 0.4rem 0.2rem;
+  border: 2px solid rgba(167, 155, 190, 0.4);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--texte);
+  font-family: var(--police-texte);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.embleme-emoji { font-family: var(--police-emoji); font-size: 1.75rem; line-height: 1.1; }
+.embleme-nom { max-width: 100%; font-size: 0.95rem; font-weight: 700; line-height: 1.1; overflow-wrap: anywhere; text-align: center; }
+.embleme-choix[aria-checked="true"] { border-color: var(--or); background: var(--or-voile); box-shadow: 0 0 0 1px var(--or); }
+.embleme-choix[aria-checked="true"] .embleme-nom { color: var(--or); }
+.embleme-pris, .embleme-pris:disabled {
+  border-style: dashed;
+  color: var(--secondaire);
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.avis-complete {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1rem;
+  border: 2px solid var(--or);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  color: var(--or);
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---------- Boîte de confirmation du bouclier ---------- */
+.dialogue {
+  width: calc(100% - 2rem);
+  max-width: 26rem;
+  padding: 1.5rem 1.25rem;
+  border: 2px solid var(--or);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--texte);
+}
+.dialogue::backdrop { background: rgba(20, 16, 31, 0.85); }
+.dialogue-texte { margin: 0 0 1.25rem; font-size: 1.375rem; font-weight: 600; line-height: 1.35; }
+.dialogue-boutons { display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* ---------- Animations (noms remplacés par « none » si animations réduites) ---------- */
+@keyframes fondu {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes retournement {
+  from { transform: rotateY(180deg); }
+  to { transform: rotateY(0deg); }
+}
+@keyframes lueur {
+  0%, 100% { box-shadow: 0 0 10px 0 var(--lueur, rgba(212, 175, 106, 0.4)); }
+  50% { box-shadow: 0 0 26px 3px var(--lueur, rgba(212, 175, 106, 0.4)); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+@keyframes scintille {
+  0%, 100% { opacity: 0.15; transform: translateY(0); }
+  50% { opacity: 0.95; transform: translateY(-14px); }
+}
+
+/* Sans animation, les cartes gardent une lueur fixe et douce */
+:root[data-animations="reduites"] .carte-face,
+:root[data-animations="reduites"] .dos,
+:root[data-animations="reduites"] .code-partie { box-shadow: 0 0 14px 1px var(--lueur, rgba(212, 175, 106, 0.4)); }
