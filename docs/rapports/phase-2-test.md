@@ -18,7 +18,7 @@ Commande : `node --test tests/` (Node 18.19.1, Chrome 145 via `playwright-core` 
 ```
 
 - 45 tests existants du développeur (contenu, conformité, écrans sans navigateur, réglages en dur) : tous verts.
-- 27 tests de navigateur ajoutés par le testeur dans `tests/navigateur.test.js` : 23 verts, 4 rouges (D1 à D3 ; les 4 rouges sont D1 mesuré à 360 px puis à 412 px, D2 et D3).
+- 27 tests de navigateur ajoutés par le testeur dans `tests/navigateur.test.js` : 23 verts, 4 rouges (les deux tests d'écrans à 360 et 412 px pour D1, le test de contraste pour D2, le test de textes pour D3).
 - Durée des tests de navigateur : environ 5 minutes (Chrome piloté, 23 écrans × 2 largeurs, 40 cartes × 2 écrans × 2 largeurs, contrastes mesurés sur les pixels).
 - Sans `playwright-core` ou sans Chrome, les tests de navigateur sont sautés avec le message « playwright-core absent : lancer « npm install »… » (vérifié en retirant `node_modules`).
 
