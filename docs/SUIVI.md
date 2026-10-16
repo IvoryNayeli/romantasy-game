@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | en test | 1 | |
+| 2 | Écrans et design | en test | 2 | |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design) prête pour relecture (itération 1) : la propriétaire ouvre les écrans sur son téléphone (`demo.html`), donne son avis sur le design, tranche les décisions à confirmer, puis répond « Phase 2 validée » ou « Phase 2, remarques : … ». Phase 3 refusée tant que la phase 2 n'est pas validée.
+Phase 2 (écrans et design), itération 2, en test : le testeur met à jour `tests/navigateur.test.js` (sélecteurs, textes en capitales, nouveaux écrans `creer` et `rejoindre`, polices Jost, retrait de l'option d'animations, couleurs de la charte), refait un passage complet et écrit son rapport. Ensuite le chef de phase rédige le rapport de l'itération 2 pour la propriétaire. Phase 3 refusée tant que la phase 2 n'est pas validée.
 
 ## Journal
 
@@ -52,6 +52,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 - 2026-10-15 | phase 2, rapport | Test indépendant en deux passages : 4 défauts mineurs au premier (D1 à D4), tous corrigés ; deuxième passage `tout passe`, 72 tests sur 72 (relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-2-iteration-1](rapports/phase-2-iteration-1.md), rapport du testeur : [phase-2-test](rapports/phase-2-test.md). Reste : relecture et validation.
 
 - 2026-10-16 | phase 2, remarques | Quatre remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (retrait de « Réduire les animations », parcours « Créer » et « Rejoindre », nouvelle charte graphique copiée dans [charte-graphique](charte-graphique.md)). Statut `en cours (itération 2)`. Reste : développement, test complet, rapport.
+- 2026-10-16 | phase 2, itération 2 | Développement : (1) option « Réduire les animations » supprimée (bouton, `reglages.js`, localStorage, textes, README), règle système `prefers-reduced-motion` conservée ; (2) « Créer une partie » : écran de choix du code dans la liste de `codes.json` ; (3) « Rejoindre une partie » : écran de saisie du code (insensible à la casse et aux accents, message d'erreur), `js/codes.js` ; salle d'attente réordonnée (code discret, menu emblème + prénom, liste des participant(e)s) ; `demo.html`, `?ecran=creer|rejoindre`, README mis à jour ; (4) charte graphique appliquée à tout le projet : variables CSS de la charte telles quelles, Cormorant Garamond et Jost hébergées (Cinzel retirée), cartes 2:3 en `cqw` avec double filet, lettrine, étincelles, dos de carte, logo SVG provisoire, grain, boutons, panneaux ; Épreuve = braise + épée, Révélation = lune + étoile ; section « Design » de `PROJET.md` réécrite. Tests du développeur mis à jour (54 tests sans navigateur verts). `tests/navigateur.test.js` non touché : 10 tests sur 27 passent encore, les 17 autres visent l'ancien design ou l'ancien parcours (liste dans le compte rendu). Statut `en test`. Reste : mise à jour des tests de navigateur par le testeur, passage complet, rapport.
 
 ## Défauts ouverts
 
@@ -61,8 +62,11 @@ Aucun.
 
 Choix de la phase 2 qui ne sont pas écrits dans les documents (à confirmer par la propriétaire dans le rapport) :
 
-- Libellés d'interface absents de `regles.md` : « Je suis prêt(e) », « Ton prénom », « Ton emblème », « Code de la partie », « Joueur(se)s », étiquettes « hôte » et « toi », « Invoquer » et « Annuler » (boîte de confirmation du bouclier), « Effet durable », « Effets en cours », durées « Jusqu'à ton prochain tour », « Jusqu'à son prochain tour », « Jusqu'à la fin de la partie », « Retour à l'accueil » (étiquette du bouton de retour), « Réduire les animations ».
-- Écran « Rejoindre une partie » (saisie du code) : non décrit, renvoyé à la phase 4. En phase 2, « Rejoindre une partie » ouvre la salle d'attente en simple joueur(se).
+- Libellés d'interface absents de `regles.md` : « Je suis prêt(e) », « Ton prénom », « Ton emblème », « Code de la partie », « Participant(e)s » (titre de la liste), étiquettes « hôte » et « toi », « Invoquer » et « Annuler » (boîte de confirmation du bouclier), « Effet durable », « Effets en cours », durées « Jusqu'à ton prochain tour », « Jusqu'à son prochain tour », « Jusqu'à la fin de la partie », « Retour à l'accueil » et « Retour aux règles » (étiquettes des flèches de retour), nom « Romantasy » sous le logo de l'accueil.
+- Textes des écrans « Créer » et « Rejoindre » (absents de `regles.md`) : « Choisis le code de la partie », « Les autres joueur(se)s le saisiront pour te rejoindre. », « Saisis le code de la partie », « Majuscules, minuscules et accents n'ont pas d'importance. », « Valider », « Saisis le code de la partie. » (champ vide), « Ce code ne correspond à aucune partie. Vérifie-le et réessaie. » (code inconnu).
+- Charte graphique, adaptations à confirmer : (a) polices hébergées au lieu de l'`@import` Google Fonts (Cormorant Garamond 500, 600, 500 italique ; Jost 300, 400, 500), Cinzel retirée ; (b) types de carte à la place des raretés : Épreuve = `--c-braise` + épée + « ÉPREUVE », Révélation = `--c-lune` + étoile + « RÉVÉLATION » (`regles.md` dit encore « améthyste », interdit par la charte : le texte n'a pas été modifié) ; (c) cartes sans coût, nom ni illustration, texte de carte gardé à 20 px au minimum (la charte demande 15 px) : la carte 2:3 s'allonge quand il le faut ; (d) logo SVG provisoire fait pour le projet, sans sous-titre (non fourni par la charte) ; (e) le fondu flou 6 px de l'apparition d'une carte n'est pas fait (« n'animer que opacity et transform ») ; (f) le texte des règles et de l'accueil reste à 20 px (la charte dit 15 à 16 px au minimum).
+- Salle d'attente : code de partie petit et discret (remarque 2 de l'itération 1) alors que `regles.md` dit « affiché en grand » (texte non modifié) ; le texte d'accompagnement « Rassemblez votre troupe… » est placé sous la liste pour garder l'ordre code, menu emblème et prénom, liste.
+- « Rejoindre » et « Créer » en phase 2 : le code n'est vérifié que dans la liste de `codes.json`, sans réseau ni unicité (phase 4).
 - Nombre minimal de joueur(se)s prêt(e)s pour commencer (2, de `regles.md`) : constante dans `public/js/fictif.js`, car absente de `config.json`.
 - Titre de l'onglet : « Romantasy ».
 - Icônes (épée, étoile, bouclier) : dessins SVG simples faits pour le projet, en attendant game-icons.net (phase 7).
