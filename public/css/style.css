@@ -408,7 +408,7 @@ body[data-ecran="accueil"] .etincelles { opacity: 1; }
   -webkit-tap-highlight-color: transparent;
 }
 .dos-epreuve { background: radial-gradient(circle at 50% 35%, #D13A54 0%, var(--epreuve) 55%, #6E1424 100%); --lueur: var(--lueur-epreuve); }
-.dos-revelation { background: radial-gradient(circle at 50% 35%, #8A70E8 0%, var(--revelation) 55%, #3C2A86 100%); --lueur: var(--lueur-revelation); }
+.dos-revelation { background: radial-gradient(circle at 50% 35%, #7B60DB 0%, var(--revelation) 30%, #3C2A86 100%); --lueur: var(--lueur-revelation); }
 .dos:active { transform: translateY(2px); }
 .dos-cadre {
   display: grid;
@@ -544,7 +544,7 @@ body[data-ecran="accueil"] .etincelles { opacity: 1; }
 .effets-item:first-child { padding-top: 0; border-top: 0; }
 .effets-joueur { display: flex; align-items: center; gap: 0.4rem; color: var(--or); font-weight: 700; }
 .effets-joueur .embleme { font-size: 1.25rem; }
-.effets-texte { font-size: 1.2rem; font-weight: 700; line-height: 1.25; overflow-wrap: break-word; }
+.effets-texte { font-size: 1.25rem; font-weight: 700; line-height: 1.25; overflow-wrap: break-word; }
 
 /* ---------- Transition de 2 secondes ---------- */
 .ecran-transition .transition-corps {
