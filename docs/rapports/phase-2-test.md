@@ -1,10 +1,18 @@
-# Rapport du testeur : phase 2 (écrans et design, sans réseau), itération 1
+# Rapport du testeur : phase 2 (écrans et design, sans réseau), deuxième passage
 
-Date : 2026-10-16. Branche `phase-2`, arbre de travail propre au départ. Statut de départ dans `docs/SUIVI.md` : `en test`.
+Date : 2026-10-16. Branche `phase-2`, arbre de travail propre au départ (dernier commit du développeur : `dad70a1`). Statut de départ dans `docs/SUIVI.md` : `en test`.
 
-## Verdict : défauts ouverts (4 défauts mineurs, aucun bloquant)
+## Verdict du deuxième passage : tout passe (D1 à D4 corrigés, aucun défaut ouvert)
 
-Le parcours complet, `demo.html`, les 40 cartes, les polices hébergées, l'absence de requête externe, le réglage « réduire les animations » (manuel et `prefers-reduced-motion`), les réglages jamais écrits en dur et les textes validés passent tous. Les 4 échecs restants sont de petits écarts d'accessibilité ou de texte, listés ci-dessous.
+Retest complet de la phase, pas seulement des correctifs : 72 tests sur 72 verts, captures revues à la vue (choix, attente avec effets durables, prénom très long), aucune régression constatée. Les quatre défauts du premier passage sont corrigés et vérifiés (voir « Défauts »). Reste à faire par la propriétaire : la validation humaine (téléphone, avis sur le design), que je ne peux pas faire.
+
+Vérifié à nouveau ce passage :
+
+- `git diff 4c3c061..HEAD` ne touche que `public/css/style.css` (2 lignes), `public/js/demo.js` (1 ligne), `README.md` et `docs/SUIVI.md` : pas de régression possible ailleurs, et les tests complets le confirment.
+- `docs/regles.md`, `docs/cartes-source.md` et `public/data/` ne diffèrent pas de `main` (textes validés non modifiés).
+- Contraste réel minimal sur 556 textes rendus : **4,73:1** (contre 4,22:1 au premier passage). Dos « Révélation » corrigé, dos « Épreuve » inchangé et conforme.
+- Taille du texte du bandeau « Effets en cours » : 20 px (`1.25rem`), comme le bandeau de la carte. Capture revue : aucun débordement à 360 ni à 412 px, y compris avec le prénom de 40 « M ».
+- README : `npm install` puis `node --test tests/`, deux familles de tests, Chrome requis pour les tests de navigateur, durée annoncée « environ 5 minutes » (mesurée : 282 s), tests sautés proprement sans Chrome. Exact.
 
 ## Résultat des tests
 
@@ -12,13 +20,13 @@ Commande : `node --test tests/` (Node 18.19.1, Chrome 145 via `playwright-core` 
 
 ```
 # tests 72
-# pass 68
-# fail 4
+# pass 72
+# fail 0
 # skipped 0
 ```
 
 - 45 tests existants du développeur (contenu, conformité, écrans sans navigateur, réglages en dur) : tous verts.
-- 27 tests de navigateur ajoutés par le testeur dans `tests/navigateur.test.js` : 23 verts, 4 rouges (les deux tests d'écrans à 360 et 412 px pour D1, le test de contraste pour D2, le test de textes pour D3).
+- 27 tests de navigateur ajoutés par le testeur dans `tests/navigateur.test.js` : tous verts (au premier passage : 23 verts, 4 rouges pour D1, D2 et D3).
 - Durée des tests de navigateur : environ 5 minutes (Chrome piloté, 23 écrans × 2 largeurs, 40 cartes × 2 écrans × 2 largeurs, contrastes mesurés sur les pixels).
 - Sans `playwright-core` ou sans Chrome, les tests de navigateur sont sautés avec le message « playwright-core absent : lancer « npm install »… » (vérifié en retirant `node_modules`).
 
@@ -26,12 +34,12 @@ Commande : `node --test tests/` (Node 18.19.1, Chrome 145 via `playwright-core` 
 
 | Attendu de la phase | Test | Résultat |
 |---|---|---|
-| Captures à 360 et 412 px, tous les écrans (23 variantes) | « captures + débordement + cibles tactiles » | captures faites ; échec D1 seulement |
+| Captures à 360 et 412 px, tous les écrans (23 variantes) | « captures + débordement + cibles tactiles » | passe (D1 corrigé) |
 | Aucun débordement de texte, 40 cartes (écrans carte et attente, 360 et 412 px) | « les 40 cartes… » | passe |
 | Texte des cartes ≥ 20 px | idem + écrans | passe pour `.carte-texte` (22 px) ; D1 pour le bandeau « Effets en cours » |
 | Boutons et zones tactiles ≥ 48 px (boutons, retour, dos de carte, emblèmes, champ, réglage) | écrans à 360 et 412 px | passe |
 | Contrastes (palette) | tests du développeur + lecture de `style.css` | passe |
-| Contrastes (rendu réel, mesuré sur les pixels, 556 textes) | « contrastes mesurés… » | échec D2 ; minimum relevé 4,22:1 |
+| Contrastes (rendu réel, mesuré sur les pixels, 556 textes) | « contrastes mesurés… » | passe (D2 corrigé) ; minimum relevé 4,73:1 |
 | Aucune requête externe, aucun Google Fonts | « polices… » et « aucune requête… » (toute adresse non locale est bloquée et signalée) | passe |
 | Polices réellement chargées et utilisées | CDP `getPlatformFontsForNode` : Cinzel et Cormorant Garamond hébergées, pas de police de secours | passe |
 | Réglage manuel : coupe réellement les animations, se mémorise, se désactive, tient pendant la navigation | 3 tests | passe (aucune animation active dans `document.getAnimations()`) |
@@ -41,7 +49,7 @@ Commande : `node --test tests/` (Node 18.19.1, Chrome 145 via `playwright-core` 
 | Parcours complet (accueil → règles → salle → tous les tours → bouclier → fin → nouvelle quête, bouton Précédent) | 2 tests | passe |
 | `demo.html` : se charge, 40 cartes, tous les liens ouvrent un écran sans erreur, lisible à 360 et 412 px | 2 tests | passe |
 | Textes de l'accueil, des règles, de la fin, de la salle identiques à `docs/regles.md` | 1 test | passe |
-| Écriture inclusive et vocabulaire « butin » dans tous les textes affichés | 1 test | échec D3 (page de démonstration uniquement) |
+| Écriture inclusive et vocabulaire « butin » dans tous les textes affichés | 1 test | passe (D3 corrigé) |
 | Paramètres d'adresse absurdes ou hostiles (`ecran=__proto__`, balise HTML dans `prenom`, `tour=999`…) | 1 test | passe (pas d'injection, valeurs bornées) |
 | Aucune erreur ni avertissement de console, aucune requête échouée ni 404 sur toutes les pages visitées | bilan final | passe |
 
@@ -51,31 +59,35 @@ Le README (« Servir le jeu ») a été vérifié : `python3 -m http.server -d p
 
 ## Défauts
 
-### D1 : texte du bandeau « Effets en cours » à 19,2 px (ouvert, mineur)
+### D1 : texte du bandeau « Effets en cours » à 19,2 px (corrigé, vérifié au deuxième passage ; mineur)
 
+- **Deuxième passage** : `.effets-texte` à `1.25rem` = 20 px, mesuré par les tests à 360 et 412 px (verts), capture revue. Corrigé.
 - Reproduire : ouvrir `index.html?ecran=attente&type=epreuve&tour=2` à 360 ou 412 px. Mesurer la taille de police de `.effets-texte` (le libellé de l'effet, par exemple « Transformé(e) en chat : miaule »).
 - Attendu : texte issu des cartes d'au moins 20 px (`docs/PROJET.md`, Design, Accessibilité). Le même libellé fait 20 px dans le bandeau de la carte (`.bandeau-texte`).
 - Obtenu : 19,2 px (`font-size: 1.2rem` dans `public/css/style.css`, règle `.effets-texte`). Les durées (« Jusqu'à son prochain tour », 16,8 px) et les légendes en capitales (13,6 à 15,2 px) sont plus petites encore, mais ce sont des libellés secondaires et non du texte de carte.
 - Correctif possible : `.effets-texte` à `1.25rem`.
 - Test qui le détecte : « captures + débordement + cibles tactiles » (360 et 412 px).
 
-### D2 : contraste insuffisant du mot « Révélation » sur le dos de carte (ouvert, mineur)
+### D2 : contraste insuffisant du mot « Révélation » sur le dos de carte (corrigé, vérifié au deuxième passage ; mineur)
 
+- **Deuxième passage** : dégradé de `.dos-revelation` assombri (centre `#7B60DB`, palier à 30 %). Contraste minimal mesuré sur les 556 textes : 4,73:1 (≥ 4,5:1), test vert. Capture du choix revue : dos toujours lisible et distinct du dos « Épreuve ». Corrigé.
 - Reproduire : ouvrir `index.html?ecran=choix&tour=1`. Mesurer le contraste du libellé « Révélation » (`.dos-nom`, 16 px, gras) sur le dégradé violet du dos de carte.
 - Attendu : au moins 4,5:1 (texte normal), contrastes élevés selon `docs/PROJET.md`.
 - Obtenu : 4,33:1 à 360 px et 4,22:1 à 412 px dans la zone la plus claire du dégradé (centre `#8A70E8`). Le libellé « Épreuve » sur le dos rouge passe. Les 556 autres textes mesurés passent.
 - Correctif possible : assombrir le centre du dégradé de `.dos-revelation`, ou agrandir le libellé (≥ 18,66 px en gras, seuil 3:1).
 - Test qui le détecte : « contrastes mesurés sur les pixels rendus ».
 
-### D3 : forme non inclusive sur la page de démonstration (ouvert, mineur)
+### D3 : forme non inclusive sur la page de démonstration (corrigé, vérifié au deuxième passage ; mineur)
 
+- **Deuxième passage** : le lien lit « Hôte, prêt(e), prêt(e) à commencer » ; test d'écriture inclusive vert. Corrigé.
 - Reproduire : ouvrir `demo.html` et lire le lien « Hôte, prêt(e), prêt à commencer » (groupe « Salle d'attente »).
 - Attendu : écriture inclusive partout (`.github/copilot-instructions.md`) : « prêt(e) à commencer ».
 - Obtenu : « prêt » sans « (e) » le deuxième coup. Le texte est dans `public/js/demo.js`. Page de travail, d'où la gravité mineure.
 - Test qui le détecte : « textes affichés : écriture inclusive et vocabulaire « butin » ».
 
-### D4 : le README ne dit pas que les tests de navigateur demandent `npm install` (ouvert, mineur)
+### D4 : le README ne dit pas que les tests de navigateur demandent `npm install` (corrigé, vérifié au deuxième passage ; mineur)
 
+- **Deuxième passage** : le README donne `npm install` puis `node --test tests/`, distingue tests sans navigateur et tests de navigateur (Chrome requis, environ 5 minutes, sautés sans Chrome). Conforme à ce qui a été constaté (282 s). Corrigé. (Le texte « Obtenu » ci-dessous est celui du premier passage.)
 - Reproduire : lire la section « Lancer les tests automatiques » du README : « Aucune installation de paquet n'est requise ».
 - Attendu : README exact et à jour pour la phase (consigne du testeur). Les tests de navigateur ajoutés par le testeur ont besoin de `playwright-core` (devDependency, `package.json`) et de Google Chrome ; sans cela ils sont sautés avec un message.
 - Obtenu : la phrase est fausse pour ces tests. À corriger par le développeur : ajouter `npm install` (et Chrome) avant `node --test tests/`, dire que les tests de navigateur durent environ 5 minutes et qu'ils sont sautés sans Chrome. Le testeur n'a pas le droit de modifier le README.
