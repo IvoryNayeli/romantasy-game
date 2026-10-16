@@ -182,7 +182,7 @@ Textes validés non modifiés : `git diff main` ne touche ni `docs/regles.md`, n
 
 ## Défauts
 
-### D5 : des étoiles du fond passent derrière des titres et des paragraphes (ouvert ; mineur, visuel)
+### D5 : des étoiles du fond passent derrière des titres et des paragraphes (corrigé par le développeur, à revérifier par le testeur ; mineur, visuel)
 
 - **Reproduire** : ouvrir `index.html?ecran=rejoindre` (ou `?ecran=creer`) à 360 x 800 px. Le point lumineux situé à 52 % de la largeur et 10 % de la hauteur tombe sur le « d » de « code » dans le titre : il se lit comme un accent ou une faute de frappe (capture `rejoindre-360.png` ou `creer-360.png` dans le dossier des captures, voir plus bas). Autres cas : `?ecran=regles` à 360 px (étoiles sur « But du jeu », « Chaque joueur(se) » et au milieu de « butin mystère »), `?ecran=choix`, `?ecran=carte` et `?ecran=transition` à 360 x 640 (étoile sur « Tour 1 / 4 »), `?ecran=attente&type=epreuve` (étoile sur « Au tour de »), `?ecran=accueil` à 360 x 640 (étincelle sur « Récupérez votre butin »). Commande : `node --test --test-name-pattern="lisibilité" tests/navigateur-charte.test.js` (liste complète des positions dans la sortie).
 - **Cause** : les neuf étoiles de `.ciel` sont des dégradés placés en pourcentage de la hauteur de la **page** (`6% 8%`, `52% 10%`, `29% 5%`, etc.). Sur un écran long (règles : environ 1 450 px), « 10 % » descend dans le texte ; sur un écran court, les mêmes pourcentages tombent sur les titres.
