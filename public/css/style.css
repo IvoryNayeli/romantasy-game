@@ -97,18 +97,21 @@ body {
   overflow-x: hidden;
 }
 
-/* Fond de page : étoiles + halo bleu en haut à droite + lueur de braise en bas */
+/* Fond de page : étoiles + halo bleu en haut à droite + lueur de braise en bas.
+   Adaptation de la charte : les étoiles sont posées dans les marges latérales (x entre 2 % et 3 %, puis 97 % à 98 %,
+   soit moins de 13 px du bord à 412 px de large, alors que le texte commence à 16 px) : placées en pourcentage de la
+   hauteur de la page, comme dans la charte, elles passaient derrière les titres et les paragraphes. */
 .ciel {
   background:
-    radial-gradient(circle at 6% 8%,  var(--c-etoile) 0 1px,   transparent 2px),
-    radial-gradient(circle at 17% 86%, var(--c-etoile) 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 29% 5%,  var(--c-lune) 0 1px,   transparent 2px),
-    radial-gradient(circle at 41% 94%, var(--c-etoile) 0 1px,   transparent 2px),
-    radial-gradient(circle at 52% 10%, var(--c-etoile) 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 64% 92%, var(--c-lune) 0 1px,   transparent 2px),
-    radial-gradient(circle at 74% 6%,  var(--c-etoile) 0 1px,   transparent 2px),
-    radial-gradient(circle at 86% 90%, var(--c-etoile) 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 93% 14%, var(--c-lune) 0 1px,   transparent 2px),
+    radial-gradient(circle at 3% 5%,   var(--c-etoile) 0 1px,   transparent 2px),
+    radial-gradient(circle at 97% 11%, var(--c-lune) 0 1px,   transparent 2px),
+    radial-gradient(circle at 2% 23%,  var(--c-etoile) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 98% 34%, var(--c-etoile) 0 1px,   transparent 2px),
+    radial-gradient(circle at 3% 46%,  var(--c-lune) 0 1px,   transparent 2px),
+    radial-gradient(circle at 97% 57%, var(--c-etoile) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 2% 68%,  var(--c-etoile) 0 1px,   transparent 2px),
+    radial-gradient(circle at 98% 78%, var(--c-lune) 0 1px,   transparent 2px),
+    radial-gradient(circle at 3% 88%,  var(--c-etoile) 0 1.5px, transparent 2.5px),
     radial-gradient(ellipse at 85% 0%, #3C5A8C55, transparent 50%),
     radial-gradient(ellipse at 50% 110%, #D9693A33, transparent 55%),
     var(--c-nuit);
@@ -301,8 +304,11 @@ h2 {
 }
 .ornement { margin: 16px 0 20px; color: var(--c-ambre); }
 .accueil-corps .texte, .fin-corps .texte { font-weight: 300; }
-.ciel-accueil { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+/* Étincelles de l'accueil : dans les marges latérales (16 px), jamais derrière le texte. */
+.ciel-accueil { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--marge)); right: calc(-1 * var(--marge)); pointer-events: none; overflow: hidden; }
 .ciel-accueil .etoile { position: absolute; width: 10px; height: 10px; color: var(--c-etoile); }
+.ciel-accueil .etoile-g { left: 3px; }
+.ciel-accueil .etoile-d { right: 3px; }
 
 /* ---------- Règles ---------- */
 .regles-corps { padding-bottom: 8px; }
@@ -691,7 +697,7 @@ h2 {
 }
 .embleme-choix:active { transform: scale(.97); }
 .embleme-emoji { font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 1.75rem; line-height: 1.1; }
-.embleme-nom { max-width: 100%; font: 400 .875rem/1.1 var(--f-texte); overflow-wrap: anywhere; text-align: center; }
+.embleme-nom { max-width: 100%; font: 400 .9375rem/1.1 var(--f-texte); overflow-wrap: anywhere; text-align: center; }
 .embleme-choix[aria-checked="true"] {
   border: var(--bordure) solid var(--c-ambre);
   background: #F0A35E1F;

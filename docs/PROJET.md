@@ -72,7 +72,7 @@ Référence détaillée : [charte-graphique.md](charte-graphique.md) (variables 
 - Cartes : proportions 2:3 (la carte s'allonge si le texte l'exige), dimensions en `cqw`, lettrine, dos de carte avec logo. Les cartes du jeu n'ont ni coût, ni nom, ni illustration (éléments de la charte non utilisés). Les raretés de la charte (commune, rare, légendaire) n'existent pas dans le jeu : elles sont remplacées par les deux types de carte.
 - Types de carte : chaque type a une couleur, un symbole **et** un mot, pour ne jamais dépendre de la couleur seule. **Épreuve** : `--c-braise`, épée, « ÉPREUVE ». **Révélation** : `--c-lune`, étoile, « RÉVÉLATION ».
 - Logo : cercle clair de lune, disque minuit, aile de dragon bordée d'ambre, petite étoile (SVG provisoire fait pour le projet) ; version complète sur l'accueil, version compacte de 40 px dans les barres.
-- Fond : classe `.ciel` (étoiles, halo bleu, lueur de braise), un seul calque de grain par écran, jamais de fond fixe.
+- Fond : classe `.ciel` (étoiles, halo bleu, lueur de braise), un seul calque de grain par écran, jamais de fond fixe. Adaptation : les étoiles sont posées dans les marges latérales (jamais derrière le texte) au lieu d'être réparties sur toute la hauteur de la page.
 - Accessibilité : boutons et cibles tactiles d'au moins 48 px (`--cible`), texte des cartes d'au moins 20 px (plus strict que les 15 px de la charte), contrastes élevés, aucun effet au survol (tout est tactile), focus visible. Les animations sont coupées quand l'appareil le demande (`prefers-reduced-motion`) : c'est une règle système, pas une option du jeu.
 - Mouvement : fondu de 300 ms entre les écrans, retournement de carte en 3D CSS, scintillement lent des étoiles. On n'anime que `opacity` et `transform`.
 

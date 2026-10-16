@@ -51,10 +51,11 @@ export function logo(classe = '') {
   return symbole('logo', classe);
 }
 
-// Étoile qui scintille (décor de l'accueil), placée en pourcentages.
-export function etoile(gauche, haut) {
-  const svg = symbole('etincelle', 'etoile');
-  svg.setAttribute('style', `left:${gauche}%;top:${haut}%`);
+// Étoile qui scintille (décor de l'accueil) : dans la marge de gauche ('g') ou de droite ('d'),
+// à `haut` % de la hauteur de l'écran.
+export function etoile(cote, haut) {
+  const svg = symbole('etincelle', `etoile etoile-${cote}`);
+  svg.setAttribute('style', `top:${haut}%`);
   return svg;
 }
 

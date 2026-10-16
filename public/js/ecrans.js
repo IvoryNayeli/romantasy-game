@@ -11,8 +11,8 @@ import {
 
 const DUREE_TRANSITION_MS = 2000; // « Transition de 2 secondes » (docs/regles.md)
 
-// Étoiles qui scintillent sur l'accueil : position (gauche, haut) en pourcentages.
-const ETOILES_ACCUEIL = [[10, 12], [24, 6], [78, 9], [91, 20], [14, 36], [88, 46], [7, 72], [93, 80]];
+// Étoiles qui scintillent sur l'accueil : marge de gauche (g) ou de droite (d), position verticale en pourcentage.
+const ETOILES_ACCUEIL = [['g', 8], ['d', 14], ['g', 31], ['d', 42], ['g', 58], ['d', 66], ['g', 80], ['d', 90]];
 
 /* ---------- Éléments réutilisables ---------- */
 
