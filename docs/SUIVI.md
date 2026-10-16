@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | prête pour relecture | 2 | [phase-2-iteration-2](rapports/phase-2-iteration-2.md) |
+| 2 | Écrans et design | en cours (itération 3) | 2 | [phase-2-iteration-2](rapports/phase-2-iteration-2.md) |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -56,6 +56,8 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 - 2026-10-16 | phase 2, itération 2, correctif du rapport du testeur | D5 corrigé : étoiles du fond `.ciel` et étincelles de l'accueil déplacées dans les marges latérales (jamais sous le texte, plus de `background-attachment` ni de calque ajouté) ; noms d'emblème passés de 14 à 15 px ; README (quatre fichiers de tests de navigateur, 112 tests, 4 à 5 minutes) ; PLAN.md (phase 2 : « respect du réglage système prefers-reduced-motion ») ; `PROJET.md` note l'adaptation du fond. `regles.md` non touché (« affiché en grand » et « Aucun titre » à trancher par la propriétaire). Statut `en test`. Reste : nouveau passage du testeur, rapport.
 
 - 2026-10-16 | phase 2, itération 2, rapport | Test indépendant en deux passages : 1 défaut visuel au premier (D5, étoiles du fond derrière le texte), corrigé puis revérifié ; deuxième passage `tout passe`, 112 tests sur 112 (relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-2-iteration-2](rapports/phase-2-iteration-2.md), rapport du testeur : [phase-2-test](rapports/phase-2-test.md). Reste : relecture et validation.
+
+- 2026-10-16 | phase 2, remarques de l'itération 2 | Six remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (itération 2 des remarques) : plus d'étoiles et constellations, accueil sans titre, aile de dragon à remplacer plus tard par une image de banque, titres de règles plus visibles, écriture inclusive allégée, formes « le sort est jeté » et bouclier plus visibles. Statut `en cours (itération 3)`. Reste : développement, test complet, rapport.
 
 ## Défauts ouverts
 
