@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design) en test, itération 1 : le testeur écrit ses tests (captures aux largeurs 360 et 412 px, débordement, tailles, contrastes à l'écran), puis rapport pour la propriétaire (ouverture des écrans sur son téléphone, avis sur le design). Le contrôle des réglages en dur (4 tours, 5 joueur(se)s) est fait et automatisé (`tests/reglages-en-dur.test.js`) ; le README indique comment lancer les tests (`node --test tests/`).
+Phase 2 (écrans et design) prête pour relecture (itération 1) : la propriétaire ouvre les écrans sur son téléphone (`demo.html`), donne son avis sur le design, tranche les décisions à confirmer, puis répond « Phase 2 validée » ou « Phase 2, remarques : … ». Phase 3 refusée tant que la phase 2 n'est pas validée.
 
 ## Journal
 
@@ -47,7 +47,9 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 
 - 2026-10-15 | phase 2, démarrage | Branche `phase-2` créée depuis `main` (phase 1 validée, 22 tests verts). Statut `en cours`, itération 1. Reste : développement, test, rapport.
 - 2026-10-15 | phase 2, itération 1 | Développement : polices Cinzel et Cormorant Garamond hébergées (woff2, OFL), `index.html`, `css/style.css`, `js/` (app, écrans, textes, données fictives, réglage des animations), huit écrans (accueil, règles, salle d'attente, choix, carte révélée, attente, transition de 2 secondes, fin), page `demo.html` (liens vers chaque écran et les 40 cartes), README mis à jour, 23 tests ajoutés dont le contrôle des réglages en dur (45 tests, tous verts). Reste : test indépendant, rapport.
-- 2026-10-16 | phase 2, correctifs du rapport du testeur | D1 (bandeau « Effets en cours » à 20 px), D2 (dos « Révélation » : centre du dégradé éclairci moins fort, contraste minimal relevé 4,73:1, palette inchangée), D3 (« prêt(e) à commencer » dans `demo.html`), D4 (README : `npm install`, Chrome, environ 5 minutes). 72 tests sur 72 verts, tests de navigateur compris. Statut `en test`. Reste : nouveau passage du testeur, rapport.
+- 2026-10-15 | phase 2, correctifs du rapport du testeur | D1 (bandeau « Effets en cours » à 20 px), D2 (dos « Révélation » : centre du dégradé éclairci moins fort, contraste minimal relevé 4,73:1, palette inchangée), D3 (« prêt(e) à commencer » dans `demo.html`), D4 (README : `npm install`, Chrome, environ 5 minutes). 72 tests sur 72 verts, tests de navigateur compris. Statut `en test`. Reste : nouveau passage du testeur, rapport.
+
+- 2026-10-15 | phase 2, rapport | Test indépendant en deux passages : 4 défauts mineurs au premier (D1 à D4), tous corrigés ; deuxième passage `tout passe`, 72 tests sur 72 (relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-2-iteration-1](rapports/phase-2-iteration-1.md), rapport du testeur : [phase-2-test](rapports/phase-2-test.md). Reste : relecture et validation.
 
 ## Défauts ouverts
 
