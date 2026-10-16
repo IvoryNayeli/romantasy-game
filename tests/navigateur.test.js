@@ -51,8 +51,8 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
         // Charte, section 4 : légendes >= 12 px (capitales), texte courant >= 15 px.
         for (const p of pol.petits) {
           if (p.px < 12) defauts.push(`[${nom} ${largeur}] texte < 12 px : ${p.extrait}`);
-          // Exception documentée (rapport, remarque R1) : le nom d'emblème d'un bouton de la salle fait 14 px (= taille de bouton de la charte).
-          else if (!p.capitales && p.px < 15 && !/^embleme-nom 14px/.test(p.extrait)) defauts.push(`[${nom} ${largeur}] texte courant < 15 px (hors capitales) : ${p.extrait}`);
+          // Plus aucune exception : les noms d'emblème de la salle font 15 px depuis le deuxième passage de l'itération 2 (remarque R1 réglée).
+          else if (!p.capitales && p.px < 15) defauts.push(`[${nom} ${largeur}] texte courant < 15 px (hors capitales) : ${p.extrait}`);
         }
         await fermer(page);
       }

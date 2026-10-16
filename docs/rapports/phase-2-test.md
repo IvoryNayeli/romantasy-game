@@ -124,7 +124,35 @@ Regardées à la vue : accueil, règles, salle (code long, prénom long), choix,
 
 Date : 2026-10-16. Branche `phase-2`, arbre de travail propre au départ (dernier commit du développeur : `ab01898`). Statut de départ dans `docs/SUIVI.md` : `en test` (itération 2). Lus avant de tester : `.github/copilot-instructions.md`, `docs/SUIVI.md`, `docs/PLAN.md` (phase 2), `docs/PROJET.md` (section Design), `docs/regles.md`, `README.md`, `docs/remarques/phase-2.md`, `docs/charte-graphique.md` (en entier) et le rapport de l'itération 1 ci-dessus.
 
-## Verdict de l'itération 2 : défauts ouverts (D5, mineur, visuel)
+## Verdict du deuxième passage de l'itération 2 : tout passe (D5 corrigé et vérifié, aucun défaut ouvert)
+
+Date : 2026-10-16, dernier commit du développeur : `ab522c0`, branche `phase-2`, arbre propre.
+
+Résultat : `node --test tests/` complet, **112 tests, 112 verts, 0 rouge** (sortie réelle ci-dessous). Le test de lisibilité qui échouait au premier passage (D5) est vert.
+
+```
+# tests 112
+# suites 3
+# pass 112
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 248960.953451
+```
+
+Durée mesurée : 4 min 9 s (le README annonce « environ 4 à 5 minutes » : exact). Nombre de tests du README : 54 sans navigateur + 58 de navigateur = 112 : exact. Fichiers de tests cités par le README : exacts. Commandes (`npm install`, `node --test tests/`, serveur Python) : inchangées et exactes.
+
+- **D5 : corrigé, vérifié.** Les neuf étoiles de `.ciel` sont maintenant dans les marges latérales (x de 2 à 3 % et de 97 à 98 %), et les étincelles de l'accueil dans des colonnes de 16 px de chaque côté. Preuves : test de lisibilité vert sur 360 x 800, 360 x 640 et 412 x 800 ; captures regardées à la vue (accueil, règles, Créer, Rejoindre, salle, choix, cartes, attente) : plus aucune étoile sur un titre ni sur un mot de texte.
+- **R1 réglée** : noms d'emblème à 15 px. J'ai retiré l'exception à 14 px de mon test (`tests/navigateur.test.js`) : il exige maintenant 15 px partout (23 tests verts après ce changement). Sur la salle à 360 px, « Loup-garou » passe sur deux lignes (« Loup- / garou ») ; rien n'est coupé.
+- **Non-régression** : remarques 1, 2, 3 (tests des parcours verts) et conformité à la charte (tests de la charte verts) ; textes validés intacts (`git diff main` ne touche ni `docs/regles.md`, ni `docs/cartes-source.md`, ni `public/data/`, ni `firebase.json`, ni `database.rules.json`) ; PLAN : la ligne de la phase 2 parle bien de `prefers-reduced-motion` ; README : tests, nombre et durée à jour.
+- **Remarques nouvelles (pas des défauts)** :
+  - **R11 : les étoiles en marge forment deux colonnes de points** à 8 à 13 px du bord ; à côté d'un début de ligne (par exemple « À tour de rôle » ou « a réservé ! » sur l'écran des règles à 360 px), un point blanc peut se lire comme une puce ou un point égaré. Aucun chevauchement, rendu plus sage que le ciel de la charte (étoiles réparties sur toute la page). À juger par la propriétaire sur téléphone.
+  - **R12 : la charte n'est pas reproduite à l'identique** : le bloc `.ciel` de `docs/charte-graphique.md` diffère maintenant de `public/css/style.css` (étoiles en marge). L'écart est déclaré dans `docs/PROJET.md` (ligne « Fond »), mais à faire confirmer par la propriétaire, car la charte demande de reproduire ce bloc.
+  - Le fichier `docs/PROJET.md` a été modifié par le développeur (une phrase d'adaptation ajoutée) : c'est un texte de décision du projet, à valider avec la propriétaire.
+- **Non vérifié** : inchangé (voir « Non vérifié » en bas) : vrai téléphone, plaisir de jeu, goût du design (notamment l'équilibre des colonnes d'étoiles), Firefox et Safari, écrans de moins de 360 px, fluidité du grain. Aucun quota Firebase à vérifier.
+
+## Rappel : verdict du premier passage de l'itération 2 (défauts ouverts, D5)
 
 Retest complet de la phase : 112 tests, 111 verts, 1 rouge. Le rouge est le test qui détecte **D5** (étoiles du fond qui passent derrière des lignes de texte). Tout le reste passe : les trois remarques fonctionnelles de la propriétaire (1, 2 et 3) et la conformité mesurable à la charte (remarque 4). Les quatre défauts de l'itération 1 (D1 à D4) restent corrigés (voir « Défauts connus »). Reste à faire par la propriétaire : la validation humaine (téléphone, avis sur le design), que je ne peux pas faire.
 
@@ -182,7 +210,9 @@ Textes validés non modifiés : `git diff main` ne touche ni `docs/regles.md`, n
 
 ## Défauts
 
-### D5 : des étoiles du fond passent derrière des titres et des paragraphes (corrigé par le développeur, à revérifier par le testeur ; mineur, visuel)
+### D5 : des étoiles du fond passent derrière des titres et des paragraphes (statut : vérifié au deuxième passage ; mineur, visuel)
+
+*Description du premier passage, conservée ci-dessous ; le correctif est vérifié (voir le verdict du deuxième passage).*
 
 - **Reproduire** : ouvrir `index.html?ecran=rejoindre` (ou `?ecran=creer`) à 360 x 800 px. Le point lumineux situé à 52 % de la largeur et 10 % de la hauteur tombe sur le « d » de « code » dans le titre : il se lit comme un accent ou une faute de frappe (capture `rejoindre-360.png` ou `creer-360.png` dans le dossier des captures, voir plus bas). Autres cas : `?ecran=regles` à 360 px (étoiles sur « But du jeu », « Chaque joueur(se) » et au milieu de « butin mystère »), `?ecran=choix`, `?ecran=carte` et `?ecran=transition` à 360 x 640 (étoile sur « Tour 1 / 4 »), `?ecran=attente&type=epreuve` (étoile sur « Au tour de »), `?ecran=accueil` à 360 x 640 (étincelle sur « Récupérez votre butin »). Commande : `node --test --test-name-pattern="lisibilité" tests/navigateur-charte.test.js` (liste complète des positions dans la sortie).
 - **Cause** : les neuf étoiles de `.ciel` sont des dégradés placés en pourcentage de la hauteur de la **page** (`6% 8%`, `52% 10%`, `29% 5%`, etc.). Sur un écran long (règles : environ 1 450 px), « 10 % » descend dans le texte ; sur un écran court, les mêmes pourcentages tombent sur les titres.
@@ -202,7 +232,7 @@ Textes validés non modifiés : `git diff main` ne touche ni `docs/regles.md`, n
 
 ## Remarques (pas des défauts, à l'appréciation de la propriétaire ou du chef de phase)
 
-- **R1 : noms d'emblème à 14 px, non capitales** (`.embleme-nom` dans la salle). La charte demande 15 à 16 px pour le texte courant et 12 px en capitales pour les légendes ; 14 px est la taille des boutons. Le test accepte cette seule exception, nommée dans le code, et exige tout le reste à 15 px au moins (légendes en capitales à 12 px au moins).
+- **R1 (réglée au deuxième passage : 15 px, exception retirée du test) : noms d'emblème à 14 px, non capitales** (`.embleme-nom` dans la salle). La charte demande 15 à 16 px pour le texte courant et 12 px en capitales pour les légendes ; 14 px est la taille des boutons. Le test accepte cette seule exception, nommée dans le code, et exige tout le reste à 15 px au moins (légendes en capitales à 12 px au moins).
 - **R2 : l'accueil défile de 48 px à 360 x 640** (le logo complet de 96 px et son nom ont pris la place). Le bouton reste visible (barre collante), tout le texte est atteignable et jamais masqué. L'exigence de l'itération 1 « aucun défilement » devient « bouton visible, texte non masqué, dépassement <= 100 px » ; l'écran de fin ne défile pas. Sur un vrai téléphone, dont la fenêtre est plus basse à cause de la barre du navigateur, le défilement sera un peu plus long.
 - **R3 : documents à mettre à jour par la propriétaire ou le chef de phase** : `docs/regles.md` écrit toujours « Code de partie : un mot du thème, affiché **en grand** » alors que la remarque 2 demande qu'il soit affiché **discrètement** (l'application suit la remarque) ; `docs/PLAN.md` (phase 2) cite toujours le réglage « réduire les animations », retiré par la remarque 1. Je n'ai pas le droit de modifier ces fichiers.
 - **R4 : textes nouveaux non validés**, créés par le développeur pour les nouveaux écrans, à faire valider : « Choisis le code de la partie », « Les autres joueur(se)s le saisiront pour te rejoindre. », « Codes de partie », « Valider », « Retour aux règles », « Saisis le code de la partie », « Code de la partie », « Majuscules, minuscules et accents n'ont pas d'importance. », « Saisis le code de la partie. » (erreur, code vide), « Ce code ne correspond à aucune partie. Vérifie-le et réessaie. » (erreur, code inconnu), « Participant(e)s » (la propriétaire écrit « participantes » dans sa remarque : la forme inclusive est conforme aux règles du projet).
@@ -210,7 +240,7 @@ Textes validés non modifiés : `git diff main` ne touche ni `docs/regles.md`, n
 - **R6 : barre d'actions à 90 %** (valeur de la charte) : le texte qui défile derrière la barre reste lisible en filigrane entre les deux boutons (visible sur `regles-bas-360x640.png`). Conforme à la charte ; à juger sur téléphone.
 - **R7 : nom du type sur les dos de carte à 12 px** (écran de choix), plancher de la charte. Le texte des cartes révélées fait au moins 20 px (20,1 px à 360 px de large, 22 px à 412 px). Lisibilité en soirée à juger sur téléphone.
 - **R8 : bordure de 1,5 px** (`--bordure`) : Chrome 145 la calcule à 1 px, même à 2x et 3x ; la valeur 1,5 px est vérifiée sur la déclaration (`var(--bordure)` et variable = `1.5px`), pas sur le rendu. À regarder sur un vrai téléphone.
-- **R9 : README** : la section « Lancer les tests automatiques » ne cite que `tests/navigateur.test.js` ; il y a maintenant aussi `tests/navigateur-parcours.test.js`, `tests/navigateur-charte.test.js` et `tests/aide-navigateur.js` (outils, sans test). Durée mesurée : 4 min 11 s. La section « Lancer le jeu » est exacte (serveur Python, `demo.html`, paramètres `creer`, `rejoindre`, `code`, `erreur` ; vérifiée par requêtes : pages, JavaScript, JSON et `.woff2` servis avec les bons types).
+- **R9 (réglée au deuxième passage : README à jour, 112 tests, quatre fichiers, 4 à 5 minutes) : README** : la section « Lancer les tests automatiques » ne cite que `tests/navigateur.test.js` ; il y a maintenant aussi `tests/navigateur-parcours.test.js`, `tests/navigateur-charte.test.js` et `tests/aide-navigateur.js` (outils, sans test). Durée mesurée : 4 min 11 s. La section « Lancer le jeu » est exacte (serveur Python, `demo.html`, paramètres `creer`, `rejoindre`, `code`, `erreur` ; vérifiée par requêtes : pages, JavaScript, JSON et `.woff2` servis avec les bons types).
 - **R10 : police Cormorant Garamond 500 (droite)** déclarée et jamais utilisée (aucun texte ne la demande ; seules 600 et 500 italique le sont). Sans effet sur le rendu ; fichier inutile dans `public/fonts/` (environ 23 Ko).
 - Sous `prefers-reduced-motion`, la règle de la charte met toute transition à 1 ms : un contour de focus peut être lu en cours d'apparition pendant une milliseconde (corrigé dans les tests par une attente de 80 ms) ; sans effet pour la personne.
 
