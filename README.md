@@ -4,17 +4,70 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaqu
 
 ## Lancer le jeu
 
-**Le jeu n'existe pas encore** : cette section sera complétée au fil des phases, et mise à jour à chaque phase qui change la façon de le lancer.
+**Le jeu n'est pas encore jouable** : à ce stade (phase 2), seuls les écrans existent, avec des données fictives, sans réseau ni règles de jeu. On peut les parcourir sur ordinateur ou sur téléphone.
+
+### Servir le jeu sur son ordinateur
+
+La page doit être servie par un petit serveur web : l'ouvrir directement depuis le dossier (adresse `file://`) ne fonctionne pas, le navigateur bloque le chargement des fichiers de données. Aucune installation n'est nécessaire si Python 3 est présent (c'est le cas sur la plupart des ordinateurs Linux et macOS).
+
+Depuis le dossier du projet :
+
+```
+python3 -m http.server -d public 8000
+```
+
+Puis ouvrir `http://localhost:8000/` dans le navigateur. Pour arrêter le serveur : `Ctrl+C` dans le terminal.
+
+### Ouvrir les écrans
+
+- **Parcours complet** : `http://localhost:8000/` (accueil, puis « Comment ça marche ? », salle d'attente, choix de carte, carte révélée, transition, fin). Les boutons enchaînent les écrans avec des données fictives.
+- **Liste de tous les écrans** : `http://localhost:8000/demo.html`. Chaque écran y a son lien, avec des variantes (salle complète, carte à effet durable, carte la plus longue, etc.) et la liste des 40 cartes.
+- **Un écran précis**, avec le paramètre `ecran` dans l'adresse : `http://localhost:8000/index.html?ecran=carte&type=epreuve&carte=epr-06`
+
+| Paramètre | Valeurs | Rôle |
+|---|---|---|
+| `ecran` | `accueil`, `regles`, `salle`, `choix`, `carte`, `attente`, `transition`, `fin` | Écran à afficher (accueil par défaut) |
+| `type` | `epreuve`, `revelation` | Type de la carte (première carte de ce type) |
+| `carte` | un identifiant de `public/data/cartes.json`, par exemple `epr-06` | Carte précise (prioritaire sur `type`) |
+| `tour` | un numéro de tour, borné par `config.json` | Compteur « Tour N / … » |
+| `hote`, `autres`, `complete`, `code`, `prenom`, `embleme`, `pret` | voir `public/js/ecrans.js` | Variantes de la salle d'attente |
+| `bouclier`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition et de l'attente |
+
+Le nombre de tours et de joueur(se)s maximum vient uniquement de `public/data/config.json`.
+
+### Ouvrir les écrans sur son téléphone
+
+1. Brancher l'ordinateur et le téléphone sur le **même réseau Wi-Fi**.
+2. Lancer le serveur comme ci-dessus : il écoute sur toutes les adresses de l'ordinateur.
+3. Trouver l'adresse de l'ordinateur sur le réseau : `hostname -I` (Linux) ou `ipconfig getifaddr en0` (macOS). Elle ressemble à `192.168.1.23`.
+4. Sur le téléphone, ouvrir `http://192.168.1.23:8000/demo.html` (en remplaçant par l'adresse trouvée).
+
+Si la page ne s'ouvre pas, vérifier que le pare-feu de l'ordinateur autorise le port 8000 et que le Wi-Fi n'isole pas les appareils entre eux (c'est parfois le cas des réseaux d'invité).
+
+### Réduire les animations
+
+Le bouton « Réduire les animations » (en haut à droite de chaque écran) supprime le retournement des cartes, les fondus, les lueurs et les étincelles. Le réglage est aussi activé automatiquement quand le téléphone ou l'ordinateur demande de réduire les animations.
+
+### Plus tard
 
 | À partir de | Ce qui sera documenté ici |
 |---|---|
-| Phase 2 | Comment ouvrir le jeu sur son ordinateur ou sur son téléphone pendant le développement (serveur local), pour voir les écrans. |
 | Phase 4 | Comment lancer le jeu avec l'émulateur Firebase local, pour tester la salle d'attente et les parties sans toucher à la vraie base. |
 | Phase 7 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec ses ami(e)s. |
 
 ## Développement du projet avec des agents Copilot
 
 > Cette section décrit comment le projet est **construit**, pas comment on y joue. Elle ne s'adresse qu'à la personne qui développe le jeu, avec les agents de développement de VS Code.
+
+### Lancer les tests automatiques
+
+**Node.js** est nécessaire (version 18 ou plus récente). Depuis le dossier du projet :
+
+```
+node --test tests/
+```
+
+Aucune installation de paquet n'est requise. Les tests vérifient les données (cartes, emblèmes, codes, réglages), les écrans et le design sans navigateur (polices hébergées, tailles minimales, palette, textes inclusifs, réglages jamais écrits en dur).
 
 - Règles et textes validés : [docs/regles.md](docs/regles.md)
 - Décisions du projet : [docs/PROJET.md](docs/PROJET.md)

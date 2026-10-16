@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design) en cours, itération 1 : développement, puis test, puis rapport. À la phase 2, refaire le contrôle des réglages en dur (4 tours, 5 joueur(se)s) maintenant qu'il y aura du code, et indiquer dans le README comment lancer les tests (`node --test tests/`, Node.js nécessaire).
+Phase 2 (écrans et design) en test, itération 1 : le testeur écrit ses tests (captures aux largeurs 360 et 412 px, débordement, tailles, contrastes à l'écran), puis rapport pour la propriétaire (ouverture des écrans sur son téléphone, avis sur le design). Le contrôle des réglages en dur (4 tours, 5 joueur(se)s) est fait et automatisé (`tests/reglages-en-dur.test.js`) ; le README indique comment lancer les tests (`node --test tests/`).
 
 ## Journal
 

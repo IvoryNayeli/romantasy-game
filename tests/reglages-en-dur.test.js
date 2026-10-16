@@ -122,7 +122,7 @@ test('réglages : les textes suivent config.json (changer le nombre de tours cha
   assert.doesNotMatch(textes.regles.fin(7), /\b[45]\b/);
 });
 
-test('réglages : les joueur(se)s fictif(ve)s suivent config.joueursMax (jusqu\'à plus que 5, sans emblème inconnu)', async () => {
+test('réglages : les joueur(se)s fictif(ve)s suivent config.joueursMax (même au-delà, sans emblème inconnu)', async () => {
   const source = fs.readFileSync(path.join(PUBLIC, 'js', 'fictif.js'), 'utf8');
   const fictif = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
   const emblemes = JSON.parse(fs.readFileSync(path.join(PUBLIC, 'data', 'emblemes.json'), 'utf8'));
