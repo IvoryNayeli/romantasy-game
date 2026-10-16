@@ -29,7 +29,7 @@ Règles valables pour toutes les phases :
 ## Phase 2 : écrans et design (sans réseau)
 
 - Accueil, règles, salle d'attente, choix de carte, carte révélée, attente, fin de partie, alimentés par des données fictives.
-- Palette, polices hébergées, animations, réglage « réduire les animations ».
+- Palette, polices hébergées, animations, respect du réglage système prefers-reduced-motion.
 - **Tests** : captures d'écran aux largeurs 360 et 412 px, aucun débordement de texte même sur les cartes les plus longues, taille des boutons, contrastes.
 - **Validation humaine** : ouverture des écrans sur son téléphone, avis sur le design.
 
