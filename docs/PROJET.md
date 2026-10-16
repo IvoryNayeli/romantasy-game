@@ -50,23 +50,31 @@ Un mot du thème, sans accent, insensible à la casse et aux accents à la saisi
 
 ## Design
 
-- Ambiance : nuit de conte, sombre, dorures, un peu mystérieuse, sans être glauque.
-- Palette :
+Référence détaillée : [charte-graphique.md](charte-graphique.md) (variables CSS de la section 2 reprises telles quelles, formes, boutons, cartes, fond, grain, mouvement, accessibilité). Elle remplace l'ancienne palette (violet, rouge, or) et l'ancienne typographie : Cormorant Garamond et Jost remplacent Cinzel. Ce qui suit résume les choix du projet et les adaptations décidées pour notre jeu.
 
-| Rôle | Couleur |
-|---|---|
-| Fond | `#14101F` (dégradé vers `#2A1B3D`) |
-| Surface | `#221A33` |
-| Or | `#D4AF6A` |
-| Texte | `#F3ECE0` |
-| Épreuve | `#B3263E` |
-| Révélation | `#6C4FD1` |
-| Secondaire | `#A79BBE` |
+- Ambiance : nuit étoilée, dragons, mystique, féérique, moderne et élégant. 80 % de bleus nuit, 15 % de clair de lune, 5 % d'ambre : l'ambre signale ce qui compte (action principale, sélection, effet durable).
+- Palette (variables `--c-*` du fichier CSS) :
 
-- Typographie : Cinzel (titres, boutons en petites capitales), Cormorant Garamond ou EB Garamond (texte des cartes et des règles). Polices **hébergées avec le site**, pas de Google Fonts.
-- Chaque type de carte a une couleur **et** un symbole (épée, étoile), pour ne pas dépendre de la couleur seule.
-- Accessibilité : boutons d'au moins 48 px de haut, texte des cartes d'au moins 20 px, contrastes élevés, animations désactivées si « réduire les animations » est demandé.
-- Animations courtes : retournement de carte en 3D CSS, fondu, légère lueur. Fond d'étincelles dorées en CSS léger sur l'accueil.
+| Rôle | Variable | Couleur |
+|---|---|---|
+| Fond principal, texte sur ambre | `--c-nuit` | `#060B1E` |
+| Surfaces, haut des cartes | `--c-minuit` | `#0F1E4A` |
+| Bordures communes, halos (jamais en texte) | `--c-brume` | `#3C5A8C` |
+| Texte courant | `--c-lune` | `#C9D8EE` |
+| Texte secondaire | `--c-lune-douce` | `#8FA6C8` |
+| Titres, étoiles | `--c-etoile` | `#F4F1E8` |
+| Accent, action principale | `--c-ambre` | `#F0A35E` |
+| Feu, alertes, carte Épreuve | `--c-braise` | `#D9693A` |
+
+  Interdits : violets, roses, verts vifs, blanc `#FFF` et noir `#000` purs, ombres portées noires.
+- Typographie : **Cormorant Garamond** (titres, légendes de cartes, citations ; graisses 500, 600 et 500 italique) et **Jost** (interface et texte ; graisses 300, 400, 500), en capitales espacées pour les boutons et les légendes. Polices **hébergées avec le site** (`public/fonts/`, licences OFL conservées), jamais chargées depuis Google Fonts (la charte propose un `@import` Google Fonts : écarté).
+- Formes : rectangulaires et douces (cartes 8 px, boutons 4 px), jamais de pilules. Filets de 1 à 1,5 px, double filet, étincelles à 4 branches aux coins, séparateur filigrane. Lumière (halos) plutôt qu'ombres. Icônes au trait fin de 1,5 px, jamais pleines.
+- Cartes : proportions 2:3 (la carte s'allonge si le texte l'exige), dimensions en `cqw`, lettrine, dos de carte avec logo. Les cartes du jeu n'ont ni coût, ni nom, ni illustration (éléments de la charte non utilisés). Les raretés de la charte (commune, rare, légendaire) n'existent pas dans le jeu : elles sont remplacées par les deux types de carte.
+- Types de carte : chaque type a une couleur, un symbole **et** un mot, pour ne jamais dépendre de la couleur seule. **Épreuve** : `--c-braise`, épée, « ÉPREUVE ». **Révélation** : `--c-lune`, étoile, « RÉVÉLATION ».
+- Logo : cercle clair de lune, disque minuit, aile de dragon bordée d'ambre, petite étoile (SVG provisoire fait pour le projet) ; version complète sur l'accueil, version compacte de 40 px dans les barres.
+- Fond : classe `.ciel` (étoiles, halo bleu, lueur de braise), un seul calque de grain par écran, jamais de fond fixe.
+- Accessibilité : boutons et cibles tactiles d'au moins 48 px (`--cible`), texte des cartes d'au moins 20 px (plus strict que les 15 px de la charte), contrastes élevés, aucun effet au survol (tout est tactile), focus visible. Les animations sont coupées quand l'appareil le demande (`prefers-reduced-motion`) : c'est une règle système, pas une option du jeu.
+- Mouvement : fondu de 300 ms entre les écrans, retournement de carte en 3D CSS, scintillement lent des étoiles. On n'anime que `opacity` et `transform`.
 
 ## Arborescence cible
 
