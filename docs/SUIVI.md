@@ -47,6 +47,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 
 - 2026-10-15 | phase 2, démarrage | Branche `phase-2` créée depuis `main` (phase 1 validée, 22 tests verts). Statut `en cours`, itération 1. Reste : développement, test, rapport.
 - 2026-10-15 | phase 2, itération 1 | Développement : polices Cinzel et Cormorant Garamond hébergées (woff2, OFL), `index.html`, `css/style.css`, `js/` (app, écrans, textes, données fictives, réglage des animations), huit écrans (accueil, règles, salle d'attente, choix, carte révélée, attente, transition de 2 secondes, fin), page `demo.html` (liens vers chaque écran et les 40 cartes), README mis à jour, 23 tests ajoutés dont le contrôle des réglages en dur (45 tests, tous verts). Reste : test indépendant, rapport.
+- 2026-10-16 | phase 2, correctifs du rapport du testeur | D1 (bandeau « Effets en cours » à 20 px), D2 (dos « Révélation » : centre du dégradé éclairci moins fort, contraste minimal relevé 4,73:1, palette inchangée), D3 (« prêt(e) à commencer » dans `demo.html`), D4 (README : `npm install`, Chrome, environ 5 minutes). 72 tests sur 72 verts, tests de navigateur compris. Statut `en test`. Reste : nouveau passage du testeur, rapport.
 
 ## Défauts ouverts
 
