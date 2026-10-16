@@ -64,10 +64,16 @@ Le bouton « Réduire les animations » (en haut à droite de chaque écran) sup
 **Node.js** est nécessaire (version 18 ou plus récente). Depuis le dossier du projet :
 
 ```
+npm install
 node --test tests/
 ```
 
-Aucune installation de paquet n'est requise. Les tests vérifient les données (cartes, emblèmes, codes, réglages), les écrans et le design sans navigateur (polices hébergées, tailles minimales, palette, textes inclusifs, réglages jamais écrits en dur).
+Il y a deux familles de tests :
+
+- **Tests sans navigateur** (données, cartes, emblèmes, codes, réglages ; écrans et design : polices hébergées, tailles minimales, palette, textes inclusifs, réglages jamais écrits en dur). Ils n'ont besoin d'aucune installation : `node --test tests/` suffit.
+- **Tests de navigateur** (`tests/navigateur.test.js` : captures aux largeurs 360 et 412 px, débordements, contrastes mesurés à l'écran, animations, parcours complet). Ils demandent `npm install` (qui installe `playwright-core`, seule dépendance de développement, utilisée uniquement par ces tests) et **Google Chrome ou Chromium** installé sur l'ordinateur. Ils durent **environ 5 minutes**. Sans `playwright-core` ou sans Chrome, ils sont sautés proprement avec un message, et le reste des tests tourne normalement.
+
+Le jeu lui-même n'a aucune dépendance : `npm install` ne sert qu'aux tests.
 
 - Règles et textes validés : [docs/regles.md](docs/regles.md)
 - Décisions du projet : [docs/PROJET.md](docs/PROJET.md)
