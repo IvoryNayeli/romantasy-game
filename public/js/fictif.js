@@ -1,12 +1,12 @@
 // Données fictives pour les écrans de la phase 2 (aucun réseau, aucune logique de jeu).
-// Tout ce qui dépend d'un nombre (joueur(se)s, tours) est calculé à partir de config.json.
+// Tout ce qui dépend d'un nombre (personnes, tours) est calculé à partir de config.json.
 
 const PRENOMS = [
   ['Léa', 'fee'], ['Tom', 'dragon'], ['Inès', 'licorne'], ['Noa', 'loup-garou'], ['Sacha', 'sirene'],
   ['Camille', 'elfe'], ['Louis', 'vampire'], ['Maëlle', 'sorciere'], ['Yanis', 'phenix'], ['Alix', 'chevalier'],
 ];
 
-// Joueur(se)s fictif(ve)s déjà présent(e)s dans le salon (l'ordre est l'ordre d'arrivée).
+// Profils fictifs déjà présents dans le salon (l'ordre est l'ordre d'arrivée).
 export function joueursFictifs(donnees, nombre) {
   const resultat = [];
   for (let i = 0; i < nombre; i += 1) {
@@ -57,6 +57,6 @@ export function entierDepuisParametres(params, nom, defaut, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
-// Nombre minimal de joueur(se)s prêt(e)s pour que l'hôte puisse commencer (règle de docs/regles.md,
+// Nombre minimal de personnes ayant confirmé leur présence (« Je suis là ») pour que l'hôte puisse commencer (règle de docs/regles.md,
 // absente de config.json : choix à confirmer, voir le rapport de la phase 2).
 export const PRETS_MINIMUM = 2;

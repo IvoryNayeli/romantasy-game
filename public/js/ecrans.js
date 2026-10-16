@@ -206,7 +206,7 @@ export function salle({ donnees, params, naviguer }) {
   if (embleParam && !pris.has(embleParam) && donnees.emblemes.some((e) => e.id === embleParam)) moi.embleme = embleParam;
   moi.pret = params.get('pret') === '1' && Boolean(moi.prenom.trim() && moi.embleme);
 
-  const liste = h('ul', { classe: 'liste-joueurs', 'aria-labelledby': 'titre-participants' });
+  const liste = h('ul', { classe: 'liste-joueurs', 'aria-labelledby': 'titre-groupe' });
   const grille = h('div', { classe: 'grille-emblemes', role: 'radiogroup', 'aria-label': S.embleme });
   const boutonsEmbleme = new Map();
   const champ = h('input', {
@@ -279,14 +279,14 @@ export function salle({ donnees, params, naviguer }) {
       h('p', { classe: 'etiquette-champ' }, S.embleme),
       grille);
 
-  // Ordre voulu par la propriétaire : code (discret), menu emblème + prénom, puis liste des participant(e)s.
+  // Ordre voulu par la propriétaire : code (discret), menu emblème + prénom, puis liste du groupe.
   const noeud = h('section', { classe: 'ecran ecran-salle' },
     h('div', { classe: 'salle-corps' },
       h('p', { classe: 'code-partie' },
         h('span', { classe: 'code-libelle' }, S.codeLibelle), ' ',
         h('span', { classe: 'code-valeur' }, code)),
       formulaire,
-      h('h2', { classe: 'titre-liste', id: 'titre-participants' }, S.participants),
+      h('h2', { classe: 'titre-liste', id: 'titre-groupe' }, S.groupe),
       liste,
       h('p', { classe: 'texte texte-centre' }, S.accompagnement)),
     complete ? null : barreBas(boutonPret, estHote ? boutonCommencer : null));

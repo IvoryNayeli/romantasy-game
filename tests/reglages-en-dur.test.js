@@ -1,7 +1,7 @@
 'use strict';
 
 // Phase 2 : contrôle des réglages écrits en dur.
-// Le nombre de tours et le nombre maximal de joueur(se)s viennent UNIQUEMENT de public/data/config.json.
+// Le nombre de tours et le nombre maximal de personnes viennent UNIQUEMENT de public/data/config.json.
 // Ce test échoue si 4 ou 5 (ou « quatre », « cinq ») apparaissent en dur dans le code livré (public/, hors data/ et fonts/).
 // Lancer : node --test tests/
 
@@ -72,7 +72,9 @@ test('réglages : le détecteur repère bien 4 et 5 écrits en dur (garde-fou du
     ['a.js', 'if (x > 4) {'],
     ['a.js', 'return `Tour ${n} / 4`;'],
     ['a.js', 'const joueurs = lignes.slice(0, 5);'],
-    ['a.js', 'const texte = "Lorsque chaque joueur(se) a joué 4 fois";'],
+    ['a.js', 'const texte = "Lorsque chaque personne a joué 4 fois";'],
+    ['a.js', 'const texte = "cinq personnes";'],
+    ['a.js', 'const texte = "5 joueurs";'],
     ['a.js', 'const texte = "cinq joueur(se)s";'],
     ['a.html', '<p>Tour 1 / 4</p>'],
     ['a.css', '.grille { grid-template-columns: repeat(5, 1fr); }'],
@@ -91,7 +93,7 @@ test('réglages : le détecteur ne signale pas les usages normaux (cas licites)'
     ['a.js', 'const max = donnees.config.joueursMax;'],
     ['a.css', '.bouton { min-height: 3.5rem; padding: 0.5rem 1.25rem; }'],
     ['a.css', '.x { margin: 4px 5px; width: calc(100% - 4rem); }'],
-    ['a.js', '// 4 tours et 5 joueur(se)s : voir config.json'],
+    ['a.js', '// 4 tours et 5 personnes : voir config.json'],
     ['a.js', 'const a = liste.length;'],
   ];
   for (const [fichier, source] of licites) {
@@ -99,14 +101,14 @@ test('réglages : le détecteur ne signale pas les usages normaux (cas licites)'
   }
 });
 
-test('réglages : aucun 4 ni 5 (tours, joueur(se)s) écrit en dur dans public/ hors config.json', () => {
+test('réglages : aucun 4 ni 5 (tours, personnes) écrit en dur dans public/ hors config.json', () => {
   const fichiers = fichiersLivres();
   assert.ok(fichiers.length >= 8, 'les fichiers de l\'interface sont introuvables');
   const trouves = fichiers.flatMap((f) => trouverReglagesEnDur(fs.readFileSync(f, 'utf8'), path.relative(RACINE, f)));
   assert.deepEqual(trouves, []);
 });
 
-test('réglages : le code lit le nombre de tours et de joueur(se)s dans config.json', () => {
+test('réglages : le code lit le nombre de tours et de personnes dans config.json', () => {
   const ecrans = fs.readFileSync(path.join(PUBLIC, 'js', 'ecrans.js'), 'utf8');
   const donnees = fs.readFileSync(path.join(PUBLIC, 'js', 'donnees.js'), 'utf8');
   assert.match(donnees, /config\.json/);
@@ -122,7 +124,7 @@ test('réglages : les textes suivent config.json (changer le nombre de tours cha
   assert.doesNotMatch(textes.regles.fin(7), /\b[45]\b/);
 });
 
-test('réglages : les joueur(se)s fictif(ve)s suivent config.joueursMax (même au-delà, sans emblème inconnu)', async () => {
+test('réglages : les profils fictifs suivent config.joueursMax (même au-delà, sans emblème inconnu)', async () => {
   const source = fs.readFileSync(path.join(PUBLIC, 'js', 'fictif.js'), 'utf8');
   const fictif = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
   const emblemes = JSON.parse(fs.readFileSync(path.join(PUBLIC, 'data', 'emblemes.json'), 'utf8'));

@@ -251,14 +251,14 @@ test('codes : saisie insensible à la casse et aux accents, seuls les mots de co
   for (const faux of ['', '   ', 'DRAGON', 'ECLIPS', 'ECLIPSEE', 'RUN E', null]) assert.equal(trouverCode(faux, codes), null, `« ${faux} » ne doit pas être accepté`);
 });
 
-test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste des participant(e)s', () => {
+test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste du groupe', () => {
   const ecrans = lirePublic('js', 'ecrans.js');
   const salle = ecrans.slice(ecrans.indexOf('export function salle('), ecrans.indexOf('export function choix('));
   const construction = salle.slice(salle.indexOf('const noeud = h('));
-  const positions = ['code-partie', 'formulaire,', 'titre-participants', 'liste,'].map((m) => construction.indexOf(m));
+  const positions = ['code-partie', 'formulaire,', 'titre-groupe', 'liste,'].map((m) => construction.indexOf(m));
   assert.ok(positions.every((p) => p >= 0), 'élément manquant dans la salle d\'attente');
-  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : code, menu emblème/prénom, participant(e)s');
-  assert.match(lirePublic('js', 'textes.js'), /participants: 'Participant\(e\)s'/);
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : code, menu emblème/prénom, liste du groupe');
+  assert.match(lirePublic('js', 'textes.js'), /groupe: 'Le groupe'/);
   // Le code est discret : petit et en couleur secondaire (pas un grand encadré).
   for (const sel of ['.code-libelle', '.code-valeur']) {
     const tailles = taillesDeclarees(sel);
@@ -267,11 +267,11 @@ test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste de
   assert.ok(propriete('.code-partie', 'color').includes('var(--c-lune-douce)'), 'code en couleur secondaire');
 });
 
-test('textes : « participant(e)s » (jamais une forme exclusivement féminine) dans le code et la documentation', () => {
+test('textes : plus de « participant(e)s » ni de « participantes » (formulation neutre : « Le groupe ») dans le code et la documentation', () => {
   const fichiers = [...listerFichiers(PUBLIC, /\.(html|js|css)$/), path.join(RACINE, 'README.md'), path.join(RACINE, 'docs', 'PROJET.md')];
   for (const f of fichiers) {
     const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f);
-    assert.doesNotMatch(code, /\bparticipantes?\b/i, `${path.relative(RACINE, f)} : « participantes » (utiliser « participant(e)s »)`);
+    assert.doesNotMatch(code, /\bparticipant(e|\(e\))?s?\b/i, `${path.relative(RACINE, f)} : « participant(e)s » (utiliser une formulation neutre : « le groupe »)`);
   }
 });
 
@@ -581,12 +581,22 @@ test('textes : l\'interface reprend les textes validés de docs/regles.md', asyn
   assert.equal(T.tour.compteur(1, config.tours), `Tour 1 / ${config.tours}`);
 });
 
-test('textes : écriture inclusive et vocabulaire (« butin », jamais « poche » ni « sac ») dans tout le code de l\'interface', () => {
+test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vocabulaire (« butin », jamais « poche » ni « sac ») dans tout le code de l\'interface', () => {
+  // Interdits : formes exclusivement féminines ou exclusivement masculines pour désigner une personne qui joue, et « poche/sac ».
+  // Les parenthèses ne sont plus exigées : elles ne sont qu'un dernier recours.
   const interdits = {
     poche: /\bpoches?\b/i, sac: /\bsacs?\b/i, joueuse: /\bjoueuses?\b/i, elle: /\belles?\b/i, celle: /\bcelles?\b/i,
     voisine: /\bvoisines?\b/i, chacune: /\bchacunes?\b/i, prete: /\bprêtes?\b/i, premiereQui: /la première qui\b/i,
     'la joueur(se)': /(?<!\/)\bla joueur\(se\)/i, 'une joueur': /\bune joueur\b/i,
+    voisin: /\bvoisins?\b/i, chacun: /\bchacun\b(?!\()/i, celui: /\b(celui|ceux)\b(?!-ci|-là)/i,
+    'le premier qui': /\ble (premier|dernier) qui\b/i, prets: /\bprêts?\b(?!\(e\))/i,
   };
+  // Le mot « joueur(s) » est un identifiant de code (joueurs, joueursMax) : on ne le contrôle que dans les textes affichés.
+  const fichiersTextes = ['textes.js', 'demo.js'].map((n) => path.join(PUBLIC, 'js', n)).concat(['index.html', 'demo.html'].map((n) => path.join(PUBLIC, n)));
+  for (const f of fichiersTextes) {
+    const texte = sansCommentaires(fs.readFileSync(f, 'utf8'), f).replace(/\b(?:joueursMax|joueursFictifs|joueurs)\b/g, '');
+    assert.doesNotMatch(texte, /(?<![-\w(])joueurs?\b(?!\(se\))/i, `${path.relative(RACINE, f)} : « joueur » exclusivement masculin dans un texte`);
+  }
   const fichiers = listerFichiers(PUBLIC, /\.(html|js|css)$/).filter((f) => !f.includes(`${path.sep}data${path.sep}`));
   assert.ok(fichiers.length >= 10);
   for (const f of fichiers) {
@@ -595,8 +605,12 @@ test('textes : écriture inclusive et vocabulaire (« butin », jamais « poche 
       assert.doesNotMatch(code, motif, `${path.relative(RACINE, f)} : forme interdite « ${nom} »`);
     }
   }
+  // Textes affichés : plus aucune parenthèse d'accord ; formulations neutres retenues.
   const textes = lirePublic('js', 'textes.js');
-  for (const forme of ['voyageur(euse)', 'joueur(se)', 'chacun(e)', 'prêt(e)']) assert.ok(textes.includes(forme), `forme inclusive « ${forme} » absente`);
+  assert.doesNotMatch(textes, /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
+  for (const forme of ['Bienvenue en ces terres.', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je suis là', 'Le groupe']) {
+    assert.ok(textes.includes(forme), `formulation neutre « ${forme} » absente`);
+  }
   assert.match(textes, /butin/);
 });
 

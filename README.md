@@ -1,6 +1,6 @@
 # romantasy-game
 
-Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaque joueur(se) ouvre un simple lien dans son navigateur (rien à installer). L'application joue le rôle de meneur de jeu : elle tire les cartes, annonce les tours et compte jusqu'à la fin. Les butins, eux, sont de vrais sacs que les joueur(se)s s'échangent.
+Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaque personne ouvre un simple lien dans son navigateur (rien à installer). L'application joue le rôle de meneur de jeu : elle tire les cartes, annonce les tours et compte jusqu'à la fin. Les butins, eux, sont de vrais sacs que les convives s'échangent.
 
 ## Lancer le jeu
 
@@ -35,7 +35,7 @@ Puis ouvrir `http://localhost:8000/` dans le navigateur. Pour arrêter le serveu
 | `hote`, `autres`, `complete`, `prenom`, `embleme`, `pret` | voir `public/js/ecrans.js` | Variantes de la salle d'attente |
 | `bouclier`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition et de l'attente |
 
-Le nombre de tours et de joueur(se)s maximum vient uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
+Le nombre de tours et de places maximum vient uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
 
 ### Ouvrir les écrans sur son téléphone
 
@@ -51,7 +51,7 @@ Si la page ne s'ouvre pas, vérifier que le pare-feu de l'ordinateur autorise le
 | À partir de | Ce qui sera documenté ici |
 |---|---|
 | Phase 4 | Comment lancer le jeu avec l'émulateur Firebase local, pour tester la salle d'attente et les parties sans toucher à la vraie base. |
-| Phase 7 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec ses ami(e)s. |
+| Phase 7 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec son groupe. |
 
 ## Développement du projet avec des agents Copilot
 

@@ -1,5 +1,5 @@
 // Page de démonstration : liste de liens vers chaque écran avec des données fictives.
-// Le nombre de tours et de joueur(se)s vient de config.json (voir donnees.js).
+// Le nombre de tours et de personnes vient de config.json (voir donnees.js).
 
 import { chargerDonnees } from './donnees.js';
 import { h, adresse } from './dom.js';
@@ -34,9 +34,9 @@ function ecrans(donnees) {
     ]),
     groupe('Salle d\'attente', [
       lien('Hôte, une personne déjà là', { ecran: 'salle', hote: 1, autres: 1 }),
-      lien('Hôte, prêt(e), prêt(e) à commencer', { ecran: 'salle', hote: 1, autres: 1, prenom: 'Noa', embleme: 'sirene', pret: 1 }),
-      lien('Joueur(se) qui rejoint', { ecran: 'salle', autres: 2 }),
-      lien('Hôte seul(e) dans la salle', { ecran: 'salle', hote: 1, autres: 0 }),
+      lien('Hôte et une autre personne, « C\'est bon » validé : commencer actif', { ecran: 'salle', hote: 1, autres: 1, prenom: 'Noa', embleme: 'sirene', pret: 1 }),
+      lien('Une personne qui rejoint', { ecran: 'salle', autres: 2 }),
+      lien('Hôte sans personne d\'autre dans la salle', { ecran: 'salle', hote: 1, autres: 0 }),
       lien('Dernière place de la salle', { ecran: 'salle', autres: joueursMax - 1 }),
       lien('Partie complète', { ecran: 'salle', complete: 1 }),
       lien('Code le plus long', { ecran: 'salle', code: 'OBSIDIENNE', autres: 2 }),

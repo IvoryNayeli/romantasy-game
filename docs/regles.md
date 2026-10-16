@@ -4,13 +4,13 @@ Source unique des règles et des textes affichés. Tout texte ci-dessous a été
 
 ## Écriture inclusive
 
-Tous les textes du jeu sont inclusifs, selon la convention de [PROJET.md](PROJET.md) : parenthèses pour les noms et les accords (joueur(se), voyageur(euse), chacun(e), prêt(e)), formulation neutre quand c'est plus simple (« cette personne », « la première personne qui… »).
+Tous les textes du jeu sont inclusifs, selon la convention de [PROJET.md](PROJET.md) : formulation neutre d'abord (« chaque personne », « tout le monde », « cette personne », « la première personne qui… », « Je suis là »), jamais de forme exclusivement féminine ni masculine pour désigner un(e) joueur(se) ; parenthèses seulement en dernier recours, si aucune formule neutre simple n'existe.
 
 ## Écran d'accueil
 
 Aucun titre. Un seul bouton : « Comment ça marche ? ».
 
-> *Bienvenue, voyageur(euse).*
+> *Bienvenue en ces terres.*
 >
 > Les Cours s'agitent, les dragons s'éveillent et le destin s'apprête à battre ses cartes.
 >
@@ -21,18 +21,18 @@ Aucun titre. Un seul bouton : « Comment ça marche ? ».
 Défile verticalement. Les boutons « Créer une partie » et « Rejoindre une partie » sont fixés en bas de l'écran. Flèche de retour vers l'accueil.
 
 > **But du jeu**
-> Chaque joueur(se) commence la partie avec un butin mystère. Au fil de la partie, ce butin pourra passer de main en main… jusqu'à la grande révélation finale !
+> Chaque personne commence la partie avec un butin mystère. Au fil de la partie, ce butin pourra passer de main en main… jusqu'à la grande révélation finale !
 >
 > **Déroulement**
-> À tour de rôle, chaque joueur(se) tire une carte de son choix : Épreuve ou Révélation. Tout ce qui doit être accompli est inscrit dessus.
-> - **Carte Révélation (question)** : le/la joueur(se) désigne une personne (soi-même ou une autre) selon la consigne de la carte. Il est aussi possible de ne désigner personne : dans ce cas, aucun butin ne change de main.
-> - **Carte Épreuve (action)** : le/la joueur(se) accomplit l'action que le destin réclame.
+> À tour de rôle, chaque personne tire une carte de son choix : Épreuve ou Révélation. Tout ce qui doit être accompli est inscrit dessus.
+> - **Carte Révélation (question)** : la personne qui joue désigne quelqu'un (soi-même ou une autre personne) selon la consigne de la carte. Il est aussi possible de ne désigner personne : dans ce cas, aucun butin ne change de main.
+> - **Carte Épreuve (action)** : la personne qui joue accomplit l'action que le destin réclame.
 >
 > **Invoquer un bouclier**
-> Une fois la carte révélée, le/la joueur(se) peut toujours invoquer un bouclier pour refuser l'épreuve ou la révélation. Mais prenez garde : son tour est alors tout de même consumé.
+> Une fois la carte révélée, la personne qui joue peut toujours invoquer un bouclier pour refuser l'épreuve ou la révélation. Mais prenez garde : son tour est alors tout de même consumé.
 >
 > **Fin de la partie**
-> Lorsque chaque joueur(se) a joué 4 fois, la quête s'achève. Vient alors, pour chacun(e), l'heure d'ouvrir son butin et de découvrir ce que le sort lui a réservé !
+> Lorsque chaque personne a joué 4 fois, la quête s'achève. Vient alors, pour tout le monde, l'heure d'ouvrir son butin et de découvrir ce que le sort lui a réservé !
 
 Le nombre de tours (4) vient du réglage unique `config.json`. Les textes doivent en tenir compte.
 
@@ -44,7 +44,7 @@ Phrase sur les effets durables, validée, à placer sous « Déroulement », apr
 
 - **Épreuve** : carte action. Symbole épée, couleur rouge braise.
 - **Révélation** : carte question. Symbole étoile, couleur améthyste.
-- Le/la joueur(se) choisit le type de carte avant de la tirer. Une carte ne sort qu'une seule fois par partie.
+- Chaque personne choisit le type de carte avant de la tirer. Une carte ne sort qu'une seule fois par partie.
 - Vocabulaire : toujours « butin » (jamais « poche » ni « sac » dans les textes du jeu).
 
 ## Boutons de la carte révélée
@@ -54,18 +54,18 @@ Phrase sur les effets durables, validée, à placer sous « Déroulement », apr
 
 ## Écrans de tour
 
-- Joueur(se) actif(ve), choix : « À toi de jouer ! » puis deux dos de cartes (Épreuve, Révélation).
-- Joueur(se) actif(ve), carte révélée : type de carte en en-tête, texte en grand, deux boutons.
-- Autres joueur(se)s : « Au tour de [emblème + prénom] », même carte affichée, sans boutons, « En attente de [prénom]… ».
-- Transition de 2 secondes visible par tou(te)s : « Le sort est jeté pour [prénom]. » ou « [prénom] a invoqué un bouclier. »
+- Pour la personne dont c'est le tour, choix : « À toi de jouer ! » puis deux dos de cartes (Épreuve, Révélation).
+- Pour la personne dont c'est le tour, carte révélée : type de carte en en-tête, texte en grand, deux boutons.
+- Pour les autres : « Au tour de [emblème + prénom] », même carte affichée, sans boutons, « En attente de [prénom]… ».
+- Transition de 2 secondes visible par tout le monde : « Le sort est jeté pour [prénom]. » ou « [prénom] a invoqué un bouclier. »
 - Compteur : « Tour N / 4 » (tour de la partie).
-- Un bandeau visible de tou(te)s affiche les effets durables en cours (par exemple « Léa : miaule jusqu'à son prochain tour »).
+- Un bandeau visible par tout le monde affiche les effets durables en cours (par exemple « Léa : miaule jusqu'à son prochain tour »).
 
 ## Écran de fin
 
 > *La quête s'achève.*
 >
-> Le destin a rendu son verdict. Chacun(e) tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !
+> Le destin a rendu son verdict. Chaque personne tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !
 >
 > **[ Nouvelle quête ]**
 
@@ -74,9 +74,9 @@ Aucune autre phrase : en particulier, ne pas ajouter de rappel sur les échanges
 ## Salle d'attente
 
 - Code de partie : un mot du thème, affiché en grand, sans bouton copier ni partager.
-- Prénom et emblème obligatoires pour être prêt(e).
+- Prénom et emblème obligatoires pour confirmer sa présence (« Je suis là »).
 - Un emblème déjà pris est grisé.
-- 5 joueur(se)s maximum ; un(e) sixième voit « La partie est complète ».
-- Le bouton « Commencer la quête » n'est visible que de l'hôte, actif à partir de 2 joueur(se)s prêt(e)s.
+- 5 personnes au maximum ; une sixième personne voit « La partie est complète ».
+- Le bouton « Commencer la quête » n'est visible que de l'hôte, actif dès que 2 personnes ont confirmé leur présence.
 - Ordre des tours : ordre d'arrivée dans le salon.
 - Texte d'accompagnement : « Rassemblez votre troupe. La quête commencera quand l'hôte donnera le signal. »

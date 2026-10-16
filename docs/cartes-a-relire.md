@@ -21,13 +21,13 @@ Les champs `duree` et `effet` vont toujours ensemble : les 31 cartes immédiates
 | N° | Identifiant | Texte | Effet durable |
 |---|---|---|---|
 | 1 | `rev-01` | Une malédiction frappe le groupe. Qui serait la première personne à chercher une solution sur Google ? Échange ton butin avec cette personne. |  |
-| 2 | `rev-02` | Le roi organise un grand bal. Qui serait chargé(e) de choisir vos tenues ? Échange ton butin avec cette personne. |  |
-| 3 | `rev-03` | Une prophétie annonce que l'un(e) d'entre vous est l'héritier(ère) caché(e) du trône. Qui réorganise déjà la déco du palais ? Échange ton butin avec cette personne. |  |
-| 4 | `rev-04` | Un personnage masculin clame : « Je ne laisserai personne lui faire du mal ! » Qui serait immédiatement conquis(e) ? Échange ton butin avec cette personne. |  |
+| 2 | `rev-02` | Le roi organise un grand bal. Qui choisirait vos tenues ? Échange ton butin avec cette personne. |  |
+| 3 | `rev-03` | Une prophétie annonce que le trône reviendra à une personne d'entre vous. Qui réorganise déjà la déco du palais ? Échange ton butin avec cette personne. |  |
+| 4 | `rev-04` | Un personnage masculin clame : « Je ne laisserai personne lui faire du mal ! » Qui craquerait aussitôt ? Échange ton butin avec cette personne. |  |
 | 5 | `rev-05` | Le héros vient de commettre l'impardonnable… mais il est torse nu. Qui lui pardonne en premier ? Échange ton butin avec cette personne. |  |
 | 6 | `rev-06` | Sur une porte, on lit : « N'ENTREZ SURTOUT PAS. » Qui entre quand même ? Échange ton butin avec cette personne. |  |
-| 7 | `rev-07` | Chacun(e) peut choisir une créature magique pour compagnon. Qui serait la personne la plus assortie à une licorne ? Échange ton butin avec cette personne. |  |
-| 8 | `rev-08` | Vous devez passer une soirée à la cour sans révéler votre identité. Qui serait le/la meilleur(e) espion(ne) ? Échange ton butin avec cette personne. |  |
+| 7 | `rev-07` | Tout le monde peut choisir une créature magique pour compagnon. Qui serait la personne la plus assortie à une licorne ? Échange ton butin avec cette personne. |  |
+| 8 | `rev-08` | Vous devez passer une soirée à la cour sans révéler votre identité. Qui passerait le mieux inaperçu ? Échange ton butin avec cette personne. |  |
 | 9 | `rev-09` | Entre une vie paisible avec un homme gentil et une vie dangereuse avec un homme problématique mais beaucoup trop sexy, qui choisit la seconde ? Échange ton butin avec cette personne. |  |
 | 10 | `rev-10` | Une potion permet de parler aux animaux pendant une journée. Qui serait la première personne à la tester ? Échange ton butin avec cette personne. |  |
 | 11 | `rev-11` | Un grimoire contient toutes les conversations de votre groupe depuis six ans. Qui aurait le courage de le lire ? Échange ton butin avec cette personne. |  |
@@ -45,23 +45,23 @@ Les champs `duree` et `effet` vont toujours ensemble : les 31 cartes immédiates
 
 | N° | Identifiant | Texte | Effet durable |
 |---|---|---|---|
-| 1 | `epr-01` | Dis « Je te suivrai au bout du monde » à la personne à ta gauche, avec le plus de conviction possible. Si cette personne est charmé(e), échangez vos butins. |  |
+| 1 | `epr-01` | Dis « Je te suivrai au bout du monde » à la personne à ta gauche, avec le plus de conviction possible. Si cette personne est sous le charme, échangez vos butins. |  |
 | 2 | `epr-02` | Une créature magique arrive. Imite son cri ou sa façon de se déplacer. La première personne qui devine la créature échange son butin avec toi. |  |
 | 3 | `epr-03` | Le héros t'offre une rose enchantée qui murmure des compliments. Comme elle, murmure trois compliments à la personne de ton choix, puis échangez vos butins. |  |
 | 4 | `epr-04` | Le prince et sa promise ouvrent le bal. Avec la personne de ton choix, faites une révérence synchronisée, puis échangez vos butins. |  |
 | 5 | `epr-05` | Un barde chante la gloire du héros. Fredonne un air connu, sans les paroles. La première personne qui trouve le titre échange son butin avec toi. |  |
 | 6 | `epr-06` | Sort de la cour royale : jusqu'à la fin de la partie, vouvoie tout le monde. Si tu craques, échange ton butin avec la personne que tu as tutoyée. | Vouvoie tout le monde (jusqu'à la fin de la partie) |
 | 7 | `epr-07` | Choisis un mot (« amour », « destin », « épée »…) et annonce-le à voix haute. La première personne qui le prononce avant la fin de la partie échange son butin avec toi. | Mot interdit annoncé (jusqu'à la fin de la partie) |
-| 8 | `epr-08` | Tu es souverain(e) jusqu'à ton prochain tour. Tu peux décréter un seul échange de butins entre deux personnes de ton choix. | Souverain(e) : un échange à décréter (jusqu'à son prochain tour) |
+| 8 | `epr-08` | Tu règnes jusqu'à ton prochain tour. Tu peux décréter un seul échange de butins entre deux personnes de ton choix. | Règne : un échange à décréter (jusqu'à son prochain tour) |
 | 9 | `epr-09` | Prédis un événement banal pour la suite de la partie (exemple : « Avant la fin, quelqu'un dira “dragon” »). Si ta prophétie se réalise, échange ton butin avec la personne qui l'a réalisée. | Prophétie en cours (jusqu'à la fin de la partie) |
 | 10 | `epr-10` | Pense en secret à une créature fantastique (dragon, licorne, griffon…). Les autres te posent des questions à tour de rôle, auxquelles tu réponds seulement par « oui » ou « non ». La première personne qui trouve la créature échange son butin avec toi. |  |
-| 11 | `epr-11` | Dis « Le destin m'a mené(e) jusqu'à toi » à la personne à ta droite, avec toute la solennité d'un héros ou d'une héroïne de légende. Si cette personne rit, échangez vos butins. |  |
+| 11 | `epr-11` | Dis « Le destin a guidé mes pas jusqu'à toi » à la personne à ta droite, avec toute la solennité d'un personnage de légende. Si cette personne rit, échangez vos butins. |  |
 | 12 | `epr-12` | Le royaume organise une remise de médailles. Remets une médaille imaginaire à la personne de ton choix en expliquant son exploit, puis échangez vos butins. |  |
 | 13 | `epr-13` | Une alliance entre deux royaumes est scellée. Serre la main de la personne à ta droite avec la plus grande solennité, puis échangez vos butins. |  |
-| 14 | `epr-14` | Le roi te nomme gardien(ne) du trésor du royaume. Jusqu'à la fin de la partie, surveille ton butin avec un air très sérieux. Si tu souris, échange ton butin avec la première personne qui t'a vu(e) sourire. | Gardien(ne) du trésor : ne pas sourire (jusqu'à la fin de la partie) |
+| 14 | `epr-14` | Le roi te confie la garde du trésor du royaume. Jusqu'à la fin de la partie, surveille ton butin avec un air très sérieux. Si tu souris, échange ton butin avec la première personne qui s'en aperçoit. | Garde du trésor : ne pas sourire (jusqu'à la fin de la partie) |
 | 15 | `epr-15` | La reine te demande de nommer un bébé dragon. Demande des idées aux autres, puis échange ton butin avec la personne dont le nom te plaît le plus. |  |
 | 16 | `epr-16` | Le sort du silence est lancé. Jusqu'à ton prochain tour, tu ne parles qu'en chuchotant. Si tu élèves la voix, échange ton butin avec la première personne qui l'a remarqué. | Sort du silence : chuchote (jusqu'à son prochain tour) |
-| 17 | `epr-17` | Te voilà transformé(e) en chat. Jusqu'à ton prochain tour, miaule à la place de dire « oui » et « non ». Si tu oublies, échange ton butin avec la première personne qui te le rappelle. | Transformé(e) en chat : miaule (jusqu'à son prochain tour) |
+| 17 | `epr-17` | Un sort te métamorphose en chat. Jusqu'à ton prochain tour, miaule à la place de dire « oui » et « non ». Si tu oublies, échange ton butin avec la première personne qui te le rappelle. | Métamorphose en chat : miaule (jusqu'à son prochain tour) |
 | 18 | `epr-18` | Sort de l'écho : jusqu'à ton prochain tour, répète les trois derniers mots de chaque phrase de la personne à ta gauche. Si tu te trompes, échange ton butin avec cette personne. | Sort de l'écho : répète la personne à ta gauche (jusqu'à son prochain tour) |
 | 19 | `epr-19` | Sort du compliment obligatoire : jusqu'à ton prochain tour, commence par un compliment chaque fois que tu t'adresses à quelqu'un. Si tu oublies, échange ton butin avec la personne à qui tu aurais dû le faire. | Compliment obligatoire (jusqu'à son prochain tour) |
 | 20 | `epr-20` | Un portail s'ouvre vers le passé. Raconte un souvenir que tu as d'une personne du groupe, sans la nommer. La première personne qui se reconnaît échange son butin avec toi. |  |

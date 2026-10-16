@@ -4,7 +4,7 @@
 export const marque = 'Romantasy';
 
 export const accueil = {
-  salut: 'Bienvenue, voyageur(euse).',
+  salut: 'Bienvenue en ces terres.',
   texte1: 'Les Cours s\'agitent, les dragons s\'éveillent et le destin s\'apprête à battre ses cartes.',
   texte2: 'Récupérez votre butin, choisissez votre emblème et laissez le sort décider du trésor qui sera le vôtre.',
   bouton: 'Comment ça marche ?',
@@ -12,18 +12,18 @@ export const accueil = {
 
 export const regles = {
   butTitre: 'But du jeu',
-  but: 'Chaque joueur(se) commence la partie avec un butin mystère. Au fil de la partie, ce butin pourra passer de main en main… jusqu\'à la grande révélation finale !',
+  but: 'Chaque personne commence la partie avec un butin mystère. Au fil de la partie, ce butin pourra passer de main en main… jusqu\'à la grande révélation finale !',
   deroulementTitre: 'Déroulement',
-  deroulement: 'À tour de rôle, chaque joueur(se) tire une carte de son choix : Épreuve ou Révélation. Tout ce qui doit être accompli est inscrit dessus.',
+  deroulement: 'À tour de rôle, chaque personne tire une carte de son choix : Épreuve ou Révélation. Tout ce qui doit être accompli est inscrit dessus.',
   carteRevelationNom: 'Carte Révélation (question)',
-  carteRevelation: ' : le/la joueur(se) désigne une personne (soi-même ou une autre) selon la consigne de la carte. Il est aussi possible de ne désigner personne : dans ce cas, aucun butin ne change de main.',
+  carteRevelation: ' : la personne qui joue désigne quelqu\'un (soi-même ou une autre personne) selon la consigne de la carte. Il est aussi possible de ne désigner personne : dans ce cas, aucun butin ne change de main.',
   carteEpreuveNom: 'Carte Épreuve (action)',
-  carteEpreuve: ' : le/la joueur(se) accomplit l\'action que le destin réclame.',
+  carteEpreuve: ' : la personne qui joue accomplit l\'action que le destin réclame.',
   effetsDurables: 'Certaines cartes Épreuve produisent un effet qui dure. Il prend fin dès qu\'il a provoqué un échange de butins.',
   bouclierTitre: 'Invoquer un bouclier',
-  bouclier: 'Une fois la carte révélée, le/la joueur(se) peut toujours invoquer un bouclier pour refuser l\'épreuve ou la révélation. Mais prenez garde : son tour est alors tout de même consumé.',
+  bouclier: 'Une fois la carte révélée, la personne qui joue peut toujours invoquer un bouclier pour refuser l\'épreuve ou la révélation. Mais prenez garde : son tour est alors tout de même consumé.',
   finTitre: 'Fin de la partie',
-  fin: (tours) => `Lorsque chaque joueur(se) a joué ${tours} fois, la quête s'achève. Vient alors, pour chacun(e), l'heure d'ouvrir son butin et de découvrir ce que le sort lui a réservé !`,
+  fin: (tours) => `Lorsque chaque personne a joué ${tours} fois, la quête s'achève. Vient alors, pour tout le monde, l'heure d'ouvrir son butin et de découvrir ce que le sort lui a réservé !`,
   creer: 'Créer une partie',
   rejoindre: 'Rejoindre une partie',
   retour: 'Retour à l\'accueil',
@@ -58,7 +58,7 @@ export const effets = {
 
 export const fin = {
   titre: 'La quête s\'achève.',
-  texte: 'Le destin a rendu son verdict. Chacun(e) tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !',
+  texte: 'Le destin a rendu son verdict. Chaque personne tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !',
   bouton: 'Nouvelle quête',
 };
 
@@ -73,17 +73,17 @@ export const salle = {
   vous: 'toi',
   prenomLibelle: 'Ton prénom',
   embleme: 'Ton emblème',
-  pret: 'Prêt(e)',
-  pretBouton: 'Je suis prêt(e)',
+  pret: 'C\'est bon',
+  pretBouton: 'Je suis là',
   commencer: 'Commencer la quête',
   complete: 'La partie est complète',
-  participants: 'Participant(e)s',
+  groupe: 'Le groupe',
 };
 
 // Écran « Créer une partie » : choix du code dans la liste.
 export const creer = {
   titre: 'Choisis le code de la partie',
-  aide: 'Les autres joueur(se)s le saisiront pour te rejoindre.',
+  aide: 'Les autres le saisiront pour te rejoindre.',
   liste: 'Codes de partie',
   valider: 'Valider',
   retour: 'Retour aux règles',

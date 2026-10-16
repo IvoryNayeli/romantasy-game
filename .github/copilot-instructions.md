@@ -14,7 +14,7 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Page 
 - Tout en français : interface, commentaires, documentation, messages de commit.
 - Messages de commit courts, un par étape cohérente, préfixés par la phase, par exemple `phase 1 : ajout des 40 cartes`.
 - Pas d'emojis dans les documents ou les messages, sauf ceux de l'interface (emblèmes).
-- **Écriture inclusive partout** (interface, règles, cartes, documentation) : convention dans `docs/PROJET.md` (parenthèses : joueur(se), voyageur(euse), chacun(e) ; formulations neutres : « cette personne »). Ne jamais écrire « joueuse », « elle » ou « celle » pour désigner un(e) joueur(se). Identifiants de code neutres (`joueur`, `joueurs`).
+- **Écriture inclusive partout** (interface, règles, cartes, documentation) : formulation neutre d'abord (« chaque personne », « tout le monde », « les autres », « Je suis là »), parenthèses seulement en dernier recours ; convention dans `docs/PROJET.md`. Ne jamais écrire « joueuse », « elle » ou « celle » (ni une forme exclusivement masculine) pour désigner un(e) joueur(se). Identifiants de code neutres (`joueur`, `joueurs`).
 - Pas de refonte, de fonctionnalité ou de dépendance non demandées. Rester simple.
 
 ## Déroulement par phases
