@@ -1,6 +1,8 @@
 // Textes de l'interface. Source unique : docs/regles.md (ne pas reformuler ici).
 // Le nombre de tours vient de config.json : il est passé en paramètre, jamais écrit dans un texte.
 
+export const marque = 'Romantasy';
+
 export const accueil = {
   salut: 'Bienvenue, voyageur(euse).',
   texte1: 'Les Cours s\'agitent, les dragons s\'éveillent et le destin s\'apprête à battre ses cartes.',

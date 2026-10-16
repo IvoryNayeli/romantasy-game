@@ -1,7 +1,7 @@
 // Les écrans du jeu. Chaque fonction reçoit un contexte { donnees, params, naviguer }
 // et renvoie { noeud, retour?, nettoyer? }. Phase 2 : données fictives, aucune logique de jeu.
 
-import { h, icone, lienBouton } from './dom.js';
+import { h, icone, lienBouton, coins, filigrane, logo, etoile } from './dom.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
@@ -10,6 +10,9 @@ import {
 } from './fictif.js';
 
 const DUREE_TRANSITION_MS = 2000; // « Transition de 2 secondes » (docs/regles.md)
+
+// Étoiles qui scintillent sur l'accueil : position (gauche, haut) en pourcentages.
+const ETOILES_ACCUEIL = [[10, 12], [24, 6], [78, 9], [91, 20], [14, 36], [88, 46], [7, 72], [93, 80]];
 
 /* ---------- Éléments réutilisables ---------- */
 
@@ -36,17 +39,30 @@ function bandeauEffet(effet, duree, perspective) {
       h('span', { classe: 'bandeau-duree' }, dureeTexte(duree, perspective))));
 }
 
-// Carte révélée : en-tête (couleur + symbole + nom du type), texte, bandeau si effet durable.
+// Carte révélée (charte, section 6) : cadre 2:3 qui s'allonge si le texte l'exige, quatre étincelles aux coins,
+// type en légende (symbole + texte, couleur de type), séparateur filigrane, texte avec lettrine, bandeau d'effet durable.
+// Les cartes du jeu n'ont ni coût, ni nom, ni illustration : ces éléments de la charte ne sont pas affichés.
 // Le retournement 3D est une animation CSS jouée à l'affichage.
 function carteEl(carte, perspective) {
   const type = T.types[carte.type];
   return h('article', { classe: `carte carte-${carte.type}`, 'data-carte': carte.id },
     h('div', { classe: 'carte-3d' },
       h('div', { classe: 'carte-face' },
-        h('header', { classe: 'carte-entete' }, icone(type.symbole, 'carte-symbole'), h('span', null, type.nom)),
+        coins(),
+        h('header', { classe: 'carte-entete' }, icone(type.symbole), h('span', null, type.nom)),
+        filigrane('carte-filigrane'),
         h('p', { classe: 'carte-texte' }, carte.texte),
         carte.effet ? bandeauEffet(carte.effet, carte.duree, perspective) : null),
-      h('div', { classe: 'carte-dos', 'aria-hidden': 'true' }, icone(type.symbole, 'carte-dos-symbole'))));
+      h('div', { classe: `dos carte-dos dos-${carte.type}`, 'aria-hidden': 'true' }, contenuDos(carte.type))));
+}
+
+// Dos de carte (charte, section 6) : étincelles, logo, symbole et nom du type.
+function contenuDos(type) {
+  return h('span', { classe: 'dos-corps' },
+    coins(),
+    logo('dos-logo'),
+    icone(T.types[type].symbole, 'dos-symbole'),
+    h('span', { classe: 'dos-nom' }, T.types[type].nom));
 }
 
 function barreBas(...boutons) {
@@ -63,9 +79,13 @@ function flecheRetour(ecran, libelle) {
 
 export function accueil() {
   const noeud = h('section', { classe: 'ecran ecran-accueil' },
+    h('div', { classe: 'ciel-accueil', 'aria-hidden': 'true' }, ETOILES_ACCUEIL.map(([x, y]) => etoile(x, y))),
     h('div', { classe: 'accueil-corps' },
+      h('div', { classe: 'logo-complet', role: 'img', 'aria-label': T.marque },
+        logo('logo-grand'),
+        h('span', { classe: 'logo-nom', 'aria-hidden': 'true' }, T.marque)),
       h('p', { classe: 'accueil-salut' }, T.accueil.salut),
-      h('div', { classe: 'ornement', 'aria-hidden': 'true' }, icone('etoile')),
+      h('div', { classe: 'ornement', 'aria-hidden': 'true' }, filigrane()),
       h('p', { classe: 'texte' }, T.accueil.texte1),
       h('p', { classe: 'texte' }, T.accueil.texte2)),
     barreBas(lienBouton(T.accueil.bouton, { ecran: 'regles' })));
@@ -107,7 +127,8 @@ export function creer({ donnees, params, naviguer }) {
       classe: 'code-radio', type: 'radio', name: 'code', value: code, checked: code === choisi,
       onchange: () => { choisi = code; boutonValider.disabled = false; },
     });
-    return h('label', { classe: 'code-option' }, entree, h('span', { classe: 'code-option-nom' }, code));
+    return h('label', { classe: 'code-option' }, entree,
+      h('span', { classe: 'code-option-nom' }, icone('coche'), code));
   });
   boutonValider.disabled = !choisi;
   const formulaire = h('form', {
@@ -251,7 +272,7 @@ export function salle({ donnees, params, naviguer }) {
   boutonPret.addEventListener('click', () => { moi.pret = !moi.pret; maj(); });
 
   const formulaire = complete
-    ? h('p', { classe: 'avis-complete', role: 'status' }, S.complete)
+    ? h('p', { classe: 'panneau avis-complete', role: 'status' }, coins(), S.complete)
     : h('div', { classe: 'formulaire' },
       h('label', { classe: 'etiquette-champ', for: 'champ-prenom' }, S.prenomLibelle),
       champ,
@@ -277,9 +298,7 @@ export function choix({ donnees, params }) {
   const n = tourDepuisParametres(donnees, params);
   const dos = (type) => h('a', {
     classe: `dos dos-${type}`, href: `?ecran=carte&type=${type}&tour=${n}`, 'data-nav': '',
-  },
-  h('span', { classe: 'dos-cadre' }, icone(T.types[type].symbole, 'dos-symbole')),
-  h('span', { classe: 'dos-nom' }, T.types[type].nom));
+  }, contenuDos(type));
   const noeud = h('section', { classe: 'ecran ecran-choix' },
     compteurEl(donnees, n),
     h('h2', { classe: 'titre-tour' }, T.tour.aToi),
@@ -291,6 +310,7 @@ export function carte({ donnees, params, naviguer }) {
   const n = tourDepuisParametres(donnees, params);
   const c = carteDepuisParametres(donnees, params);
   const dialogue = h('dialog', { classe: 'dialogue', 'aria-labelledby': 'dialogue-texte' },
+    coins(),
     h('p', { id: 'dialogue-texte', classe: 'dialogue-texte' }, T.tour.confirmation),
     h('div', { classe: 'dialogue-boutons' },
       h('button', {
@@ -322,7 +342,8 @@ export function attente({ donnees, params }) {
     embleme: emblemeParId(donnees, params.get('embleme') || premier.embleme),
   };
   const enCours = params.get('effets') === '0' ? [] : effetsEnCours(donnees);
-  const bandeauGlobal = enCours.length === 0 ? null : h('section', { classe: 'effets-en-cours', 'aria-label': T.effets.enCours },
+  const bandeauGlobal = enCours.length === 0 ? null : h('section', { classe: 'panneau effets-en-cours', 'aria-label': T.effets.enCours },
+    coins(),
     h('h2', { classe: 'effets-titre' }, icone('lueur'), T.effets.enCours),
     h('ul', { classe: 'effets-liste' }, enCours.map((e) => h('li', { classe: 'effets-item' },
       h('span', { classe: 'effets-joueur' }, emblemeEl(emblemeParId(donnees, e.joueur.embleme)), e.joueur.prenom),
@@ -363,7 +384,7 @@ export function fin() {
   const noeud = h('section', { classe: 'ecran ecran-fin' },
     h('div', { classe: 'fin-corps' },
       h('p', { classe: 'accueil-salut' }, T.fin.titre),
-      h('div', { classe: 'ornement', 'aria-hidden': 'true' }, icone('etoile')),
+      h('div', { classe: 'ornement', 'aria-hidden': 'true' }, filigrane()),
       h('p', { classe: 'texte' }, T.fin.texte)),
     barreBas(lienBouton(T.fin.bouton, { ecran: 'accueil' })));
   return { noeud };

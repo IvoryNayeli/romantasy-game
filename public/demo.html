@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#14101F">
+  <meta name="theme-color" content="#060B1E">
   <title>Romantasy : écrans de démonstration</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/verif-serveur.js"></script>
   <script type="module" src="js/demo.js"></script>
 </head>
-<body class="page-demo">
+<body class="ciel page-demo">
   <div class="page">
     <main id="ecran" class="ecran-zone" tabindex="-1">
       <section class="ecran demo">
@@ -21,6 +21,7 @@
       </section>
     </main>
   </div>
+  <svg class="grain" aria-hidden="true"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="1" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#grain)"/></svg>
   <noscript>
     <p class="noscript">Ce jeu a besoin de JavaScript pour fonctionner.</p>
   </noscript>

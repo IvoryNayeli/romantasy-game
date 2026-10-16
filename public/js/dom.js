@@ -19,15 +19,42 @@ export function h(balise, attrs, ...enfants) {
   return el;
 }
 
-// Icône du sprite SVG défini dans index.html (symbole « i-nom »).
-export function icone(nom, classe = '') {
+// Symbole du sprite SVG défini dans index.html (symbole « i-nom »), décoratif.
+function symbole(nom, classe) {
   const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('class', `icone ${classe}`.trim());
+  svg.setAttribute('class', classe);
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
   const use = document.createElementNS(NS, 'use');
   use.setAttribute('href', `#i-${nom}`);
   svg.append(use);
+  return svg;
+}
+
+// Icône au trait fin (épée, étoile, bouclier, retour, coche, lueur).
+export function icone(nom, classe = '') {
+  return symbole(nom, `icone ${classe}`.trim());
+}
+
+// Quatre étincelles dans les coins d'une carte, d'un panneau ou d'une fenêtre (parent en position: relative).
+export function coins() {
+  return ['hg', 'hd', 'bg', 'bd'].map((place) => symbole('etincelle', `coin coin-${place}`));
+}
+
+// Séparateur filigrane.
+export function filigrane(classe = '') {
+  return symbole('filigrane', `filigrane ${classe}`.trim());
+}
+
+// Logo (dessin provisoire) : décoratif ici, son nom accessible est porté par le conteneur.
+export function logo(classe = '') {
+  return symbole('logo', classe);
+}
+
+// Étoile qui scintille (décor de l'accueil), placée en pourcentages.
+export function etoile(gauche, haut) {
+  const svg = symbole('etincelle', 'etoile');
+  svg.setAttribute('style', `left:${gauche}%;top:${haut}%`);
   return svg;
 }
 

@@ -90,6 +90,48 @@ function contraste(a, b) {
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 
+// Tailles de police déclarées pour un sélecteur : `font-size: X` ou `font: [style] [graisse] X/ligne famille`.
+function taillesDeclarees(selecteur) {
+  const tailles = propriete(selecteur, 'font-size');
+  for (const f of propriete(selecteur, 'font')) {
+    const m = f.match(/(?:^|\s)(max\([^)]*\)|[\d.]+(?:px|rem|em|cqw))(?:\/|\s)/);
+    if (m) tailles.push(m[1]);
+  }
+  return tailles;
+}
+
+// Taille plancher en pixels d'une valeur : « 1.25rem » -> 20 ; « max(6.5cqw, 1.25rem) » -> 20 (la partie en cqw s'ajoute au-dessus).
+function plancherEnPixels(valeur, vars = {}) {
+  const m = valeur.match(/^max\((.*)\)$/);
+  if (!m) return enPixels(valeur, vars);
+  const absolues = m[1].split(',').map((s) => s.trim()).filter((s) => !/cqw$/.test(s));
+  assert.ok(absolues.length > 0, `max() sans plancher absolu : ${valeur}`);
+  return Math.max(...absolues.map((s) => enPixels(s, vars)));
+}
+
+// Variables du bloc :root de la charte graphique (docs/charte-graphique.md, section 2).
+function variablesCharte() {
+  const bloc = lire('docs', 'charte-graphique.md').match(/:root\s*\{([\s\S]*?)\n\}/)[1];
+  const vars = {};
+  for (const m of bloc.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) vars[m[1]] = m[2].trim();
+  return vars;
+}
+
+// Teinte (0-360) et saturation (0-1) d'une couleur #RRGGBB.
+function teinteSaturation(hex) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  if (d === 0) return { t: 0, s: 0 };
+  let t;
+  if (max === r) t = ((g - b) / d) % 6;
+  else if (max === g) t = (b - r) / d + 2;
+  else t = (r - g) / d + 4;
+  const l = (max + min) / 2;
+  return { t: (t * 60 + 360) % 360, s: d / (1 - Math.abs(2 * l - 1)) };
+}
+
 /* ---------- HTML : vérification simplifiée (balises équilibrées, attributs) ---------- */
 
 const VIDES = new Set(['meta', 'link', 'br', 'hr', 'img', 'input', 'source', 'area', 'base', 'col', 'embed', 'wbr', 'param', 'track']);
@@ -218,9 +260,11 @@ test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste de
   assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : code, menu emblème/prénom, participant(e)s');
   assert.match(lirePublic('js', 'textes.js'), /participants: 'Participant\(e\)s'/);
   // Le code est discret : petit et en couleur secondaire (pas un grand encadré).
-  const tailles = propriete('.code-partie', 'font-size');
-  assert.ok(tailles.length > 0 && tailles.every((t) => enPixels(t, variables()) <= 18), `code trop grand : ${tailles}`);
-  assert.ok(propriete('.code-partie', 'color').some((c) => /--(c-lune-douce|secondaire)/.test(c)), 'code en couleur secondaire');
+  for (const sel of ['.code-libelle', '.code-valeur']) {
+    const tailles = taillesDeclarees(sel);
+    assert.ok(tailles.length > 0 && tailles.every((t) => enPixels(t, variables()) <= 18), `${sel} : code trop grand (${tailles})`);
+  }
+  assert.ok(propriete('.code-partie', 'color').includes('var(--c-lune-douce)'), 'code en couleur secondaire');
 });
 
 test('textes : « participant(e)s » (jamais une forme exclusivement féminine) dans le code et la documentation', () => {
@@ -231,12 +275,13 @@ test('textes : « participant(e)s » (jamais une forme exclusivement féminine) 
   }
 });
 
-test('design : polices Cinzel et Cormorant Garamond hébergées (woff2 présents, valides, licence OFL)', () => {
+test('design : polices Cormorant Garamond (500, 600, 500 italique) et Jost (300, 400, 500) hébergées, licences OFL, plus de Cinzel', () => {
   const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
-  assert.ok(faces.length >= 3, 'au moins trois @font-face attendus');
-  const familles = new Set(faces.map((f) => f.match(/font-family:\s*'([^']+)'/)[1]));
-  assert.ok(familles.has('Cinzel'), 'Cinzel non déclarée');
-  assert.ok(familles.has('Cormorant Garamond'), 'Cormorant Garamond non déclarée');
+  const declarees = faces.map((f) => `${f.match(/font-family:\s*'([^']+)'/)[1]}|${f.match(/font-weight:\s*(\d+)/)[1]}|${f.match(/font-style:\s*(\w+)/)[1]}`).sort();
+  assert.deepEqual(declarees, [
+    'Cormorant Garamond|500|italic', 'Cormorant Garamond|500|normal', 'Cormorant Garamond|600|normal',
+    'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal',
+  ]);
   for (const face of faces) {
     const src = face.match(/url\('([^']+)'\)\s*format\('woff2'\)/);
     assert.ok(src, 'chaque @font-face doit pointer vers un fichier woff2 local');
@@ -244,10 +289,22 @@ test('design : polices Cinzel et Cormorant Garamond hébergées (woff2 présents
     assert.ok(fs.existsSync(fichier), `police manquante : ${src[1]}`);
     assert.equal(fs.readFileSync(fichier).subarray(0, 4).toString('latin1'), 'wOF2', `${src[1]} n'est pas un woff2`);
   }
-  for (const licence of ['LICENSE-Cinzel-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt']) {
+  for (const licence of ['LICENSE-Jost-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt']) {
     assert.ok(existe('fonts', licence), `${licence} manquante`);
     assert.match(lirePublic('fonts', licence), /SIL Open Font License/);
   }
+  // Cinzel n'est plus utilisée : ni fichier, ni licence, ni référence.
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /cinzel/i.test(f)), []);
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /700/.test(f)), [], 'graisse 700 non prévue par la charte');
+  for (const f of listerFichiers(PUBLIC, /\.(html|css|js)$/)) {
+    assert.doesNotMatch(fs.readFileSync(f, 'utf8'), /cinzel/i, `${path.relative(RACINE, f)} : référence à Cinzel`);
+  }
+  // Les familles de la charte sont bien celles des variables, et aucune graisse non chargée n'est demandée.
+  const v = variables();
+  assert.match(v['--f-titre'], /^'Cormorant Garamond'/);
+  assert.match(v['--f-texte'], /^'Jost'/);
+  assert.doesNotMatch(css, /font-weight:\s*(?:700|800|900|bold)\b/);
+  assert.doesNotMatch(css, /\bfont:\s*(?:italic\s+)?(?:700|800|900|bold)\b/);
 });
 
 test('design : aucune ressource externe (pas de Google Fonts, pas de CDN, pas d\'URL distante)', () => {
@@ -261,26 +318,63 @@ test('design : aucune ressource externe (pas de Google Fonts, pas de CDN, pas d\
   }
 });
 
-test('design : palette exacte du projet (docs/PROJET.md)', () => {
-  const vars = variables();
+test('design : variables de la charte (docs/charte-graphique.md, section 2) reprises telles quelles, sans variable inventée', () => {
+  const v = variables();
+  const charte = variablesCharte();
+  assert.ok(Object.keys(charte).length >= 25, 'bloc :root de la charte introuvable');
+  assert.deepEqual(v, charte, 'le bloc :root doit être identique à celui de la charte (mêmes variables, mêmes valeurs)');
   const attendu = {
-    '--fond': '#14101F', '--fond-haut': '#2A1B3D', '--surface': '#221A33', '--or': '#D4AF6A',
-    '--texte': '#F3ECE0', '--epreuve': '#B3263E', '--revelation': '#6C4FD1', '--secondaire': '#A79BBE',
+    '--c-nuit': '#060B1E', '--c-minuit': '#0F1E4A', '--c-brume': '#3C5A8C', '--c-lune': '#C9D8EE',
+    '--c-lune-douce': '#8FA6C8', '--c-etoile': '#F4F1E8', '--c-ambre': '#F0A35E', '--c-braise': '#D9693A',
   };
-  for (const [nom, couleur] of Object.entries(attendu)) {
-    assert.equal((vars[nom] || '').toUpperCase(), couleur, `${nom}`);
+  for (const [nom, couleur] of Object.entries(attendu)) assert.equal((v[nom] || '').toUpperCase(), couleur, nom);
+  // Toute variable utilisée dans le CSS existe : dans :root, ou propre à un composant (--rarete, --lueur de la charte).
+  const utilisees = new Set([...css.matchAll(/var\((--[\w-]+)/g)].map((m) => m[1]));
+  for (const nom of utilisees) assert.ok(nom in v || ['--rarete', '--lueur'].includes(nom), `variable inventée : ${nom}`);
+  assert.doesNotMatch(css, /@import/);
+  // docs/PROJET.md, section « Design » : nouvelle palette et nouvelles polices, renvoi à la charte, plus d'ancienne palette.
+  const projet = lire('docs', 'PROJET.md');
+  for (const couleur of Object.values(attendu)) assert.ok(projet.toUpperCase().includes(couleur), `PROJET.md : ${couleur} absente`);
+  assert.match(projet, /charte-graphique\.md/);
+  assert.match(projet, /Cormorant Garamond/);
+  assert.match(projet, /Jost/);
+  for (const ancien of ['#14101F', '#6C4FD1', '#D4AF6A']) assert.ok(!projet.includes(ancien), `PROJET.md : « ${ancien} » ne doit plus y figurer`);
+  assert.match(css, /\.ciel\s*\{/, 'fond étoilé .ciel');
+  assert.match(lirePublic('index.html'), /<body class="ciel">/);
+  assert.match(lirePublic('demo.html'), /<body class="ciel page-demo">/);
+  assert.doesNotMatch(css, /background-attachment:\s*fixed/, 'fond fixe interdit (saccades sur mobile)');
+});
+
+test('design : interdits de la charte (violets, roses, blanc et noir purs, ombres noires, pilules, survol, texte en brume)', () => {
+  const sansRoot = css.replace(/:root\s*\{[^}]*\}/, '');
+  // Couleurs écrites en dur : ni violet ni rose, ni #FFF ni #000.
+  for (const m of css.matchAll(/#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/g)) {
+    const hex = m[1].length === 3 ? m[1].split('').map((c) => c + c).join('') : m[1].slice(0, 6);
+    assert.ok(!/^f{6}$/i.test(hex) && hex !== '000000', `#${m[1]} : blanc ou noir pur`);
+    const { t, s } = teinteSaturation(`#${hex}`);
+    assert.ok(!(t >= 255 && t <= 345 && s > 0.12), `#${m[1]} : violet ou rose (teinte ${t.toFixed(0)})`);
   }
-  assert.match(lire('docs', 'PROJET.md'), /#14101F/);
-  assert.match(css, /linear-gradient\(180deg,\s*var\(--fond\)[^,)]*,\s*var\(--fond-haut\)[^)]*\)/, 'dégradé du fond');
+  assert.doesNotMatch(css, /\b(?:white|black|purple|violet|pink|magenta|rgba?\(\s*(?:0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255))/i, 'couleur nommée ou noir/blanc pur');
+  assert.doesNotMatch(css, /box-shadow:[^;]*(?:rgba?\(\s*0\s*,\s*0\s*,\s*0|#000)/i, 'ombre portée noire');
+  assert.doesNotMatch(css, /:hover/, 'aucun effet au survol');
+  assert.doesNotMatch(css, /border-radius:\s*(?:999|9999)/, 'pilule');
+  assert.doesNotMatch(css, /border-radius:\s*50%/, 'le cercle est réservé au logo et au badge de coût (absent du jeu)');
+  assert.doesNotMatch(sansRoot, /(?:^|[;{\s])color\s*:\s*var\(--c-brume\)/m, 'texte en --c-brume');
+  assert.doesNotMatch(css, /\.etincelles\b/, 'ancien fond d\'étincelles');
+  // Les violets et roses de l'ancienne palette ont disparu des textes de conception.
+  for (const ancien of ['#14101F', '#2A1B3D', '#221A33', '#D4AF6A', '#B3263E', '#6C4FD1', '#A79BBE']) {
+    assert.ok(!css.toUpperCase().includes(ancien), `ancienne couleur ${ancien} encore dans le CSS`);
+  }
+  for (const page of PAGES_HTML) assert.doesNotMatch(lirePublic(page), /#14101F|#fff\b|#000\b/i, `${page} : ancienne couleur ou noir/blanc pur`);
 });
 
 test('design : contrastes de la palette (texte >= 4,5:1, texte principal >= 7:1)', () => {
   const v = variables();
   const paires = [
-    ['--texte', '--fond', 7], ['--texte', '--surface', 7], ['--texte', '--fond-haut', 7],
-    ['--or', '--surface', 4.5], ['--or', '--fond', 4.5], ['--fond', '--or', 4.5],
-    ['--secondaire', '--surface', 4.5], ['--secondaire', '--fond', 4.5], ['--secondaire', '--fond-haut', 4.5],
-    ['--texte', '--epreuve', 4.5], ['--texte', '--revelation', 4.5],
+    ['--c-lune', '--c-nuit', 7], ['--c-lune', '--c-minuit', 7], ['--c-etoile', '--c-nuit', 7], ['--c-etoile', '--c-minuit', 7],
+    ['--c-lune-douce', '--c-nuit', 4.5], ['--c-lune-douce', '--c-minuit', 4.5],
+    ['--c-ambre', '--c-nuit', 4.5], ['--c-ambre', '--c-minuit', 4.5], ['--c-nuit', '--c-ambre', 7],
+    ['--c-braise', '--c-nuit', 4.5], ['--c-braise', '--c-minuit', 4.5],
   ];
   for (const [avant, arriere, minimum] of paires) {
     const c = contraste(v[avant], v[arriere]);
@@ -288,31 +382,38 @@ test('design : contrastes de la palette (texte >= 4,5:1, texte principal >= 7:1)
   }
 });
 
-test('design : boutons et zones tactiles d\'au moins 48 px de haut', () => {
+test('design : boutons et zones tactiles d\'au moins 48 px de haut (--cible), états tactiles sans survol', () => {
   const v = variables();
-  assert.ok(enPixels('var(--hauteur-bouton)', v) >= 48);
-  assert.ok(enPixels('var(--hauteur-tactile-min)', v) >= 48);
+  assert.ok(enPixels('var(--cible)', v) >= 48);
   const cibles = {
-    '.bouton': 'min-height', '.bouton-retour': 'height',
-    '.champ': 'min-height', '.embleme-choix': 'min-height', '.demo-lien': 'min-height',
+    '.bouton': 'min-height', '.bouton-retour': 'height', '.bouton-retour ': 'width',
+    '.champ': 'min-height', '.embleme-choix': 'min-height', '.code-option-nom': 'min-height', '.demo-lien': 'min-height',
   };
   for (const [selecteur, prop] of Object.entries(cibles)) {
-    const valeurs = propriete(selecteur, prop);
+    const valeurs = propriete(selecteur.trim(), prop);
     assert.ok(valeurs.length > 0, `${selecteur} : ${prop} non défini`);
     for (const valeur of valeurs) assert.ok(enPixels(valeur, v) >= 48, `${selecteur} : ${prop} ${valeur} < 48 px`);
   }
+  // Bouton principal ambre / texte nuit, secondaire transparent à bordure lune, appui = enfoncement, focus = contour étoile.
+  assert.ok(propriete('.bouton-principal', 'background').includes('var(--c-ambre)'));
+  assert.ok(propriete('.bouton-principal', 'color').includes('var(--c-nuit)'));
+  assert.ok(propriete('.bouton-secondaire', 'background').includes('transparent'));
+  assert.ok(propriete('.bouton-secondaire', 'border').some((b) => /var\(--c-lune\)/.test(b)));
+  assert.ok(propriete('.bouton:active', 'transform').includes('scale(.97)'));
+  assert.ok(propriete('.bouton:disabled', 'opacity').includes('.4'));
+  assert.match(css, /:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--c-etoile\)[^}]*outline-offset:\s*3px/);
+  assert.ok(propriete('.bouton', 'font').some((f) => /500 14px/.test(f)), 'bouton : Jost 500, 14 px');
+  assert.ok(propriete('.bouton', 'letter-spacing').includes('.2em'));
 });
 
-test('design : texte des cartes et des règles d\'au moins 20 px, jamais réduit', () => {
+test('design : texte des cartes et des règles d\'au moins 20 px (plancher en rem, la carte 2:3 s\'allonge si besoin)', () => {
   const v = variables();
-  assert.ok(enPixels('var(--taille-texte-carte)', v) >= 20, 'taille du texte des cartes');
-  assert.ok(enPixels('var(--taille-texte)', v) >= 20, 'taille du texte courant');
-  for (const selecteur of ['.carte-texte', '.texte']) {
-    const tailles = propriete(selecteur, 'font-size');
-    assert.ok(tailles.length > 0, `${selecteur} : font-size non défini`);
-    for (const t of tailles) assert.ok(enPixels(t, v) >= 20, `${selecteur} : ${t} < 20 px`);
+  for (const selecteur of ['.carte-texte', '.bandeau-texte', '.effets-texte', '.texte', '.joueur-prenom']) {
+    const tailles = taillesDeclarees(selecteur);
+    assert.ok(tailles.length > 0, `${selecteur} : taille non définie`);
+    for (const t of tailles) assert.ok(plancherEnPixels(t, v) >= 20, `${selecteur} : ${t} < 20 px`);
   }
-  // Aucune règle d'adaptation (@media) ne doit toucher à la taille du texte des cartes.
+  // Aucune règle d'adaptation (@media) ne doit réduire la taille du texte des cartes.
   for (const m of css.matchAll(/@media[^{]*\{/g)) {
     let profondeur = 1;
     let i = m.index + m[0].length;
@@ -322,23 +423,93 @@ test('design : texte des cartes et des règles d\'au moins 20 px, jamais réduit
       i += 1;
     }
     const bloc = css.slice(m.index, i);
-    assert.doesNotMatch(bloc, /\.carte-texte|\.texte\b|--taille-texte/, `${m[0].trim()} modifie la taille du texte`);
+    assert.doesNotMatch(bloc, /\.carte-texte|\.texte\b|font-size|font:/, `${m[0].trim()} modifie la taille du texte`);
+  }
+  // Légendes de la charte : 12 px au minimum.
+  for (const selecteur of ['.carte-entete', '.dos-nom', '.bandeau-legende', '.code-libelle', '.etiquette', '.compteur']) {
+    for (const t of taillesDeclarees(selecteur)) assert.ok(plancherEnPixels(t, v) >= 12, `${selecteur} : ${t} < 12 px`);
   }
   assert.match(lirePublic('index.html'), /width=device-width, initial-scale=1/);
   assert.doesNotMatch(lirePublic('index.html'), /maximum-scale|user-scalable\s*=\s*no/, 'zoom bloqué');
 });
 
-test('design : chaque type de carte a une couleur ET un symbole (épée pour Épreuve, étoile pour Révélation)', async () => {
+test('cartes : proportions 2:3, cqw, bordure et double filet, lettrine, étincelles aux coins, dos de carte (charte, section 6)', () => {
+  assert.match(css, /\.carte\s*\{[^}]*container-type:\s*inline-size/);
+  assert.ok(propriete('.carte-face', 'aspect-ratio').includes('2 / 3'));
+  assert.ok(propriete('.dos-corps', 'aspect-ratio').includes('2 / 3'));
+  assert.ok(propriete('.carte-face', 'border').some((b) => /var\(--bordure\) solid var\(--rarete\)/.test(b)));
+  assert.ok(propriete('.carte-face', 'border-radius').includes('var(--r-carte)'));
+  assert.ok(propriete('.carte-face', 'padding').includes('6cqw'));
+  assert.ok(propriete('.carte-face', 'box-shadow').includes('var(--lueur)'));
+  assert.ok(propriete('.carte-face::before', 'inset').includes('2.2cqw'), 'double filet');
+  assert.ok(propriete('.carte-face::before', 'border').some((b) => /color-mix\(in srgb, var\(--rarete\) 33%, transparent\)/.test(b)));
+  assert.ok(propriete('.carte-texte::first-letter', 'float').includes('left'), 'lettrine flottante à gauche');
+  assert.ok(propriete('.carte-texte::first-letter', 'color').includes('var(--rarete)'));
+  assert.ok(propriete('.carte .coin-hg', 'top').includes('3.5cqw') && propriete('.carte .coin', 'width').includes('4.3cqw'), 'étincelles à 3,5cqw des bords');
+  assert.ok(propriete('.dos-corps', 'background').some((b) => /radial-gradient\(circle at 50% 45%, #3C5A8C66, #060B1E 70%\)/.test(b)), 'fond du dos de carte');
+  assert.ok(propriete('.dos-corps', 'border').some((b) => /var\(--c-ambre\)/.test(b)), 'bordure ambre du dos');
+  assert.ok(propriete('.dos-corps::after', 'inset').includes('6cqw'), 'filet clair de lune à 6cqw');
+  assert.ok(propriete('.dos-logo', 'width').includes('52cqw'), 'logo à 52 % de la largeur');
+  const ecrans = lirePublic('js', 'ecrans.js');
+  assert.match(ecrans, /coins\(\),\s*\n\s*h\('header', \{ classe: 'carte-entete' \}/, 'étincelles dans la carte');
+  assert.match(ecrans, /filigrane\('carte-filigrane'\)/, 'séparateur filigrane');
+  assert.match(ecrans, /contenuDos\(carte\.type\)/, 'dos de carte pour le retournement');
+  // Éléments de la charte absents du jeu : coût, nom, illustration, rareté. Ils ne sont pas inventés.
+  assert.doesNotMatch(css, /\.carte\s+\.(?:cout|nom|fenetre)\b|\.carte-(?:cout|nom|fenetre)\b|\.(?:commune|rare|legendaire)\b/);
+  assert.doesNotMatch(sansCommentaires(ecrans, 'ecrans.js'), /cout|illustration|fenetre|rarete/i);
+});
+
+test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épreuve : braise + épée ; Révélation : lune + étoile)', async () => {
   const textes = await chargerModule('textes.js');
   assert.equal(textes.types.epreuve.symbole, 'epee');
   assert.equal(textes.types.revelation.symbole, 'etoile');
   assert.equal(textes.types.epreuve.nom, 'Épreuve');
   assert.equal(textes.types.revelation.nom, 'Révélation');
   const html = lirePublic('index.html');
-  for (const symbole of ['epee', 'etoile', 'bouclier']) assert.match(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole ${symbole}`);
-  assert.match(css, /\.carte-revelation\s*\{[^}]*--couleur-type:\s*var\(--revelation\)/);
-  assert.match(css, /\.carte\s*\{[^}]*--couleur-type:\s*var\(--epreuve\)/);
-  assert.match(css, /\.carte-entete\s*\{[^}]*background:\s*var\(--couleur-type\)/);
+  for (const symbole of ['epee', 'etoile', 'bouclier', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane', 'logo']) {
+    assert.match(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole ${symbole}`);
+  }
+  assert.ok(propriete('.carte', '--rarete').includes('var(--c-braise)'), 'Épreuve = braise');
+  assert.ok(propriete('.carte-revelation', '--rarete').includes('var(--c-lune)'), 'Révélation = lune');
+  assert.ok(propriete('.dos', '--rarete').includes('var(--c-braise)'));
+  assert.ok(propriete('.dos-revelation', '--rarete').includes('var(--c-lune)'));
+  assert.ok(propriete('.carte-revelation', '--lueur').includes('var(--lueur-lune)'));
+  assert.ok(propriete('.carte-entete', 'text-transform').includes('uppercase'), 'type écrit en capitales (ÉPREUVE, RÉVÉLATION)');
+  assert.ok(propriete('.carte-entete', 'color').includes('var(--rarete)'));
+  // L'ambre ne code jamais un type de carte : il reste pour l'action principale et ce qui compte.
+  assert.doesNotMatch(css, /--rarete:\s*var\(--c-ambre\)/);
+  const ecrans = lirePublic('js', 'ecrans.js');
+  assert.match(ecrans, /icone\(type\.symbole\), h\('span', null, type\.nom\)/, 'symbole et nom du type sur la carte');
+  assert.match(ecrans, /icone\(T\.types\[type\]\.symbole, 'dos-symbole'\)/, 'symbole sur les dos de carte');
+});
+
+test('logo : SVG fait pour le projet (cercle clair de lune, disque minuit, aile bordée d\'ambre, étoile), version complète et compacte', () => {
+  const html = lirePublic('index.html');
+  const logo = html.match(/<symbol id="i-logo"[^>]*>([\s\S]*?)<\/symbol>/)[1];
+  for (const couleur of ['--c-lune', '--c-minuit', '--c-ambre', '--c-etoile']) assert.match(logo, new RegExp(couleur));
+  assert.match(html, /<svg class="logo-compact" role="img" aria-label="Romantasy"[^>]*width="40" height="40"/, 'version compacte de 40 px dans la barre');
+  assert.match(lirePublic('js', 'ecrans.js'), /classe: 'logo-complet', role: 'img', 'aria-label': T\.marque/, 'version complète sur l\'accueil');
+  assert.ok(propriete('.logo-nom', 'letter-spacing').includes('.18em'));
+  assert.doesNotMatch(html, /<image|<img/, 'aucune image bitmap en phase 2');
+});
+
+test('ornements et icônes : au trait fin de 1,5 px, jamais pleines ; un seul calque de grain par écran', () => {
+  const html = lirePublic('index.html');
+  for (const nom of ['epee', 'etoile', 'bouclier', 'retour', 'coche', 'lueur']) {
+    const symbole = html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
+    assert.match(symbole, /stroke="currentColor"/, `${nom} : trait currentColor`);
+    assert.match(symbole, /stroke-width="1\.5"/, `${nom} : trait de 1,5 px`);
+    assert.doesNotMatch(symbole, /fill="currentColor"/, `${nom} : icône pleine`);
+  }
+  for (const page of PAGES_HTML) {
+    const source = lirePublic(page);
+    assert.equal((source.match(/<feTurbulence/g) || []).length, 1, `${page} : un seul calque de grain`);
+    assert.match(source, /numOctaves="1"/);
+    assert.match(source, /class="grain" aria-hidden="true"/);
+  }
+  assert.doesNotMatch(listerFichiers(path.join(PUBLIC, 'js'), /\.js$/).map((f) => fs.readFileSync(f, 'utf8')).join('\n'), /feTurbulence/);
+  assert.ok(propriete('.grain', 'pointer-events').includes('none'));
+  assert.ok(propriete('.grain', 'mix-blend-mode').includes('overlay'));
 });
 
 test('design : bandeau d\'effet durable sur la carte révélée et dans l\'attente, depuis le champ `effet`', () => {
@@ -352,16 +523,31 @@ test('design : bandeau d\'effet durable sur la carte révélée et dans l\'atten
   for (const c of durables) assert.ok(c.effet && c.effet.length > 0, `${c.id} : effet manquant`);
 });
 
-test('animations : retournement 3D, fondu, lueur, étincelles ; désactivées par le réglage système, sans option dans le jeu', () => {
-  for (const nom of ['retournement', 'fondu', 'lueur', 'scintille']) assert.match(css, new RegExp(`@keyframes ${nom}\\b`), `animation ${nom}`);
+test('animations : retournement 3D, fondu de 300 ms, étoiles, opacity et transform seulement ; coupées par le réglage système, sans option dans le jeu', () => {
+  for (const nom of ['retournement', 'fondu', 'pulse', 'scintille']) assert.match(css, new RegExp(`@keyframes ${nom}\\b`), `animation ${nom}`);
+  assert.doesNotMatch(css, /@keyframes lueur\b/, 'la lueur (box-shadow) n\'est plus animée');
   assert.match(css, /perspective:/);
   assert.match(css, /backface-visibility:\s*hidden/);
   assert.match(css, /rotateY\(180deg\)/);
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/, 'demande du système');
-  const reduit = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*:root\s*\{([^}]*)\}/)[1];
-  for (const anim of ['--anim-fondu', '--anim-flip', '--anim-lueur', '--anim-scintille']) {
-    assert.match(reduit, new RegExp(`${anim}:\\s*none`), `${anim} non désactivée`);
+  // N'animer que opacity et transform (charte, section 9), y compris dans les transitions.
+  for (const m of css.matchAll(/@keyframes\s+([\w-]+)\s*\{((?:[^{}]*\{[^{}]*\})*)\s*\}/g)) {
+    for (const d of m[2].matchAll(/\{([^{}]*)\}/g)) {
+      for (const prop of d[1].split(';').map((p) => p.split(':')[0].trim()).filter(Boolean)) {
+        assert.ok(['opacity', 'transform'].includes(prop), `@keyframes ${m[1]} anime « ${prop} »`);
+      }
+    }
   }
+  for (const m of css.matchAll(/(?:^|[;\s{])transition\s*:\s*([^;]+);/g)) {
+    assert.match(m[1], /^transform\b/, `transition sur autre chose que transform : ${m[1]}`);
+  }
+  assert.doesNotMatch(css, /transition-property|will-change/);
+  assert.ok(propriete('.ecran', 'animation').some((a) => /^fondu var\(--t-rapide\)/.test(a)), 'fondu de 300 ms entre les écrans');
+  assert.equal(variables()['--t-rapide'], '300ms');
+  // Règle système de la charte (pas une option du jeu) : tout mouvement coupé si l'appareil le demande.
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\*\s*\{\s*animation:\s*none !important;\s*transition-duration:\s*1ms !important;\s*\}\s*\}/);
+  // Étoiles du fond de l'accueil : scintillement lent, opacité seule.
+  assert.match(css, /\.etoile\s*\{\s*animation:\s*scintille 5s/);
+  assert.match(lirePublic('js', 'ecrans.js'), /ciel-accueil/);
   // Remarque de la propriétaire : plus d'option « Réduire les animations » (bouton, réglage mémorisé, code, textes).
   assert.ok(!existe('js', 'reglages.js'), 'js/reglages.js doit être supprimé');
   for (const f of listerFichiers(PUBLIC, /\.(html|css|js)$/)) {
