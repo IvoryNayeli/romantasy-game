@@ -81,9 +81,8 @@ export function accueil() {
   const noeud = h('section', { classe: 'ecran ecran-accueil' },
     h('div', { classe: 'ciel-accueil', 'aria-hidden': 'true' }, ETOILES_ACCUEIL.map(([x, y]) => etoile(x, y))),
     h('div', { classe: 'accueil-corps' },
-      h('div', { classe: 'logo-complet', role: 'img', 'aria-label': T.marque },
-        logo('logo-grand'),
-        h('span', { classe: 'logo-nom', 'aria-hidden': 'true' }, T.marque)),
+      h('div', { classe: 'logo-complet', role: 'img', 'aria-label': T.logoNom },
+        logo('logo-grand')),
       h('p', { classe: 'accueil-salut' }, T.accueil.salut),
       h('div', { classe: 'ornement', 'aria-hidden': 'true' }, filigrane()),
       h('p', { classe: 'texte' }, T.accueil.texte1),
@@ -367,7 +366,7 @@ export function transition({ donnees, params, naviguer }) {
   const noeud = h('section', { classe: `ecran ecran-transition${bouclier ? ' transition-bouclier' : ''}` },
     compteurEl(donnees, n),
     h('div', { classe: 'transition-corps', role: 'status' },
-      h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier' : 'lueur')),
+      h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier-grand' : 'sort-jete', 'icone-presence')),
       emblemeEl(emb, 'embleme-grand'),
       h('p', { classe: 'transition-texte' }, bouclier ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom))));
   let minuteur = null;

@@ -1,7 +1,8 @@
 // Textes de l'interface. Source unique : docs/regles.md (ne pas reformuler ici).
 // Le nombre de tours vient de config.json : il est passé en paramètre, jamais écrit dans un texte.
 
-export const marque = 'Romantasy';
+// Nom accessible du logo de l'accueil (lu par les lecteurs d'écran, jamais affiché : l'accueil n'a aucun titre).
+export const logoNom = 'Logo du jeu';
 
 export const accueil = {
   salut: 'Bienvenue en ces terres.',

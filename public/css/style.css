@@ -200,13 +200,6 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 /* ---------- Logo (dessin provisoire fait pour le projet) ---------- */
 .logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .logo-grand { width: 96px; height: 96px; }
-.logo-nom {
-  font: 600 2rem/1 var(--f-titre);
-  letter-spacing: .18em;
-  margin-right: -.18em;
-  color: var(--c-etoile);
-  text-transform: uppercase;
-}
 
 /* ---------- Boutons (charte, section 7) ---------- */
 .bouton {
@@ -546,9 +539,29 @@ h2 {
   gap: 16px;
   text-align: center;
 }
-.transition-icone { color: var(--c-ambre); animation: pulse 1.6s var(--ease) infinite; }
-.transition-icone .icone { width: 4rem; height: 4rem; }
-.transition-bouclier .transition-icone { color: var(--c-lune); }
+/* Forme pleine, grande, avec un halo ambre (sort jeté) ou braise (bouclier) : demande de la propriétaire (itération 3),
+   écart volontaire à la charte (icônes au trait fin), noté dans docs/PROJET.md. Le halo est un dégradé : on n'anime
+   que transform (pulse). */
+.transition-icone {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 11rem;
+  height: 11rem;
+  color: var(--c-ambre);
+  animation: pulse 1.6s var(--ease) infinite;
+}
+.transition-icone::before {
+  content: '';
+  position: absolute;
+  inset: -22%;
+  background: radial-gradient(circle closest-side, #F0A35EAA 0, #D9693A66 40%, #D9693A22 68%, transparent 100%);
+  pointer-events: none;
+}
+.transition-bouclier .transition-icone::before {
+  background: radial-gradient(circle closest-side, #D9693AAA 0, #D9693AAA 45%, #F0A35E66 62%, #D9693A33 82%, transparent 100%);
+}
+.transition-icone .icone { position: relative; width: 9rem; height: 9rem; }
 .transition-texte {
   margin: 0;
   color: var(--c-etoile);

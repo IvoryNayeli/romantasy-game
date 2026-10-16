@@ -466,7 +466,7 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.equal(textes.types.epreuve.nom, 'Épreuve');
   assert.equal(textes.types.revelation.nom, 'Révélation');
   const html = lirePublic('index.html');
-  for (const symbole of ['epee', 'etoile', 'bouclier', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane', 'logo']) {
+  for (const symbole of ['epee', 'etoile', 'bouclier', 'bouclier-grand', 'sort-jete', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane', 'logo']) {
     assert.match(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole ${symbole}`);
   }
   assert.ok(propriete('.carte', '--rarete').includes('var(--c-braise)'), 'Épreuve = braise');
@@ -488,19 +488,41 @@ test('logo : SVG fait pour le projet (cercle clair de lune, disque minuit, aile 
   const logo = html.match(/<symbol id="i-logo"[^>]*>([\s\S]*?)<\/symbol>/)[1];
   for (const couleur of ['--c-lune', '--c-minuit', '--c-ambre', '--c-etoile']) assert.match(logo, new RegExp(couleur));
   assert.match(html, /<svg class="logo-compact" role="img" aria-label="Romantasy"[^>]*width="40" height="40"/, 'version compacte de 40 px dans la barre');
-  assert.match(lirePublic('js', 'ecrans.js'), /classe: 'logo-complet', role: 'img', 'aria-label': T\.marque/, 'version complète sur l\'accueil');
-  assert.ok(propriete('.logo-nom', 'letter-spacing').includes('.18em'));
+  assert.match(lirePublic('js', 'ecrans.js'), /classe: 'logo-complet', role: 'img', 'aria-label': T\.logoNom/, 'version complète sur l\'accueil, nom accessible neutre');
+  assert.equal(lirePublic('js', 'textes.js').match(/logoNom = '([^']*)'/)[1], 'Logo du jeu', 'nom accessible neutre (pas de nom écrit)');
+  // Remarque de la propriétaire (itération 2) : aucun titre sur l'accueil, donc plus de nom écrit sous le logo.
+  assert.doesNotMatch(lirePublic('js', 'ecrans.js'), /logo-nom|T\.marque/, 'plus de nom « Romantasy » écrit sous le logo');
+  assert.doesNotMatch(css, /\.logo-nom/, 'plus de style pour un nom écrit sous le logo');
+  const accueilSource = lirePublic('js', 'ecrans.js').slice(lirePublic('js', 'ecrans.js').indexOf('export function accueil('), lirePublic('js', 'ecrans.js').indexOf('export function regles('));
+  assert.doesNotMatch(accueilSource, /<h[1-6]|h\('h[1-6]'|Romantasy/, 'aucun titre sur l\'accueil');
   assert.doesNotMatch(html, /<image|<img/, 'aucune image bitmap en phase 2');
 });
 
-test('ornements et icônes : au trait fin de 1,5 px, jamais pleines ; un seul calque de grain par écran', () => {
+test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf bouclier et sort jeté) ; un seul calque de grain par écran', () => {
   const html = lirePublic('index.html');
-  for (const nom of ['epee', 'etoile', 'bouclier', 'retour', 'coche', 'lueur']) {
+  for (const nom of ['epee', 'etoile', 'retour', 'coche', 'lueur']) {
     const symbole = html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
     assert.match(symbole, /stroke="currentColor"/, `${nom} : trait currentColor`);
     assert.match(symbole, /stroke-width="1\.5"/, `${nom} : trait de 1,5 px`);
     assert.doesNotMatch(symbole, /fill="currentColor"/, `${nom} : icône pleine`);
   }
+  // Remarque de la propriétaire (itération 3) : le bouclier et le « sort est jeté » sont trop discrets au trait fin.
+  // Écart volontaire à la charte, noté dans docs/PROJET.md : formes pleines, grandes, avec halo ambre ou braise.
+  const symbole = (nom) => html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
+  assert.match(symbole('bouclier'), /fill="currentColor"/, 'bouclier des boutons : forme pleine');
+  assert.doesNotMatch(symbole('bouclier'), /fill="none"/, 'bouclier des boutons : plus de forme creuse');
+  for (const nom of ['bouclier-grand', 'sort-jete']) {
+    const s = symbole(nom);
+    assert.doesNotMatch(s, /fill="none"|fill:none/, `${nom} : forme creuse`);
+    assert.ok((s.match(/fill:var\(--c-(ambre|braise|etoile)\)/g) || []).length >= 3, `${nom} : formes pleines aux couleurs de la charte`);
+    assert.match(s, /--c-ambre/);
+    assert.match(s, /--c-braise/);
+  }
+  const transition = lirePublic('js', 'ecrans.js');
+  assert.match(transition, /icone\(bouclier \? 'bouclier-grand' : 'sort-jete', 'icone-presence'\)/, 'écran de transition : grandes formes pleines');
+  assert.ok(Math.max(...propriete('.transition-icone .icone', 'width').map((t) => enPixels(t, variables()))) >= 128, 'forme de transition : au moins 128 px');
+  assert.ok(propriete('.transition-icone::before', 'background').join(' ').includes('#F0A35E'), 'halo ambre');
+  assert.ok(propriete('.transition-bouclier .transition-icone::before', 'background').join(' ').includes('#D9693A'), 'halo braise');
   for (const page of PAGES_HTML) {
     const source = lirePublic(page);
     assert.equal((source.match(/<feTurbulence/g) || []).length, 1, `${page} : un seul calque de grain`);
