@@ -2,6 +2,7 @@
 // et renvoie { noeud, retour?, nettoyer? }. Phase 2 : données fictives, aucune logique de jeu.
 
 import { h, icone, lienBouton } from './dom.js';
+import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
   joueursFictifs, effetsEnCours, emblemeParId, carteDepuisParametres,
@@ -52,6 +53,12 @@ function barreBas(...boutons) {
   return h('div', { classe: 'barre-bas' }, ...boutons);
 }
 
+// Flèche de retour de l'en-tête (lien interne, intercepté par app.js).
+function flecheRetour(ecran, libelle) {
+  return h('a', { classe: 'bouton-retour', href: `?ecran=${ecran}`, 'data-nav': '', 'aria-label': libelle },
+    icone('retour'));
+}
+
 /* ---------- Écrans ---------- */
 
 export function accueil() {
@@ -84,11 +91,82 @@ export function regles({ donnees }) {
       h('h2', null, R.finTitre),
       h('p', { classe: 'texte' }, R.fin(donnees.config.tours))),
     barreBas(
-      lienBouton(R.creer, { ecran: 'salle', hote: 1, autres: 1 }),
-      lienBouton(R.rejoindre, { ecran: 'salle', autres: 2 }, { variante: 'secondaire' })));
-  const retour = h('a', { classe: 'bouton-retour', href: '?ecran=accueil', 'data-nav': '', 'aria-label': R.retour },
-    icone('retour'));
-  return { noeud, retour };
+      lienBouton(R.creer, { ecran: 'creer' }),
+      lienBouton(R.rejoindre, { ecran: 'rejoindre' }, { variante: 'secondaire' })));
+  return { noeud, retour: flecheRetour('accueil', R.retour) };
+}
+
+// « Créer une partie » : on choisit le code dans la liste (les mots de codes.json), puis on valide.
+// Phase 2 : aucune vérification d'unicité (phase 4).
+export function creer({ donnees, params, naviguer }) {
+  const C = T.creer;
+  let choisi = trouverCode(params.get('code'), donnees.codes);
+  const boutonValider = h('button', { classe: 'bouton bouton-principal', type: 'submit' }, h('span', null, C.valider));
+  const options = donnees.codes.map((code) => {
+    const entree = h('input', {
+      classe: 'code-radio', type: 'radio', name: 'code', value: code, checked: code === choisi,
+      onchange: () => { choisi = code; boutonValider.disabled = false; },
+    });
+    return h('label', { classe: 'code-option' }, entree, h('span', { classe: 'code-option-nom' }, code));
+  });
+  boutonValider.disabled = !choisi;
+  const formulaire = h('form', {
+    classe: 'formulaire-code',
+    onsubmit: (evenement) => {
+      evenement.preventDefault();
+      if (choisi) naviguer({ ecran: 'salle', code: choisi, hote: 1, autres: 1 });
+    },
+  },
+  h('div', { classe: 'formulaire-code-corps' },
+    h('h2', { classe: 'titre-ecran', id: 'titre-creer' }, C.titre),
+    h('p', { classe: 'texte' }, C.aide),
+    h('div', { classe: 'liste-codes', role: 'radiogroup', 'aria-labelledby': 'titre-creer' }, options)),
+  barreBas(boutonValider));
+  return { noeud: h('section', { classe: 'ecran ecran-creer' }, formulaire), retour: flecheRetour('regles', C.retour) };
+}
+
+// « Rejoindre une partie » : on saisit le code ; phase 2 : seulement vérifier qu'il figure dans codes.json.
+export function rejoindre({ donnees, params, naviguer }) {
+  const R = T.rejoindre;
+  const messageErreur = h('p', { classe: 'erreur-champ', id: 'erreur-code', role: 'alert' });
+  const champ = h('input', {
+    classe: 'champ champ-code', id: 'champ-code', type: 'text', value: params.get('code') || '', autocomplete: 'off',
+    autocapitalize: 'characters', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'go',
+    'aria-describedby': 'aide-code',
+  });
+  function erreur(texte) {
+    messageErreur.textContent = texte || '';
+    if (texte) {
+      champ.setAttribute('aria-invalid', 'true');
+      champ.setAttribute('aria-describedby', 'aide-code erreur-code');
+    } else {
+      champ.removeAttribute('aria-invalid');
+      champ.setAttribute('aria-describedby', 'aide-code');
+    }
+  }
+  const demande = params.get('erreur');
+  if (demande === 'vide') erreur(R.erreurVide);
+  else if (demande === 'inconnu') erreur(R.erreurInconnu);
+  champ.addEventListener('input', () => erreur(''));
+  const formulaire = h('form', {
+    classe: 'formulaire-code',
+    novalidate: true,
+    onsubmit: (evenement) => {
+      evenement.preventDefault();
+      if (!champ.value.trim()) { erreur(R.erreurVide); champ.focus(); return; }
+      const code = trouverCode(champ.value, donnees.codes);
+      if (!code) { erreur(R.erreurInconnu); champ.focus(); return; }
+      naviguer({ ecran: 'salle', code, autres: 2 });
+    },
+  },
+  h('div', { classe: 'formulaire-code-corps' },
+    h('h2', { classe: 'titre-ecran' }, R.titre),
+    h('label', { classe: 'etiquette-champ', for: 'champ-code' }, R.libelle),
+    champ,
+    h('p', { classe: 'aide-champ', id: 'aide-code' }, R.aide),
+    messageErreur),
+  barreBas(h('button', { classe: 'bouton bouton-principal', type: 'submit' }, h('span', null, R.valider))));
+  return { noeud: h('section', { classe: 'ecran ecran-rejoindre' }, formulaire), retour: flecheRetour('regles', R.retour) };
 }
 
 export function salle({ donnees, params, naviguer }) {
@@ -98,7 +176,7 @@ export function salle({ donnees, params, naviguer }) {
   const nbAutres = complete ? max : entierDepuisParametres(params, 'autres', 2, 0, max - 1);
   const autres = joueursFictifs(donnees, nbAutres);
   const estHote = !complete && (params.get('hote') === '1' || nbAutres === 0);
-  const code = donnees.codes.includes(params.get('code')) ? params.get('code') : donnees.codes[0];
+  const code = trouverCode(params.get('code'), donnees.codes) || donnees.codes[0];
   const pris = new Set(autres.map((j) => j.embleme));
 
   // Ma propre fiche : saisie locale (aucun envoi).
@@ -107,7 +185,7 @@ export function salle({ donnees, params, naviguer }) {
   if (embleParam && !pris.has(embleParam) && donnees.emblemes.some((e) => e.id === embleParam)) moi.embleme = embleParam;
   moi.pret = params.get('pret') === '1' && Boolean(moi.prenom.trim() && moi.embleme);
 
-  const liste = h('ul', { classe: 'liste-joueurs', 'aria-label': S.joueursLibelle });
+  const liste = h('ul', { classe: 'liste-joueurs', 'aria-labelledby': 'titre-participants' });
   const grille = h('div', { classe: 'grille-emblemes', role: 'radiogroup', 'aria-label': S.embleme });
   const boutonsEmbleme = new Map();
   const champ = h('input', {
@@ -180,13 +258,16 @@ export function salle({ donnees, params, naviguer }) {
       h('p', { classe: 'etiquette-champ' }, S.embleme),
       grille);
 
+  // Ordre voulu par la propriétaire : code (discret), menu emblème + prénom, puis liste des participant(e)s.
   const noeud = h('section', { classe: 'ecran ecran-salle' },
     h('div', { classe: 'salle-corps' },
-      h('p', { classe: 'code-libelle' }, S.codeLibelle),
-      h('p', { classe: 'code-partie' }, code),
-      h('p', { classe: 'texte texte-centre' }, S.accompagnement),
+      h('p', { classe: 'code-partie' },
+        h('span', { classe: 'code-libelle' }, S.codeLibelle), ' ',
+        h('span', { classe: 'code-valeur' }, code)),
+      formulaire,
+      h('h2', { classe: 'titre-liste', id: 'titre-participants' }, S.participants),
       liste,
-      formulaire),
+      h('p', { classe: 'texte texte-centre' }, S.accompagnement)),
     complete ? null : barreBas(boutonPret, estHote ? boutonCommencer : null));
   maj();
   return { noeud };

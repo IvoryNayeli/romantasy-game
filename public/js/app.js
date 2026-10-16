@@ -1,6 +1,6 @@
 // Point d'entrée : charge les données, choisit l'écran d'après l'adresse (?ecran=...) et l'affiche.
 // Phase 2 : écrans alimentés par des données fictives, sans réseau ni logique de jeu.
-// Écrans : accueil, regles, salle, choix, carte, attente, transition, fin (voir README et demo.html).
+// Écrans : accueil, regles, creer, rejoindre, salle, choix, carte, attente, transition, fin (voir README et demo.html).
 
 import { chargerDonnees } from './donnees.js';
 import { adresse, h } from './dom.js';
@@ -10,6 +10,8 @@ import { erreurs } from './textes.js';
 const ECRANS = {
   accueil: ecrans.accueil,
   regles: ecrans.regles,
+  creer: ecrans.creer,
+  rejoindre: ecrans.rejoindre,
   salle: ecrans.salle,
   choix: ecrans.choix,
   carte: ecrans.carte,

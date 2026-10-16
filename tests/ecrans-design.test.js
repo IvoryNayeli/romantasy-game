@@ -15,7 +15,7 @@ const lire = (...p) => fs.readFileSync(path.join(RACINE, ...p), 'utf8');
 const lirePublic = (...p) => lire('public', ...p);
 const existe = (...p) => fs.existsSync(path.join(PUBLIC, ...p));
 
-const ECRANS = ['accueil', 'regles', 'salle', 'choix', 'carte', 'attente', 'transition', 'fin'];
+const ECRANS = ['accueil', 'regles', 'creer', 'rejoindre', 'salle', 'choix', 'carte', 'attente', 'transition', 'fin'];
 const PAGES_HTML = ['index.html', 'demo.html'];
 
 async function chargerModule(nom) {
@@ -152,7 +152,7 @@ test('écrans : toutes les ressources locales référencées existent (HTML, imp
   }
 });
 
-test('écrans : les huit écrans existent (routes, fonctions, liens de la page de démonstration)', () => {
+test('écrans : les dix écrans existent (routes, fonctions, liens de la page de démonstration)', () => {
   const app = lirePublic('js', 'app.js');
   const ecrans = lirePublic('js', 'ecrans.js');
   const demo = lirePublic('js', 'demo.js');
@@ -160,6 +160,74 @@ test('écrans : les huit écrans existent (routes, fonctions, liens de la page d
     assert.match(app, new RegExp(`\\b${nom}:\\s*ecrans\\.${nom}\\b`), `route « ${nom} » absente de app.js`);
     assert.match(ecrans, new RegExp(`export function ${nom}\\(`), `fonction d'écran « ${nom} » absente`);
     assert.match(demo, new RegExp(`ecran: '${nom}'`), `aucun lien de démonstration vers l'écran « ${nom} »`);
+  }
+});
+
+test('parcours : « Créer » mène au choix du code (liste de codes.json), puis à la salle d\'attente en hôte', () => {
+  const ecrans = lirePublic('js', 'ecrans.js');
+  const regles = ecrans.slice(ecrans.indexOf('export function regles('), ecrans.indexOf('export function creer('));
+  assert.match(regles, /lienBouton\(R\.creer, \{ ecran: 'creer' \}\)/, '« Créer une partie » doit ouvrir le choix du code');
+  assert.match(regles, /lienBouton\(R\.rejoindre, \{ ecran: 'rejoindre' \}/, '« Rejoindre une partie » doit ouvrir la saisie du code');
+  const creer = ecrans.slice(ecrans.indexOf('export function creer('), ecrans.indexOf('export function rejoindre('));
+  assert.match(creer, /donnees\.codes\.map/, 'la liste vient de codes.json');
+  assert.match(creer, /type: 'radio'/, 'choix d\'un seul code');
+  assert.match(creer, /boutonValider\.disabled = !choisi/, 'valider impossible sans code choisi');
+  assert.match(creer, /naviguer\(\{ ecran: 'salle', code: choisi, hote: 1/, 'validation : salle d\'attente en hôte, avec le code choisi');
+  assert.doesNotMatch(creer, /fetch|Firebase|unicit/i, 'phase 2 : aucune vérification d\'unicité ni réseau');
+  const T = lirePublic('js', 'textes.js');
+  assert.match(T, /export const creer = \{/);
+});
+
+test('parcours : « Rejoindre » demande le code, le vérifie dans codes.json (message d\'erreur en français), puis ouvre la salle', () => {
+  const ecrans = lirePublic('js', 'ecrans.js');
+  const rejoindre = ecrans.slice(ecrans.indexOf('export function rejoindre('), ecrans.indexOf('export function salle('));
+  assert.match(rejoindre, /type: 'text'/, 'champ texte');
+  assert.match(rejoindre, /trouverCode\(champ\.value, donnees\.codes\)/, 'vérification dans la liste de codes.json');
+  assert.match(rejoindre, /naviguer\(\{ ecran: 'salle', code, autres: 2 \}\)/, 'salle d\'attente après validation');
+  assert.match(rejoindre, /role: 'alert'/, 'erreur annoncée aux lecteurs d\'écran');
+  assert.match(rejoindre, /aria-invalid/);
+  assert.match(rejoindre, /type: 'submit'|type="submit"/, 'Entrée valide le formulaire');
+  const T = lirePublic('js', 'textes.js');
+  assert.match(T, /erreurInconnu: 'Ce code ne correspond à aucune partie/);
+  assert.match(T, /erreurVide: 'Saisis le code/);
+});
+
+test('codes : saisie insensible à la casse et aux accents, seuls les mots de codes.json sont acceptés', async () => {
+  const { normaliserCode, trouverCode } = await chargerModule('codes.js');
+  const codes = JSON.parse(lirePublic('data', 'codes.json'));
+  assert.equal(codes.length, 10);
+  assert.equal(normaliserCode(' Élixir '), 'ELIXIR');
+  assert.equal(normaliserCode(undefined), '');
+  for (const code of codes) {
+    assert.equal(trouverCode(code, codes), code, code);
+    assert.equal(trouverCode(code.toLowerCase(), codes), code, `${code} en minuscules`);
+    assert.equal(trouverCode(`  ${code.toLowerCase()}  `, codes), code, `${code} avec espaces`);
+  }
+  assert.equal(trouverCode('élixir', codes), 'ELIXIR');
+  assert.equal(trouverCode('Sortilège', codes), 'SORTILEGE');
+  assert.equal(trouverCode('obsidienne', codes), 'OBSIDIENNE');
+  for (const faux of ['', '   ', 'DRAGON', 'ECLIPS', 'ECLIPSEE', 'RUN E', null]) assert.equal(trouverCode(faux, codes), null, `« ${faux} » ne doit pas être accepté`);
+});
+
+test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste des participant(e)s', () => {
+  const ecrans = lirePublic('js', 'ecrans.js');
+  const salle = ecrans.slice(ecrans.indexOf('export function salle('), ecrans.indexOf('export function choix('));
+  const construction = salle.slice(salle.indexOf('const noeud = h('));
+  const positions = ['code-partie', 'formulaire,', 'titre-participants', 'liste,'].map((m) => construction.indexOf(m));
+  assert.ok(positions.every((p) => p >= 0), 'élément manquant dans la salle d\'attente');
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : code, menu emblème/prénom, participant(e)s');
+  assert.match(lirePublic('js', 'textes.js'), /participants: 'Participant\(e\)s'/);
+  // Le code est discret : petit et en couleur secondaire (pas un grand encadré).
+  const tailles = propriete('.code-partie', 'font-size');
+  assert.ok(tailles.length > 0 && tailles.every((t) => enPixels(t, variables()) <= 18), `code trop grand : ${tailles}`);
+  assert.ok(propriete('.code-partie', 'color').some((c) => /--(c-lune-douce|secondaire)/.test(c)), 'code en couleur secondaire');
+});
+
+test('textes : « participant(e)s » (jamais une forme exclusivement féminine) dans le code et la documentation', () => {
+  const fichiers = [...listerFichiers(PUBLIC, /\.(html|js|css)$/), path.join(RACINE, 'README.md'), path.join(RACINE, 'docs', 'PROJET.md')];
+  for (const f of fichiers) {
+    const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f);
+    assert.doesNotMatch(code, /\bparticipantes?\b/i, `${path.relative(RACINE, f)} : « participantes » (utiliser « participant(e)s »)`);
   }
 });
 
@@ -301,7 +369,7 @@ test('animations : retournement 3D, fondu, lueur, étincelles ; désactivées pa
     assert.doesNotMatch(source, /réduire les animations|reglage-animations|bouton-reglage|data-animations|localStorage|romantasy\.animations/i,
       `${path.relative(RACINE, f)} : reste de l'option d'animations`);
   }
-  assert.doesNotMatch(lire('README.md'), /Réduire les animations/i);
+  assert.doesNotMatch(lire('README.md'), /« Réduire les animations »/);
 });
 
 test('textes : l\'interface reprend les textes validés de docs/regles.md', async () => {
@@ -373,5 +441,10 @@ test('README : explique comment servir le jeu, ouvrir les écrans (dont sur tél
   assert.match(readme, /\?ecran=/);
   assert.match(readme, /Wi-?Fi/i);
   assert.match(readme, /node --test tests\//);
+  assert.match(readme, /Créer une partie/);
+  assert.match(readme, /Rejoindre une partie/);
+  assert.match(readme, /`creer`/);
+  assert.match(readme, /`rejoindre`/);
+  assert.match(readme, /`erreur`/);
   assert.match(readme, /Node\.js/);
 });

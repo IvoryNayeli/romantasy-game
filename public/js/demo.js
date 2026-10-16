@@ -24,6 +24,14 @@ function ecrans(donnees) {
       lien('Accueil', { ecran: 'accueil' }),
       lien('Comment ça marche ?', { ecran: 'regles' }),
     ]),
+    groupe('Créer ou rejoindre une partie', [
+      lien('Créer : choix du code, rien de choisi', { ecran: 'creer' }),
+      lien('Créer : code choisi (ONYX)', { ecran: 'creer', code: 'ONYX' }),
+      lien('Rejoindre : saisie du code', { ecran: 'rejoindre' }),
+      lien('Rejoindre : code saisi avec accent et minuscules (élixir)', { ecran: 'rejoindre', code: 'élixir' }),
+      lien('Rejoindre : message « code inconnu »', { ecran: 'rejoindre', code: 'DRAGON', erreur: 'inconnu' }),
+      lien('Rejoindre : message « code vide »', { ecran: 'rejoindre', erreur: 'vide' }),
+    ]),
     groupe('Salle d\'attente', [
       lien('Hôte, une personne déjà là', { ecran: 'salle', hote: 1, autres: 1 }),
       lien('Hôte, prêt(e), prêt(e) à commencer', { ecran: 'salle', hote: 1, autres: 1, prenom: 'Noa', embleme: 'sirene', pret: 1 }),

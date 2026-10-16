@@ -75,5 +75,25 @@ export const salle = {
   pretBouton: 'Je suis prêt(e)',
   commencer: 'Commencer la quête',
   complete: 'La partie est complète',
-  joueursLibelle: 'Joueur(se)s',
+  participants: 'Participant(e)s',
+};
+
+// Écran « Créer une partie » : choix du code dans la liste.
+export const creer = {
+  titre: 'Choisis le code de la partie',
+  aide: 'Les autres joueur(se)s le saisiront pour te rejoindre.',
+  liste: 'Codes de partie',
+  valider: 'Valider',
+  retour: 'Retour aux règles',
+};
+
+// Écran « Rejoindre une partie » : saisie du code.
+export const rejoindre = {
+  titre: 'Saisis le code de la partie',
+  libelle: 'Code de la partie',
+  aide: 'Majuscules, minuscules et accents n\'ont pas d\'importance.',
+  valider: 'Valider',
+  erreurVide: 'Saisis le code de la partie.',
+  erreurInconnu: 'Ce code ne correspond à aucune partie. Vérifie-le et réessaie.',
+  retour: 'Retour aux règles',
 };

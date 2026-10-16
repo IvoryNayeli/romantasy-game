@@ -533,32 +533,29 @@ body[data-ecran="accueil"] .etincelles { opacity: 1; }
 
 /* ---------- Salle d'attente ---------- */
 .salle-corps { padding-bottom: 0.5rem; }
-.code-libelle {
-  margin: 0.5rem 0 0.5rem;
-  color: var(--secondaire);
-  font-family: var(--police-titre);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-align: center;
+.code-partie { margin: 0.5rem 0 0; color: var(--secondaire); font-size: 1rem; text-align: center; }
+.code-libelle { letter-spacing: 0.08em; }
+.code-valeur { margin-left: 0.4rem; font-weight: 700; letter-spacing: 0.15em; }
+.titre-liste { margin: 1.5rem 0 0.5rem; font-size: 1.1rem; }
+
+/* ---------- Créer / rejoindre une partie ---------- */
+.formulaire-code { flex: 1; display: flex; flex-direction: column; }
+.formulaire-code-corps { padding-bottom: 1rem; }
+.titre-ecran { margin: 0.5rem 0 0.75rem; font-size: 1.6rem; line-height: 1.2; }
+.liste-codes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.code-option { position: relative; display: block; }
+.code-radio { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; pointer-events: none; }
+.code-option-nom {
+  display: flex; align-items: center; justify-content: center; min-height: 3.5rem; padding: 0.25rem 0.5rem;
+  border: 2px solid var(--secondaire); border-radius: 12px; background: var(--surface);
+  font-weight: 700; letter-spacing: 0.08em; overflow-wrap: anywhere;
 }
-.code-partie {
-  margin: 0 0 1rem;
-  padding: 0.9rem 0.5rem;
-  border: 2px solid var(--or);
-  border-radius: 16px;
-  background: var(--surface);
-  color: var(--or);
-  font-family: var(--police-titre);
-  font-size: clamp(1.5rem, 8vw, 2.5rem);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-align: center;
-  text-shadow: 0 0 16px rgba(212, 175, 106, 0.4);
-  overflow-wrap: anywhere;
-  animation: var(--anim-lueur) 3.2s ease-in-out infinite;
-  --lueur: rgba(212, 175, 106, 0.45);
-}
+.code-radio:checked + .code-option-nom { border-color: var(--or); background: var(--or-voile); color: var(--or); }
+.code-radio:focus-visible + .code-option-nom { outline: 3px solid var(--texte); outline-offset: 3px; }
+.champ-code { text-transform: uppercase; letter-spacing: 0.1em; }
+.aide-champ { margin: 0.5rem 0 0; color: var(--secondaire); font-size: 1rem; }
+.erreur-champ { margin: 0.75rem 0 0; color: var(--texte); font-weight: 700; }
+.erreur-champ:not(:empty)::before { content: '! '; color: var(--or); }
 
 .liste-joueurs { display: flex; flex-direction: column; gap: 0.5rem; margin: 0 0 0.5rem; padding: 0; list-style: none; }
 .joueur-ligne {
@@ -726,6 +723,5 @@ body[data-ecran="accueil"] .etincelles { opacity: 1; }
 /* Sans animation (réglage système), les cartes gardent une lueur fixe et douce */
 @media (prefers-reduced-motion: reduce) {
   .carte-face,
-  .dos,
-  .code-partie { box-shadow: 0 0 14px 1px var(--lueur, rgba(212, 175, 106, 0.4)); }
+  .dos { box-shadow: 0 0 14px 1px var(--lueur, rgba(212, 175, 106, 0.4)); }
 }

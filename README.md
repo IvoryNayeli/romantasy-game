@@ -20,20 +20,22 @@ Puis ouvrir `http://localhost:8000/` dans le navigateur. Pour arrêter le serveu
 
 ### Ouvrir les écrans
 
-- **Parcours complet** : `http://localhost:8000/` (accueil, puis « Comment ça marche ? », salle d'attente, choix de carte, carte révélée, transition, fin). Les boutons enchaînent les écrans avec des données fictives.
-- **Liste de tous les écrans** : `http://localhost:8000/demo.html`. Chaque écran y a son lien, avec des variantes (salle complète, carte à effet durable, carte la plus longue, etc.) et la liste des 40 cartes.
+- **Parcours complet** : `http://localhost:8000/` (accueil, puis « Comment ça marche ? », puis au choix « Créer une partie » (choix du code dans la liste) ou « Rejoindre une partie » (saisie du code), salle d'attente, choix de carte, carte révélée, transition, fin). Les boutons enchaînent les écrans avec des données fictives. Pour rejoindre, saisir l'un des dix codes de `public/data/codes.json` (majuscules, minuscules et accents n'ont pas d'importance, par exemple « élixir ») ; tout autre code affiche un message d'erreur. Il n'y a aucun réseau : les codes ne sont pas encore partagés entre appareils (phase 4).
+- **Liste de tous les écrans** : `http://localhost:8000/demo.html`. Chaque écran y a son lien, avec des variantes (choix du code, saisie du code avec ses messages d'erreur, salle complète, carte à effet durable, carte la plus longue, etc.) et la liste des 40 cartes.
 - **Un écran précis**, avec le paramètre `ecran` dans l'adresse : `http://localhost:8000/index.html?ecran=carte&type=epreuve&carte=epr-06`
 
 | Paramètre | Valeurs | Rôle |
 |---|---|---|
-| `ecran` | `accueil`, `regles`, `salle`, `choix`, `carte`, `attente`, `transition`, `fin` | Écran à afficher (accueil par défaut) |
+| `ecran` | `accueil`, `regles`, `creer` (choix du code), `rejoindre` (saisie du code), `salle`, `choix`, `carte`, `attente`, `transition`, `fin` | Écran à afficher (accueil par défaut) |
 | `type` | `epreuve`, `revelation` | Type de la carte (première carte de ce type) |
 | `carte` | un identifiant de `public/data/cartes.json`, par exemple `epr-06` | Carte précise (prioritaire sur `type`) |
 | `tour` | un numéro de tour, borné par `config.json` | Compteur « Tour N / … » |
-| `hote`, `autres`, `complete`, `code`, `prenom`, `embleme`, `pret` | voir `public/js/ecrans.js` | Variantes de la salle d'attente |
+| `code` | un mot de `public/data/codes.json` (accents et casse libres) | Code déjà choisi (`creer`), code déjà saisi (`rejoindre`) ou code affiché (`salle`) |
+| `erreur` | `vide`, `inconnu` | Affiche le message d'erreur de l'écran `rejoindre` |
+| `hote`, `autres`, `complete`, `prenom`, `embleme`, `pret` | voir `public/js/ecrans.js` | Variantes de la salle d'attente |
 | `bouclier`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition et de l'attente |
 
-Le nombre de tours et de joueur(se)s maximum vient uniquement de `public/data/config.json`.
+Le nombre de tours et de joueur(se)s maximum vient uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
 
 ### Ouvrir les écrans sur son téléphone
 
