@@ -19,3 +19,11 @@ Reproduites mot pour mot.
 4. Sur page des règles du jeu, je trouve que les titres de section ne se démarquent pas assez.
 5. L'écriture inclusive est un peu lourde. Partout où il y a de l'écriture inclusive, remplace par une formule neutre si c'est possible et que ça n'alouridt pas le texte.
 6. Les formes utilisées pour "le sort est jeté", ou pour le bouclier, sont trop discrètes (lignes fines, formes crueises)
+
+## Itération 4 (reçues le 2026-10-17)
+
+Reproduites mot pour mot.
+
+1. Remet "Bienvenue, voyageur(se)" à la place de "Bienvenue en ces terres.", et retire le surlignage violet de ce test
+2. Utilise ce logo pour le jeu :. Extrait le disque central seulement, fait en sorte que ça se fonde bien dans le site. Utilise le partout où l'ancien était utilisé.
+3. Dans les règles du jeu, ne centre pas les titres de section, aligne les à gauche, filigrane compris.

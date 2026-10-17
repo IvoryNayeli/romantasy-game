@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | en test | 3 | [phase-2-iteration-2](rapports/phase-2-iteration-2.md) |
+| 2 | Écrans et design | en cours (itération 4) | 4 | [phase-2-iteration-2](rapports/phase-2-iteration-2.md) |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -52,6 +52,8 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-16 | phase 2, remarques de l'itération 2 | Six remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (itération 2 des remarques) : plus d'étoiles et constellations, accueil sans titre, aile de dragon à remplacer plus tard par une image de banque, titres de règles plus visibles, écriture inclusive allégée, formes « le sort est jeté » et bouclier plus visibles. Statut `en cours (itération 3)`. Reste : développement, test complet, rapport.
 - 2026-10-16 | phase 2, itération 3 | Développement des six remarques : (1) constellations (`js/ciel.js`, 8 motifs, filets de 0,8 px, seulement dans les zones sans texte : en-tête et espace libre de l'accueil, de la transition et de la fin) et étoiles de marge supplémentaires ; (2) accueil sans nom écrit (logo à nom accessible « Logo du jeu », `<title>` inchangé) ; (3) aile de dragon : aucun changement, remplacement par une image de banque noté dans PROJET, PLAN (phase 7) et ici ; (4) titres de section des règles à 30 px avec filigrane ambre ; (5) écriture inclusive allégée dans tous les textes (interface, 9 cartes, règles, docs, tests), `cartes-a-relire.md` régénéré ; (6) bouclier et sort jeté en formes pleines, grandes, avec halo (écart à la charte noté). Tests sans navigateur : 55 verts. Suite complète : 113 tests, 101 verts, 12 rouges dus aux changements voulus (textes, `.logo-nom`, nom du logo) ; copie adaptée en local (hors dépôt) : 58 tests de navigateur sur 58 verts. Statut `en test`. Reste : adaptation des tests de navigateur par le testeur, passage complet, rapport.
 - 2026-10-17 | outillage | Réduction de la consommation des agents : journal des phases 0 et 1 archivé ([journal-archive](journal-archive.md)), scripts `npm test` à sortie courte (`test:rapide`, `test:navigateur`), testeur limité aux phases 4 à 7 ou aux tests de navigateur à adapter, plafond de 2 allers-retours, un seul rapport par itération, modèle `Claude Haiku 4.5` pour chef et testeur. Reste : suite de la phase 2.
+
+- 2026-10-17 | phase 2, remarques de l'itération 3 | Trois remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (itération 4 des remarques) : texte de salutation « Bienvenue, voyageur(se) », nouveau logo (disque central extrait), titres de section alignés à gauche. Statut `en cours (itération 4)`. Reste : développement, test complet, rapport.
 
 ## Défauts ouverts
 
