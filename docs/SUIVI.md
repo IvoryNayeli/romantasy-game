@@ -9,7 +9,7 @@ Source de vérité de l'avancement. À lire **en premier** à chaque session. Mi
 | Statut | Qui peut agir |
 |---|---|
 | `à faire`, `en cours` | Développeur |
-| `en test` | Testeur |
+| `en test` | Testeur (phases 4 à 7, ou tests de navigateur à adapter) ; sinon chef de phase (suite de tests complète) |
 | `prête pour relecture` | Personne : attente de la propriétaire |
 | `validée` | Personne : phase suivante possible |
 
@@ -34,16 +34,8 @@ Phase 2 (écrans et design), itération 3 en test : le testeur adapte ses tests 
 
 ## Journal
 
-Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
+Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
-- 2026-10-15 | phase 0 | Dépôt créé et lié à GitHub, documents de référence, instructions communes, trois agents `romantasy-*`, modèle de rapport. Reste : relecture et validation, essai à blanc de la chaîne dans une nouvelle session.
-- 2026-10-15 | phase 0, itération 2 | Remarques de la propriétaire traitées : écriture inclusive (règles, 40 cartes, documents, instructions), README (section « Lancer le jeu », section agents clarifiée, « s'en défaire » retirée), « au fil de la partie », phrase des effets durables validée, phrase de fin refusée. Rapport : [phase-0-iteration-2](rapports/phase-0-iteration-2.md). Reste : relecture et validation, essai à blanc de la chaîne.
-- 2026-10-15 | phase 0, itération 3 | Trois remarques du README traitées : « multijoueur sur téléphone », « meneur de jeu », liste des documents déplacée dans la section sur les agents Copilot. Même description alignée dans les instructions communes. `checks.json` supprimé. Rapport : [phase-0-iteration-3](rapports/phase-0-iteration-3.md). Reste : relecture et validation, essai à blanc de la chaîne.
-- 2026-10-15 | phase 0 validée | Validation explicite de la propriétaire (« Phase 0 validée »). Fusion de `phase-0` dans `main`, tag `phase-0`. Aucune remarque en attente à la validation. Reste : phase 1.
-- 2026-10-15 | phase 1, démarrage | Essai à blanc de la chaîne réussi (développeur et testeur appelés, chacun a écrit sa ligne). Décisions de la propriétaire consignées. `checks.json` ajouté au `.gitignore`. Branche `phase-1` créée. Reste : contenu, tests, rapport.
-- 2026-10-15 | phase 1, itération 1 | Développement : `cartes.json` (40 cartes), `emblemes.json`, `codes.json`, `config.json`, script `scripts/generer-cartes-a-relire.js` et `docs/cartes-a-relire.md`, 14 tests dans `tests/` (`node --test tests/`), tous verts. Reste : test, rapport.
-- 2026-10-15 | phase 1, rapport | Test indépendant : verdict `tout passe`, 8 tests de conformité ajoutés par le testeur (22 tests, tous verts, relancés par le chef de phase). Aucun défaut ouvert. Rapport : [phase-1-iteration-1](rapports/phase-1-iteration-1.md), rapport du testeur : [phase-1-test](rapports/phase-1-test.md). Reste : relecture et validation.
-- 2026-10-15 | phase 1 validée | Validation explicite de la propriétaire (« Phase 1 validée »), avec ses réponses aux trois questions du rapport. Fusion de `phase-1` dans `main`, tag `phase-1`. Reste : phase 2.
 
 - 2026-10-15 | phase 2, démarrage | Branche `phase-2` créée depuis `main` (phase 1 validée, 22 tests verts). Statut `en cours`, itération 1. Reste : développement, test, rapport.
 - 2026-10-15 | phase 2, itération 1 | Développement : polices Cinzel et Cormorant Garamond hébergées (woff2, OFL), `index.html`, `css/style.css`, `js/` (app, écrans, textes, données fictives, réglage des animations), huit écrans (accueil, règles, salle d'attente, choix, carte révélée, attente, transition de 2 secondes, fin), page `demo.html` (liens vers chaque écran et les 40 cartes), README mis à jour, 23 tests ajoutés dont le contrôle des réglages en dur (45 tests, tous verts). Reste : test indépendant, rapport.
@@ -59,6 +51,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste.
 
 - 2026-10-16 | phase 2, remarques de l'itération 2 | Six remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (itération 2 des remarques) : plus d'étoiles et constellations, accueil sans titre, aile de dragon à remplacer plus tard par une image de banque, titres de règles plus visibles, écriture inclusive allégée, formes « le sort est jeté » et bouclier plus visibles. Statut `en cours (itération 3)`. Reste : développement, test complet, rapport.
 - 2026-10-16 | phase 2, itération 3 | Développement des six remarques : (1) constellations (`js/ciel.js`, 8 motifs, filets de 0,8 px, seulement dans les zones sans texte : en-tête et espace libre de l'accueil, de la transition et de la fin) et étoiles de marge supplémentaires ; (2) accueil sans nom écrit (logo à nom accessible « Logo du jeu », `<title>` inchangé) ; (3) aile de dragon : aucun changement, remplacement par une image de banque noté dans PROJET, PLAN (phase 7) et ici ; (4) titres de section des règles à 30 px avec filigrane ambre ; (5) écriture inclusive allégée dans tous les textes (interface, 9 cartes, règles, docs, tests), `cartes-a-relire.md` régénéré ; (6) bouclier et sort jeté en formes pleines, grandes, avec halo (écart à la charte noté). Tests sans navigateur : 55 verts. Suite complète : 113 tests, 101 verts, 12 rouges dus aux changements voulus (textes, `.logo-nom`, nom du logo) ; copie adaptée en local (hors dépôt) : 58 tests de navigateur sur 58 verts. Statut `en test`. Reste : adaptation des tests de navigateur par le testeur, passage complet, rapport.
+- 2026-10-17 | outillage | Réduction de la consommation des agents : journal des phases 0 et 1 archivé ([journal-archive](journal-archive.md)), scripts `npm test` à sortie courte (`test:rapide`, `test:navigateur`), testeur limité aux phases 4 à 7 ou aux tests de navigateur à adapter, plafond de 2 allers-retours, un seul rapport par itération, modèle `Claude Haiku 4.5` pour chef et testeur. Reste : suite de la phase 2.
 
 ## Défauts ouverts
 

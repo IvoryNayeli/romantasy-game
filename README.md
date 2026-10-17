@@ -63,12 +63,14 @@ Si la page ne s'ouvre pas, vérifier que le pare-feu de l'ordinateur autorise le
 
 ```
 npm install
-node --test tests/
+npm test
 ```
+
+`npm test` affiche seulement un résumé et les échecs. Pour aller plus vite : `npm run test:rapide` (sans navigateur, quelques secondes) et `npm run test:navigateur` (navigateur seul).
 
 Il y a deux familles de tests :
 
-- **Tests sans navigateur** (données, cartes, emblèmes, codes, réglages ; écrans et design : polices hébergées, tailles minimales, palette, textes inclusifs, réglages jamais écrits en dur). Ils n'ont besoin d'aucune installation : `node --test tests/` suffit.
+- **Tests sans navigateur** (données, cartes, emblèmes, codes, réglages ; écrans et design : polices hébergées, tailles minimales, palette, textes inclusifs, réglages jamais écrits en dur). Ils n'ont besoin d'aucune installation : `npm run test:rapide` (ou `node --test tests/`) suffit.
 - **Tests de navigateur** (58 tests, dans quatre fichiers : `tests/navigateur.test.js` pour les captures aux largeurs 360 et 412 px, les débordements, les contrastes mesurés à l'écran, les animations et les 40 cartes ; `tests/navigateur-parcours.test.js` pour les parcours « Créer » et « Rejoindre » et le retrait de l'option d'animations ; `tests/navigateur-charte.test.js` pour la conformité à la charte graphique ; `tests/aide-navigateur.js` pour les outils communs, sans test). Avec les 54 tests sans navigateur, cela fait 112 tests. Ils demandent `npm install` (qui installe `playwright-core`, seule dépendance de développement, utilisée uniquement par ces tests) et **Google Chrome ou Chromium** installé sur l'ordinateur. Ils durent **environ 4 à 5 minutes**. Sans `playwright-core` ou sans Chrome, ils sont sautés proprement avec un message, et le reste des tests tourne normalement.
 
 Le jeu lui-même n'a aucune dépendance : `npm install` ne sert qu'aux tests.
@@ -84,7 +86,7 @@ Le projet est construit phase par phase, avec trois agents Copilot définis dans
 |---|---|
 | `romantasy-chef-de-phase` | Seul agent à lancer. Coordonne la phase, rédige le rapport, fusionne après validation. |
 | `romantasy-developpeur` | Implémente la phase (appelé par le chef de phase). |
-| `romantasy-testeur` | Vérifie la phase et rédige les rapports de défauts (appelé par le chef de phase). |
+| `romantasy-testeur` | Vérifie la phase et liste les défauts (appelé par le chef de phase pour les phases 4 à 7, ou quand des tests de navigateur sont à adapter). |
 
 ### Piloter les agents de développement
 
@@ -97,7 +99,7 @@ Ouvrir ce dossier dans VS Code (`Fichier`, `Ouvrir le dossier`), démarrer une *
 | `Phase N validée` | Fusionne dans `main`, pose le tag `phase-N` et pousse. |
 | `Teste la chaîne` | Essai à blanc : vérifie que les deux autres agents répondent, sans rien modifier. |
 
-À la fin de chaque boucle, un rapport est écrit dans `docs/rapports/phase-N-iteration-M.md`. Aucune phase n'est validée sans un message explicite de la personne qui porte le projet.
+À la fin de chaque boucle, un rapport est écrit dans `docs/rapports/phase-N-iteration-M.md`. Aucune phase n'est validée sans un message explicite de la personne qui porte le projet. Pour limiter la consommation, regroupe tes remarques en un seul message : une itération par message.
 
 ## Licence et crédits
 

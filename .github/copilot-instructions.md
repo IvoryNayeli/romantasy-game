@@ -4,10 +4,11 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Page 
 
 ## Avant toute action
 
-1. Lire `docs/SUIVI.md` (état des phases, journal, défauts ouverts), puis `docs/remarques/` et le dernier rapport de la phase concernée.
+1. Lire `docs/SUIVI.md` (état des phases, journal, défauts ouverts), puis `docs/remarques/phase-N.md` et le dernier rapport de la phase concernée. Ne pas lire `docs/journal-archive.md` ni les rapports des phases validées, sauf besoin précis.
 2. Pour les règles du jeu et les textes affichés, la source unique est `docs/regles.md`. Les cartes validées sont dans `docs/cartes-source.md`. Ne rien réécrire ni reformuler sans demande explicite.
-3. Pour les choix techniques et de design : `docs/PROJET.md`. Le plan des phases est dans `docs/PLAN.md`.
+3. Pour les choix techniques et de design : `docs/PROJET.md`. Le plan des phases est dans `docs/PLAN.md` : lire seulement la section de la phase concernée.
 4. En cas de doute sur un choix non écrit, poser la question à la propriétaire plutôt que d'inventer.
+5. Tests : `npm run test:rapide` (secondes, sans navigateur), `npm run test:navigateur` (minutes, seulement si `public/` a changé), `npm test` (suite complète). Sortie courte : ne pas coller de longs journaux dans les échanges.
 
 ## Langue et style
 

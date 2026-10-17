@@ -4,7 +4,9 @@
   "private": true,
   "description": "Jeu de soirée multijoueur sur téléphone (romantasy). Le jeu lui-même n'a aucune dépendance : ce fichier ne sert qu'aux tests de navigateur.",
   "scripts": {
-    "test": "node --test tests/"
+    "test": "node --test --test-reporter=./scripts/reporter-court.js tests/",
+    "test:rapide": "node --test --test-reporter=./scripts/reporter-court.js tests/conformite.test.js tests/contenu.test.js tests/ecrans-design.test.js tests/reglages-en-dur.test.js",
+    "test:navigateur": "node --test --test-reporter=./scripts/reporter-court.js tests/navigateur.test.js tests/navigateur-charte.test.js tests/navigateur-parcours.test.js"
   },
   "devDependencies": {
     "playwright-core": "1.45.3"
