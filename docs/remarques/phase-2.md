@@ -27,3 +27,16 @@ Reproduites mot pour mot.
 1. Remet "Bienvenue, voyageur(se)" à la place de "Bienvenue en ces terres.", et retire le surlignage violet de ce test
 2. Utilise ce logo pour le jeu :. Extrait le disque central seulement, fait en sorte que ça se fonde bien dans le site. Utilise le partout où l'ancien était utilisé.
 3. Dans les règles du jeu, ne centre pas les titres de section, aligne les à gauche, filigrane compris.
+
+## Itération 5 (reçues le 2026-10-17)
+
+Reproduites mot pour mot.
+
+1. Sur toutes les pages, les filigranes doivent être de la couleur ambre
+2. Sur la page des règles de jeu, le filigrane doit être sous le titre de section, et occuper toute la largeur
+3. Il y a un bug sur les cartes : quand je clique sur une carte, le texte apparaît avant que la carte ne soit retournée
+4. Sur la page de sélection du code de la partie, il faut centrer verticalement les éléments (comme sur la pge d'acceuil), sinon tout semble être tassé en haut de la page
+5. Dans la salle d'attente, remplace "Le groupe" par un terme qui colle plus à l'univers romantasy/fantaisie
+6. Dans la salle d'attente, une fois que c'est validé avec "je suis là", c'est bloqué et on ne peut plus revenir en arrière (ctuellement c'est autorisé en cliquant sur le bouton)
+7. Après avoir cliqué sur un des boutons "sort" ou "bouclier", ce qui s'affiche est mal positionné : l'emblème est dans le halo du petit dessin (bouclier ou étoile), il faudrait que les éléments soient plus espacés.
+8. Après avoir cliqué sur le bouton "sort", l'étoile qui aparaît n'est pas jolie. Met une vératble forme d'étoile, pleine.
