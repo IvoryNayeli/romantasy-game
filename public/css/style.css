@@ -152,17 +152,79 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 }
 
 .entete {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 56px;
 }
+.entete > :not(.ciel-entete) { position: relative; z-index: 1; }
 .entete::after { content: ''; width: var(--cible); flex: none; }
 .entete-gauche { display: flex; align-items: center; width: var(--cible); flex: none; }
 .logo-compact { width: 40px; height: 40px; flex: none; }
 body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
+/* ---------- Constellations (décor : quelques étoiles reliées par des filets très fins, sans texte) ----------
+   Posées seulement dans des zones sans texte : la bande d'en-tête, de part et d'autre du logo (le bouton de retour
+   occupe les 48 premiers px, le logo les 40 px du centre), et l'espace libre de l'accueil, de la transition et de la fin.
+   Couleurs de la charte (étoile et lune), opacité faible, on n'anime que l'opacité de quelques étoiles (.etoile). */
+.ciel-entete {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(328px, 100%);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.ciel-entete .constellation { position: absolute; top: 6px; }
+.ciel-entete .c-gauche { left: 66px; }
+.ciel-entete .c-droite { right: 8px; }
+.constellation { display: block; flex: none; overflow: visible; }
+.constellation .liens { fill: none; stroke: var(--c-etoile); stroke-width: .8; stroke-linecap: round; opacity: .3; }
+.constellation .astre { fill: var(--c-etoile); opacity: .9; }
+.constellation .astre-lune { fill: var(--c-lune); opacity: .7; }
+.constellation .etoile { opacity: 1; }
+
+/* Espace libre (accueil, transition, fin) : prend la place restante au-dessus et au-dessous du contenu ; masqué s'il
+   est trop petit pour ne jamais gêner le contenu. */
+.ciel-libre {
+  flex: 1 1 0;
+  min-height: 0;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+}
+.ciel-libre .constellation { margin: 8px 0; max-height: calc(100% - 16px); }
+@container (max-height: 80px) { .ciel-libre .constellation { display: none; } }
+
 .ecran-zone { flex: 1; display: flex; flex-direction: column; outline: none; }
+
+/* Étoiles des marges : motif répété sur toute la hauteur de la page, dans les marges latérales seulement (x à moins de
+   12 px du bord, le texte commence à 16 px), en pixels et non en pourcentage de la hauteur : jamais derrière le texte,
+   quelle que soit la longueur de l'écran. Derrière le contenu (z-index -1), non interactif. */
+.page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--marge));
+  right: calc(-1 * var(--marge));
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 6px 64px, var(--c-etoile) 0 1px, transparent 2px),
+    radial-gradient(circle at calc(100% - 5px) 118px, var(--c-lune) 0 1px, transparent 2px),
+    radial-gradient(circle at 10px 176px, var(--c-lune) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at calc(100% - 9px) 232px, var(--c-etoile) 0 1.2px, transparent 2.2px),
+    radial-gradient(circle at 4px 296px, var(--c-etoile) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at calc(100% - 4px) 352px, var(--c-lune) 0 1px, transparent 2px);
+  background-size: 100% 380px;
+  background-repeat: repeat-y;
+}
 
 .ecran {
   position: relative;
@@ -305,7 +367,18 @@ h2 {
 
 /* ---------- Règles ---------- */
 .regles-corps { padding-bottom: 8px; }
-.regles-corps h2:first-child { margin-top: 8px; }
+/* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), centrés, filigrane ambre au-dessus,
+   grande marge supérieure. Les titres d'écran restent à 32-40 px (charte, section 4). */
+.titre-section { margin: 48px 0 14px; text-align: center; }
+.titre-section:first-child { margin-top: 12px; }
+.titre-section-ornement { color: var(--c-ambre); margin-bottom: 10px; }
+.titre-section h2 {
+  margin: 0;
+  color: var(--c-etoile);
+  font: 600 1.875rem/1.15 var(--f-titre);
+  letter-spacing: .06em;
+  overflow-wrap: break-word;
+}
 .liste-types { margin: 0 0 16px; padding: 0; list-style: none; }
 .liste-types li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
 .liste-types .texte { margin: 0; }

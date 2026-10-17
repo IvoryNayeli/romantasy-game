@@ -534,6 +534,57 @@ test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf boucli
   assert.ok(propriete('.grain', 'mix-blend-mode').includes('overlay'));
 });
 
+test('ciel : constellations (étoiles reliées par des filets très fins, sans texte), placées hors du texte, conformes à la charte', async () => {
+  const { MOTIFS, constellation } = await chargerModule('ciel.js');
+  const noms = Object.keys(MOTIFS);
+  assert.ok(noms.length >= 8, 'au moins huit motifs de constellation');
+  for (const nom of noms) {
+    const m = MOTIFS[nom];
+    assert.ok(m.etoiles.length >= 5 && m.etoiles.length <= 14, `${nom} : peu d'étoiles (légèreté mobile)`);
+    for (const [x, y, r] of m.etoiles) {
+      assert.ok(x >= 0 && x <= m.l && y >= 0 && y <= m.h && r > 0 && r < 3, `${nom} : étoile hors du cadre`);
+    }
+    for (const [a, b] of m.liens) assert.ok(m.etoiles[a] && m.etoiles[b] && a !== b, `${nom} : lien invalide`);
+  }
+  const source = lirePublic('js', 'ciel.js');
+  assert.doesNotMatch(source, /createElementNS\([^)]*'text'|<text|textContent|innerHTML|feTurbulence|filter|fixed/, 'ciel.js : ni texte, ni filtre, ni fond fixe');
+  assert.doesNotMatch(source, /#[0-9a-fA-F]{3,8}\b|rgb\(/, 'ciel.js : couleurs seulement via les variables du CSS');
+  // Filets très fins, étoiles aux couleurs de la charte, on n'anime que l'opacité (scintillement .etoile).
+  assert.ok(propriete('.constellation .liens', 'stroke').includes('var(--c-etoile)'));
+  assert.ok(parseFloat(propriete('.constellation .liens', 'stroke-width')[0]) <= 1, 'filet de 1 px au plus');
+  assert.ok(parseFloat(propriete('.constellation .liens', 'opacity')[0]) <= 0.4, 'filets en faible opacité');
+  assert.ok(propriete('.constellation .astre', 'fill').includes('var(--c-etoile)'));
+  assert.ok(propriete('.constellation .astre-lune', 'fill').includes('var(--c-lune)'));
+  // Zones sans texte : en-tête de part et d'autre du logo, espaces libres de l'accueil, de la transition et de la fin.
+  const ecrans = lirePublic('js', 'ecrans.js');
+  for (const [fonction, suivante] of [['accueil', 'regles'], ['transition', 'fin'], ['fin', null]]) {
+    const debut = ecrans.indexOf(`export function ${fonction}(`);
+    const corps = ecrans.slice(debut, suivante ? ecrans.indexOf(`export function ${suivante}(`, debut) : undefined);
+    assert.match(corps, /cielLibre\(/, `${fonction} : constellation dans l'espace libre`);
+  }
+  assert.ok(propriete('.ciel-libre', 'container-type').includes('size'), 'espace libre mesuré (masqué s\'il est trop petit)');
+  assert.match(css, /@container \(max-height: \d+px\) \{ \.ciel-libre \.constellation \{ display: none; \} \}/);
+  assert.ok(propriete('.ciel-entete', 'pointer-events').includes('none'));
+  assert.match(lirePublic('index.html'), /<div id="ciel-entete" class="ciel-entete" aria-hidden="true">/);
+  // Étoiles des marges : en pixels, à moins de 12 px du bord (le texte commence à 16 px), derrière le contenu.
+  const fond = propriete('.page::before', 'background-image').join(' ');
+  const positions = [...fond.matchAll(/circle at (?:calc\(100% - (\d+)px\)|(\d+)px) \d+px/g)];
+  assert.ok(positions.length >= 6, 'au moins six étoiles de marge');
+  for (const p of positions) assert.ok(Number(p[1] ?? p[2]) <= 12, `étoile de marge à ${p[1] ?? p[2]} px du bord : trop près du texte`);
+  assert.ok(propriete('.page::before', 'z-index').includes('-1') && propriete('.page::before', 'pointer-events').includes('none'));
+  assert.doesNotMatch(css, /background-attachment/, 'fond fixe interdit (charte, section 8)');
+  // La page des règles : titres de section bien plus grands que le texte, filigrane ambre au-dessus.
+  assert.match(ecrans, /function titreSection\(texte\)[\s\S]*filigrane\('titre-section-ornement'\)/);
+  const titre = plancherEnPixels(propriete('.titre-section h2', 'font')[0].match(/(?:^|\s)([\d.]+rem)(?:\/)/)[1], variables());
+  assert.ok(titre >= 28 && titre <= 40, `titre de section de ${titre} px : bien visible mais sous les titres d'écran`);
+  assert.ok(propriete('.titre-section h2', 'color').includes('var(--c-etoile)'));
+  assert.ok(propriete('.titre-section-ornement', 'color').includes('var(--c-ambre)'));
+  assert.ok(enPixels(propriete('.titre-section', 'margin')[0].split(/\s+/)[0], variables()) >= 40, 'grande marge supérieure');
+  // Aucune constellation construite sans aria-hidden : le décor n'est pas lu par les lecteurs d'écran.
+  assert.match(source, /'aria-hidden': 'true'/);
+  assert.equal(typeof constellation, 'function');
+});
+
 test('design : bandeau d\'effet durable sur la carte révélée et dans l\'attente, depuis le champ `effet`', () => {
   const ecrans = lirePublic('js', 'ecrans.js');
   assert.match(ecrans, /carte\.effet \? bandeauEffet\(carte\.effet, carte\.duree/);

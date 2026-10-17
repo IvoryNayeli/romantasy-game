@@ -6,6 +6,23 @@ import { chargerDonnees } from './donnees.js';
 import { adresse, h } from './dom.js';
 import * as ecrans from './ecrans.js';
 import { erreurs } from './textes.js';
+import { constellation } from './ciel.js';
+
+// Constellations de la bande d'en-tête, de part et d'autre du logo : [petit motif à gauche, motif large à droite].
+// Pas d'en-tête étoilé sur l'accueil, la transition et la fin : ces écrans ont déjà de grandes constellations dans
+// leur espace libre (ne pas surcharger).
+const CIEL_ENTETE = {
+  accueil: null,
+  regles: ['lyre', 'cassiopee'],
+  creer: ['croix', 'ourse'],
+  rejoindre: ['fleche', 'orion'],
+  salle: ['couronne', 'cassiopee'],
+  choix: ['lyre', 'dragon'],
+  carte: ['croix', 'orion'],
+  attente: ['fleche', 'ourse'],
+  transition: null,
+  fin: null,
+};
 
 const ECRANS = {
   accueil: ecrans.accueil,
@@ -22,6 +39,7 @@ const ECRANS = {
 
 const zone = document.getElementById('ecran');
 const enteteGauche = document.getElementById('entete-gauche');
+const cielEntete = document.getElementById('ciel-entete');
 let donnees = null;
 let nettoyer = null;
 
@@ -33,6 +51,8 @@ function afficher(premiere = false) {
   nettoyer = resultat.nettoyer || null;
   document.body.dataset.ecran = nom;
   enteteGauche.replaceChildren(...(resultat.retour ? [resultat.retour] : []));
+  const paire = CIEL_ENTETE[nom];
+  cielEntete.replaceChildren(...(paire ? [constellation(paire[0], { classe: 'c-gauche' }), constellation(paire[1], { classe: 'c-droite' })] : []));
   zone.replaceChildren(resultat.noeud);
   window.scrollTo(0, 0);
   if (!premiere) zone.focus({ preventScroll: true });

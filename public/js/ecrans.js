@@ -2,6 +2,7 @@
 // et renvoie { noeud, retour?, nettoyer? }. Phase 2 : données fictives, aucune logique de jeu.
 
 import { h, icone, lienBouton, coins, filigrane, logo, etoile } from './dom.js';
+import { constellation } from './ciel.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
@@ -65,8 +66,19 @@ function contenuDos(type) {
     h('span', { classe: 'dos-nom' }, T.types[type].nom));
 }
 
+// Espace libre au-dessus ou au-dessous du contenu (accueil, transition, fin) : une grande constellation y est posée.
+// Le bloc prend la place restante ; s'il est trop petit (petit écran), la constellation est masquée (voir style.css).
+function cielLibre(motif, echelle = 2) {
+  return h('div', { classe: 'ciel-libre', 'aria-hidden': 'true' }, constellation(motif, { echelle, fluide: true }));
+}
+
 function barreBas(...boutons) {
   return h('div', { classe: 'barre-bas' }, ...boutons);
+}
+
+// Titre de section de la page des règles : filigrane ambre au-dessus, titre en Cormorant Garamond.
+function titreSection(texte) {
+  return h('div', { classe: 'titre-section' }, filigrane('titre-section-ornement'), h('h2', null, texte));
 }
 
 // Flèche de retour de l'en-tête (lien interne, intercepté par app.js).
@@ -80,6 +92,7 @@ function flecheRetour(ecran, libelle) {
 export function accueil() {
   const noeud = h('section', { classe: 'ecran ecran-accueil' },
     h('div', { classe: 'ciel-accueil', 'aria-hidden': 'true' }, ETOILES_ACCUEIL.map(([x, y]) => etoile(x, y))),
+    cielLibre('dragon'),
     h('div', { classe: 'accueil-corps' },
       h('div', { classe: 'logo-complet', role: 'img', 'aria-label': T.logoNom },
         logo('logo-grand')),
@@ -87,6 +100,7 @@ export function accueil() {
       h('div', { classe: 'ornement', 'aria-hidden': 'true' }, filigrane()),
       h('p', { classe: 'texte' }, T.accueil.texte1),
       h('p', { classe: 'texte' }, T.accueil.texte2)),
+    cielLibre('couronne', 2.4),
     barreBas(lienBouton(T.accueil.bouton, { ecran: 'regles' })));
   return { noeud };
 }
@@ -95,9 +109,9 @@ export function regles({ donnees }) {
   const R = T.regles;
   const noeud = h('section', { classe: 'ecran ecran-regles' },
     h('div', { classe: 'regles-corps' },
-      h('h2', null, R.butTitre),
+      titreSection(R.butTitre),
       h('p', { classe: 'texte' }, R.but),
-      h('h2', null, R.deroulementTitre),
+      titreSection(R.deroulementTitre),
       h('p', { classe: 'texte' }, R.deroulement),
       h('ul', { classe: 'liste-types' },
         h('li', { classe: 'type-revelation' }, icone('etoile', 'type-puce'),
@@ -105,9 +119,9 @@ export function regles({ donnees }) {
         h('li', { classe: 'type-epreuve' }, icone('epee', 'type-puce'),
           h('p', { classe: 'texte' }, h('strong', null, R.carteEpreuveNom), R.carteEpreuve))),
       h('p', { classe: 'texte' }, R.effetsDurables),
-      h('h2', null, R.bouclierTitre),
+      titreSection(R.bouclierTitre),
       h('p', { classe: 'texte' }, R.bouclier),
-      h('h2', null, R.finTitre),
+      titreSection(R.finTitre),
       h('p', { classe: 'texte' }, R.fin(donnees.config.tours))),
     barreBas(
       lienBouton(R.creer, { ecran: 'creer' }),
@@ -365,10 +379,12 @@ export function transition({ donnees, params, naviguer }) {
   const emb = emblemeParId(donnees, params.get('embleme') || acteur.embleme);
   const noeud = h('section', { classe: `ecran ecran-transition${bouclier ? ' transition-bouclier' : ''}` },
     compteurEl(donnees, n),
+    cielLibre('orion'),
     h('div', { classe: 'transition-corps', role: 'status' },
       h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier-grand' : 'sort-jete', 'icone-presence')),
       emblemeEl(emb, 'embleme-grand'),
-      h('p', { classe: 'transition-texte' }, bouclier ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom))));
+      h('p', { classe: 'transition-texte' }, bouclier ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom))),
+    cielLibre('croix', 2.4));
   let minuteur = null;
   if (params.get('auto') === '1') {
     // Parcours de démonstration : après 2 secondes, tour suivant ou fin (le nombre de tours vient de config.json).
@@ -381,10 +397,12 @@ export function transition({ donnees, params, naviguer }) {
 
 export function fin() {
   const noeud = h('section', { classe: 'ecran ecran-fin' },
+    cielLibre('lyre', 2.4),
     h('div', { classe: 'fin-corps' },
       h('p', { classe: 'accueil-salut' }, T.fin.titre),
       h('div', { classe: 'ornement', 'aria-hidden': 'true' }, filigrane()),
       h('p', { classe: 'texte' }, T.fin.texte)),
+    cielLibre('cassiopee'),
     barreBas(lienBouton(T.fin.bouton, { ecran: 'accueil' })));
   return { noeud };
 }
