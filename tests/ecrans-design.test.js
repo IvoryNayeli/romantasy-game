@@ -680,8 +680,9 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   }
   // Textes affichés : plus aucune parenthèse d'accord ; formulations neutres retenues.
   const textes = lirePublic('js', 'textes.js');
-  assert.doesNotMatch(textes, /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
-  for (const forme of ['Bienvenue en ces terres.', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je suis là', 'Le groupe']) {
+  // Seule exception voulue par la propriétaire (itération 4) : la salutation « Bienvenue, voyageur(se). ».
+  assert.doesNotMatch(textes.replace('voyageur(se)', 'voyageur'), /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
+  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je suis là', 'Le groupe']) {
     assert.ok(textes.includes(forme), `formulation neutre « ${forme} » absente`);
   }
   assert.match(textes, /butin/);

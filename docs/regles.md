@@ -10,7 +10,7 @@ Tous les textes du jeu sont inclusifs, selon la convention de [PROJET.md](PROJET
 
 Aucun titre. Un seul bouton : « Comment ça marche ? ».
 
-> *Bienvenue en ces terres.*
+> *Bienvenue, voyageur(se).*
 >
 > Les Cours s'agitent, les dragons s'éveillent et le destin s'apprête à battre ses cartes.
 >

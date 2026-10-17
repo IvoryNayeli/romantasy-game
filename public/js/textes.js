@@ -5,7 +5,7 @@
 export const logoNom = 'Logo du jeu';
 
 export const accueil = {
-  salut: 'Bienvenue en ces terres.',
+  salut: 'Bienvenue, voyageur(se).',
   texte1: 'Les Cours s\'agitent, les dragons s\'éveillent et le destin s\'apprête à battre ses cartes.',
   texte2: 'Récupérez votre butin, choisissez votre emblème et laissez le sort décider du trésor qui sera le vôtre.',
   bouton: 'Comment ça marche ?',

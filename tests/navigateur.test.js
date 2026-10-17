@@ -369,7 +369,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     const source = norm(regles);
     const pages = { accueil: '?ecran=accueil', regles: '?ecran=regles', fin: '?ecran=fin', salle: '?ecran=salle&hote=1&autres=1' };
     const attendus = {
-      accueil: ['Bienvenue, voyageur(euse).', 'Les Cours s\'agitent, les dragons s\'éveillent et le destin s\'apprête à battre ses cartes.',
+      accueil: ['Bienvenue, voyageur(se).', 'Les Cours s\'agitent, les dragons s\'éveillent et le destin s\'apprête à battre ses cartes.',
         'Récupérez votre butin, choisissez votre emblème et laissez le sort décider du trésor qui sera le vôtre.', 'Comment ça marche ?'],
       regles: ['But du jeu', 'Déroulement', 'Invoquer un bouclier', 'Fin de la partie', 'Créer une partie', 'Rejoindre une partie'],
       fin: ['La quête s\'achève.', 'Le destin a rendu son verdict. Chacun(e) tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !', 'Nouvelle quête'],

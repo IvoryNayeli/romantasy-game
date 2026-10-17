@@ -375,7 +375,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
   /* ============ Parcours complets ============ */
   it('parcours complet « Créer » : accueil, règles, choix du code, salle, tous les tours, bouclier, fin, nouvelle quête', async () => {
     const page = await ouvrir('index.html', { largeur: 360 });
-    assert.match(await page.locator('.accueil-salut').textContent(), /Bienvenue, voyageur\(euse\)\./);
+    assert.match(await page.locator('.accueil-salut').textContent(), /Bienvenue, voyageur\(se\)\./);
     assert.equal(await page.getByRole('link').count(), 1, 'l\'accueil ne doit contenir qu\'un bouton');
     assert.equal(await page.locator('h1').count(), 0, 'aucun titre h1 sur l\'accueil');
     await page.getByRole('link', { name: /Comment ça marche ?/i }).click();
