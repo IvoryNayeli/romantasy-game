@@ -514,6 +514,53 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     await fermer(p2);
   });
 
+  // Itération 5, remarque 3 : le texte ne doit jamais être lisible avant la mi-rotation.
+  it('carte révélée : le texte de la face est invisible avant la mi-rotation, visible après', async () => {
+    const page = await ouvrir('index.html?ecran=carte&type=epreuve', { largeur: 412 });
+    const mesures = await page.evaluate(() => {
+      const tdr = document.querySelector('.carte-3d');
+      const anims = document.getAnimations().filter((a) => ['retournement', 'face-apparait', 'dos-disparait'].includes(a.animationName));
+      const resultat = [];
+      for (const pc of [0, 25, 49, 51, 75, 100]) {
+        for (const a of anims) {
+          const t = a.effect.getComputedTiming();
+          a.pause();
+          a.currentTime = t.delay + (t.duration * pc) / 100;
+        }
+        resultat.push({
+          pc,
+          face: Number(getComputedStyle(document.querySelector('.carte-face')).opacity),
+          dos: Number(getComputedStyle(document.querySelector('.carte-dos')).opacity),
+          rot: getComputedStyle(tdr).transform,
+        });
+      }
+      return resultat;
+    });
+    for (const m of mesures) {
+      if (m.pc < 50) assert.ok(m.face === 0 && m.dos === 1, `à ${m.pc} % la face doit être masquée : ${JSON.stringify(m)}`);
+      else assert.ok(m.face === 1 && m.dos === 0, `à ${m.pc} % la face doit être visible : ${JSON.stringify(m)}`);
+    }
+    await fermer(page);
+  });
+
+  // Itération 5, remarque 7 : le halo (inset -22 %, pulsation de 8 % comprise) ne touche ni l'emblème ni le texte.
+  it('transition : le halo de la forme ne chevauche ni l\'emblème ni le texte (sort et bouclier, 360 et 412 px)', async () => {
+    for (const largeur of [360, 412]) {
+      for (const bouclier of [0, 1]) {
+        const page = await ouvrir(`index.html?ecran=transition&bouclier=${bouclier}`, { largeur });
+        const m = await page.evaluate(() => {
+          const r = document.querySelector('.transition-icone').getBoundingClientRect();
+          const bas = r.bottom + r.height * (0.22 + 0.04); // 0,22 de halo + moitié de 8 % d'agrandissement
+          return { bas, emb: document.querySelector('.transition-corps .embleme').getBoundingClientRect().top,
+            texte: document.querySelector('.transition-texte').getBoundingClientRect().top };
+        });
+        assert.ok(m.emb - m.bas >= 8, `${largeur} px bouclier=${bouclier} : halo (${m.bas.toFixed(0)}) trop près de l'emblème (${m.emb.toFixed(0)})`);
+        assert.ok(m.texte > m.emb, 'le texte reste sous l\'emblème');
+        await fermer(page);
+      }
+    }
+  });
+
   // Itération 1 : « aucun défilement sur 360 x 640 ». Avec le logo complet de la charte, l'accueil dépasse de quelques
   // dizaines de pixels : l'exigence devient « bouton toujours visible, texte atteignable et jamais masqué par la barre,
   // dépassement <= 100 px » (voir le rapport, remarque R2).
