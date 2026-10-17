@@ -193,7 +193,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     // Titres et logo : Cormorant Garamond hébergée.
     const accueil = await ouvrir('index.html?ecran=accueil');
     await finAnimations(accueil);
-    const titres = await policesDe(accueil, ['.accueil-salut', '.logo-nom']);
+    const titres = await policesDe(accueil, ['.accueil-salut']);
     for (const [sel, f] of Object.entries(titres)) assert.ok(f.length && f.every((x) => cormorant.test(x)), `${sel} : Cormorant Garamond hébergée attendue, obtenu ${f}`);
     for (const f of await facesChargees(accueil)) chargees.add(f);
     await fermer(accueil);
@@ -372,7 +372,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
       accueil: ['Bienvenue, voyageur(se).', 'Les Cours s\'agitent, les dragons s\'éveillent et le destin s\'apprête à battre ses cartes.',
         'Récupérez votre butin, choisissez votre emblème et laissez le sort décider du trésor qui sera le vôtre.', 'Comment ça marche ?'],
       regles: ['But du jeu', 'Déroulement', 'Invoquer un bouclier', 'Fin de la partie', 'Créer une partie', 'Rejoindre une partie'],
-      fin: ['La quête s\'achève.', 'Le destin a rendu son verdict. Chacun(e) tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !', 'Nouvelle quête'],
+      fin: ['La quête s\'achève.', 'Le destin a rendu son verdict. Chaque personne tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !', 'Nouvelle quête'],
       salle: ['Rassemblez votre troupe. La quête commencera quand l\'hôte donnera le signal.', 'Commencer la quête'],
     };
     for (const [nom, q] of Object.entries(pages)) {

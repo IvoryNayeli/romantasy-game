@@ -728,3 +728,26 @@ test('README : explique comment servir le jeu, ouvrir les écrans (dont sur tél
   assert.match(readme, /`erreur`/);
   assert.match(readme, /Node\.js/);
 });
+
+test('itération 4 : salutation exacte « Bienvenue, voyageur(se). » dans docs/regles.md et textes.js, et nulle part ailleurs sous une autre forme', () => {
+  const textes = lirePublic('js', 'textes.js');
+  assert.match(textes, /salut:\s*'Bienvenue, voyageur\(se\)\.'/, 'textes.js : salutation exacte attendue');
+  assert.match(lire('docs', 'regles.md'), /^>\s*\*Bienvenue, voyageur\(se\)\.\*\s*$/m, 'docs/regles.md : salutation exacte attendue');
+  for (const f of listerFichiers(PUBLIC, /\.(html|js)$/)) {
+    const code = fs.readFileSync(f, 'utf8');
+    assert.doesNotMatch(code, /Bienvenue(?!, voyageur\(se\)\.)/, `${path.relative(RACINE, f)} : autre salutation « Bienvenue »`);
+  }
+});
+
+test('itération 4 : aucun surlignage violet (sélection, marque, surbrillance) dans la feuille de style ni dans les textes du CSS', () => {
+  const surlignage = regles().filter((r) => /::selection|::highlight|\bmark\b|surlign/i.test(r.selecteur));
+  for (const r of surlignage) {
+    for (const m of r.corps.matchAll(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/g)) {
+      const hex = m[1].length === 3 ? m[1].split('').map((c) => c + c).join('') : m[1];
+      const { t, s } = teinteSaturation(`#${hex}`);
+      assert.ok(!(t >= 255 && t <= 345 && s > 0.12), `${r.selecteur} : surlignage violet ou rose #${m[1]}`);
+    }
+    assert.doesNotMatch(r.corps, /violet|purple|magenta|pink|améthyste/i, `${r.selecteur} : couleur de surlignage violette`);
+  }
+  assert.doesNotMatch(css, /améthyste|amethyste/i, 'nom de couleur « améthyste » dans le CSS');
+});
