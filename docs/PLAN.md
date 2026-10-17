@@ -55,5 +55,5 @@ Règles valables pour toutes les phases :
 
 ## Phase 7 : finition et mise en ligne
 
-- Icônes game-icons.net et crédits, **remplacement de l'aile de dragon du logo (accueil et dos des cartes) par une image de banque de données avec crédit de sa licence, en même temps que les emojis des emblèmes**, GitHub Pages, accessibilité, lien définitif, contrôle des quotas Firebase.
+- Icônes game-icons.net et crédits (emblèmes seulement : le logo est l'image de la propriétaire, déjà en place), GitHub Pages, accessibilité, lien définitif, contrôle des quotas Firebase.
 - **Validation humaine** : partie réelle sur plusieurs téléphones, avec une check-list fournie.

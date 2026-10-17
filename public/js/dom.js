@@ -46,9 +46,9 @@ export function filigrane(classe = '') {
   return symbole('filigrane', `filigrane ${classe}`.trim());
 }
 
-// Logo (dessin provisoire) : décoratif ici, son nom accessible est porté par le conteneur.
+// Logo (image img/logo.webp, disque central sur fond transparent) : décoratif ici, son nom accessible est porté par le conteneur.
 export function logo(classe = '') {
-  return symbole('logo', classe);
+  return h('img', { classe, src: 'img/logo.webp', alt: '', 'aria-hidden': 'true' });
 }
 
 // Étoile qui scintille (décor de l'accueil) : dans la marge de gauche ('g') ou de droite ('d'),

@@ -80,7 +80,7 @@ Choix de la phase 2 qui ne sont pas écrits dans les documents (à confirmer par
 
 ## Risques reportés
 
-- **Phase 7 : remplacer l'aile de dragon** (logo de l'accueil, logo compact des barres et dos des cartes) **par une image de banque de données, avec le crédit de sa licence, en même temps que les emojis des emblèmes** (demande de la propriétaire, itération 3 de la phase 2). Aucun téléchargement ni changement de dessin avant ; le dessin SVG actuel reste provisoire.
+- Phase 7 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
 
 ## Décisions confirmées

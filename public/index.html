@@ -13,8 +13,6 @@
 <body class="ciel">
   <!-- Icônes et ornements : symboles SVG dessinés pour le projet, au trait fin de 1,5 px (sauf le bouclier et le sort jeté,
        formes pleines demandées par la propriétaire). Remplacement des icônes par game-icons.net prévu en phase 7. -->
-  <!-- Image à remplacer : l'aile de dragon du logo (accueil et dos des cartes) sera remplacée par une image de banque de
-       données en phase 7, avec les emojis des emblèmes (crédit de licence à ajouter). -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <symbol id="i-epee" viewBox="0 0 24 24">
       <path d="M12 2.5 14 14H10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
@@ -58,21 +56,13 @@
       <path d="M4 6C30 6 40 1 62 6M88 6C110 11 120 6 146 6" fill="none" stroke="currentColor"/>
       <path d="M75 0Q76 5 81 6Q76 7 75 12Q74 7 69 6Q74 5 75 0Z" fill="currentColor"/>
     </symbol>
-    <!-- Logo provisoire : cercle clair de lune, disque minuit, aile de dragon bordée d'ambre, petite étoile -->
-    <symbol id="i-logo" viewBox="0 0 64 64">
-      <circle cx="32" cy="32" r="30.5" style="fill:none;stroke:var(--c-lune)" stroke-width="1.5"/>
-      <circle cx="32" cy="32" r="26.5" style="fill:var(--c-minuit)"/>
-      <path d="M22 47 29 23 46 14Q43 21 50 27Q44 29 47 38Q40 36 36 45Q32 42 22 47Z" style="fill:var(--c-nuit);stroke:var(--c-ambre)" stroke-width="1.5" stroke-linejoin="round"/>
-      <path d="M29 23 50 27M29 23 47 38" style="fill:none;stroke:var(--c-ambre)" stroke-width="1" stroke-linecap="round" opacity=".7"/>
-      <path d="M18 13Q18.6 17.4 23 18Q18.6 18.6 18 23Q17.4 18.6 13 18Q17.4 17.4 18 13Z" style="fill:var(--c-etoile)"/>
-    </symbol>
   </svg>
 
   <div class="page">
     <header class="entete">
       <div id="ciel-entete" class="ciel-entete" aria-hidden="true"></div>
       <div id="entete-gauche" class="entete-gauche"></div>
-      <svg class="logo-compact" role="img" aria-label="Romantasy" viewBox="0 0 64 64" width="40" height="40"><use href="#i-logo"/></svg>
+      <img class="logo-compact" src="img/logo.webp" alt="Romantasy" width="40" height="40">
     </header>
     <main id="ecran" class="ecran-zone" tabindex="-1"></main>
   </div>

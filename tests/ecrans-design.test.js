@@ -466,7 +466,7 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.equal(textes.types.epreuve.nom, 'Épreuve');
   assert.equal(textes.types.revelation.nom, 'Révélation');
   const html = lirePublic('index.html');
-  for (const symbole of ['epee', 'etoile', 'bouclier', 'bouclier-grand', 'sort-jete', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane', 'logo']) {
+  for (const symbole of ['epee', 'etoile', 'bouclier', 'bouclier-grand', 'sort-jete', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane']) {
     assert.match(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole ${symbole}`);
   }
   assert.ok(propriete('.carte', '--rarete').includes('var(--c-braise)'), 'Épreuve = braise');
@@ -483,11 +483,15 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.match(ecrans, /icone\(T\.types\[type\]\.symbole, 'dos-symbole'\)/, 'symbole sur les dos de carte');
 });
 
-test('logo : SVG fait pour le projet (cercle clair de lune, disque minuit, aile bordée d\'ambre, étoile), version complète et compacte', () => {
+test('logo : image du disque central (fond transparent), version complète et compacte', () => {
   const html = lirePublic('index.html');
-  const logo = html.match(/<symbol id="i-logo"[^>]*>([\s\S]*?)<\/symbol>/)[1];
-  for (const couleur of ['--c-lune', '--c-minuit', '--c-ambre', '--c-etoile']) assert.match(logo, new RegExp(couleur));
-  assert.match(html, /<svg class="logo-compact" role="img" aria-label="Romantasy"[^>]*width="40" height="40"/, 'version compacte de 40 px dans la barre');
+  assert.doesNotMatch(html, /i-logo/, 'plus de symbole SVG provisoire');
+  assert.match(lirePublic('js', 'dom.js'), /export function logo\(classe = ''\) \{\s*return h\('img', \{ classe, src: 'img\/logo\.webp', alt: '', 'aria-hidden': 'true' \}\);/, 'logo décoratif en image');
+  const fichier = path.join(PUBLIC, 'img', 'logo.webp');
+  assert.ok(fs.existsSync(fichier), 'public/img/logo.webp présent');
+  assert.ok(fs.statSync(fichier).size < 100 * 1024, 'logo léger (moins de 100 Ko)');
+  assert.ok(!fs.existsSync(path.join(PUBLIC, 'data', 'logo.jpeg')), 'la source JPEG n\'est pas servie par le site');
+  assert.match(html, /<img class="logo-compact" src="img\/logo\.webp" alt="Romantasy" width="40" height="40">/, 'version compacte de 40 px dans la barre');
   assert.match(lirePublic('js', 'ecrans.js'), /classe: 'logo-complet', role: 'img', 'aria-label': T\.logoNom/, 'version complète sur l\'accueil, nom accessible neutre');
   assert.equal(lirePublic('js', 'textes.js').match(/logoNom = '([^']*)'/)[1], 'Logo du jeu', 'nom accessible neutre (pas de nom écrit)');
   // Remarque de la propriétaire (itération 2) : aucun titre sur l'accueil, donc plus de nom écrit sous le logo.
@@ -495,7 +499,6 @@ test('logo : SVG fait pour le projet (cercle clair de lune, disque minuit, aile 
   assert.doesNotMatch(css, /\.logo-nom/, 'plus de style pour un nom écrit sous le logo');
   const accueilSource = lirePublic('js', 'ecrans.js').slice(lirePublic('js', 'ecrans.js').indexOf('export function accueil('), lirePublic('js', 'ecrans.js').indexOf('export function regles('));
   assert.doesNotMatch(accueilSource, /<h[1-6]|h\('h[1-6]'|Romantasy/, 'aucun titre sur l\'accueil');
-  assert.doesNotMatch(html, /<image|<img/, 'aucune image bitmap en phase 2');
 });
 
 test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf bouclier et sort jeté) ; un seul calque de grain par écran', () => {

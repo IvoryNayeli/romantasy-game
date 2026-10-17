@@ -644,11 +644,6 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       await fermer(page);
     }
     assert.deepEqual(defauts, []);
-    // Logo en capitales, interlettrage .18em
-    const accueil = await ouvrir('index.html?ecran=accueil', { reduit: true });
-    const logo = await accueil.evaluate(() => { const s = getComputedStyle(document.querySelector('.logo-nom')); return { casse: s.textTransform, espace: parseFloat(s.letterSpacing) / parseFloat(s.fontSize), famille: s.fontFamily }; });
-    assert.equal(logo.casse, 'uppercase'); assert.ok(Math.abs(logo.espace - 0.18) < 0.005, `interlettrage du logo ${logo.espace}em`); assert.match(logo.famille, /^"?Cormorant/);
-    await fermer(accueil);
     // Aucun texte justifié ; lignes courtes ; légendes (compteur, types) en capitales espacées de .25em à .3em.
     const regles = await ouvrir('index.html?ecran=regles', { reduit: true });
     assert.equal(await regles.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => getComputedStyle(e).textAlign === 'justify').length), 0);
@@ -768,25 +763,22 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     });
   }
 
-  it('§5 logo : version complète (96 px, nom en capitales) sur l\'accueil, version compacte de 40 px dans les barres, role="img" avec aria-label, ornements aria-hidden', async () => {
+  it('§5 logo : image du disque central, version complète (96 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
     const accueil = await ouvrir('index.html?ecran=accueil', { reduit: true });
     const a = await accueil.evaluate(() => {
-      const complet = document.querySelector('.logo-complet'); const g = document.querySelector('.logo-grand').getBoundingClientRect();
+      const complet = document.querySelector('.logo-complet'); const image = document.querySelector('img.logo-grand'); const g = image.getBoundingClientRect();
       const compact = document.querySelector('.logo-compact');
-      return { role: complet.getAttribute('role'), nom: complet.getAttribute('aria-label'), w: g.width, h: g.height, compactVisible: getComputedStyle(compact).visibility, href: document.querySelector('.logo-grand use').getAttribute('href') };
+      return { role: complet.getAttribute('role'), nom: complet.getAttribute('aria-label'), w: g.width, h: g.height, compactVisible: getComputedStyle(compact).visibility, src: image.getAttribute('src'), charge: image.naturalWidth > 0, masquee: image.getAttribute('aria-hidden') };
     });
-    assert.deepEqual([a.role, a.nom, a.w, a.h, a.compactVisible, a.href], ['img', 'Romantasy', 96, 96, 'hidden', '#i-logo']);
+    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 96, h: 96, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
     await fermer(accueil);
     for (const [nom, c] of ECRANS.filter(([n]) => n !== 'accueil').slice(0, 12)) {
       const page = await ouvrir(`index.html${c}`, { reduit: true });
-      const b = await page.evaluate(() => { const l = document.querySelector('.logo-compact'); const r = l.getBoundingClientRect(); return { w: r.width, h: r.height, role: l.getAttribute('role'), nom: l.getAttribute('aria-label'), vis: getComputedStyle(l).visibility }; });
-      assert.deepEqual(b, { w: 40, h: 40, role: 'img', nom: 'Romantasy', vis: 'visible' }, `logo compact sur ${nom}`);
+      const b = await page.evaluate(() => { const l = document.querySelector('.logo-compact'); const r = l.getBoundingClientRect(); return { w: r.width, h: r.height, balise: l.tagName, nom: l.getAttribute('alt'), charge: l.naturalWidth > 0, vis: getComputedStyle(l).visibility }; });
+      assert.deepEqual(b, { w: 40, h: 40, balise: 'IMG', nom: 'Romantasy', charge: true, vis: 'visible' }, `logo compact sur ${nom}`);
       await fermer(page);
     }
-    // Le dessin : cercle fin clair de lune, disque minuit, aile sombre bordée d'ambre, petite étoile.
-    const symbole = html.match(/<symbol id="i-logo"[\s\S]*?<\/symbol>/)[0];
-    for (const v of ['--c-lune', '--c-minuit', '--c-nuit', '--c-ambre', '--c-etoile']) assert.ok(symbole.includes(v), `logo : ${v} absent`);
-    assert.ok((symbole.match(/<circle/g) || []).length >= 2 && (symbole.match(/<path/g) || []).length >= 3);
+    assert.doesNotMatch(html, /i-logo/, 'plus de symbole SVG provisoire');
     // Ornements décoratifs masqués aux lecteurs d'écran, images nommées, champs étiquetés.
     const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1', { reduit: true });
     const acc = await page.evaluate(() => ({

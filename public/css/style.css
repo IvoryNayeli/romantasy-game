@@ -259,9 +259,10 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 .coin-bd { bottom: 8px; right: 8px; }
 .filigrane { display: block; width: 150px; height: 12px; margin: 0 auto; color: var(--rarete, var(--c-lune-douce)); }
 
-/* ---------- Logo (dessin provisoire fait pour le projet) ---------- */
+/* ---------- Logo (image du disque central, fond transparent : elle se fond dans --c-nuit) ---------- */
 .logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .logo-grand { width: 96px; height: 96px; }
+.logo-grand, .logo-compact, .dos-logo { display: block; object-fit: contain; }
 
 /* ---------- Boutons (charte, section 7) ---------- */
 .bouton {
