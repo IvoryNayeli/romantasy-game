@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | en cours (itération 3) | 2 | [phase-2-iteration-2](rapports/phase-2-iteration-2.md) |
+| 2 | Écrans et design | en test | 3 | [phase-2-iteration-2](rapports/phase-2-iteration-2.md) |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design) prête pour relecture (itération 2) : la propriétaire rouvre les écrans sur son téléphone (`demo.html`), juge la nouvelle charte, tranche les décisions à confirmer, puis répond « Phase 2 validée » ou « Phase 2, remarques : … ». Phase 3 refusée tant que la phase 2 n'est pas validée.
+Phase 2 (écrans et design), itération 3 en test : le testeur adapte ses tests de navigateur aux changements voulus (textes neutres, accueil sans nom écrit, titres de section des règles, bouclier et sort jeté en formes pleines, constellations), refait un passage complet et rédige son rapport. Ensuite : rapport de l'itération 3 pour la propriétaire (tableau avant/après des textes à confirmer), puis « Phase 2 validée » ou « Phase 2, remarques : … ». Phase 3 refusée tant que la phase 2 n'est pas validée.
 
 ## Journal
 
@@ -67,18 +67,24 @@ Aucun.
 
 Choix de la phase 2 qui ne sont pas écrits dans les documents (à confirmer par la propriétaire dans le rapport) :
 
-- Libellés d'interface absents de `regles.md` : « Je suis prêt(e) », « Ton prénom », « Ton emblème », « Code de la partie », « Participant(e)s » (titre de la liste), étiquettes « hôte » et « toi », « Invoquer » et « Annuler » (boîte de confirmation du bouclier), « Effet durable », « Effets en cours », durées « Jusqu'à ton prochain tour », « Jusqu'à son prochain tour », « Jusqu'à la fin de la partie », « Retour à l'accueil » et « Retour aux règles » (étiquettes des flèches de retour), nom « Romantasy » sous le logo de l'accueil.
-- Textes des écrans « Créer » et « Rejoindre » (absents de `regles.md`) : « Choisis le code de la partie », « Les autres joueur(se)s le saisiront pour te rejoindre. », « Saisis le code de la partie », « Majuscules, minuscules et accents n'ont pas d'importance. », « Valider », « Saisis le code de la partie. » (champ vide), « Ce code ne correspond à aucune partie. Vérifie-le et réessaie. » (code inconnu).
+- Libellés d'interface absents de `regles.md` : « Je suis là » (bouton, remplace « Je suis prêt(e) »), « C'est bon » (étiquette et état du bouton, remplace « Prêt(e) »), « Ton prénom », « Ton emblème », « Code de la partie », « Le groupe » (titre de la liste, remplace « Participant(e)s »), étiquettes « hôte » et « toi », « Invoquer » et « Annuler » (boîte de confirmation du bouclier), « Effet durable », « Effets en cours », durées « Jusqu'à ton prochain tour », « Jusqu'à son prochain tour », « Jusqu'à la fin de la partie », « Retour à l'accueil » et « Retour aux règles » (étiquettes des flèches de retour), nom accessible « Logo du jeu » du logo de l'accueil (plus de nom « Romantasy » écrit à l'écran).
+- Écriture inclusive allégée (itération 3, demande explicite de la propriétaire, y compris pour les textes validés) : formulations neutres choisies dans `regles.md`, `cartes-source.md`, `cartes.json`, `textes.js` et les documents ; tableau avant/après dans le rapport de l'itération 3, à confirmer. Choix à trancher : « Bienvenue en ces terres. » (remplace « Bienvenue, voyageur(euse). »), « la personne qui joue » (remplace « le/la joueur(se) »), « Je suis là » et « C'est bon » (remplacent « prêt(e) »), « Le groupe » (remplace « Participant(e)s »), 9 cartes (rev-02, rev-03, rev-04, rev-07, rev-08, epr-01, epr-08 [effet compris], epr-11, epr-14 [effet compris], epr-17 [effet compris]). `.github/copilot-instructions.md` garde une autre ligne avec « 5 joueur(se)s maximum » (consigne : toucher une seule ligne).
+- Accueil sans titre (itération 3) : le nom « Romantasy » n'est plus écrit sous le logo. Le titre de l'onglet (`<title>Romantasy</title>`) est laissé tel quel : à confirmer. « Bienvenue en ces terres. » reste en italique 36 px (c'est la salutation du texte validé, pas un titre).
+- Écart volontaire à la charte (itération 3, demandé par la propriétaire) : bouclier et « sort est jeté » en formes pleines, grandes, avec halo ambre ou braise, au lieu d'icônes au trait fin ; noté dans `PROJET.md`. L'épée et l'étoile des types de carte restent au trait fin (même problème de discrétion possible : à voir avec la propriétaire).
+- Constellations (itération 3) : tracés inventés ou inspirés du ciel (lyre, croix, couronne, flèche, cassiopée, grande ourse, dragon, orion) posés seulement dans des zones sans texte (bande d'en-tête, espace libre de l'accueil, de la transition et de la fin), plus un motif d'étoiles dans les marges ; en conséquence, le critère « 11 dégradés dans `body.ciel` » du testeur est inchangé (les nouvelles étoiles ne sont pas dans les dégradés du corps).
+- Titres de section de la page des règles (itération 3) : 30 px, interlettrage, filigrane ambre au-dessus, marge supérieure de 48 px ; textes de `regles.md` inchangés.
+- Textes des écrans « Créer » et « Rejoindre » (absents de `regles.md`) : « Choisis le code de la partie », « Les autres le saisiront pour te rejoindre. » (remplace « Les autres joueur(se)s le saisiront… »), « Saisis le code de la partie », « Majuscules, minuscules et accents n'ont pas d'importance. », « Valider », « Saisis le code de la partie. » (champ vide), « Ce code ne correspond à aucune partie. Vérifie-le et réessaie. » (code inconnu).
 - Charte graphique, adaptations à confirmer : (a0) étoiles du fond et étincelles de l'accueil posées dans les marges latérales (la charte les répartit sur toute la hauteur de la page, ce qui les fait passer derrière le texte, défaut D5) ; (a) polices hébergées au lieu de l'`@import` Google Fonts (Cormorant Garamond 500, 600, 500 italique ; Jost 300, 400, 500), Cinzel retirée ; (b) types de carte à la place des raretés : Épreuve = `--c-braise` + épée + « ÉPREUVE », Révélation = `--c-lune` + étoile + « RÉVÉLATION » (`regles.md` dit encore « améthyste », interdit par la charte : le texte n'a pas été modifié) ; (c) cartes sans coût, nom ni illustration, texte de carte gardé à 20 px au minimum (la charte demande 15 px) : la carte 2:3 s'allonge quand il le faut ; (d) logo SVG provisoire fait pour le projet, sans sous-titre (non fourni par la charte) ; (e) le fondu flou 6 px de l'apparition d'une carte n'est pas fait (« n'animer que opacity et transform ») ; (f) le texte des règles et de l'accueil reste à 20 px (la charte dit 15 à 16 px au minimum).
 - Salle d'attente : code de partie petit et discret (remarque 2 de l'itération 1) alors que `regles.md` dit « affiché en grand » (texte non modifié) ; le texte d'accompagnement « Rassemblez votre troupe… » est placé sous la liste pour garder l'ordre code, menu emblème et prénom, liste.
 - « Rejoindre » et « Créer » en phase 2 : le code n'est vérifié que dans la liste de `codes.json`, sans réseau ni unicité (phase 4).
-- Nombre minimal de joueur(se)s prêt(e)s pour commencer (2, de `regles.md`) : constante dans `public/js/fictif.js`, car absente de `config.json`.
-- Titre de l'onglet : « Romantasy ».
-- Icônes (épée, étoile, bouclier) : dessins SVG simples faits pour le projet, en attendant game-icons.net (phase 7).
+- Nombre minimal de personnes ayant confirmé leur présence (« Je suis là ») pour commencer (2, de `regles.md`) : constante dans `public/js/fictif.js`, car absente de `config.json`.
+- Titre de l'onglet : « Romantasy » (laissé tel quel malgré l'accueil sans titre, itération 3).
+- Icônes (épée, étoile, bouclier) : dessins SVG simples faits pour le projet, en attendant game-icons.net (phase 7) ; le bouclier est désormais plein (voir plus haut).
 - `demo.html` et le paramètre `?ecran=` : outils de validation de la phase 2, à retirer ou masquer en phase 7.
 
 ## Risques reportés
 
+- **Phase 7 : remplacer l'aile de dragon** (logo de l'accueil, logo compact des barres et dos des cartes) **par une image de banque de données, avec le crédit de sa licence, en même temps que les emojis des emblèmes** (demande de la propriétaire, itération 3 de la phase 2). Aucun téléchargement ni changement de dessin avant ; le dessin SVG actuel reste provisoire.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
 
 ## Décisions confirmées
