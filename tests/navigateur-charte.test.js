@@ -647,6 +647,9 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     // Aucun texte justifié ; lignes courtes ; légendes (compteur, types) en capitales espacées de .25em à .3em.
     const regles = await ouvrir('index.html?ecran=regles', { reduit: true });
     assert.equal(await regles.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => getComputedStyle(e).textAlign === 'justify').length), 0);
+    // Itération 4 : titres de section et filigrane alignés à gauche (même bord gauche que le texte).
+    const alignes = await regles.evaluate(() => { const bord = document.querySelector('.regles-corps .texte').getBoundingClientRect().left; return [...document.querySelectorAll('.titre-section h2, .titre-section-ornement')].map((e) => Math.abs(e.getBoundingClientRect().left - bord)); });
+    assert.ok(alignes.length >= 2 && alignes.every((d) => d < 1), `titres de section non alignés à gauche : ${alignes}`);
     const lignes = await regles.evaluate(longueursLignes, '.texte');
     assert.ok(lignes.length >= 6 && Math.max(...lignes) <= 60, `ligne de ${Math.max(...lignes)} caractères sur les règles (> 60)`);
     await fermer(regles);

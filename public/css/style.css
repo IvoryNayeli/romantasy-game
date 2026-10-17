@@ -368,11 +368,11 @@ h2 {
 
 /* ---------- Règles ---------- */
 .regles-corps { padding-bottom: 8px; }
-/* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), centrés, filigrane ambre au-dessus,
-   grande marge supérieure. Les titres d'écran restent à 32-40 px (charte, section 4). */
-.titre-section { margin: 48px 0 14px; text-align: center; }
+/* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), alignés à gauche (filigrane compris),
+   filigrane ambre au-dessus, grande marge supérieure. Les titres d'écran restent à 32-40 px (charte, section 4). */
+.titre-section { margin: 48px 0 14px; text-align: left; }
 .titre-section:first-child { margin-top: 12px; }
-.titre-section-ornement { color: var(--c-ambre); margin-bottom: 10px; }
+.titre-section-ornement { color: var(--c-ambre); margin: 0 0 10px; }
 .titre-section h2 {
   margin: 0;
   color: var(--c-etoile);

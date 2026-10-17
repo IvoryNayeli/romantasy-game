@@ -583,6 +583,9 @@ test('ciel : constellations (étoiles reliées par des filets très fins, sans t
   assert.ok(propriete('.titre-section h2', 'color').includes('var(--c-etoile)'));
   assert.ok(propriete('.titre-section-ornement', 'color').includes('var(--c-ambre)'));
   assert.ok(enPixels(propriete('.titre-section', 'margin')[0].split(/\s+/)[0], variables()) >= 40, 'grande marge supérieure');
+  // Itération 4 : titres de section alignés à gauche, filigrane compris (pas de marge automatique qui le centrerait).
+  assert.ok(propriete('.titre-section', 'text-align').includes('left'), 'titres de section alignés à gauche');
+  assert.ok(propriete('.titre-section-ornement', 'margin').some((m) => /^0 0 /.test(m)), 'filigrane des titres de section aligné à gauche (pas de margin auto)');
   // Aucune constellation construite sans aria-hidden : le décor n'est pas lu par les lecteurs d'écran.
   assert.match(source, /'aria-hidden': 'true'/);
   assert.equal(typeof constellation, 'function');
