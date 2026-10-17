@@ -257,7 +257,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 .coin-hd { top: 8px; right: 8px; }
 .coin-bg { bottom: 8px; left: 8px; }
 .coin-bd { bottom: 8px; right: 8px; }
-.filigrane { display: block; width: 150px; height: 12px; margin: 0 auto; color: var(--rarete, var(--c-lune-douce)); }
+.filigrane { display: block; width: 150px; height: 12px; margin: 0 auto; color: var(--c-ambre); }
 
 /* ---------- Logo (image du disque central, fond transparent : elle se fond dans --c-nuit) ---------- */
 .logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
@@ -368,11 +368,14 @@ h2 {
 
 /* ---------- Règles ---------- */
 .regles-corps { padding-bottom: 8px; }
-/* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), alignés à gauche (filigrane compris),
-   filigrane ambre au-dessus, grande marge supérieure. Les titres d'écran restent à 32-40 px (charte, section 4). */
+/* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), alignés à gauche, filigrane ambre
+   sous le titre sur toute la largeur (motif central, filets de part et d'autre), grande marge supérieure.
+   Les titres d'écran restent à 32-40 px (charte, section 4). */
 .titre-section { margin: 48px 0 14px; text-align: left; }
 .titre-section:first-child { margin-top: 12px; }
-.titre-section-ornement { color: var(--c-ambre); margin: 0 0 10px; }
+.titre-section-ornement { display: flex; align-items: center; gap: 2px; width: 100%; margin: 10px 0 0; color: var(--c-ambre); }
+.titre-section-ornement .filet { flex: 1 1 0; height: var(--filet); background: currentColor; }
+.titre-section-ornement .filigrane { flex: none; margin: 0; }
 .titre-section h2 {
   margin: 0;
   color: var(--c-etoile);
@@ -484,8 +487,11 @@ h2 {
 .carte-3d {
   position: relative;
   transform-style: preserve-3d;
-  animation: retournement var(--t-lent) var(--ease) 250ms both;
+  animation: retournement var(--t-lent) ease-in-out 250ms both;
 }
+/* Face et dos s'échangent exactement à mi-rotation (90 degrés, courbe symétrique) : le texte n'est jamais lisible avant. */
+.carte-face { animation: face-apparait var(--t-lent) linear 250ms both; }
+.carte-dos { animation: dos-disparait var(--t-lent) linear 250ms both; }
 .carte-face {
   position: relative;
   aspect-ratio: 2 / 3;
@@ -527,7 +533,7 @@ h2 {
   text-transform: uppercase;
 }
 .carte-entete .icone { width: max(7cqw, 1.25rem); height: max(7cqw, 1.25rem); }
-.carte-filigrane { width: 48cqw; height: auto; aspect-ratio: 150 / 12; flex: none; color: var(--rarete); }
+.carte-filigrane { width: 48cqw; height: auto; aspect-ratio: 150 / 12; flex: none; color: var(--c-ambre); }
 .carte-texte {
   margin: 0;
   color: var(--c-lune);
@@ -858,6 +864,14 @@ h2 {
 @keyframes retournement {
   from { transform: rotateY(180deg); }
   to { transform: rotateY(0deg); }
+}
+@keyframes face-apparait {
+  0%, 49.9% { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+@keyframes dos-disparait {
+  0%, 49.9% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 @keyframes pulse {
   0%, 100% { transform: scale(1); }

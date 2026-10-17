@@ -76,9 +76,12 @@ function barreBas(...boutons) {
   return h('div', { classe: 'barre-bas' }, ...boutons);
 }
 
-// Titre de section de la page des règles : filigrane ambre au-dessus, titre en Cormorant Garamond.
+// Titre de section de la page des règles : titre en Cormorant Garamond, filigrane ambre pleine largeur dessous
+// (le motif du symbole n'est pas étiré : deux filets de part et d'autre).
 function titreSection(texte) {
-  return h('div', { classe: 'titre-section' }, filigrane('titre-section-ornement'), h('h2', null, texte));
+  return h('div', { classe: 'titre-section' }, h('h2', null, texte),
+    h('div', { classe: 'titre-section-ornement', 'aria-hidden': 'true' },
+      h('span', { classe: 'filet' }), filigrane(), h('span', { classe: 'filet' })));
 }
 
 // Flèche de retour de l'en-tête (lien interne, intercepté par app.js).

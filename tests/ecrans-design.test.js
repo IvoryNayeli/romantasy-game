@@ -576,16 +576,16 @@ test('ciel : constellations (étoiles reliées par des filets très fins, sans t
   for (const p of positions) assert.ok(Number(p[1] ?? p[2]) <= 12, `étoile de marge à ${p[1] ?? p[2]} px du bord : trop près du texte`);
   assert.ok(propriete('.page::before', 'z-index').includes('-1') && propriete('.page::before', 'pointer-events').includes('none'));
   assert.doesNotMatch(css, /background-attachment/, 'fond fixe interdit (charte, section 8)');
-  // La page des règles : titres de section bien plus grands que le texte, filigrane ambre au-dessus.
-  assert.match(ecrans, /function titreSection\(texte\)[\s\S]*filigrane\('titre-section-ornement'\)/);
+  // La page des règles : titres de section bien plus grands que le texte, filigrane ambre sous le titre, pleine largeur.
+  assert.match(ecrans, /function titreSection\(texte\)[\s\S]*h\('h2', null, texte\),\s*h\('div', \{ classe: 'titre-section-ornement'[\s\S]*filigrane\(\)/);
   const titre = plancherEnPixels(propriete('.titre-section h2', 'font')[0].match(/(?:^|\s)([\d.]+rem)(?:\/)/)[1], variables());
   assert.ok(titre >= 28 && titre <= 40, `titre de section de ${titre} px : bien visible mais sous les titres d'écran`);
   assert.ok(propriete('.titre-section h2', 'color').includes('var(--c-etoile)'));
   assert.ok(propriete('.titre-section-ornement', 'color').includes('var(--c-ambre)'));
   assert.ok(enPixels(propriete('.titre-section', 'margin')[0].split(/\s+/)[0], variables()) >= 40, 'grande marge supérieure');
-  // Itération 4 : titres de section alignés à gauche, filigrane compris (pas de marge automatique qui le centrerait).
+  // Itération 4 : titres de section alignés à gauche ; itération 5 : filigrane sous le titre, sur 100 % de la largeur.
   assert.ok(propriete('.titre-section', 'text-align').includes('left'), 'titres de section alignés à gauche');
-  assert.ok(propriete('.titre-section-ornement', 'margin').some((m) => /^0 0 /.test(m)), 'filigrane des titres de section aligné à gauche (pas de margin auto)');
+  assert.ok(propriete('.titre-section-ornement', 'width').includes('100%'), 'filigrane des titres de section sur toute la largeur');
   // Aucune constellation construite sans aria-hidden : le décor n'est pas lu par les lecteurs d'écran.
   assert.match(source, /'aria-hidden': 'true'/);
   assert.equal(typeof constellation, 'function');
