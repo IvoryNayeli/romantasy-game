@@ -305,6 +305,8 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 }
 .bouton-principal:disabled { box-shadow: inset 0 0 0 3px #F0A35E, inset 0 0 0 4px #060B1E66; }
 .bouton-secondaire:disabled { box-shadow: inset 0 0 0 3px #060B1E, inset 0 0 0 4px #C9D8EE44; }
+/* « C'est bon » : état validé et définitif, lisible (pas un bouton simplement indisponible) */
+.bouton-valide:disabled { opacity: 1; cursor: default; }
 
 .bouton-retour {
   display: inline-flex;
@@ -671,6 +673,7 @@ h2 {
 }
 .champ:focus { border-color: var(--c-etoile); }
 .champ:focus-visible { outline: 2px solid var(--c-etoile); outline-offset: 3px; }
+.champ:disabled { cursor: default; }
 .champ-code { text-transform: uppercase; letter-spacing: .15em; }
 .aide-champ { margin: 8px 0 0; color: var(--c-lune-douce); font: 400 1rem/1.4 var(--f-texte); }
 .erreur-champ { margin: 12px 0 0; color: var(--c-braise); font: 500 1rem/1.4 var(--f-texte); }
@@ -797,6 +800,9 @@ h2 {
   box-shadow: var(--lueur-ambre);
 }
 .embleme-choix[aria-checked="true"] .embleme-nom { color: var(--c-ambre); font-weight: 500; }
+/* Verrouillé après « C'est bon » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
+.embleme-choix:disabled:not(.embleme-pris) { cursor: default; }
+.embleme-choix:disabled:not(.embleme-pris)[aria-checked="false"] { opacity: .45; }
 .embleme-pris, .embleme-pris:disabled {
   border-style: dashed;
   color: var(--c-lune-douce);

@@ -259,13 +259,16 @@ export function salle({ donnees, params, naviguer }) {
   function majBoutons() {
     const valide = Boolean(moi.prenom.trim() && moi.embleme);
     if (!valide) moi.pret = false;
-    boutonPret.disabled = !valide;
+    // Une fois « C'est bon » validé, plus de retour en arrière : bouton, prénom et emblème sont verrouillés.
+    boutonPret.disabled = !valide || moi.pret;
     boutonPret.setAttribute('aria-pressed', String(moi.pret));
-    boutonPret.className = `bouton ${moi.pret ? 'bouton-secondaire' : 'bouton-principal'}`;
+    boutonPret.className = `bouton ${moi.pret ? 'bouton-secondaire bouton-valide' : 'bouton-principal'}`;
     boutonPret.replaceChildren(...(moi.pret ? [icone('coche')] : []), h('span', null, moi.pret ? S.pret : S.pretBouton));
     boutonCommencer.disabled = autres.length + (moi.pret ? 1 : 0) < PRETS_MINIMUM;
+    champ.disabled = moi.pret;
     for (const [id, bouton] of boutonsEmbleme) {
       bouton.setAttribute('aria-checked', String(moi.embleme === id));
+      bouton.disabled = moi.pret || pris.has(id);
     }
   }
 
@@ -285,7 +288,7 @@ export function salle({ donnees, params, naviguer }) {
     grille.append(bouton);
   }
   champ.addEventListener('input', () => { moi.prenom = champ.value; moi.pret = false; maj(); });
-  boutonPret.addEventListener('click', () => { moi.pret = !moi.pret; maj(); });
+  boutonPret.addEventListener('click', () => { if (!moi.pret) { moi.pret = true; maj(); } });
 
   const formulaire = complete
     ? h('p', { classe: 'panneau avis-complete', role: 'status' }, coins(), S.complete)

@@ -258,7 +258,7 @@ test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste du
   const positions = ['code-partie', 'formulaire,', 'titre-groupe', 'liste,'].map((m) => construction.indexOf(m));
   assert.ok(positions.every((p) => p >= 0), 'élément manquant dans la salle d\'attente');
   assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : code, menu emblème/prénom, liste du groupe');
-  assert.match(lirePublic('js', 'textes.js'), /groupe: 'Le groupe'/);
+  assert.match(lirePublic('js', 'textes.js'), /groupe: 'La compagnie'/);
   // Le code est discret : petit et en couleur secondaire (pas un grand encadré).
   for (const sel of ['.code-libelle', '.code-valeur']) {
     const tailles = taillesDeclarees(sel);
@@ -267,11 +267,11 @@ test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste du
   assert.ok(propriete('.code-partie', 'color').includes('var(--c-lune-douce)'), 'code en couleur secondaire');
 });
 
-test('textes : plus de « participant(e)s » ni de « participantes » (formulation neutre : « Le groupe ») dans le code et la documentation', () => {
+test('textes : plus de « participant(e)s » ni de « participantes » (formulation neutre : « La compagnie ») dans le code et la documentation', () => {
   const fichiers = [...listerFichiers(PUBLIC, /\.(html|js|css)$/), path.join(RACINE, 'README.md'), path.join(RACINE, 'docs', 'PROJET.md')];
   for (const f of fichiers) {
     const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f);
-    assert.doesNotMatch(code, /\bparticipant(e|\(e\))?s?\b/i, `${path.relative(RACINE, f)} : « participant(e)s » (utiliser une formulation neutre : « le groupe »)`);
+    assert.doesNotMatch(code, /\bparticipant(e|\(e\))?s?\b/i, `${path.relative(RACINE, f)} : « participant(e)s » (utiliser une formulation neutre : « la compagnie »)`);
   }
 });
 
@@ -688,7 +688,7 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   const textes = lirePublic('js', 'textes.js');
   // Seule exception voulue par la propriétaire (itération 4) : la salutation « Bienvenue, voyageur(se). ».
   assert.doesNotMatch(textes.replace('voyageur(se)', 'voyageur'), /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
-  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je suis là', 'Le groupe']) {
+  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je suis là', 'La compagnie']) {
     assert.ok(textes.includes(forme), `formulation neutre « ${forme} » absente`);
   }
   assert.match(textes, /butin/);

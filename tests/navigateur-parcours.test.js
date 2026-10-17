@@ -54,7 +54,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.ok(b.ordreDom, `${contexteTexte} : ordre du DOM incorrect (code, menu, liste)`);
     assert.ok(b.tops[0] < b.tops[1] && b.tops[1] < b.tops[2] && b.tops[2] < b.tops[3], `${contexteTexte} : ordre visuel incorrect ${b.tops}`);
     assert.ok(b.contientPrenom && b.contientEmblemes === A.emblemes.length, `${contexteTexte} : le menu doit contenir le prénom et les ${A.emblemes.length} emblèmes`);
-    assert.equal(b.titreTexte, 'Le groupe');
+    assert.equal(b.titreTexte, 'La compagnie');
     // « Discret » : petit, couleur secondaire, pas un titre, plus petit que le texte du menu.
     assert.ok(b.codeTaille <= 18 && b.codeTaille < b.prenomTaille, `${contexteTexte} : code pas discret (${b.codeTaille}px)`);
     assert.equal(b.codeCouleur, 'rgb(143, 166, 200)', `${contexteTexte} : le code doit être en --c-lune-douce`);
@@ -320,6 +320,23 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await seule.getByRole('button', { name: /Je suis là/i }).click();
     assert.ok(await seule.getByRole('button', { name: /Commencer la quête/i }).isDisabled(), 'une seule personne prête : commencer reste inactif');
     await fermer(seule);
+  });
+
+  it('salle : après « Je suis là », « C\'est bon » est définitif (bouton inactif, clic sans effet, prénom et emblèmes verrouillés)', async () => {
+    const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1&code=RUNE');
+    await page.locator('#champ-prenom').fill('Robin');
+    await page.getByRole('radio', { name: /Dragon/i }).click();
+    await page.getByRole('button', { name: /Je suis là/i }).click();
+    const bouton = page.getByRole('button', { name: /C'est bon/i });
+    assert.ok(await bouton.isDisabled(), 'le bouton est inactif une fois validé');
+    await bouton.click({ force: true });
+    assert.match(await page.locator('.joueur-soi').textContent(), /C'est bon/i, 'un second clic ne doit pas annuler');
+    assert.equal(await page.getByRole('button', { name: /Je suis là/i }).count(), 0);
+    assert.ok(await page.locator('#champ-prenom').isDisabled(), 'prénom verrouillé');
+    assert.equal(await page.locator('.embleme-choix:not(:disabled)').count(), 0, 'emblèmes verrouillés');
+    assert.equal(await page.getByRole('radio', { name: /Dragon/i }).getAttribute('aria-checked'), 'true');
+    assert.ok(await page.getByRole('button', { name: /Commencer la quête/i }).isEnabled(), 'l\'hôte peut commencer');
+    await fermer(page);
   });
 
   /* ============ Remarque 1 : plus d'option « Réduire les animations » ============ */

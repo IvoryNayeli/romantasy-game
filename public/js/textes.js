@@ -78,7 +78,7 @@ export const salle = {
   pretBouton: 'Je suis là',
   commencer: 'Commencer la quête',
   complete: 'La partie est complète',
-  groupe: 'Le groupe',
+  groupe: 'La compagnie',
 };
 
 // Écran « Créer une partie » : choix du code dans la liste.
