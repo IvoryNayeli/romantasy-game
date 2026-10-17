@@ -514,12 +514,26 @@ test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf boucli
   const symbole = (nom) => html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
   assert.match(symbole('bouclier'), /fill="currentColor"/, 'bouclier des boutons : forme pleine');
   assert.doesNotMatch(symbole('bouclier'), /fill="none"/, 'bouclier des boutons : plus de forme creuse');
-  for (const nom of ['bouclier-grand', 'sort-jete']) {
-    const s = symbole(nom);
-    assert.doesNotMatch(s, /fill="none"|fill:none/, `${nom} : forme creuse`);
-    assert.ok((s.match(/fill:var\(--c-(ambre|braise|etoile)\)/g) || []).length >= 3, `${nom} : formes pleines aux couleurs de la charte`);
+  {
+    const s = symbole('bouclier-grand');
+    assert.doesNotMatch(s, /fill="none"|fill:none/, 'bouclier-grand : forme creuse');
+    assert.ok((s.match(/fill:var\(--c-(ambre|braise|etoile)\)/g) || []).length >= 3, 'bouclier-grand : formes pleines aux couleurs de la charte');
     assert.match(s, /--c-ambre/);
     assert.match(s, /--c-braise/);
+  }
+  // Itération 5, remarque 8 : le sort jeté est une vraie étoile à cinq branches, pleine, ambre (10 sommets, un seul tracé).
+  {
+    const s = symbole('sort-jete');
+    assert.doesNotMatch(s, /fill="none"|fill:none|<circle/, 'sort-jete : forme creuse ou cercle');
+    assert.equal((s.match(/<path/g) || []).length, 1, 'sort-jete : un seul tracé');
+    assert.match(s, /fill:var\(--c-ambre\)/, 'sort-jete : étoile ambre');
+    const sommets = s.match(/d="([^"]+)"/)[1].replace(/[MZ]/g, ' ').trim().split(/[\s,]+/).map(Number);
+    assert.equal(sommets.length, 20, 'sort-jete : 10 sommets (étoile à cinq branches)');
+    const rayons = [];
+    for (let i = 0; i < 20; i += 2) rayons.push(Math.hypot(sommets[i] - 50, sommets[i + 1] - 54.6)); // centre du cercle circonscrit, boîte centrée dans 100 x 100
+    for (let i = 0; i < 10; i++) {
+      assert.ok(Math.abs(rayons[i] - (i % 2 === 0 ? 48 : rayons[1])) < 0.2, `sort-jete : sommet ${i} irrégulier (${rayons[i].toFixed(1)})`);
+    }
   }
   const transition = lirePublic('js', 'ecrans.js');
   assert.match(transition, /icone\(bouclier \? 'bouclier-grand' : 'sort-jete', 'icone-presence'\)/, 'écran de transition : grandes formes pleines');

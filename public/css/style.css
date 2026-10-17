@@ -630,6 +630,7 @@ h2 {
   place-items: center;
   width: 11rem;
   height: 11rem;
+  margin: 0 0 56px;
   color: var(--c-ambre);
   animation: pulse 1.6s var(--ease) infinite;
 }
@@ -637,7 +638,7 @@ h2 {
   content: '';
   position: absolute;
   inset: -22%;
-  background: radial-gradient(circle closest-side, #F0A35EAA 0, #D9693A66 40%, #D9693A22 68%, transparent 100%);
+  background: radial-gradient(circle closest-side, #F0A35E66 0, #D9693A55 45%, #D9693A22 70%, transparent 100%);
   pointer-events: none;
 }
 .transition-bouclier .transition-icone::before {
