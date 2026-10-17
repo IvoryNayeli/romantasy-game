@@ -353,7 +353,12 @@ function contexte() {
     await page.waitForSelector('#ecran > *, #demo-liste > *', { timeout: 5000 });
     return page;
   };
-  ctx.fermer = (page) => page.context().close();
+  // Une page quittée ou fermée avant la fin de ses polices annule ces requêtes (ERR_ABORTED).
+  ctx.attendreChargement = (page) => page.evaluate(async () => {
+    document.body.getBoundingClientRect(); // force la mise en page, qui lance le chargement des polices
+    await document.fonts.ready;
+  });
+  ctx.fermer = async (page) => { await ctx.attendreChargement(page); await page.context().close(); };
   ctx.finAnimations = async (page) => {
     await page.evaluate(async () => {
       await document.fonts.ready;

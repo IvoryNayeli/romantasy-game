@@ -69,7 +69,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
         for (const ecran of ['carte', 'attente']) {
           const adresseCarte = `index.html?ecran=${ecran}&carte=${c.id}&tour=2`;
           if (!page) page = await ouvrir(adresseCarte, { largeur, hauteur: 740, reduit: true });
-          else { await page.goto(new URL(adresseCarte, `${ctx.base}/`).toString()); await page.waitForSelector('#ecran > *'); }
+          else { await ctx.attendreChargement(page); await page.goto(new URL(adresseCarte, `${ctx.base}/`).toString()); await page.waitForSelector('#ecran > *'); }
           await finAnimations(page);
           const texteAffiche = await page.locator('.carte-texte').textContent();
           if (texteAffiche.replace(/\s+/g, ' ').trim() !== c.texte.replace(/\s+/g, ' ').trim()) {
@@ -471,6 +471,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     const ecransVus = new Set(); const defauts = [];
     const ctxPage = await ouvrir('index.html', { largeur: 360 });
     for (const lien of [...new Set(liens)]) {
+      await ctx.attendreChargement(ctxPage);
       await ctxPage.goto(new URL(lien, `${ctx.base}/`).toString());
       await ctxPage.waitForSelector('#ecran > *');
       ecransVus.add(await ctxPage.evaluate(() => document.body.dataset.ecran));
