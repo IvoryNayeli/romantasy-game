@@ -492,9 +492,8 @@ h2 {
   animation: retournement var(--t-lent) ease-in-out 250ms both;
 }
 /* Face et dos s'échangent exactement à mi-rotation (90 degrés, courbe symétrique) : le texte n'est jamais lisible avant. */
-.carte-face { animation: face-apparait var(--t-lent) linear 250ms both; }
-.carte-dos { animation: dos-disparait var(--t-lent) linear 250ms both; }
 .carte-face {
+  animation: face-apparait var(--t-lent) linear 250ms both;
   position: relative;
   aspect-ratio: 2 / 3;
   display: flex;
@@ -514,6 +513,7 @@ h2 {
   border-radius: 4px;
 }
 .carte-dos {
+  animation: dos-disparait var(--t-lent) linear 250ms both;
   position: absolute;
   inset: 0;
   transform: rotateY(180deg);

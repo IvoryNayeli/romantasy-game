@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | en cours (itération 5) | 5 | [phase-2-iteration-4](rapports/phase-2-iteration-4.md) |
+| 2 | Écrans et design | en test (itération 5) | 5 | [phase-2-iteration-4](rapports/phase-2-iteration-4.md) |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -56,6 +56,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-17 | phase 2, remarques de l'itération 3 | Trois remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (itération 4 des remarques) : texte de salutation « Bienvenue, voyageur(se) », nouveau logo (disque central extrait), titres de section alignés à gauche. Statut `en cours (itération 4)`. Reste : développement, test complet, rapport.
 - 2026-10-17 | phase 2, itération 4, rapport | Salutation, logo (WebP transparent) et titres à gauche faits ; 118 tests sur 118 (relancés par le chef de phase), aucun défaut ouvert ; surlignage violet introuvable dans le code, à préciser. Rapport : [phase-2-iteration-4](rapports/phase-2-iteration-4.md). Reste : relecture et validation.
 - 2026-10-17 | phase 2, remarques de l'itération 4 | Huit remarques consignées dans [phase-2](remarques/phase-2.md) (« Itération 5 »). Statut `en cours (itération 5)`. Reste : développement, test, rapport.
+- 2026-10-17 | phase 2, itération 5 | Développement des huit remarques (retournement de carte, transition, étoile du sort jeté compris) ; tests adaptés. Statut `en test`. Reste : rapport.
 
 ## Défauts ouverts
 
