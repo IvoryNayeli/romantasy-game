@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | en test | 4 | [phase-2-iteration-2](rapports/phase-2-iteration-2.md) |
+| 2 | Écrans et design | prête pour relecture | 4 | [phase-2-iteration-4](rapports/phase-2-iteration-4.md) |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design), itération 3 en test : le testeur adapte ses tests de navigateur aux changements voulus (textes neutres, accueil sans nom écrit, titres de section des règles, bouclier et sort jeté en formes pleines, constellations), refait un passage complet et rédige son rapport. Ensuite : rapport de l'itération 3 pour la propriétaire (tableau avant/après des textes à confirmer), puis « Phase 2 validée » ou « Phase 2, remarques : … ». Phase 3 refusée tant que la phase 2 n'est pas validée.
+Phase 2 (écrans et design), itération 4 prête pour relecture : attendre la réponse de la propriétaire, « Phase 2 validée » ou « Phase 2, remarques : … » (rapport : [phase-2-iteration-4](rapports/phase-2-iteration-4.md)). Phase 3 refusée tant que la phase 2 n'est pas validée.
 
 ## Journal
 
@@ -54,6 +54,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-17 | outillage | Réduction de la consommation des agents : journal des phases 0 et 1 archivé ([journal-archive](journal-archive.md)), scripts `npm test` à sortie courte (`test:rapide`, `test:navigateur`), testeur limité aux phases 4 à 7 ou aux tests de navigateur à adapter, plafond de 2 allers-retours, un seul rapport par itération, modèle `Claude Haiku 4.5` pour chef et testeur. Reste : suite de la phase 2.
 
 - 2026-10-17 | phase 2, remarques de l'itération 3 | Trois remarques de la propriétaire consignées dans [phase-2](remarques/phase-2.md) (itération 4 des remarques) : texte de salutation « Bienvenue, voyageur(se) », nouveau logo (disque central extrait), titres de section alignés à gauche. Statut `en cours (itération 4)`. Reste : développement, test complet, rapport.
+- 2026-10-17 | phase 2, itération 4, rapport | Salutation, logo (WebP transparent) et titres à gauche faits ; 118 tests sur 118 (relancés par le chef de phase), aucun défaut ouvert ; surlignage violet introuvable dans le code, à préciser. Rapport : [phase-2-iteration-4](rapports/phase-2-iteration-4.md). Reste : relecture et validation.
 
 ## Défauts ouverts
 
