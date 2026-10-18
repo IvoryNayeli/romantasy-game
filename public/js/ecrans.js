@@ -1,5 +1,7 @@
-// Les écrans du jeu. Chaque fonction reçoit un contexte { donnees, params, naviguer }
-// et renvoie { noeud, retour?, nettoyer? }. Phase 2 : données fictives, aucune logique de jeu.
+// Les écrans du jeu. Chaque fonction reçoit un contexte { donnees, params, naviguer, reseau }
+// et renvoie { noeud, retour?, nettoyer? }. Données fictives (phase 2), sauf « Créer » et « Rejoindre » qui,
+// hors démonstration, passent par la base (`reseau`, voir reseau.js). La salle d'attente en réseau est dans
+// ecrans-reseau.js.
 
 import { h, icone, lienBouton, coins, filigrane, logo, etoile } from './dom.js';
 import { constellation } from './ciel.js';
@@ -7,8 +9,10 @@ import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
   joueursFictifs, effetsEnCours, emblemeParId, carteDepuisParametres,
-  tourDepuisParametres, entierDepuisParametres, PRETS_MINIMUM,
+  tourDepuisParametres, entierDepuisParametres,
 } from './fictif.js';
+// Nombre minimal de présences confirmées pour commencer (règle de docs/regles.md) : constante unique du moteur.
+import { JOUEURS_MINIMUM } from './game.js';
 
 const DUREE_TRANSITION_MS = 2000; // « Transition de 2 secondes » (docs/regles.md)
 
@@ -17,7 +21,7 @@ const ETOILES_ACCUEIL = [['g', 8], ['d', 14], ['g', 31], ['d', 42], ['g', 58], [
 
 /* ---------- Éléments réutilisables ---------- */
 
-function emblemeEl(emb, classe = '') {
+export function emblemeEl(emb, classe = '') {
   return h('span', { classe: `embleme ${classe}`.trim(), role: 'img', 'aria-label': emb.nom }, emb.emoji);
 }
 
@@ -72,7 +76,7 @@ function cielLibre(motif, echelle = 2) {
   return h('div', { classe: 'ciel-libre', 'aria-hidden': 'true' }, constellation(motif, { echelle, fluide: true }));
 }
 
-function barreBas(...boutons) {
+export function barreBas(...boutons) {
   return h('div', { classe: 'barre-bas' }, ...boutons);
 }
 
@@ -88,6 +92,20 @@ function titreSection(texte) {
 function flecheRetour(ecran, libelle) {
   return h('a', { classe: 'bouton-retour', href: `?ecran=${ecran}`, 'data-nav': '', 'aria-label': libelle },
     icone('retour'));
+}
+
+// Ligne d'une personne dans la liste « La compagnie » de la salle d'attente (fictive ou en réseau).
+export function ligneJoueur(donnees, joueur, { hote, soi }) {
+  const S = T.salle;
+  const prenom = String(joueur.prenom || '').trim();
+  const emb = joueur.embleme ? emblemeParId(donnees, joueur.embleme) : null;
+  return h('li', { classe: `joueur-ligne${soi ? ' joueur-soi' : ''}` },
+    emb ? emblemeEl(emb) : h('span', { classe: 'embleme embleme-vide', 'aria-hidden': 'true' }),
+    h('span', { classe: `joueur-prenom${prenom ? '' : ' joueur-prenom-vide'}` }, prenom || '…'),
+    h('span', { classe: 'joueur-etiquettes' },
+      hote ? h('span', { classe: 'etiquette' }, S.hote) : null,
+      soi ? h('span', { classe: 'etiquette' }, S.vous) : null,
+      joueur.pret ? h('span', { classe: 'etiquette etiquette-pret' }, icone('coche'), S.pret) : null));
 }
 
 /* ---------- Écrans ---------- */
@@ -133,38 +151,90 @@ export function regles({ donnees }) {
 }
 
 // « Créer une partie » : on choisit le code dans la liste (les mots de codes.json), puis on valide.
-// Phase 2 : aucune vérification d'unicité (phase 4).
-export function creer({ donnees, params, naviguer }) {
+// En réseau : les codes déjà pris par une partie en cours sont grisés, et la validation crée la partie dans la base
+// (refusée si le code vient d'être pris). En démonstration : aucune vérification, salle fictive.
+export function creer({ donnees, params, naviguer, reseau = null }) {
   const C = T.creer;
   let choisi = trouverCode(params.get('code'), donnees.codes);
+  let actif = true;
+  let enCours = false;
   const boutonValider = h('button', { classe: 'bouton bouton-principal', type: 'submit' }, h('span', null, C.valider));
+  const messageErreur = reseau ? h('p', { classe: 'erreur-champ', id: 'erreur-creer', role: 'alert' }) : null;
+  const entrees = new Map();
   const options = donnees.codes.map((code) => {
     const entree = h('input', {
       classe: 'code-radio', type: 'radio', name: 'code', value: code, checked: code === choisi,
-      onchange: () => { choisi = code; boutonValider.disabled = false; },
+      onchange: () => { choisi = code; boutonValider.disabled = enCours; if (messageErreur) messageErreur.textContent = ''; },
     });
+    entrees.set(code, entree);
     return h('label', { classe: 'code-option' }, entree,
       h('span', { classe: 'code-option-nom' }, icone('coche'), code));
   });
   boutonValider.disabled = !choisi;
+
+  // Code pris : option grisée et inactive ; s'il était choisi, le choix est annulé.
+  function marquerPris(code) {
+    const entree = entrees.get(code);
+    if (!entree) return;
+    entree.disabled = true;
+    entree.checked = false;
+    entree.closest('.code-option').classList.add('code-pris');
+    if (choisi === code) choisi = null;
+    boutonValider.disabled = !choisi || enCours;
+  }
+  if (reseau) {
+    reseau.codesPris(donnees.codes)
+      .then((pris) => { if (actif) pris.forEach(marquerPris); })
+      .catch(() => { /* réseau indisponible : signalé seulement à la validation */ });
+  }
+
+  async function creerEnReseau(code) {
+    enCours = true;
+    boutonValider.disabled = true;
+    messageErreur.textContent = '';
+    try {
+      const issue = await reseau.creer(code, donnees.config);
+      if (!actif) return;
+      if (issue === reseau.ISSUES.OK) { naviguer({ ecran: 'salle', code }); return; }
+      marquerPris(code);
+      messageErreur.textContent = T.reseau.codePris;
+    } catch {
+      if (actif) messageErreur.textContent = T.reseau.indisponible;
+    } finally {
+      enCours = false;
+      if (actif) boutonValider.disabled = !choisi;
+    }
+  }
+
   const formulaire = h('form', {
     classe: 'formulaire-code',
     onsubmit: (evenement) => {
       evenement.preventDefault();
-      if (choisi) naviguer({ ecran: 'salle', code: choisi, hote: 1, autres: 1 });
+      if (!choisi || enCours) return;
+      if (reseau) creerEnReseau(choisi);
+      else naviguer({ ecran: 'salle', code: choisi, hote: 1, autres: 1 });
     },
   },
   h('div', { classe: 'formulaire-code-corps' },
     h('h2', { classe: 'titre-ecran', id: 'titre-creer' }, C.titre),
     h('p', { classe: 'texte' }, C.aide),
-    h('div', { classe: 'liste-codes', role: 'radiogroup', 'aria-labelledby': 'titre-creer' }, options)),
+    h('div', { classe: 'liste-codes', role: 'radiogroup', 'aria-labelledby': 'titre-creer' }, options),
+    messageErreur),
   barreBas(boutonValider));
-  return { noeud: h('section', { classe: 'ecran ecran-creer' }, formulaire), retour: flecheRetour('regles', C.retour) };
+  return {
+    noeud: h('section', { classe: 'ecran ecran-creer' }, formulaire),
+    retour: flecheRetour('regles', C.retour),
+    nettoyer: () => { actif = false; },
+  };
 }
 
-// « Rejoindre une partie » : on saisit le code ; phase 2 : seulement vérifier qu'il figure dans codes.json.
-export function rejoindre({ donnees, params, naviguer }) {
+// « Rejoindre une partie » : on saisit le code. Il doit figurer dans codes.json ; en réseau, il doit en plus
+// correspondre à une partie en cours (sinon même message « code inconnu »). Partie complète ou déjà commencée :
+// la salle d'attente l'affiche.
+export function rejoindre({ donnees, params, naviguer, reseau = null }) {
   const R = T.rejoindre;
+  let actif = true;
+  let enCours = false;
   const messageErreur = h('p', { classe: 'erreur-champ', id: 'erreur-code', role: 'alert' });
   const champ = h('input', {
     classe: 'champ champ-code', id: 'champ-code', type: 'text', value: params.get('code') || '', autocomplete: 'off',
@@ -181,6 +251,7 @@ export function rejoindre({ donnees, params, naviguer }) {
       champ.setAttribute('aria-describedby', 'aide-code');
     }
   }
+  const boutonValider = h('button', { classe: 'bouton bouton-principal', type: 'submit' }, h('span', null, R.valider));
   const demande = params.get('erreur');
   if (demande === 'vide') erreur(R.erreurVide);
   else if (demande === 'inconnu') erreur(R.erreurInconnu);
@@ -193,7 +264,18 @@ export function rejoindre({ donnees, params, naviguer }) {
       if (!champ.value.trim()) { erreur(R.erreurVide); champ.focus(); return; }
       const code = trouverCode(champ.value, donnees.codes);
       if (!code) { erreur(R.erreurInconnu); champ.focus(); return; }
-      naviguer({ ecran: 'salle', code, autres: 2 });
+      if (!reseau) { naviguer({ ecran: 'salle', code, autres: 2 }); return; }
+      if (enCours) return;
+      enCours = true;
+      boutonValider.disabled = true;
+      reseau.rejoindre(code)
+        .then((issue) => {
+          if (!actif) return;
+          if (issue === reseau.ISSUES.INTROUVABLE) { erreur(R.erreurInconnu); champ.focus(); return; }
+          naviguer({ ecran: 'salle', code });
+        })
+        .catch(() => { if (actif) erreur(T.reseau.indisponible); })
+        .finally(() => { enCours = false; boutonValider.disabled = false; });
     },
   },
   h('div', { classe: 'formulaire-code-corps' },
@@ -202,8 +284,12 @@ export function rejoindre({ donnees, params, naviguer }) {
     champ,
     h('p', { classe: 'aide-champ', id: 'aide-code' }, R.aide),
     messageErreur),
-  barreBas(h('button', { classe: 'bouton bouton-principal', type: 'submit' }, h('span', null, R.valider))));
-  return { noeud: h('section', { classe: 'ecran ecran-rejoindre' }, formulaire), retour: flecheRetour('regles', R.retour) };
+  barreBas(boutonValider));
+  return {
+    noeud: h('section', { classe: 'ecran ecran-rejoindre' }, formulaire),
+    retour: flecheRetour('regles', R.retour),
+    nettoyer: () => { actif = false; },
+  };
 }
 
 export function salle({ donnees, params, naviguer }) {
@@ -235,21 +321,10 @@ export function salle({ donnees, params, naviguer }) {
     onclick: () => naviguer({ ecran: 'choix', tour: 1 }),
   }, h('span', null, S.commencer));
 
-  function ligne(joueur, { hote, soi }) {
-    const emb = joueur.embleme ? emblemeParId(donnees, joueur.embleme) : null;
-    return h('li', { classe: `joueur-ligne${soi ? ' joueur-soi' : ''}` },
-      emb ? emblemeEl(emb) : h('span', { classe: 'embleme embleme-vide', 'aria-hidden': 'true' }),
-      h('span', { classe: `joueur-prenom${joueur.prenom.trim() ? '' : ' joueur-prenom-vide'}` }, joueur.prenom.trim() || '…'),
-      h('span', { classe: 'joueur-etiquettes' },
-        hote ? h('span', { classe: 'etiquette' }, S.hote) : null,
-        soi ? h('span', { classe: 'etiquette' }, S.vous) : null,
-        joueur.pret ? h('span', { classe: 'etiquette etiquette-pret' }, icone('coche'), S.pret) : null));
-  }
-
   function majListe() {
     const lignes = autres.map((j) => ({ j, soi: false }));
     if (!complete) lignes.splice(estHote ? 0 : lignes.length, 0, { j: moi, soi: true });
-    const elements = lignes.map(({ j, soi }, i) => ligne(j, { hote: i === 0, soi }));
+    const elements = lignes.map(({ j, soi }, i) => ligneJoueur(donnees, j, { hote: i === 0, soi }));
     for (let i = lignes.length; i < max; i += 1) {
       elements.push(h('li', { classe: 'joueur-ligne joueur-libre', 'aria-hidden': 'true' }));
     }
@@ -264,7 +339,7 @@ export function salle({ donnees, params, naviguer }) {
     boutonPret.setAttribute('aria-pressed', String(moi.pret));
     boutonPret.className = `bouton ${moi.pret ? 'bouton-secondaire bouton-valide' : 'bouton-principal'}`;
     boutonPret.replaceChildren(...(moi.pret ? [icone('coche')] : []), h('span', null, moi.pret ? S.pret : S.pretBouton));
-    boutonCommencer.disabled = autres.length + (moi.pret ? 1 : 0) < PRETS_MINIMUM;
+    boutonCommencer.disabled = autres.length + (moi.pret ? 1 : 0) < JOUEURS_MINIMUM;
     champ.disabled = moi.pret;
     for (const [id, bouton] of boutonsEmbleme) {
       bouton.setAttribute('aria-checked', String(moi.embleme === id));

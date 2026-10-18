@@ -1,10 +1,14 @@
 // Point d'entrée : charge les données, choisit l'écran d'après l'adresse (?ecran=...) et l'affiche.
-// Phase 2 : écrans alimentés par des données fictives, sans réseau ni logique de jeu.
 // Écrans : accueil, regles, creer, rejoindre, salle, choix, carte, attente, transition, fin (voir README et demo.html).
+// Phase 4 : « Créer », « Rejoindre » et la salle d'attente passent par la base (reseau.js), sauf en démonstration :
+// ?demo=1 (liens de demo.html), ou salle ouverte avec des paramètres fictifs (hote, autres, complete…).
+// Les écrans de tour et de fin restent fictifs jusqu'à la phase 5.
 
 import { chargerDonnees } from './donnees.js';
 import { adresse, h } from './dom.js';
 import * as ecrans from './ecrans.js';
+import * as ecransReseau from './ecrans-reseau.js';
+import * as reseau from './reseau.js';
 import { erreurs } from './textes.js';
 import { constellation } from './ciel.js';
 
@@ -37,6 +41,16 @@ const ECRANS = {
   fin: ecrans.fin,
 };
 
+// Paramètres de la salle fictive (voir ecrans.salle) : leur présence ouvre la salle de démonstration.
+const PARAMETRES_SALLE_FICTIVE = ['hote', 'autres', 'complete', 'prenom', 'embleme', 'pret'];
+
+// Paramètres gardés d'un écran à l'autre : mode démonstration et base choisie (?base=dev).
+const PARAMETRES_PERSISTANTS = ['demo', 'base'];
+
+function modeDemo(nom, params) {
+  return params.get('demo') === '1' || (nom === 'salle' && PARAMETRES_SALLE_FICTIVE.some((p) => params.has(p)));
+}
+
 const zone = document.getElementById('ecran');
 const enteteGauche = document.getElementById('entete-gauche');
 const cielEntete = document.getElementById('ciel-entete');
@@ -47,7 +61,9 @@ function afficher(premiere = false) {
   if (nettoyer) nettoyer();
   const params = new URLSearchParams(window.location.search);
   const nom = Object.hasOwn(ECRANS, params.get('ecran')) ? params.get('ecran') : 'accueil';
-  const resultat = ECRANS[nom]({ donnees, params, naviguer });
+  const demo = modeDemo(nom, params);
+  const fonction = nom === 'salle' && !demo ? ecransReseau.salle : ECRANS[nom];
+  const resultat = fonction({ donnees, params, naviguer, reseau: demo ? null : reseau });
   nettoyer = resultat.nettoyer || null;
   document.body.dataset.ecran = nom;
   enteteGauche.replaceChildren(...(resultat.retour ? [resultat.retour] : []));
@@ -59,7 +75,12 @@ function afficher(premiere = false) {
 }
 
 function naviguer(cible) {
-  const url = typeof cible === 'string' ? cible : adresse(cible);
+  const actuels = new URLSearchParams(window.location.search);
+  const suite = new URLSearchParams(typeof cible === 'string' ? cible.replace(/^[^?]*\?/, '') : adresse(cible).slice(1));
+  for (const p of PARAMETRES_PERSISTANTS) {
+    if (actuels.has(p) && !suite.has(p)) suite.set(p, actuels.get(p));
+  }
+  const url = `?${suite.toString()}`;
   window.history.pushState(null, '', url);
   afficher();
 }

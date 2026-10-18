@@ -723,8 +723,18 @@ h2 {
 }
 .code-radio:checked + .code-option-nom .icone { visibility: visible; }
 .code-radio:focus-visible + .code-option-nom { outline: 2px solid var(--c-etoile); outline-offset: 3px; }
+/* Code déjà pris par une partie en cours (phase 4) : même traitement qu'un emblème pris. */
+.code-pris .code-option-nom {
+  border-style: dashed;
+  color: var(--c-lune-douce);
+  cursor: not-allowed;
+  opacity: .45;
+}
+.code-pris:active .code-option-nom { transform: none; }
 
 /* ---------- Salle d'attente ---------- */
+/* Blocs masqués par l'attribut hidden (salle en réseau : formulaire ou avis « complète »). */
+.salle-corps [hidden], .barre-bas[hidden] { display: none; }
 .salle-corps { padding-bottom: 8px; }
 .code-partie {
   display: flex;

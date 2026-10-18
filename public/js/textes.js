@@ -100,3 +100,11 @@ export const rejoindre = {
   erreurInconnu: 'Ce code ne correspond à aucune partie. Vérifie-le et réessaie.',
   retour: 'Retour aux règles',
 };
+
+// Salle d'attente en réseau (phase 4). Textes nouveaux, absents de docs/regles.md : décision à confirmer
+// (voir docs/SUIVI.md, « Décisions à confirmer »).
+export const reseau = {
+  indisponible: 'Connexion impossible. Vérifie ton réseau et réessaie.',
+  codePris: 'Ce code est déjà pris par une autre partie. Choisis-en un autre.',
+  commencee: 'La quête a déjà commencé',
+};
