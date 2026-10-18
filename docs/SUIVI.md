@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | prête pour relecture | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
+| 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design), itération 5 prête pour relecture : rapport [phase-2-iteration-5](rapports/phase-2-iteration-5.md). La propriétaire répond « Phase 2 validée » ou « Phase 2, remarques : … » (avec Claude Code : `/romantasy-chef-de-phase` suivi de la phrase). Phase 3 refusée tant que la phase 2 n'est pas validée.
+Phase 2 validée le 2026-10-18. Prochaine étape : phase 3 (moteur de jeu), à lancer par la propriétaire (avec Claude Code : `/romantasy-chef-de-phase Lance la phase 3`, dans une nouvelle session).
 
 ## Journal
 
@@ -59,6 +59,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-17 | phase 2, itération 5 | Développement des huit remarques (retournement de carte, transition, étoile du sort jeté compris) ; tests adaptés. Statut `en test`. Reste : rapport.
 - 2026-10-18 | outillage | Reprise avec Claude Code : `CLAUDE.md`, skill `/romantasy-chef-de-phase` et sous-agents `romantasy-developpeur` et `romantasy-testeur` dans `.claude/`, simples renvois vers `.github/` (source unique) ; README mis à jour. Copilot reste utilisable. Reste : rapport de l'itération 5 de la phase 2.
 - 2026-10-18 | phase 2, itération 5, rapport | Huit remarques faites ; 121 tests sur 121 (relancés par le chef de phase), aucun défaut ouvert ; README (nombre de tests) mis à jour. Rapport : [phase-2-iteration-5](rapports/phase-2-iteration-5.md). Reste : relecture et validation.
+- 2026-10-18 | phase 2 validée | Validation explicite de la propriétaire (« Phase 2 validée »), après l'itération 5. Fusion de `phase-2` dans `main`, tag `phase-2`. Reste : phase 3.
 
 ## Défauts ouverts
 
