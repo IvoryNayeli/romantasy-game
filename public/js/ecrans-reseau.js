@@ -54,6 +54,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
     messageErreur.textContent = '';
     maj();
     action()
+      .then((issue) => { if (issue === reseau.ISSUES.INTROUVABLE) aller({ ecran: 'rejoindre', code, erreur: 'inconnu' }); })
       .catch(() => { if (actif) messageErreur.textContent = T.reseau.indisponible; })
       .finally(() => { enCours = false; if (actif) maj(); });
   }

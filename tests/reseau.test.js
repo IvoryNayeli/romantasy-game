@@ -75,6 +75,25 @@ test('règles : codes, emblèmes, durée d\'expiration, longueur du prénom et p
   assert.doesNotMatch(texte, /joueursMax|tours/, 'aucun réglage de config.json recopié dans les règles');
 });
 
+test('règles : invariants vérifiés au niveau de la partie (emblème unique pour chaque emblème, départ à 2 présences)', async () => {
+  // Chaque emblème a sa clause au niveau de la partie (évaluée pour toute écriture, même profonde ou suppression) :
+  // son titulaire le porte, et il ne change de titulaire que si l'ancien ne le porte plus (défauts D1 et D3).
+  for (const e of emblemes) {
+    assert.ok(partie['.validate'].includes(`child('emblemes').child('${e}')`), `clause manquante pour ${e}`);
+    assert.ok(partie['.validate'].includes(`.child('embleme').val() != '${e}'`), `changement de titulaire non contrôlé pour ${e}`);
+  }
+  // Départ (défaut D4) : liste « ordre » d'au moins JOUEURS_MINIMUM personnes prêtes et distinctes.
+  const jeu = fs.readFileSync(path.join(JS, 'game.js'), 'utf8');
+  const minimum = Number(jeu.match(/export const JOUEURS_MINIMUM = (\d+);/)[1]);
+  const indices = Array.from({ length: minimum }, (_, i) => `'${i}'`).join(', ');
+  assert.ok(partie.ordre['.validate'].includes(`hasChildren([${indices}])`), 'ordre : minimum de game.js');
+  for (let i = 0; i < minimum; i += 1) assert.ok(partie.statut['.validate'].includes(`child('ordre').child('${i}').exists()`));
+  assert.match(partie.ordre.$i['.validate'], /child\('pret'\)\.val\(\) == true/);
+  // Arrivée seulement en salle (défaut D5).
+  assert.match(partie.joueurs.$id.rang['.validate'], /child\('statut'\)\.val\(\) == 'salle'/);
+  assert.match(partie.nb['.validate'], /child\('statut'\)\.val\(\) == 'salle'/);
+});
+
 test('identifiants : ceux tirés par salon.js respectent la règle de la base', async () => {
   const { salon } = await E.chargerModules();
   const motif = partie.joueurs.$id['.validate'].match(/\$id\.matches\(\/(.*?)\/\)/)[1];

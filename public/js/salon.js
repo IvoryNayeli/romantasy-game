@@ -170,6 +170,7 @@ export async function rejoindrePartie(fb, { code, id, maintenant = () => Date.no
 export function choisirEmbleme(fb, { code, id, embleme }) {
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
+    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
     const moi = partie.joueurs?.[id];
     if (!moi || moi.pret || partie.statut !== STATUTS.SALLE) return { refus: ISSUES.REFUSE };
     const titulaire = partie.emblemes?.[embleme];
@@ -191,6 +192,7 @@ export function confirmerPresence(fb, { code, id, prenom }) {
   if (!propre || propre.length > PRENOM_MAX) return Promise.resolve({ issue: ISSUES.REFUSE, partie: null });
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
+    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
     const moi = partie.joueurs?.[id];
     if (!moi || moi.pret || !moi.embleme || partie.statut !== STATUTS.SALLE) return { refus: ISSUES.REFUSE };
     const suite = copie(partie);
@@ -206,9 +208,13 @@ export function confirmerPresence(fb, { code, id, prenom }) {
 export function commencerPartie(fb, { code, id }) {
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
+    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
     if (partie.hote !== id || !peutCommencer(partie)) return { refus: ISSUES.REFUSE };
     const suite = copie(partie);
     suite.statut = STATUTS.PARTIE;
+    // Ordre des tours : les personnes qui ont confirmé leur présence, dans l'ordre d'arrivée. Les règles exigent
+    // cette liste (au moins deux personnes prêtes et distinctes) pour accepter le départ.
+    suite.ordre = joueursOrdonnes(partie).filter((j) => j.pret === true).map((j) => j.id);
     suite.actif = fb.serverTimestamp();
     return suite;
   });
