@@ -15,6 +15,7 @@ const E = require('./aide-emulateur.js');
 E.utiliserBase('demo-romantasy-tests-regles');
 
 const ts = { '.sv': 'timestamp' };
+const EXPIRATION_MS = 3 * 60 * 60 * 1000; // même durée que salon.js (vérifiée par tests/reseau.test.js)
 const A = 'a'.repeat(32);
 const B = 'b'.repeat(32);
 const C = 'c'.repeat(32);
@@ -88,5 +89,80 @@ describe('règles : écritures directes (contournement du jeu)', () => {
     await E.rest('PUT', 'parties/RUNE', partieAvecDeux({ statut: 'partie', aPret: true }), { admin: true });
     const r = await E.rest('PATCH', 'parties/RUNE', { nb: 3, actif: ts, [`joueurs/${C}`]: { rang: 2, pret: false } });
     assert.equal(r.statut, 401, `arrivée dans une partie commencée acceptée par la base (${JSON.stringify(r.corps)})`);
+  });
+
+  // Variantes : d'autres chemins d'écriture que celui du jeu (partie entière, un seul emblème, une seule personne).
+  it('D1 (variantes) : un emblème déjà porté ne peut pas être pris par partie entière, par « emblemes/ » seul, ou par « joueurs/ » seul', async () => {
+    await E.rest('PUT', 'parties/RUNE', partieAvecDeux(), { admin: true });
+    const partieEntiere = partieAvecDeux();
+    partieEntiere.joueurs[B].embleme = 'dragon';
+    partieEntiere.emblemes = { dragon: B };
+    const essais = [
+      ['PUT', 'parties/RUNE', partieEntiere],
+      ['PUT', 'parties/RUNE/emblemes/dragon', B],
+      ['PUT', `parties/RUNE/joueurs/${B}/embleme`, 'dragon'],
+    ];
+    for (const [methode, chemin, valeur] of essais) {
+      const r = await E.rest(methode, chemin, valeur);
+      assert.equal(r.statut, 401, `${methode} ${chemin} : accepté (${JSON.stringify(r.corps)})`);
+    }
+  });
+
+  it('D3 (variantes) : une personne qui a confirmé sa présence, ou qui porte un emblème, ne peut pas être retirée', async () => {
+    await E.rest('PUT', 'parties/RUNE', partieAvecDeux({ aPret: true }), { admin: true });
+    assert.equal((await E.rest('DELETE', `parties/RUNE/joueurs/${A}`)).statut, 401, 'personne prête retirée');
+    await E.viderBase();
+    await E.rest('PUT', 'parties/RUNE', partieAvecDeux(), { admin: true });
+    assert.equal((await E.rest('DELETE', `parties/RUNE/joueurs/${B}`)).statut, 401, 'personne avec emblème retirée');
+  });
+
+  it('D4 (variantes) : départ refusé avec une liste d\'ordre fausse (personne non prête, personne inconnue, personne en double)', async () => {
+    const pret = (extra = {}) => partieAvecDeux({ aPret: true, ...extra });
+    await E.rest('PUT', 'parties/RUNE', pret(), { admin: true });
+    const sansPresence = await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, B] });
+    assert.equal(sansPresence.statut, 401, 'B n\'est pas prête');
+    const inconnue = await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, C] });
+    assert.equal(inconnue.statut, 401, 'C ne fait pas partie de la partie');
+    const double = await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, A] });
+    assert.equal(double.statut, 401, 'A en double');
+    assert.equal((await E.rest('GET', 'parties/RUNE/statut', undefined, { admin: true })).corps, 'salle', 'la partie reste en salle');
+  });
+
+  it('départ valide accepté, puis l\'ordre des tours n\'est plus modifiable (écriture d\'un rang, ajout)', async () => {
+    await E.rest('PUT', 'parties/RUNE', partieAvecDeux({ aPret: true }), { admin: true });
+    await E.rest('PATCH', 'parties/RUNE', { [`joueurs/${B}`]: { rang: 1, pret: true, prenom: 'Tom', embleme: 'fee' }, nb: 2, actif: ts, 'emblemes/fee': B });
+    const depart = await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, B] });
+    assert.ok(depart.ok, `départ valide refusé (${JSON.stringify(depart.corps)})`);
+    assert.equal((await E.rest('PUT', 'parties/RUNE/ordre/1', A)).statut, 401, 'ordre/1 réécrit après le départ');
+    assert.equal((await E.rest('PUT', 'parties/RUNE/ordre/2', C)).statut, 401, 'ordre/2 ajouté après le départ');
+  });
+
+  it('D6 : la liste d\'ordre des tours ne peut pas être effacée après le départ', async () => {
+    await E.rest('PUT', 'parties/RUNE', partieAvecDeux({ aPret: true }), { admin: true });
+    await E.rest('PATCH', 'parties/RUNE', { [`joueurs/${B}`]: { rang: 1, pret: true, prenom: 'Tom', embleme: 'fee' }, nb: 2, actif: ts, 'emblemes/fee': B });
+    assert.ok((await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, B] })).ok);
+    const r = await E.rest('DELETE', 'parties/RUNE/ordre');
+    assert.equal(r.statut, 401, `ordre effacé après le départ (${r.statut})`);
+  });
+
+  it('D5 (variante) : une arrivée refusée par écriture partielle après le départ', async () => {
+    await E.rest('PUT', 'parties/RUNE', partieAvecDeux({ aPret: true }), { admin: true });
+    assert.equal((await E.rest('PUT', `parties/RUNE/joueurs/${C}`, { rang: 2, pret: false })).statut, 401, 'joueurs/ seul, nb inchangé');
+  });
+
+  it('D7 : une partie expirée ne peut plus être modifiée par une écriture partielle (arrivée, hôte)', async () => {
+    const vieux = Date.now() - EXPIRATION_MS;
+    await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux(), cree: vieux, actif: vieux }, { admin: true });
+    const arrivee = await E.rest('PATCH', 'parties/RUNE', { nb: 3, [`joueurs/${C}`]: { rang: 2, pret: false } });
+    assert.equal(arrivee.statut, 401, `arrivée dans une partie expirée (${arrivee.statut})`);
+    const hote = await E.rest('PUT', 'parties/RUNE/hote', B);
+    assert.equal(hote.statut, 401, `hôte changé dans une partie expirée (${hote.statut})`);
+  });
+
+  it('D8 : une partie expirée ne peut pas être ranimée en changeant seulement son horodatage de création et d\'activité', async () => {
+    const vieux = Date.now() - EXPIRATION_MS;
+    await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux(), cree: vieux, actif: vieux }, { admin: true });
+    const r = await E.rest('PATCH', 'parties/RUNE', { cree: Date.now(), actif: ts });
+    assert.equal(r.statut, 401, `partie expirée ranimée avec ses anciennes personnes (${r.statut})`);
   });
 });
