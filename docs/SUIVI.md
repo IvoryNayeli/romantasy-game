@@ -36,17 +36,13 @@ Phase 3 validée le 2026-10-18. Prochaine étape : phase 4 (multijoueur et salle
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
-- 2026-10-18, phase 3 : lancement de l'itération 1 (branche `phase-3`).
-- 2026-10-18, phase 3 : moteur, tests et simulations faits, suite complète 137/137 ; rapport [phase-3-iteration-1](rapports/phase-3-iteration-1.md), prête pour relecture.
-- 2026-10-18, phase 3 validée : validation explicite de la propriétaire (« Phase 3 validée »), fusion dans `main`, tag `phase-3`.
-
 ## Défauts ouverts
 
 Aucun.
 
 ## Décisions à confirmer
 
-- Phase 3 : sept choix du moteur (propriétaire d'un effet, fin des effets, qui signale un échange de butins, ordre des tours…), détaillés en section 7 de [phase-3-iteration-1](rapports/phase-3-iteration-1.md).
+Aucune.
 
 ## Risques reportés
 
@@ -69,3 +65,4 @@ Aucun.
 - Projet inclusif : validé le 2026-10-15 (convention dans [PROJET.md](PROJET.md)).
 - « meneur de jeu » (et non « meneur(se) ») dans la description du README : demandé par la propriétaire le 2026-10-15. Exception volontaire à la convention inclusive, ne pas la « corriger ».
 - Choix de la phase 2 (libellés d'interface dont « Je suis là », « C'est bon », « La compagnie » ; écriture inclusive allégée et ses 9 cartes reformulées ; accueil sans titre et onglet « Romantasy » ; écarts à la charte : formes pleines du bouclier et du sort jeté, étoiles dans les marges, constellations, polices hébergées, types de carte à la place des raretés, texte à 20 px, filigranes ambre ; code de la salle petit et discret ; « C'est bon » définitif) : validés avec la phase le 2026-10-18. Détail dans les rapports [phase-2-iteration-1](rapports/phase-2-iteration-1.md) à [phase-2-iteration-5](rapports/phase-2-iteration-5.md). `regles.md` garde « améthyste » (Révélation) et « affiché en grand » (code) : non modifiés, l'interface suit la charte et les remarques.
+- Choix du moteur de la phase 3 (effet rattaché à la personne qui a joué la carte, même pour le groupe ; « prochain tour » fini au début de son tour suivant, ou à la fin s'il est obtenu au dernier tour ; effets effacés à l'écran de fin ; échange de butins signalé par n'importe qui, à tout moment avant la fin ; ordre d'arrivée ; partie refusée si une pile est insuffisante ; minimum de 2 en constante) : validés avec la phase le 2026-10-18. Détail en section 7 de [phase-3-iteration-1](rapports/phase-3-iteration-1.md).
