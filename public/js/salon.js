@@ -52,6 +52,7 @@ export class ErreurReseau extends Error {
 }
 
 const CODE_VALIDE = /^[A-Z]{3,12}$/;
+const EXPIREE = 'expiree'; // issue interne de creerPartie
 
 export function cheminPartie(code) {
   if (typeof code !== 'string' || !CODE_VALIDE.test(code)) throw new Error(`Code de partie invalide : ${code}`);
@@ -129,10 +130,11 @@ function copie(partie) {
 
 // Création : prend le code s'il est libre (aucune partie, ou partie expirée), sinon « pris ».
 // Si la partie en cours a déjà cette personne pour hôte (nouvel essai après un délai dépassé), c'est un succès.
-export function creerPartie(fb, { code, id, config, maintenant = () => Date.now() }) {
+export async function creerPartie(fb, { code, id, config, maintenant = () => Date.now() }) {
   if (!config || !Number.isInteger(config.joueursMax) || config.joueursMax < 1) throw new Error('config.joueursMax manquant');
-  return transaction(fb, code, (partie) => {
-    if (partie && !estExpiree(partie, maintenant())) return partie.hote === id ? partie : { refus: ISSUES.PRIS };
+  const essai = () => transaction(fb, code, (partie) => {
+    if (partie && estExpiree(partie, maintenant())) return { refus: EXPIREE };
+    if (partie) return partie.hote === id ? partie : { refus: ISSUES.PRIS };
     return {
       cree: fb.serverTimestamp(),
       actif: fb.serverTimestamp(),
@@ -143,6 +145,13 @@ export function creerPartie(fb, { code, id, config, maintenant = () => Date.now(
       joueurs: { [id]: { rang: 0, pret: false } },
     };
   });
+  // Une partie expirée n'est jamais modifiée ni remplacée sur place (les règles le refusent) : on la supprime,
+  // puis on crée la nouvelle sur un emplacement vide. Si quelqu'un d'autre a créé entre-temps : « pris ».
+  const r = await essai();
+  if (r.issue !== EXPIREE) return r;
+  await supprimerPartie(fb, code);
+  const suite = await essai();
+  return suite.issue === EXPIREE ? { issue: ISSUES.PRIS, partie: suite.partie } : suite;
 }
 
 // Jonction : refusée si le code ne correspond à aucune partie en cours, si la partie est complète

@@ -203,7 +203,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
     assert.equal((await S.rejoindrePartie(c.fb, { code: 'RUNE', id: id() })).issue, S.ISSUES.INTROUVABLE);
     assert.equal((await E.rest('GET', 'parties/RUNE', undefined, { admin: true })).corps, null);
 
-    // Création par-dessus une partie expirée : acceptée (le serveur l'autorise aussi).
+    // Création à la place d'une partie expirée : la partie expirée est supprimée, puis la nouvelle est créée.
     await E.rest('PUT', 'parties/RUNE', ancienne(id()), { admin: true });
     const moi = id();
     const r = await S.creerPartie(c.fb, { code: 'RUNE', id: moi, config });
@@ -348,6 +348,10 @@ describe('émulateur : salle d\'attente en réseau', () => {
       }, 'arrivée et présence d\'une deuxième personne', 'PATCH');
       await accepte('parties/RUNE', { statut: 'partie', ordre: [idA, idB] }, 'partie commencée avec deux présences', 'PATCH');
       await refuse('parties/RUNE/ordre/1', idA, 'ordre modifié après le départ');
+      await refuse('parties/RUNE/ordre', undefined, 'ordre effacé après le départ', 'DELETE');
+      await refuse('parties/RUNE/ordre/1', undefined, 'personne retirée de l\'ordre', 'DELETE');
+      await refuse('parties/RUNE/ordre/2', idA, 'personne ajoutée à l\'ordre');
+      await refuse('parties/RUNE/ordre', [idB, idA], 'ordre réécrit');
       await refuse('parties/RUNE', { nb: 3, actif: ts, [`joueurs/${'c'.repeat(32)}`]: { rang: 2, pret: false } }, 'arrivée après le départ', 'PATCH');
       await refuse(`parties/RUNE/joueurs/${idA}`, undefined, 'personne prête retirée', 'DELETE');
       await refuse('parties/RUNE/emblemes/dragon', undefined, 'emblème libéré alors que la personne le porte', 'DELETE');
@@ -357,7 +361,18 @@ describe('émulateur : salle d\'attente en réseau', () => {
       await E.rest('PUT', 'parties/ONYX', { ...base(), cree: vieux, actif: vieux }, { admin: true });
       await refuse('parties/ONYX/actif', ts, 'partie expirée ranimée');
       await refuse('parties/ONYX', { nb: 2, actif: ts, [`joueurs/${idB}`]: { rang: 1, pret: false } }, 'arrivée dans une partie expirée', 'PATCH');
-      await accepte('parties/ONYX', base({ hote: idB, joueurs: { [idB]: { rang: 0, pret: false } } }), 'nouvelle partie à la place de l\'expirée');
+      // Une partie expirée n'est plus modifiable du tout, par aucun chemin ; seule sa suppression complète est permise.
+      await refuse('parties/ONYX', base({ hote: idB, joueurs: { [idB]: { rang: 0, pret: false } } }), 'remplacement sur place d\'une partie expirée');
+      await refuse('parties/ONYX', { cree: ts, actif: ts }, 'horodatages changés seuls', 'PATCH');
+      await refuse('parties/ONYX/hote', idA, 'hôte réécrit');
+      await refuse('parties/ONYX/statut', 'salle', 'statut réécrit');
+      await refuse('parties/ONYX/max', config.joueursMax, 'max réécrit');
+      await refuse(`parties/ONYX/joueurs/${idA}/pret`, false, 'fiche réécrite');
+      await refuse(`parties/ONYX/joueurs/${idA}`, undefined, 'personne retirée', 'DELETE');
+      await refuse('parties/ONYX/emblemes', { dragon: idA }, 'emblèmes réécrits');
+      await refuse('parties/ONYX/intrus', 1, 'champ inconnu');
+      await accepte('parties/ONYX', undefined, 'suppression de la partie expirée', 'DELETE');
+      await accepte('parties/ONYX', base({ hote: idB, joueurs: { [idB]: { rang: 0, pret: false } } }), 'nouvelle partie sur l\'emplacement libéré');
       await refuse('parties/RUNE/statut', 'salle', 'retour en salle');
       await accepte('parties/RUNE', undefined, 'suppression', 'DELETE');
     });
