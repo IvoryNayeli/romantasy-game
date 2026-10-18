@@ -1,0 +1,59 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "parties": {
+      "$code": {
+        ".read": "$code.matches(/^(ECLIPSE|RUNE|ONYX|AURORE|CRYPTE|GRIMOIRE|TALISMAN|ELIXIR|SORTILEGE|OBSIDIENNE)$/)",
+        ".write": "$code.matches(/^(ECLIPSE|RUNE|ONYX|AURORE|CRYPTE|GRIMOIRE|TALISMAN|ELIXIR|SORTILEGE|OBSIDIENNE)$/)",
+        ".validate": "newData.hasChildren(['cree', 'actif', 'hote', 'max', 'nb', 'statut', 'joueurs'])",
+        "cree": {
+          ".validate": "newData.isNumber() && newData.val() <= now && (newData.val() == data.val() || (!data.parent().exists() || data.parent().child('actif').val() < now - 10800000))"
+        },
+        "actif": {
+          ".validate": "newData.isNumber() && newData.val() <= now && (!data.exists() || newData.val() >= data.val())"
+        },
+        "hote": {
+          ".validate": "newData.isString() && newData.parent().child('joueurs').child(newData.val()).exists() && (newData.val() == data.val() || (!data.parent().exists() || data.parent().child('actif').val() < now - 10800000))"
+        },
+        "max": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10 && (newData.val() == data.val() || (!data.parent().exists() || data.parent().child('actif').val() < now - 10800000))"
+        },
+        "nb": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= newData.parent().child('max').val() && ((newData.val() == 1 && (!data.parent().exists() || data.parent().child('actif').val() < now - 10800000)) || newData.val() == data.val() || newData.val() == data.val() + 1)"
+        },
+        "statut": {
+          ".validate": "newData.isString() && (newData.val() == data.val() || (newData.val() == 'salle' && (!data.parent().exists() || data.parent().child('actif').val() < now - 10800000)) || (newData.val() == 'partie' && data.val() == 'salle'))"
+        },
+        "joueurs": {
+          "$id": {
+            ".validate": "$id.matches(/^[A-Za-z0-9_-]{16,40}$/) && newData.hasChildren(['rang', 'pret']) && (newData.child('pret').val() == false || newData.hasChildren(['prenom', 'embleme'])) && (data.child('pret').val() != true || (newData.child('pret').val() == true && newData.child('prenom').val() == data.child('prenom').val() && newData.child('embleme').val() == data.child('embleme').val()))",
+            "rang": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < newData.parent().parent().parent().child('max').val() && (newData.val() == data.val() || (!data.exists() && newData.val() + 1 == newData.parent().parent().parent().child('nb').val()))"
+            },
+            "prenom": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24 && !newData.val().matches(/^ *$/)"
+            },
+            "embleme": {
+              ".validate": "newData.isString() && newData.val().matches(/^(dragon|sorciere|vampire|fee|elfe|loup-garou|sirene|phenix|licorne|chevalier)$/) && newData.parent().parent().parent().child('emblemes').child(newData.val()).val() == $id"
+            },
+            "pret": {
+              ".validate": "newData.isBoolean()"
+            },
+            "$autre": {
+              ".validate": false
+            }
+          }
+        },
+        "emblemes": {
+          "$embleme": {
+            ".validate": "$embleme.matches(/^(dragon|sorciere|vampire|fee|elfe|loup-garou|sirene|phenix|licorne|chevalier)$/) && newData.isString() && newData.parent().parent().child('joueurs').child(newData.val()).child('embleme').val() == $embleme"
+          }
+        },
+        "$autre": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
