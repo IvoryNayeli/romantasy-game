@@ -7,17 +7,17 @@
   {
     "id": "rev-02",
     "type": "revelation",
-    "texte": "Le roi organise un grand bal. Qui serait chargé(e) de choisir vos tenues ? Échange ton butin avec cette personne."
+    "texte": "Le roi organise un grand bal. Qui choisirait vos tenues ? Échange ton butin avec cette personne."
   },
   {
     "id": "rev-03",
     "type": "revelation",
-    "texte": "Une prophétie annonce que l'un(e) d'entre vous est l'héritier(ère) caché(e) du trône. Qui réorganise déjà la déco du palais ? Échange ton butin avec cette personne."
+    "texte": "Une prophétie annonce que le trône reviendra à une personne d'entre vous. Qui réorganise déjà la déco du palais ? Échange ton butin avec cette personne."
   },
   {
     "id": "rev-04",
     "type": "revelation",
-    "texte": "Un personnage masculin clame : « Je ne laisserai personne lui faire du mal ! » Qui serait immédiatement conquis(e) ? Échange ton butin avec cette personne."
+    "texte": "Un personnage masculin clame : « Je ne laisserai personne lui faire du mal ! » Qui craquerait aussitôt ? Échange ton butin avec cette personne."
   },
   {
     "id": "rev-05",
@@ -32,12 +32,12 @@
   {
     "id": "rev-07",
     "type": "revelation",
-    "texte": "Chacun(e) peut choisir une créature magique pour compagnon. Qui serait la personne la plus assortie à une licorne ? Échange ton butin avec cette personne."
+    "texte": "Tout le monde peut choisir une créature magique pour compagnon. Qui serait la personne la plus assortie à une licorne ? Échange ton butin avec cette personne."
   },
   {
     "id": "rev-08",
     "type": "revelation",
-    "texte": "Vous devez passer une soirée à la cour sans révéler votre identité. Qui serait le/la meilleur(e) espion(ne) ? Échange ton butin avec cette personne."
+    "texte": "Vous devez passer une soirée à la cour sans révéler votre identité. Qui passerait le mieux inaperçu ? Échange ton butin avec cette personne."
   },
   {
     "id": "rev-09",
@@ -102,7 +102,7 @@
   {
     "id": "epr-01",
     "type": "epreuve",
-    "texte": "Dis « Je te suivrai au bout du monde » à la personne à ta gauche, avec le plus de conviction possible. Si cette personne est charmé(e), échangez vos butins."
+    "texte": "Dis « Je te suivrai au bout du monde » à la personne à ta gauche, avec le plus de conviction possible. Si cette personne est sous le charme, échangez vos butins."
   },
   {
     "id": "epr-02",
@@ -142,8 +142,8 @@
     "id": "epr-08",
     "type": "epreuve",
     "duree": "prochain_tour",
-    "effet": "Souverain(e) : un échange à décréter",
-    "texte": "Tu es souverain(e) jusqu'à ton prochain tour. Tu peux décréter un seul échange de butins entre deux personnes de ton choix."
+    "effet": "Règne : un échange à décréter",
+    "texte": "Tu règnes jusqu'à ton prochain tour. Tu peux décréter un seul échange de butins entre deux personnes de ton choix."
   },
   {
     "id": "epr-09",
@@ -160,7 +160,7 @@
   {
     "id": "epr-11",
     "type": "epreuve",
-    "texte": "Dis « Le destin m'a mené(e) jusqu'à toi » à la personne à ta droite, avec toute la solennité d'un héros ou d'une héroïne de légende. Si cette personne rit, échangez vos butins."
+    "texte": "Dis « Le destin a guidé mes pas jusqu'à toi » à la personne à ta droite, avec toute la solennité d'un personnage de légende. Si cette personne rit, échangez vos butins."
   },
   {
     "id": "epr-12",
@@ -176,8 +176,8 @@
     "id": "epr-14",
     "type": "epreuve",
     "duree": "fin_partie",
-    "effet": "Gardien(ne) du trésor : ne pas sourire",
-    "texte": "Le roi te nomme gardien(ne) du trésor du royaume. Jusqu'à la fin de la partie, surveille ton butin avec un air très sérieux. Si tu souris, échange ton butin avec la première personne qui t'a vu(e) sourire."
+    "effet": "Garde du trésor : ne pas sourire",
+    "texte": "Le roi te confie la garde du trésor du royaume. Jusqu'à la fin de la partie, surveille ton butin avec un air très sérieux. Si tu souris, échange ton butin avec la première personne qui s'en aperçoit."
   },
   {
     "id": "epr-15",
@@ -195,8 +195,8 @@
     "id": "epr-17",
     "type": "epreuve",
     "duree": "prochain_tour",
-    "effet": "Transformé(e) en chat : miaule",
-    "texte": "Te voilà transformé(e) en chat. Jusqu'à ton prochain tour, miaule à la place de dire « oui » et « non ». Si tu oublies, échange ton butin avec la première personne qui te le rappelle."
+    "effet": "Métamorphose en chat : miaule",
+    "texte": "Un sort te métamorphose en chat. Jusqu'à ton prochain tour, miaule à la place de dire « oui » et « non ». Si tu oublies, échange ton butin avec la première personne qui te le rappelle."
   },
   {
     "id": "epr-18",

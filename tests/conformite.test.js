@@ -96,12 +96,12 @@ test('conformité : fichiers de données en UTF-8 valide, sans BOM', () => {
   }
 });
 
-test('conformité : emblèmes et codes sans « poche » ni « sac » ni forme féminine exclusive de joueur(se)', () => {
+test('conformité : emblèmes et codes sans « poche » ni « sac » ni forme exclusivement féminine ou masculine pour une personne qui joue', () => {
   const texte = JSON.stringify([emblemes.map((e) => e.nom), codes]);
-  assert.doesNotMatch(texte, /\b(poches?|sacs?|joueuses?|voisines?|chacunes?|elles?|celles?)\b/i);
+  assert.doesNotMatch(texte, /\b(poches?|sacs?|joueuses?|joueurs?|voisines?|voisins?|chacunes?|elles?|celles?|celui|ceux)\b/i);
 });
 
-test('conformité : aucun réglage (4 tours, 5 joueur(se)s) écrit en dur dans le code livré hors config.json', () => {
+test('conformité : aucun réglage (4 tours, 5 personnes au maximum) écrit en dur dans le code livré hors config.json', () => {
   const dossiers = ['public', 'scripts'];
   const trouves = [];
   const parcourir = (dossier) => {

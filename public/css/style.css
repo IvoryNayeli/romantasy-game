@@ -1,0 +1,886 @@
+/* Romantasy : feuille de style unique. Mobile d'abord (cibles : 360 et 412 px de large).
+   Charte graphique : docs/charte-graphique.md (variables de la section 2 reprises telles quelles).
+   Aucune police ni ressource externe : les polices sont hébergées dans public/fonts/. */
+
+/* ---------- Polices hébergées avec le site (licence OFL, voir public/fonts/) ---------- */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/CormorantGaramond-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/CormorantGaramond-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+  src: url('../fonts/CormorantGaramond-500-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/Jost-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/Jost-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/Jost-500.woff2') format('woff2');
+}
+
+/* ---------- Variables et styles de base (charte, section 2) ---------- */
+:root {
+  /* Couleurs */
+  --c-nuit: #060B1E;        /* fond principal, texte sur ambre */
+  --c-minuit: #0F1E4A;      /* surfaces, haut des cartes */
+  --c-brume: #3C5A8C;       /* bordures communes, halos (jamais en texte) */
+  --c-lune: #C9D8EE;        /* texte courant, bordures rares */
+  --c-lune-douce: #8FA6C8;  /* texte secondaire */
+  --c-etoile: #F4F1E8;      /* titres, étoiles */
+  --c-ambre: #F0A35E;       /* accent, légendaire, action principale */
+  --c-braise: #D9693A;      /* feu, horizon, alertes */
+
+  /* Typographies */
+  --f-titre: 'Cormorant Garamond', Georgia, serif;
+  --f-texte: 'Jost', system-ui, sans-serif;
+
+  /* Formes */
+  --r-carte: 8px;
+  --r-bouton: 4px;
+  --r-fenetre: 4px;
+  --bordure: 1.5px;
+  --filet: 1px;
+
+  /* Lueurs (légères, pour rester fluide sur mobile) */
+  --lueur-ambre: 0 0 22px #F0A35E44;
+  --lueur-lune: 0 0 14px #C9D8EE44;
+  --lueur-brume: 0 0 8px #3C5A8C44;
+
+  /* Mouvement */
+  --t-rapide: 300ms;
+  --t-lent: 600ms;
+  --ease: cubic-bezier(.25,.1,.25,1);
+
+  /* Espacements et zones tactiles */
+  --cible: 48px;            /* hauteur minimale de tout élément cliquable */
+  --marge: 16px;           /* marge latérale d'écran */
+  --haut: env(safe-area-inset-top, 0px);
+  --bas: env(safe-area-inset-bottom, 0px);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  padding: var(--haut) var(--marge) var(--bas);
+  box-sizing: border-box;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+/* Fond de page : étoiles + halo bleu en haut à droite + lueur de braise en bas.
+   Adaptation de la charte : les étoiles sont posées dans les marges latérales (x entre 2 % et 3 %, puis 97 % à 98 %,
+   soit moins de 13 px du bord à 412 px de large, alors que le texte commence à 16 px) : placées en pourcentage de la
+   hauteur de la page, comme dans la charte, elles passaient derrière les titres et les paragraphes. */
+.ciel {
+  background:
+    radial-gradient(circle at 3% 5%,   var(--c-etoile) 0 1px,   transparent 2px),
+    radial-gradient(circle at 97% 11%, var(--c-lune) 0 1px,   transparent 2px),
+    radial-gradient(circle at 2% 23%,  var(--c-etoile) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 98% 34%, var(--c-etoile) 0 1px,   transparent 2px),
+    radial-gradient(circle at 3% 46%,  var(--c-lune) 0 1px,   transparent 2px),
+    radial-gradient(circle at 97% 57%, var(--c-etoile) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 2% 68%,  var(--c-etoile) 0 1px,   transparent 2px),
+    radial-gradient(circle at 98% 78%, var(--c-lune) 0 1px,   transparent 2px),
+    radial-gradient(circle at 3% 88%,  var(--c-etoile) 0 1.5px, transparent 2.5px),
+    radial-gradient(ellipse at 85% 0%, #3C5A8C55, transparent 50%),
+    radial-gradient(ellipse at 50% 110%, #D9693A33, transparent 55%),
+    var(--c-nuit);
+  color: var(--c-lune);
+  font-family: var(--f-texte);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Scintillement des étoiles (éléments .etoile séparés, optionnel). Seulement opacity. */
+@keyframes scintille { 0%,100% {opacity:.35} 50% {opacity:1} }
+.etoile { animation: scintille 5s var(--ease) infinite; }
+.etoile:nth-child(2n) { animation-duration: 7s; animation-delay: -2s; }
+
+/* Règle système (pas une option du jeu) : aucun mouvement si l'appareil le demande. */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition-duration: 1ms !important; }
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+h1, h2, h3 { margin: 0; font-weight: 600; }
+
+:focus-visible {
+  outline: 2px solid var(--c-etoile);
+  outline-offset: 3px;
+}
+
+.page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  min-height: calc(100vh - var(--haut) - var(--bas));
+  min-height: calc(100dvh - var(--haut) - var(--bas));
+  margin: 0 auto;
+}
+
+.entete {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+}
+.entete > :not(.ciel-entete) { position: relative; z-index: 1; }
+.entete::after { content: ''; width: var(--cible); flex: none; }
+.entete-gauche { display: flex; align-items: center; width: var(--cible); flex: none; }
+.logo-compact { width: 40px; height: 40px; flex: none; }
+body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
+
+/* ---------- Constellations (décor : quelques étoiles reliées par des filets très fins, sans texte) ----------
+   Posées seulement dans des zones sans texte : la bande d'en-tête, de part et d'autre du logo (le bouton de retour
+   occupe les 48 premiers px, le logo les 40 px du centre), et l'espace libre de l'accueil, de la transition et de la fin.
+   Couleurs de la charte (étoile et lune), opacité faible, on n'anime que l'opacité de quelques étoiles (.etoile). */
+.ciel-entete {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(328px, 100%);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.ciel-entete .constellation { position: absolute; top: 6px; }
+.ciel-entete .c-gauche { left: 66px; }
+.ciel-entete .c-droite { right: 8px; }
+.constellation { display: block; flex: none; overflow: visible; }
+.constellation .liens { fill: none; stroke: var(--c-etoile); stroke-width: .8; stroke-linecap: round; opacity: .3; }
+.constellation .astre { fill: var(--c-etoile); opacity: .9; }
+.constellation .astre-lune { fill: var(--c-lune); opacity: .7; }
+.constellation .etoile { opacity: 1; }
+
+/* Espace libre (accueil, transition, fin) : prend la place restante au-dessus et au-dessous du contenu ; masqué s'il
+   est trop petit pour ne jamais gêner le contenu. */
+.ciel-libre {
+  flex: 1 1 0;
+  min-height: 0;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+}
+.ciel-libre .constellation { margin: 8px 0; max-height: calc(100% - 16px); }
+@container (max-height: 80px) { .ciel-libre .constellation { display: none; } }
+
+.ecran-zone { flex: 1; display: flex; flex-direction: column; outline: none; }
+
+/* Étoiles des marges : motif répété sur toute la hauteur de la page, dans les marges latérales seulement (x à moins de
+   12 px du bord, le texte commence à 16 px), en pixels et non en pourcentage de la hauteur : jamais derrière le texte,
+   quelle que soit la longueur de l'écran. Derrière le contenu (z-index -1), non interactif. */
+.page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--marge));
+  right: calc(-1 * var(--marge));
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 6px 64px, var(--c-etoile) 0 1px, transparent 2px),
+    radial-gradient(circle at calc(100% - 5px) 118px, var(--c-lune) 0 1px, transparent 2px),
+    radial-gradient(circle at 10px 176px, var(--c-lune) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at calc(100% - 9px) 232px, var(--c-etoile) 0 1.2px, transparent 2.2px),
+    radial-gradient(circle at 4px 296px, var(--c-etoile) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at calc(100% - 4px) 352px, var(--c-lune) 0 1px, transparent 2px);
+  background-size: 100% 380px;
+  background-repeat: repeat-y;
+}
+
+.ecran {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: fondu var(--t-rapide) var(--ease) both;
+}
+
+.noscript { padding: 1rem; text-align: center; }
+
+/* Grain : un seul calque par écran (charte, section 8) */
+.grain {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: .18;
+}
+
+/* ---------- Icônes (au trait fin, jamais pleines : charte, section 7) ---------- */
+.icone { width: 1.5rem; height: 1.5rem; flex: none; }
+.icone-etincelle { width: 10px; height: 10px; }
+
+/* Ornements : étincelle à 4 branches, séparateur filigrane */
+.coin { position: absolute; width: 10px; height: 10px; color: var(--rarete, var(--c-lune-douce)); pointer-events: none; }
+.coin-hg { top: 8px; left: 8px; }
+.coin-hd { top: 8px; right: 8px; }
+.coin-bg { bottom: 8px; left: 8px; }
+.coin-bd { bottom: 8px; right: 8px; }
+.filigrane { display: block; width: 150px; height: 12px; margin: 0 auto; color: var(--c-ambre); }
+
+/* ---------- Logo (image du disque central, fond transparent : elle se fond dans --c-nuit) ---------- */
+.logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.logo-grand { width: 96px; height: 96px; }
+.logo-grand, .logo-compact, .dos-logo { display: block; object-fit: contain; }
+
+/* ---------- Boutons (charte, section 7) ---------- */
+.bouton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--cible);
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--r-bouton);
+  font: 500 14px/1.2 var(--f-texte);
+  letter-spacing: .2em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 150ms var(--ease);
+}
+.bouton .icone { width: 1.25rem; height: 1.25rem; }
+.bouton-principal {
+  background: var(--c-ambre);
+  color: var(--c-nuit);
+  box-shadow: inset 0 0 0 3px #F0A35E, inset 0 0 0 4px #060B1E66, 0 0 20px #F0A35E55;
+}
+.bouton-secondaire {
+  background: transparent;
+  border: 1px solid var(--c-lune);
+  color: var(--c-lune);
+  box-shadow: inset 0 0 0 3px #060B1E, inset 0 0 0 4px #C9D8EE44;
+}
+.bouton:active { transform: scale(.97); }
+.bouton-principal:active { box-shadow: inset 0 0 0 3px #F0A35E, inset 0 0 0 4px #060B1E66, 0 0 30px #F0A35EAA; }
+.bouton-secondaire:active { box-shadow: inset 0 0 0 3px #060B1E, inset 0 0 0 4px #C9D8EE44, 0 0 14px #C9D8EE55; }
+.bouton:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  transform: none;
+}
+.bouton-principal:disabled { box-shadow: inset 0 0 0 3px #F0A35E, inset 0 0 0 4px #060B1E66; }
+.bouton-secondaire:disabled { box-shadow: inset 0 0 0 3px #060B1E, inset 0 0 0 4px #C9D8EE44; }
+/* « C'est bon » : état validé et définitif, lisible (pas un bouton simplement indisponible) */
+.bouton-valide:disabled { opacity: 1; cursor: default; }
+
+.bouton-retour {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cible);
+  height: var(--cible);
+  border: 1px solid var(--c-lune-douce);
+  border-radius: var(--r-bouton);
+  color: var(--c-lune);
+  text-decoration: none;
+  transition: transform 150ms var(--ease);
+}
+.bouton-retour:active { transform: scale(.97); }
+
+/* Barre d'actions en bas de l'écran, à portée du pouce (charte : fond nuit à 90 %, filet supérieur brume) */
+.barre-bas {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: auto calc(-1 * var(--marge)) 0;
+  padding: 12px var(--marge) calc(12px + var(--bas));
+  border-top: var(--filet) solid var(--c-brume);
+  background: #060B1EE6;
+}
+
+/* ---------- Textes ---------- */
+.texte { margin: 0 0 16px; font: 400 1.25rem/1.5 var(--f-texte); overflow-wrap: break-word; }
+.texte-centre { text-align: center; }
+.texte strong { font-weight: 500; color: var(--c-etoile); }
+
+h2 {
+  margin: 28px 0 8px;
+  color: var(--c-etoile);
+  font: 600 1.5rem/1.2 var(--f-titre);
+}
+.titre-ecran {
+  margin: 8px 0 12px;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+/* ---------- Accueil et fin ---------- */
+.accueil-corps, .fin-corps { margin: auto 0; padding: 24px 0; text-align: center; }
+.accueil-corps .logo-complet { margin-bottom: 28px; }
+.accueil-salut {
+  margin: 0;
+  color: var(--c-etoile);
+  font: italic 500 2.25rem/1.15 var(--f-titre);
+}
+.ornement { margin: 16px 0 20px; color: var(--c-ambre); }
+.accueil-corps .texte, .fin-corps .texte { font-weight: 300; }
+/* Étincelles de l'accueil : dans les marges latérales (16 px), jamais derrière le texte. */
+.ciel-accueil { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--marge)); right: calc(-1 * var(--marge)); pointer-events: none; overflow: hidden; }
+.ciel-accueil .etoile { position: absolute; width: 10px; height: 10px; color: var(--c-etoile); }
+.ciel-accueil .etoile-g { left: 3px; }
+.ciel-accueil .etoile-d { right: 3px; }
+
+/* ---------- Règles ---------- */
+.regles-corps { padding-bottom: 8px; }
+/* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), alignés à gauche, filigrane ambre
+   sous le titre sur toute la largeur (motif central, filets de part et d'autre), grande marge supérieure.
+   Les titres d'écran restent à 32-40 px (charte, section 4). */
+.titre-section { margin: 48px 0 14px; text-align: left; }
+.titre-section:first-child { margin-top: 12px; }
+.titre-section-ornement { display: flex; align-items: center; gap: 2px; width: 100%; margin: 10px 0 0; color: var(--c-ambre); }
+.titre-section-ornement .filet { flex: 1 1 0; height: var(--filet); background: currentColor; }
+.titre-section-ornement .filigrane { flex: none; margin: 0; }
+.titre-section h2 {
+  margin: 0;
+  color: var(--c-etoile);
+  font: 600 1.875rem/1.15 var(--f-titre);
+  letter-spacing: .06em;
+  overflow-wrap: break-word;
+}
+.liste-types { margin: 0 0 16px; padding: 0; list-style: none; }
+.liste-types li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.liste-types .texte { margin: 0; }
+.type-puce { width: 1.75rem; height: 1.75rem; margin-top: 2px; }
+.type-epreuve .type-puce { color: var(--c-braise); }
+.type-revelation .type-puce { color: var(--c-lune); }
+
+/* ---------- Compteur et titres de tour ---------- */
+.compteur {
+  margin: 4px 0 0;
+  color: var(--c-lune-douce);
+  font: 500 14px/1.2 var(--f-texte);
+  letter-spacing: .25em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.titre-tour {
+  margin: auto 0 24px;
+  color: var(--c-etoile);
+  font: 600 2.25rem/1.15 var(--f-titre);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.ecran-attente .titre-tour { margin: 16px 0 8px; font-size: 2rem; }
+.nom-actif { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
+
+.embleme { font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 1.75rem; line-height: 1; flex: none; }
+.embleme-grand { font-size: 3.5rem; }
+.embleme-vide {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: var(--filet) dashed var(--c-lune-douce);
+  border-radius: var(--r-bouton);
+}
+
+/* ---------- Dos de carte (choix du type, et verso de la carte qui se retourne) ---------- */
+.dos-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: auto; padding-bottom: 32px; }
+.dos {
+  --rarete: var(--c-braise);
+  --lueur: 0 0 14px #D9693A44;
+  container-type: inline-size;
+  display: block;
+  min-width: 0;
+  color: var(--rarete);
+  text-decoration: none;
+  transition: transform 150ms var(--ease);
+}
+.dos-revelation { --rarete: var(--c-lune); --lueur: var(--lueur-lune); }
+.dos:active { transform: scale(.97); }
+.dos-corps {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5cqw;
+  aspect-ratio: 2 / 3;
+  padding: 8cqw 6cqw;
+  border: var(--bordure) solid var(--c-ambre);
+  border-radius: var(--r-carte);
+  background: radial-gradient(circle at 50% 45%, #3C5A8C66, #060B1E 70%);
+  box-shadow: var(--lueur);
+}
+.dos-corps::before {                     /* double filet ambre */
+  content: ''; position: absolute; inset: 2.2cqw; pointer-events: none;
+  border: var(--filet) solid #F0A35E55;
+  border-radius: 4px;
+}
+.dos-corps::after {                      /* filet clair de lune à 6cqw du bord */
+  content: ''; position: absolute; inset: 6cqw; pointer-events: none;
+  border: var(--filet) solid #C9D8EE44;
+  border-radius: 2px;
+}
+.dos .coin, .carte .coin { width: 4.3cqw; height: 4.3cqw; min-width: 8px; min-height: 8px; color: var(--c-ambre); }
+.dos .coin-hg, .carte .coin-hg { top: 3.5cqw; left: 3.5cqw; }
+.dos .coin-hd, .carte .coin-hd { top: 3.5cqw; right: 3.5cqw; }
+.dos .coin-bg, .carte .coin-bg { bottom: 3.5cqw; left: 3.5cqw; }
+.dos .coin-bd, .carte .coin-bd { bottom: 3.5cqw; right: 3.5cqw; }
+.carte .coin { color: var(--rarete); }
+.dos-logo { width: 52cqw; height: 52cqw; }
+.dos-symbole { width: max(9cqw, 1.25rem); height: max(9cqw, 1.25rem); }
+.dos-nom {
+  font: 500 max(4.3cqw, .75rem)/1.2 var(--f-texte);
+  letter-spacing: .25em;
+  margin-right: -.25em;
+  text-align: center;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Carte révélée (charte, section 6) ---------- */
+.carte {
+  --rarete: var(--c-braise);
+  --lueur: 0 0 14px #D9693A44;
+  container-type: inline-size;
+  width: min(86vw, 340px);
+  margin: 16px auto 20px;
+  perspective: 1200px;
+}
+.carte-revelation { --rarete: var(--c-lune); --lueur: var(--lueur-lune); }
+
+.carte-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  animation: retournement var(--t-lent) ease-in-out 250ms both;
+}
+/* Face et dos s'échangent exactement à mi-rotation (90 degrés, courbe symétrique) : le texte n'est jamais lisible avant. */
+.carte-face {
+  animation: face-apparait var(--t-lent) linear 250ms both;
+  position: relative;
+  aspect-ratio: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 4cqw;
+  padding: 6cqw;
+  border: var(--bordure) solid var(--rarete);
+  border-radius: var(--r-carte);
+  background: linear-gradient(180deg, var(--c-minuit), var(--c-nuit));
+  box-shadow: var(--lueur);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.carte-face::before {                    /* double filet */
+  content: ''; position: absolute; inset: 2.2cqw; pointer-events: none;
+  border: var(--filet) solid color-mix(in srgb, var(--rarete) 33%, transparent);
+  border-radius: 4px;
+}
+.carte-dos {
+  animation: dos-disparait var(--t-lent) linear 250ms both;
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.carte-dos .dos-corps { height: 100%; aspect-ratio: auto; }
+
+/* Type de la carte en légende : symbole + texte (la couleur n'est jamais seule) */
+.carte-entete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3cqw;
+  margin-top: 3cqw;
+  color: var(--rarete);
+  font: 500 max(4.3cqw, .75rem)/1.2 var(--f-texte);
+  letter-spacing: .3em;
+  text-transform: uppercase;
+}
+.carte-entete .icone { width: max(7cqw, 1.25rem); height: max(7cqw, 1.25rem); }
+.carte-filigrane { width: 48cqw; height: auto; aspect-ratio: 150 / 12; flex: none; color: var(--c-ambre); }
+.carte-texte {
+  margin: 0;
+  color: var(--c-lune);
+  font: 400 max(6.5cqw, 1.25rem)/1.5 var(--f-texte);
+  overflow-wrap: break-word;
+}
+.carte-texte::first-letter {
+  float: left;
+  padding: .5cqw 2.6cqw 0 0;
+  color: var(--rarete);
+  font: 600 2.74em/.85 var(--f-titre);
+}
+
+/* Bandeau d'effet durable (l'ambre signale ce qui compte) */
+.bandeau-effet {
+  display: flex;
+  align-items: flex-start;
+  gap: 3cqw;
+  margin-top: auto;
+  padding: 3cqw 0 1cqw;
+  border-top: var(--filet) solid #F0A35E66;
+}
+.bandeau-icone { width: max(6cqw, 1.25rem); height: max(6cqw, 1.25rem); margin-top: 1cqw; color: var(--c-ambre); }
+.bandeau-corps { display: flex; flex-direction: column; gap: 1cqw; min-width: 0; }
+.bandeau-legende {
+  color: var(--c-ambre);
+  font: 500 max(4.3cqw, .75rem)/1.2 var(--f-texte);
+  letter-spacing: .25em;
+  text-transform: uppercase;
+}
+.bandeau-texte { color: var(--c-etoile); font: 500 max(6.5cqw, 1.25rem)/1.3 var(--f-texte); overflow-wrap: break-word; }
+.bandeau-duree { color: var(--c-lune-douce); font: 400 1rem/1.3 var(--f-texte); }
+
+/* ---------- Attente ---------- */
+.attente-message {
+  margin: 8px 0 24px;
+  color: var(--c-lune-douce);
+  font: italic 500 1.5rem/1.25 var(--f-titre);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Panneau (charte, section 7) : dégradé minuit vers nuit, bordure brume, double filet, étincelles aux coins */
+.panneau {
+  --rarete: var(--c-lune-douce);
+  position: relative;
+  padding: 20px;
+  border: var(--bordure) solid var(--c-brume);
+  border-radius: var(--r-carte);
+  background: linear-gradient(180deg, var(--c-minuit), var(--c-nuit));
+}
+.panneau::before {
+  content: ''; position: absolute; inset: 5px; pointer-events: none;
+  border: var(--filet) solid color-mix(in srgb, var(--rarete) 33%, transparent);
+  border-radius: 4px;
+}
+.effets-en-cours { margin: 0 0 8px; }
+.effets-titre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--c-ambre);
+  font: 500 .875rem/1.2 var(--f-texte);
+  letter-spacing: .25em;
+  text-transform: uppercase;
+}
+.effets-titre .icone { width: 1.25rem; height: 1.25rem; }
+.effets-liste { margin: 0; padding: 0; list-style: none; }
+.effets-item { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-top: var(--filet) solid #3C5A8C99; }
+.effets-item:first-child { padding-top: 0; border-top: 0; }
+.effets-joueur { display: flex; align-items: center; gap: 8px; color: var(--c-lune); font: 500 1rem/1.3 var(--f-texte); }
+.effets-joueur .embleme { font-size: 1.25rem; }
+.effets-texte { color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: break-word; }
+
+/* ---------- Transition de 2 secondes ---------- */
+.ecran-transition .transition-corps {
+  margin: auto 0;
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+/* Forme pleine, grande, avec un halo ambre (sort jeté) ou braise (bouclier) : demande de la propriétaire (itération 3),
+   écart volontaire à la charte (icônes au trait fin), noté dans docs/PROJET.md. Le halo est un dégradé : on n'anime
+   que transform (pulse). */
+.transition-icone {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 11rem;
+  height: 11rem;
+  margin: 0 0 56px;
+  color: var(--c-ambre);
+  animation: pulse 1.6s var(--ease) infinite;
+}
+.transition-icone::before {
+  content: '';
+  position: absolute;
+  inset: -22%;
+  background: radial-gradient(circle closest-side, #F0A35E66 0, #D9693A55 45%, #D9693A22 70%, transparent 100%);
+  pointer-events: none;
+}
+.transition-bouclier .transition-icone::before {
+  background: radial-gradient(circle closest-side, #D9693AAA 0, #D9693AAA 45%, #F0A35E66 62%, #D9693A33 82%, transparent 100%);
+}
+.transition-icone .icone { position: relative; width: 9rem; height: 9rem; }
+.transition-texte {
+  margin: 0;
+  color: var(--c-etoile);
+  font: italic 500 2rem/1.2 var(--f-titre);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Champs et choix (créer, rejoindre, salle d'attente) ---------- */
+.etiquette-champ {
+  display: block;
+  margin: 20px 0 8px;
+  color: var(--c-lune);
+  font: 500 .875rem/1.2 var(--f-texte);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.champ {
+  display: block;
+  width: 100%;
+  min-height: var(--cible);
+  padding: 8px 16px;
+  border: var(--filet) solid var(--c-lune-douce);
+  border-radius: var(--r-bouton);
+  background: var(--c-minuit);
+  color: var(--c-etoile);
+  font: 400 1.25rem/1.2 var(--f-texte);
+}
+.champ:focus { border-color: var(--c-etoile); }
+.champ:focus-visible { outline: 2px solid var(--c-etoile); outline-offset: 3px; }
+.champ:disabled { cursor: default; }
+.champ-code { text-transform: uppercase; letter-spacing: .15em; }
+.aide-champ { margin: 8px 0 0; color: var(--c-lune-douce); font: 400 1rem/1.4 var(--f-texte); }
+.erreur-champ { margin: 12px 0 0; color: var(--c-braise); font: 500 1rem/1.4 var(--f-texte); }
+.erreur-champ:not(:empty)::before {
+  content: '!';
+  display: inline-block;
+  width: 1.4em;
+  height: 1.4em;
+  margin-right: 8px;
+  border: var(--bordure) solid var(--c-braise);
+  border-radius: var(--r-bouton);
+  font-weight: 500;
+  line-height: 1.25em;
+  text-align: center;
+}
+
+.formulaire-code { flex: 1; display: flex; flex-direction: column; }
+.formulaire-code-corps { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 16px; }
+.liste-codes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.code-option { position: relative; display: block; min-width: 0; }
+.code-radio { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; pointer-events: none; }
+.code-option-nom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 4px 8px;
+  border: var(--filet) solid var(--c-lune-douce);
+  border-radius: var(--r-bouton);
+  background: transparent;
+  color: var(--c-lune);
+  font: 500 14px/1.2 var(--f-texte);
+  letter-spacing: .2em;
+  overflow-wrap: anywhere;
+  transition: transform 150ms var(--ease);
+}
+.code-option-nom .icone { position: absolute; left: 12px; width: 1.125rem; height: 1.125rem; visibility: hidden; }
+.code-option:active .code-option-nom { transform: scale(.97); }
+.code-radio:checked + .code-option-nom {
+  border: var(--bordure) solid var(--c-ambre);
+  background: #F0A35E1F;
+  color: var(--c-ambre);
+  box-shadow: var(--lueur-ambre);
+}
+.code-radio:checked + .code-option-nom .icone { visibility: visible; }
+.code-radio:focus-visible + .code-option-nom { outline: 2px solid var(--c-etoile); outline-offset: 3px; }
+
+/* ---------- Salle d'attente ---------- */
+.salle-corps { padding-bottom: 8px; }
+.code-partie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px 12px;
+  margin: 8px 0 0;
+  color: var(--c-lune-douce);
+  text-align: center;
+}
+.code-libelle { font: 400 .75rem/1.4 var(--f-texte); letter-spacing: .25em; text-transform: uppercase; }
+.code-valeur { font: 500 1rem/1.4 var(--f-texte); letter-spacing: .25em; text-transform: uppercase; overflow-wrap: anywhere; }
+.titre-liste { margin: 28px 0 12px; }
+
+.liste-joueurs { display: flex; flex-direction: column; gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; }
+.joueur-ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: var(--cible);
+  padding: 6px 12px;
+  border: var(--filet) solid var(--c-brume);
+  border-radius: var(--r-bouton);
+  background: #0F1E4A99;
+}
+.joueur-soi { border-color: var(--c-lune); }
+.joueur-libre { border-style: dashed; background: transparent; }
+.joueur-prenom { flex: 1 1 5rem; min-width: 0; color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: anywhere; }
+.joueur-prenom-vide { color: var(--c-lune-douce); }
+.joueur-etiquettes { display: flex; flex-wrap: wrap; gap: 6px; }
+.etiquette {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: var(--filet) solid var(--c-lune-douce);
+  border-radius: var(--r-bouton);
+  color: var(--c-lune-douce);
+  font: 500 .75rem/1.4 var(--f-texte);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.etiquette .icone { width: .875rem; height: .875rem; }
+.etiquette-pret { border-color: var(--c-ambre); color: var(--c-ambre); }
+
+.formulaire { margin-top: 8px; }
+.formulaire .etiquette-champ:first-child { margin-top: 12px; }
+.grille-emblemes { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: 8px; }
+.embleme-choix {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 4.5rem;
+  padding: 6px 4px;
+  border: var(--filet) solid var(--c-lune-douce);
+  border-radius: var(--r-bouton);
+  background: transparent;
+  color: var(--c-lune);
+  font-family: var(--f-texte);
+  cursor: pointer;
+  transition: transform 150ms var(--ease);
+}
+.embleme-choix:active { transform: scale(.97); }
+.embleme-emoji { font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 1.75rem; line-height: 1.1; }
+.embleme-nom { max-width: 100%; font: 400 .9375rem/1.1 var(--f-texte); overflow-wrap: anywhere; text-align: center; }
+.embleme-choix[aria-checked="true"] {
+  border: var(--bordure) solid var(--c-ambre);
+  background: #F0A35E1F;
+  box-shadow: var(--lueur-ambre);
+}
+.embleme-choix[aria-checked="true"] .embleme-nom { color: var(--c-ambre); font-weight: 500; }
+/* Verrouillé après « C'est bon » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
+.embleme-choix:disabled:not(.embleme-pris) { cursor: default; }
+.embleme-choix:disabled:not(.embleme-pris)[aria-checked="false"] { opacity: .45; }
+.embleme-pris, .embleme-pris:disabled {
+  border-style: dashed;
+  color: var(--c-lune-douce);
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: .45;
+}
+
+.avis-complete {
+  --rarete: var(--c-braise);
+  margin: 24px 0;
+  border-color: var(--c-braise);
+  color: var(--c-braise);
+  font: 600 1.5rem/1.25 var(--f-titre);
+  text-align: center;
+}
+
+/* ---------- Boîte de confirmation du bouclier ---------- */
+.dialogue {
+  --rarete: var(--c-lune-douce);
+  width: calc(100% - 2 * var(--marge));
+  max-width: 26rem;
+  padding: 24px 20px;
+  border: var(--bordure) solid var(--c-brume);
+  border-radius: var(--r-fenetre);
+  background: linear-gradient(180deg, var(--c-minuit), var(--c-nuit));
+  color: var(--c-lune);
+}
+.dialogue::before {
+  content: ''; position: absolute; inset: 5px; pointer-events: none;
+  border: var(--filet) solid color-mix(in srgb, var(--rarete) 33%, transparent);
+  border-radius: 2px;
+}
+.dialogue::backdrop { background: #060B1ED9; }
+.dialogue-texte { margin: 0 0 20px; color: var(--c-etoile); font: 600 1.5rem/1.3 var(--f-titre); }
+.dialogue-boutons { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- Page de démonstration (demo.html) ---------- */
+.demo { padding-top: 8px; padding-bottom: 32px; }
+.demo-titre { margin: 0 0 16px; color: var(--c-etoile); font: 600 2rem/1.15 var(--f-titre); }
+.demo-liste { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.demo-lien {
+  display: flex;
+  align-items: center;
+  min-height: var(--cible);
+  padding: 6px 16px;
+  border: var(--filet) solid var(--c-lune-douce);
+  border-radius: var(--r-bouton);
+  color: var(--c-lune);
+  font: 400 1rem/1.3 var(--f-texte);
+  text-decoration: none;
+  transition: transform 150ms var(--ease);
+}
+.demo-lien:active { transform: scale(.97); }
+.demo-carte { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.demo-carte-id { flex: 1 1 8rem; color: var(--c-etoile); font-weight: 500; }
+.demo-carte .demo-lien { flex: 0 0 auto; }
+.demo-separateur { margin-top: 40px; }
+
+/* ---------- Animations (opacity et transform seulement) ---------- */
+@keyframes fondu {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes retournement {
+  from { transform: rotateY(180deg); }
+  to { transform: rotateY(0deg); }
+}
+@keyframes face-apparait {
+  0%, 49.9% { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+@keyframes dos-disparait {
+  0%, 49.9% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}

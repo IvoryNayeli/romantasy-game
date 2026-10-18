@@ -24,10 +24,12 @@ const DUREES = ['prochain_tour', 'fin_partie'];
 
 // Exceptions justifiées aux contrôles de vocabulaire et d'écriture inclusive.
 // Chaque entrée est une question ouverte pour la propriétaire (voir le rapport).
+// Le contrôle d'écriture inclusive ne vise que les personnes qui jouent : les personnages des cartes
+// (le héros, le roi, la reine, un personnage masculin) ne sont pas concernés.
 const EXCEPTIONS = {
   // « un seul sac » : le sac est un objet du décor de la carte, pas un butin.
   'rev-16': ['sac'],
-  // « Comme elle » : désigne la rose enchantée, pas un(e) joueur(se).
+  // « Comme elle » : désigne la rose enchantée, pas une personne qui joue.
   'epr-03': ['elle'],
 };
 
@@ -136,7 +138,9 @@ test('cartes : « butin » seul terme (jamais « poche » ni « sac »)', () => 
   assert.ok(cartes.some((c) => /\bbutins?\b/.test(c.texte)), 'aucune carte ne parle de butin');
 });
 
-test('cartes : écriture inclusive (aucune forme exclusivement féminine pour un(e) joueur(se))', () => {
+// Écriture inclusive allégée (itération 3 de la phase 2) : formulation neutre d'abord, les parenthèses ne sont plus
+// exigées. Restent interdites les formes exclusivement féminines ou exclusivement masculines pour désigner un(e) joueur(se).
+test('cartes : écriture inclusive (aucune forme exclusivement féminine ni masculine pour un(e) joueur(se))', () => {
   const motifs = {
     elle: /\b(elle|elles|elle-même)\b/i,
     celle: /\b(celle|celles)\b/i,
@@ -144,6 +148,11 @@ test('cartes : écriture inclusive (aucune forme exclusivement féminine pour un
     voisine: /\bvoisines?\b/i,
     chacune: /\bchacunes?\b/i,
     'la première qui': /\bla (première|dernière) qui\b/i,
+    joueur: /\bjoueurs?\b/i,
+    voisin: /\bvoisins?\b/i,
+    chacun: /\bchacun\b(?!\()/i,
+    celui: /\b(celui|ceux)\b(?!-ci|-là)/i,
+    'le premier qui': /\ble (premier|dernier) qui\b/i,
   };
   for (const c of cartes) {
     for (const champ of ['texte', 'effet']) {
@@ -164,7 +173,7 @@ test('cartes : les exceptions déclarées sont encore utiles', () => {
   }
 });
 
-test('config : 4 tours et 5 joueur(se)s maximum', () => {
+test('config : 4 tours et 5 personnes au maximum', () => {
   assert.deepEqual(Object.keys(config).sort(), ['joueursMax', 'tours']);
   assert.equal(config.tours, 4);
   assert.equal(config.joueursMax, 5);

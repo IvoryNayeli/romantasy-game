@@ -19,7 +19,7 @@ Liste par fonctionnalité, en français courant.
 Indiquer ce que la propriétaire peut vérifier seule et ce qui demande plusieurs téléphones.
 
 ## 4. Résultats des tests
-Nombre de tests passés et échoués, sortie réelle collée, tests listés par thème. Lien vers `docs/rapports/phase-N-test.md`.
+Nombre de tests réussis et échoués (ligne de résumé de `npm test`), tests listés par thème. Pas de fichier séparé du testeur : ses constats sont en section 9.
 
 ## 5. Ce qui n'a pas été vérifié
 Obligatoire. Ce que les tests ne couvrent pas (aspect visuel, plaisir de jeu, vrai téléphone). Si rien : « rien de notable ».
@@ -34,7 +34,7 @@ Tout choix non prévu dans les règles ou dans `docs/PROJET.md`, pour que la pro
 Liste issue de `git diff --stat`, et commits de la phase (liens GitHub).
 
 ## 9. Défauts
-Corrigés pendant la boucle (identifiant, description) et encore ouverts.
+Corrigés pendant la boucle (identifiant, description) et encore ouverts. S'il y a eu un testeur, ses défauts sont ici (identifiant, gravité, reproduction, attendu et obtenu, statut).
 
 ## 10. Tes remarques précédentes (à partir de l'itération 2)
 | Remarque | Traitement (faite, refusée avec explication, à discuter) | Où le vérifier |

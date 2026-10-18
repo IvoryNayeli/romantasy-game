@@ -22,38 +22,38 @@ Règles valables pour toutes les phases :
 
 ## Phase 1 : contenu
 
-- `public/data/cartes.json` (40 cartes depuis `docs/cartes-source.md`), `emblemes.json`, `codes.json`, `config.json` (4 tours, 5 joueur(se)s).
+- `public/data/cartes.json` (40 cartes depuis `docs/cartes-source.md`), `emblemes.json`, `codes.json`, `config.json` (4 tours, 5 personnes au maximum).
 - `docs/cartes-a-relire.md` : tableau lisible généré par un script, pour la relecture.
-- **Tests automatiques** : format des cartes, identifiants uniques, types et durées valides, au moins 20 cartes de chaque type, aucun doublon de texte, « butin » seul terme utilisé (pas de « poche »), codes sans accent, 9 cartes à effet durable, écriture inclusive (aucune forme exclusivement féminine pour désigner un(e) joueur(se) : par exemple « elle », « celle », « la première qui », « voisine », « joueuse »).
+- **Tests automatiques** : format des cartes, identifiants uniques, types et durées valides, au moins 20 cartes de chaque type, aucun doublon de texte, « butin » seul terme utilisé (pas de « poche »), codes sans accent, 9 cartes à effet durable, écriture inclusive (aucune forme exclusivement féminine ni masculine pour désigner une personne qui joue : par exemple « elle », « celle », « la première qui », « voisine », « joueuse » ; les parenthèses ne sont plus exigées).
 
 ## Phase 2 : écrans et design (sans réseau)
 
 - Accueil, règles, salle d'attente, choix de carte, carte révélée, attente, fin de partie, alimentés par des données fictives.
-- Palette, polices hébergées, animations, réglage « réduire les animations ».
+- Palette, polices hébergées, animations, respect du réglage système prefers-reduced-motion.
 - **Tests** : captures d'écran aux largeurs 360 et 412 px, aucun débordement de texte même sur les cartes les plus longues, taille des boutons, contrastes.
 - **Validation humaine** : ouverture des écrans sur son téléphone, avis sur le design.
 
 ## Phase 3 : moteur de jeu (logique pure)
 
 - Pioche sans répétition, ordre des tours, compteur de tours, bouclier, effets durables, fin de partie. Aucun réseau, aucune interface.
-- **Tests** : simulations de parties complètes de 2 à 5 joueur(se)s, dont le pire cas où toutes choisissent le même type ; aucune carte jouée deux fois ; arrêt au bon moment ; expiration des effets. Rapport de simulation en français.
+- **Tests** : simulations de parties complètes de 2 à 5 personnes, dont le pire cas où toutes choisissent le même type ; aucune carte jouée deux fois ; arrêt au bon moment ; expiration des effets. Rapport de simulation en français.
 
 ## Phase 4 : multijoueur et salle d'attente
 
-- Firebase : création et jonction de partie par code, prénom, emblème, emblème pris grisé, limite de 5 joueur(se)s, ordre d'arrivée, règles de sécurité de la base, nettoyage des parties.
-- **Tests** sur l'émulateur local : clients simultanés, sixième joueur(se) refusé(e), deux joueur(se)s visant le même emblème, code introuvable, règles de sécurité (taille, forme), non-boucle d'écriture, écoutes limitées au chemin de la partie.
+- Firebase : création et jonction de partie par code, prénom, emblème, emblème pris grisé, limite de 5 personnes, ordre d'arrivée, règles de sécurité de la base, nettoyage des parties.
+- **Tests** sur l'émulateur local : clients simultanés, sixième personne refusée, deux personnes visant le même emblème, code introuvable, règles de sécurité (taille, forme), non-boucle d'écriture, écoutes limitées au chemin de la partie.
 
 ## Phase 5 : partie jouable en réseau
 
 - Tour synchronisé complet : choix, carte visible par toutes, « Le sort est jeté », « Invoquer un bouclier », bandeau d'effets, écran de fin.
-- **Tests** : partie complète avec plusieurs navigateurs automatisés ; seul(e) le/la joueur(se) actif(ve) peut agir.
+- **Tests** : partie complète avec plusieurs navigateurs automatisés ; seule la personne dont c'est le tour peut agir.
 
 ## Phase 6 : robustesse
 
-- Wake Lock, reconnexion automatique, joueur(se) « absent(e) », passage de tour d'un(e) absent(e).
+- Wake Lock, reconnexion automatique, personne « absente » (libellé neutre à choisir), passage de tour d'une personne absente.
 - **Tests** : coupure réseau simulée, rechargement en pleine partie, absence prolongée.
 
 ## Phase 7 : finition et mise en ligne
 
-- Icônes game-icons.net et crédits, GitHub Pages, accessibilité, lien définitif, contrôle des quotas Firebase.
+- Icônes game-icons.net et crédits (emblèmes seulement : le logo est l'image de la propriétaire, déjà en place), GitHub Pages, accessibilité, lien définitif, contrôle des quotas Firebase.
 - **Validation humaine** : partie réelle sur plusieurs téléphones, avec une check-list fournie.
