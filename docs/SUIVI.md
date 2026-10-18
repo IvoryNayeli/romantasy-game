@@ -21,7 +21,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 |---|---|---|---|---|
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
-| 2 | Écrans et design | en test (itération 5) | 5 | [phase-2-iteration-4](rapports/phase-2-iteration-4.md) |
+| 2 | Écrans et design | prête pour relecture | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | à faire | 0 | |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 2 (écrans et design), itération 5 en cours : huit remarques consignées dans [phase-2](remarques/phase-2.md) (filigranes ambre et pleine largeur, retournement des cartes, centrage du choix du code, nom du groupe, « Je suis là » verrouillé, écran sort et bouclier, étoile pleine). Ensuite : test, rapport, puis « Phase 2 validée » ou « Phase 2, remarques : … ». Phase 3 refusée tant que la phase 2 n'est pas validée.
+Phase 2 (écrans et design), itération 5 prête pour relecture : rapport [phase-2-iteration-5](rapports/phase-2-iteration-5.md). La propriétaire répond « Phase 2 validée » ou « Phase 2, remarques : … » (avec Claude Code : `/romantasy-chef-de-phase` suivi de la phrase). Phase 3 refusée tant que la phase 2 n'est pas validée.
 
 ## Journal
 
@@ -58,6 +58,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-17 | phase 2, remarques de l'itération 4 | Huit remarques consignées dans [phase-2](remarques/phase-2.md) (« Itération 5 »). Statut `en cours (itération 5)`. Reste : développement, test, rapport.
 - 2026-10-17 | phase 2, itération 5 | Développement des huit remarques (retournement de carte, transition, étoile du sort jeté compris) ; tests adaptés. Statut `en test`. Reste : rapport.
 - 2026-10-18 | outillage | Reprise avec Claude Code : `CLAUDE.md`, skill `/romantasy-chef-de-phase` et sous-agents `romantasy-developpeur` et `romantasy-testeur` dans `.claude/`, simples renvois vers `.github/` (source unique) ; README mis à jour. Copilot reste utilisable. Reste : rapport de l'itération 5 de la phase 2.
+- 2026-10-18 | phase 2, itération 5, rapport | Huit remarques faites ; 121 tests sur 121 (relancés par le chef de phase), aucun défaut ouvert ; README (nombre de tests) mis à jour. Rapport : [phase-2-iteration-5](rapports/phase-2-iteration-5.md). Reste : relecture et validation.
 
 ## Défauts ouverts
 
@@ -78,6 +79,7 @@ Choix de la phase 2 qui ne sont pas écrits dans les documents (à confirmer par
 - Salle d'attente : code de partie petit et discret (remarque 2 de l'itération 1) alors que `regles.md` dit « affiché en grand » (texte non modifié) ; le texte d'accompagnement « Rassemblez votre troupe… » est placé sous la liste pour garder l'ordre code, menu emblème et prénom, liste.
 - « Rejoindre » et « Créer » en phase 2 : le code n'est vérifié que dans la liste de `codes.json`, sans réseau ni unicité (phase 4).
 - Nombre minimal de personnes ayant confirmé leur présence (« Je suis là ») pour commencer (2, de `regles.md`) : constante dans `public/js/fictif.js`, car absente de `config.json`.
+- Itération 5 : « C'est bon » définitif verrouille aussi le prénom et l'emblème ; filigrane des cartes en ambre (il suivait la couleur du type) ; courbe symétrique pour le retournement (au lieu de celle de la charte) ; écran « Rejoindre » centré verticalement comme « Créer ».
 - Titre de l'onglet : « Romantasy » (laissé tel quel malgré l'accueil sans titre, itération 3).
 - Icônes (épée, étoile, bouclier) : dessins SVG simples faits pour le projet, en attendant game-icons.net (phase 7) ; le bouclier est désormais plein (voir plus haut).
 - `demo.html` et le paramètre `?ecran=` : outils de validation de la phase 2, à retirer ou masquer en phase 7.
