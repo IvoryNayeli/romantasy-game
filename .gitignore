@@ -18,6 +18,7 @@ ui-debug.log
 serviceAccount*.json
 
 # Éditeur et système
+.claude/settings.local.json
 .vscode/
 .idea/
 .DS_Store

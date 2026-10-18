@@ -53,9 +53,9 @@ Si la page ne s'ouvre pas, vérifier que le pare-feu de l'ordinateur autorise le
 | Phase 4 | Comment lancer le jeu avec l'émulateur Firebase local, pour tester la salle d'attente et les parties sans toucher à la vraie base. |
 | Phase 7 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec son groupe. |
 
-## Développement du projet avec des agents Copilot
+## Développement du projet avec des agents (Copilot ou Claude Code)
 
-> Cette section décrit comment le projet est **construit**, pas comment on y joue. Elle ne s'adresse qu'à la personne qui développe le jeu, avec les agents de développement de VS Code.
+> Cette section décrit comment le projet est **construit**, pas comment on y joue. Elle ne s'adresse qu'à la personne qui développe le jeu, avec des agents de développement (GitHub Copilot ou Claude Code, dans VS Code).
 
 ### Lancer les tests automatiques
 
@@ -80,7 +80,7 @@ Le jeu lui-même n'a aucune dépendance : `npm install` ne sert qu'aux tests.
 - Plan des phases : [docs/PLAN.md](docs/PLAN.md)
 - État d'avancement : [docs/SUIVI.md](docs/SUIVI.md)
 
-Le projet est construit phase par phase, avec trois agents Copilot définis dans [.github/agents/](.github/agents/) :
+Le projet est construit phase par phase, avec trois agents définis dans [.github/agents/](.github/agents/) (source unique de leurs rôles), repris pour Claude Code dans [.claude/](.claude/) et [CLAUDE.md](CLAUDE.md) :
 
 | Agent | Rôle |
 |---|---|
@@ -90,7 +90,12 @@ Le projet est construit phase par phase, avec trois agents Copilot définis dans
 
 ### Piloter les agents de développement
 
-Ouvrir ce dossier dans VS Code (`Fichier`, `Ouvrir le dossier`), démarrer une **nouvelle session** en mode agent, choisir `romantasy-chef-de-phase` et écrire l'une de ces phrases :
+Ouvrir ce dossier dans VS Code (`Fichier`, `Ouvrir le dossier`) et démarrer une **nouvelle session** :
+
+- **Copilot** : mode agent, choisir `romantasy-chef-de-phase`, puis écrire l'une des phrases ci-dessous.
+- **Claude Code** : écrire `/romantasy-chef-de-phase` suivi de l'une des phrases ci-dessous, par exemple `/romantasy-chef-de-phase Lance la phase 3`. Le chef de phase tourne dans la session et appelle lui-même les sous-agents `romantasy-developpeur` et `romantasy-testeur`.
+
+Une session par phase ou par itération suffit : toute la mémoire du projet est dans les fichiers du dépôt (`docs/SUIVI.md` en premier).
 
 | Phrase | Effet |
 |---|---|

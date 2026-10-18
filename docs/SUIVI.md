@@ -57,6 +57,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-17 | phase 2, itération 4, rapport | Salutation, logo (WebP transparent) et titres à gauche faits ; 118 tests sur 118 (relancés par le chef de phase), aucun défaut ouvert ; surlignage violet introuvable dans le code, à préciser. Rapport : [phase-2-iteration-4](rapports/phase-2-iteration-4.md). Reste : relecture et validation.
 - 2026-10-17 | phase 2, remarques de l'itération 4 | Huit remarques consignées dans [phase-2](remarques/phase-2.md) (« Itération 5 »). Statut `en cours (itération 5)`. Reste : développement, test, rapport.
 - 2026-10-17 | phase 2, itération 5 | Développement des huit remarques (retournement de carte, transition, étoile du sort jeté compris) ; tests adaptés. Statut `en test`. Reste : rapport.
+- 2026-10-18 | outillage | Reprise avec Claude Code : `CLAUDE.md`, skill `/romantasy-chef-de-phase` et sous-agents `romantasy-developpeur` et `romantasy-testeur` dans `.claude/`, simples renvois vers `.github/` (source unique) ; README mis à jour. Copilot reste utilisable. Reste : rapport de l'itération 5 de la phase 2.
 
 ## Défauts ouverts
 

@@ -2,6 +2,8 @@
 
 Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Page web (HTML, CSS, JavaScript sans framework), Firebase Realtime Database au plan Spark gratuit. Détails dans `docs/PROJET.md`.
 
+Le projet peut aussi être mené avec Claude Code : `CLAUDE.md` et `.claude/` (skill `romantasy-chef-de-phase`, sous-agents `romantasy-developpeur` et `romantasy-testeur`) ne sont que des renvois vers ce fichier et vers `.github/agents/`, qui restent la source unique des règles et des rôles. Toute règle se change ici.
+
 ## Avant toute action
 
 1. Lire `docs/SUIVI.md` (état des phases, journal, défauts ouverts), puis `docs/remarques/phase-N.md` et le dernier rapport de la phase concernée. Ne pas lire `docs/journal-archive.md` ni les rapports des phases validées, sauf besoin précis.
