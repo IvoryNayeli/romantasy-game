@@ -165,4 +165,81 @@ describe('règles : écritures directes (contournement du jeu)', () => {
     const r = await E.rest('PATCH', 'parties/RUNE', { cree: Date.now(), actif: ts });
     assert.equal(r.statut, 401, `partie expirée ranimée avec ses anciennes personnes (${r.statut})`);
   });
+  // Variantes voisines (phase 4, itération 1, retest final) : autres chemins d'écriture sur une partie expirée
+  // et sur une partie commencée. Toutes doivent être refusées ; seule la suppression complète de la partie est permise.
+  it('D7/D8 (variantes) : une partie expirée refuse toute écriture partielle ou complète (actif seul, arrivée, statut, emblème)', async () => {
+    const vieux = Date.now() - EXPIRATION_MS;
+    const expiree = () => ({ ...partieAvecDeux(), cree: vieux, actif: vieux });
+    const essais = [
+      ['PUT', 'parties/RUNE/actif', ts],
+      ['PUT', `parties/RUNE/joueurs/${C}`, { rang: 2, pret: false }],
+      ['PUT', 'parties/RUNE/statut', 'salle'],
+      ['PATCH', 'parties/RUNE', { [`joueurs/${B}/embleme`]: 'sirene', 'emblemes/sirene': B, 'emblemes/fee': null }],
+      ['PUT', 'parties/RUNE', { ...expiree(), nb: 1, hote: C, joueurs: { [C]: { rang: 0, pret: false } }, emblemes: {} }],
+    ];
+    for (const [methode, chemin, valeur] of essais) {
+      await E.rest('PUT', 'parties/RUNE', expiree(), { admin: true });
+      const r = await E.rest(methode, chemin, valeur);
+      assert.equal(r.statut, 401, `${methode} ${chemin} sur une partie expirée : accepté (${JSON.stringify(r.corps)})`);
+    }
+    await E.rest('PUT', 'parties/RUNE', expiree(), { admin: true });
+    assert.equal((await E.rest('DELETE', 'parties/RUNE')).statut, 200, 'suppression complète permise');
+  });
+
+  it('D6 (variantes) : une partie commencée garde son ordre tel quel (effacer, retirer, réécrire une position, retirer la personne)', async () => {
+    await E.rest('PUT', 'parties/RUNE', partieAvecDeux({ aPret: true }), { admin: true });
+    await E.rest('PATCH', 'parties/RUNE', { [`joueurs/${B}`]: { rang: 1, pret: true, prenom: 'Tom', embleme: 'fee' }, nb: 2, actif: ts, 'emblemes/fee': B });
+    assert.ok((await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, B] })).ok, 'départ valide');
+    const essais = [
+      ['DELETE', 'parties/RUNE/ordre'],
+      ['DELETE', 'parties/RUNE/ordre/1'],
+      ['PUT', 'parties/RUNE/ordre/0', B],
+      ['PUT', 'parties/RUNE/ordre/1', A],
+      ['PUT', 'parties/RUNE/ordre', null],
+      ['DELETE', `parties/RUNE/joueurs/${B}`],
+    ];
+    for (const [methode, chemin, valeur] of essais) {
+      const r = await E.rest(methode, chemin, valeur);
+      assert.equal(r.statut, 401, `${methode} ${chemin} après le départ : accepté (${JSON.stringify(r.corps)})`);
+    }
+    const etat = (await E.rest('GET', 'parties/RUNE', undefined, { admin: true })).corps;
+    assert.deepEqual(etat.ordre, [A, B], 'ordre inchangé');
+    assert.equal(etat.statut, 'partie');
+  });
+
+  it('D4/D5 (variantes) : aucun départ ni arrivée possibles à partir d\'une partie expirée', async () => {
+    const vieux = Date.now() - EXPIRATION_MS;
+    await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux({ aPret: true }), cree: vieux, actif: vieux }, { admin: true });
+    assert.equal((await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, B] })).statut, 401, 'départ d\'une partie expirée');
+  });
+  it('création sur un code expiré (salon.js) : la partie expirée est supprimée puis remplacée ; si quelqu\'un crée entre-temps, « pris »', async () => {
+    const { salon: S } = await E.chargerModules();
+    const config = E.lireJson('config.json');
+    const vieux = Date.now() - EXPIRATION_MS;
+    const c = E.client();
+    try {
+      // Cas normal : code expiré, création réussie avec la nouvelle hôte.
+      await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux(), cree: vieux, actif: vieux }, { admin: true });
+      const moi = 'e'.repeat(32);
+      const r = await S.creerPartie(c.fb, { code: 'RUNE', id: moi, config });
+      assert.equal(r.issue, S.ISSUES.OK);
+      assert.equal(r.partie.hote, moi);
+      assert.ok(c.espion.suppressions.includes('parties/RUNE'), 'la partie expirée a été supprimée');
+
+      // Course : quelqu'un d'autre crée la partie juste après la suppression : résultat « pris ».
+      await E.rest('DELETE', 'parties/RUNE', undefined, { admin: true });
+      await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux(), cree: vieux, actif: vieux }, { admin: true });
+      const concurrent = E.client();
+      const fbCourse = { ...c.fb, remove: async (ref) => {
+        await c.fb.remove(ref);
+        await S.creerPartie(concurrent.fb, { code: 'RUNE', id: 'f'.repeat(32), config });
+      } };
+      const perdu = await S.creerPartie(fbCourse, { code: 'RUNE', id: 'g'.repeat(32), config });
+      assert.equal(perdu.issue, S.ISSUES.PRIS, 'une création faite entre-temps n\'est pas écrasée');
+      assert.equal((await E.rest('GET', 'parties/RUNE/hote', undefined, { admin: true })).corps, 'f'.repeat(32));
+      await concurrent.fermer();
+    } finally {
+      await c.fermer();
+    }
+  });
 });
