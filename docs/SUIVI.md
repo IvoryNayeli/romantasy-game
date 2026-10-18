@@ -22,7 +22,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 0 | Fondations | validée le 2026-10-15 | 3 | [phase-0-iteration-3](rapports/phase-0-iteration-3.md) |
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
 | 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
-| 3 | Moteur de jeu | prête pour relecture | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
+| 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
 | 4 | Multijoueur et salle d'attente | à faire | 0 | |
 | 5 | Partie jouable en réseau | à faire | 0 | |
 | 6 | Robustesse | à faire | 0 | |
@@ -30,7 +30,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 3 prête pour relecture (itération 1). À la propriétaire : lire [phase-3-iteration-1](rapports/phase-3-iteration-1.md), puis « Phase 3 validée » ou « Phase 3, remarques : … ».
+Phase 3 validée le 2026-10-18. Prochaine étape : phase 4 (multijoueur et salle d'attente), à lancer par la propriétaire (`/romantasy-chef-de-phase Lance la phase 4`, dans une nouvelle session). Prérequis à installer avant : deux projets Firebase gratuits `romantasy-dev` et `romantasy-prod` (région européenne) et Firebase CLI (voir `docs/PLAN.md`).
 
 ## Journal
 
@@ -38,6 +38,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 
 - 2026-10-18, phase 3 : lancement de l'itération 1 (branche `phase-3`).
 - 2026-10-18, phase 3 : moteur, tests et simulations faits, suite complète 137/137 ; rapport [phase-3-iteration-1](rapports/phase-3-iteration-1.md), prête pour relecture.
+- 2026-10-18, phase 3 validée : validation explicite de la propriétaire (« Phase 3 validée »), fusion dans `main`, tag `phase-3`.
 
 ## Défauts ouverts
 
