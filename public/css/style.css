@@ -734,7 +734,7 @@ h2 {
 
 /* ---------- Salle d'attente ---------- */
 /* Blocs masqués par l'attribut hidden (salle en réseau : formulaire ou avis « complète »). */
-.salle-corps [hidden], .barre-bas[hidden] { display: none; }
+.salle-corps [hidden], .barre-bas[hidden], .barre-bas [hidden] { display: none; }
 .salle-corps { padding-bottom: 8px; }
 .code-partie {
   display: flex;

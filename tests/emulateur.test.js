@@ -9,6 +9,9 @@ const { describe, it, before, beforeEach, after } = require('node:test');
 const assert = require('node:assert/strict');
 const E = require('./aide-emulateur.js');
 
+// Base propre à ce fichier : les tests de navigateur, lancés en parallèle, utilisent celle du jeu.
+E.utiliserBase('demo-romantasy-tests-noeud');
+
 const config = E.lireJson('config.json');
 const codes = E.lireJson('codes.json');
 const emblemes = E.lireJson('emblemes.json').map((e) => e.id);
@@ -24,6 +27,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
 
   before(async () => {
     E.adresseEmulateur(); // échoue avec un message clair si l'émulateur n'a pas été démarré
+    await E.chargerRegles();
     ({ salon: S, config: C } = await E.chargerModules());
   });
   beforeEach(async () => { await E.viderBase(); });

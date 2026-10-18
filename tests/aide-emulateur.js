@@ -20,7 +20,11 @@ if (!globalThis.crypto) globalThis.crypto = require('node:crypto').webcrypto;
 const RACINE = path.join(__dirname, '..');
 const PUBLIC = path.join(RACINE, 'public');
 const PROJET_DEMO = 'demo-romantasy';
-const NAMESPACE = `${PROJET_DEMO}-default-rtdb`;
+// Base de l'émulateur visée par défaut : celle du jeu (firebase-config.js). Un fichier de tests peut prendre
+// sa propre base (utiliserBase) pour ne pas être dérangé par les autres fichiers, lancés en parallèle ;
+// les règles de database.rules.json y sont alors chargées (chargerRegles).
+let NAMESPACE = `${PROJET_DEMO}-default-rtdb`;
+function utiliserBase(nom) { NAMESPACE = nom; }
 
 const lireJson = (nom) => JSON.parse(fs.readFileSync(path.join(PUBLIC, 'data', nom), 'utf8'));
 
@@ -66,6 +70,14 @@ async function rest(methode, chemin, valeur, { admin = false } = {}) {
 
 const viderBase = () => rest('DELETE', '', undefined, { admin: true });
 
+async function chargerRegles() {
+  const { hote, port } = adresseEmulateur();
+  const reponse = await fetch(`http://${hote.includes(':') ? `[${hote}]` : hote}:${port}/.settings/rules.json?ns=${NAMESPACE}`, {
+    method: 'PUT', headers: { Authorization: 'Bearer owner' }, body: fs.readFileSync(path.join(RACINE, 'database.rules.json'), 'utf8'),
+  });
+  if (!reponse.ok) throw new Error(`Règles non chargées dans l'émulateur : ${await reponse.text()}`);
+}
+
 // Modules du jeu (ES) copiés dans un dossier temporaire marqué « type: module », pour Node.
 let modules = null;
 function chargerModules() {
@@ -108,6 +120,6 @@ function client() {
 }
 
 module.exports = {
-  RACINE, PUBLIC, NAMESPACE, PROJET_DEMO, MESSAGE_SANS_EMULATEUR,
-  lireJson, verifierAdresseLocale, adresseEmulateur, rest, viderBase, chargerModules, client,
+  RACINE, PUBLIC, PROJET_DEMO, MESSAGE_SANS_EMULATEUR,
+  lireJson, verifierAdresseLocale, adresseEmulateur, rest, viderBase, chargerModules, client, utiliserBase, chargerRegles,
 };
