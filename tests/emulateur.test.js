@@ -13,6 +13,7 @@ const E = require('./aide-emulateur.js');
 E.utiliserBase('demo-romantasy-tests-noeud');
 
 const config = E.lireJson('config.json');
+const cartes = E.lireJson('cartes.json');
 const codes = E.lireJson('codes.json');
 const emblemes = E.lireJson('emblemes.json').map((e) => e.id);
 
@@ -175,11 +176,11 @@ describe('émulateur : salle d\'attente en réseau', () => {
     await S.rejoindrePartie(autre.c.fb, { code: 'SORTILEGE', id: autre.id });
     await S.choisirEmbleme(hote.fb, { code: 'SORTILEGE', id: idHote, embleme: 'sirene' });
     await S.confirmerPresence(hote.fb, { code: 'SORTILEGE', id: idHote, prenom: 'Noa' });
-    assert.equal((await S.commencerPartie(hote.fb, { code: 'SORTILEGE', id: idHote })).issue, S.ISSUES.REFUSE, 'une seule présence');
+    assert.equal((await S.commencerPartie(hote.fb, { code: 'SORTILEGE', id: idHote, cartes, config })).issue, S.ISSUES.REFUSE, 'une seule présence');
     await S.choisirEmbleme(autre.c.fb, { code: 'SORTILEGE', id: autre.id, embleme: 'elfe' });
     await S.confirmerPresence(autre.c.fb, { code: 'SORTILEGE', id: autre.id, prenom: 'Sacha' });
-    assert.equal((await S.commencerPartie(autre.c.fb, { code: 'SORTILEGE', id: autre.id })).issue, S.ISSUES.REFUSE, 'pas l\'hôte');
-    const r = await S.commencerPartie(hote.fb, { code: 'SORTILEGE', id: idHote });
+    assert.equal((await S.commencerPartie(autre.c.fb, { code: 'SORTILEGE', id: autre.id, cartes, config })).issue, S.ISSUES.REFUSE, 'pas l\'hôte');
+    const r = await S.commencerPartie(hote.fb, { code: 'SORTILEGE', id: idHote, cartes, config });
     assert.equal(r.issue, S.ISSUES.OK);
     assert.equal(r.partie.statut, 'partie');
     const tard = nouveauClient();
@@ -235,7 +236,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
     }
     await Promise.all(actions);
     for (const m of membres) await S.confirmerPresence(m.c.fb, { code: 'ECLIPSE', id: m.id, prenom: 'P' });
-    await S.commencerPartie(hote.fb, { code: 'ECLIPSE', id: idHote });
+    await S.commencerPartie(hote.fb, { code: 'ECLIPSE', id: idHote, cartes, config });
     await attendre(300);
 
     const nbActions = membres.length * 2 + 1;
