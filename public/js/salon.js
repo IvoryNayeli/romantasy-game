@@ -21,10 +21,6 @@ import { JOUEURS_MINIMUM } from './game.js';
 
 export const RACINE = 'parties';
 
-// Une partie sans aucune écriture depuis 3 heures est considérée comme abandonnée : son code redevient libre
-// et le premier client qui la croise la supprime (même durée dans database.rules.json, vérifiée par les tests).
-export const EXPIRATION_MS = 3 * 60 * 60 * 1000;
-
 // Longueur maximale d'un prénom (même borne dans database.rules.json et dans le champ de saisie).
 export const PRENOM_MAX = 24;
 
@@ -32,6 +28,17 @@ export const PRENOM_MAX = 24;
 export const DELAI_RESEAU_MS = 10000;
 
 export const STATUTS = Object.freeze({ SALLE: 'salle', PARTIE: 'partie' });
+
+// Une partie sans aucune écriture depuis ce délai est considérée comme abandonnée : son code redevient libre
+// et le premier client qui la croise la supprime. Salle d'attente (pas encore démarrée) : 30 minutes ;
+// partie démarrée : 3 heures. Mêmes durées dans database.rules.json, vérifiées par les tests.
+export const EXPIRATION_SALLE_MS = 30 * 60 * 1000;
+export const EXPIRATION_PARTIE_MS = 3 * 60 * 60 * 1000;
+
+// Délai d'expiration selon le statut : tout ce qui n'est pas une partie démarrée suit le délai de la salle.
+export function delaiExpiration(statut) {
+  return statut === STATUTS.PARTIE ? EXPIRATION_PARTIE_MS : EXPIRATION_SALLE_MS;
+}
 
 // Issues possibles des opérations (champ `issue` du résultat).
 export const ISSUES = Object.freeze({
@@ -72,7 +79,7 @@ export function nouvelIdentifiant() {
 
 export function estExpiree(partie, maintenant = Date.now()) {
   if (!partie || typeof partie !== 'object') return true;
-  return typeof partie.actif !== 'number' || maintenant - partie.actif > EXPIRATION_MS;
+  return typeof partie.actif !== 'number' || maintenant - partie.actif > delaiExpiration(partie.statut);
 }
 
 // Personnes de la partie, dans l'ordre d'arrivée (rang), chacune avec son identifiant.
@@ -239,18 +246,18 @@ export function supprimerPartie(fb, code) {
   return reseau(fb.remove(refPartie(fb, code)));
 }
 
-// Codes déjà pris par une partie en cours (lecture ponctuelle de `parties/<CODE>/actif` pour chaque code,
-// sans écoute). Les parties expirées croisées au passage sont supprimées : c'est le nettoyage opportuniste.
+// Codes déjà pris par une partie en cours (lecture ponctuelle de `parties/<CODE>/actif` et `statut` pour
+// chaque code, sans écoute). Les parties expirées croisées au passage sont supprimées : c'est le nettoyage opportuniste.
 export async function codesPris(fb, codes, { maintenant = () => Date.now() } = {}) {
   const lus = await Promise.all(codes.map(async (code) => {
-    const actif = (await reseau(fb.get(refPartie(fb, code, 'actif')))).val();
-    return { code, actif };
+    const [actif, statut] = await Promise.all(['actif', 'statut'].map(async (champ) => (await reseau(fb.get(refPartie(fb, code, champ)))).val()));
+    return { code, actif, statut };
   }));
   const pris = new Set();
   const purges = [];
-  for (const { code, actif } of lus) {
+  for (const { code, actif, statut } of lus) {
     if (actif === null) continue;
-    if (estExpiree({ actif }, maintenant())) purges.push(supprimerPartie(fb, code).catch(() => {}));
+    if (estExpiree({ actif, statut }, maintenant())) purges.push(supprimerPartie(fb, code).catch(() => {}));
     else pris.add(code);
   }
   await Promise.all(purges);

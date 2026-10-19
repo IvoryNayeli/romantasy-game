@@ -51,7 +51,7 @@ Ajouter `?base=dev` à l'adresse, par exemple `http://192.168.1.23:8000/?base=de
 firebase deploy --only database --project dev
 ```
 
-Cette commande publie seulement les règles de la base (rien d'autre, aucun service payant). Les parties abandonnées sont supprimées d'elles-mêmes après 3 heures sans activité, dès qu'une personne ouvre « Créer une partie » ou tente de les rejoindre.
+Cette commande publie seulement les règles de la base (rien d'autre, aucun service payant). Les parties abandonnées sont supprimées d'elles-mêmes après 30 minutes sans activité pour une salle d'attente (partie pas encore commencée), après 3 heures pour une partie commencée, dès qu'une personne ouvre « Créer une partie » ou tente de les rejoindre.
 
 ### Écrans de démonstration
 

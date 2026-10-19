@@ -15,7 +15,9 @@ const E = require('./aide-emulateur.js');
 E.utiliserBase('demo-romantasy-tests-regles');
 
 const ts = { '.sv': 'timestamp' };
-const EXPIRATION_MS = 3 * 60 * 60 * 1000; // même durée que salon.js (vérifiée par tests/reseau.test.js)
+// Mêmes durées que salon.js (vérifiées par tests/reseau.test.js) : salle d'attente 30 minutes, partie démarrée 3 heures.
+const EXPIRATION_SALLE_MS = 30 * 60 * 1000;
+const EXPIRATION_PARTIE_MS = 3 * 60 * 60 * 1000;
 const A = 'a'.repeat(32);
 const B = 'b'.repeat(32);
 const C = 'c'.repeat(32);
@@ -151,7 +153,7 @@ describe('règles : écritures directes (contournement du jeu)', () => {
   });
 
   it('D7 : une partie expirée ne peut plus être modifiée par une écriture partielle (arrivée, hôte)', async () => {
-    const vieux = Date.now() - EXPIRATION_MS;
+    const vieux = Date.now() - EXPIRATION_SALLE_MS;
     await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux(), cree: vieux, actif: vieux }, { admin: true });
     const arrivee = await E.rest('PATCH', 'parties/RUNE', { nb: 3, [`joueurs/${C}`]: { rang: 2, pret: false } });
     assert.equal(arrivee.statut, 401, `arrivée dans une partie expirée (${arrivee.statut})`);
@@ -160,7 +162,7 @@ describe('règles : écritures directes (contournement du jeu)', () => {
   });
 
   it('D8 : une partie expirée ne peut pas être ranimée en changeant seulement son horodatage de création et d\'activité', async () => {
-    const vieux = Date.now() - EXPIRATION_MS;
+    const vieux = Date.now() - EXPIRATION_SALLE_MS;
     await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux(), cree: vieux, actif: vieux }, { admin: true });
     const r = await E.rest('PATCH', 'parties/RUNE', { cree: Date.now(), actif: ts });
     assert.equal(r.statut, 401, `partie expirée ranimée avec ses anciennes personnes (${r.statut})`);
@@ -168,7 +170,7 @@ describe('règles : écritures directes (contournement du jeu)', () => {
   // Variantes voisines (phase 4, itération 1, retest final) : autres chemins d'écriture sur une partie expirée
   // et sur une partie commencée. Toutes doivent être refusées ; seule la suppression complète de la partie est permise.
   it('D7/D8 (variantes) : une partie expirée refuse toute écriture partielle ou complète (actif seul, arrivée, statut, emblème)', async () => {
-    const vieux = Date.now() - EXPIRATION_MS;
+    const vieux = Date.now() - EXPIRATION_SALLE_MS;
     const expiree = () => ({ ...partieAvecDeux(), cree: vieux, actif: vieux });
     const essais = [
       ['PUT', 'parties/RUNE/actif', ts],
@@ -208,14 +210,58 @@ describe('règles : écritures directes (contournement du jeu)', () => {
   });
 
   it('D4/D5 (variantes) : aucun départ ni arrivée possibles à partir d\'une partie expirée', async () => {
-    const vieux = Date.now() - EXPIRATION_MS;
+    const vieux = Date.now() - EXPIRATION_SALLE_MS;
     await E.rest('PUT', 'parties/RUNE', { ...partieAvecDeux({ aPret: true }), cree: vieux, actif: vieux }, { admin: true });
     assert.equal((await E.rest('PATCH', 'parties/RUNE', { statut: 'partie', ordre: [A, B] })).statut, 401, 'départ d\'une partie expirée');
+  });
+
+  // Remarque 1 de la propriétaire (itération 1) : deux délais d'expiration, 30 minutes pour une salle d'attente,
+  // 3 heures pour une partie démarrée.
+  const minute = 60 * 1000;
+  const partieDemarree = (depuis) => ({
+    ...partieAvecDeux(),
+    cree: Date.now() - depuis,
+    actif: Date.now() - depuis,
+    statut: 'partie',
+    joueurs: {
+      [A]: { rang: 0, pret: true, prenom: 'Lea', embleme: 'dragon' },
+      [B]: { rang: 1, pret: true, prenom: 'Tom', embleme: 'fee' },
+    },
+    ordre: [A, B],
+  });
+  const salleInactive = (depuis) => ({ ...partieAvecDeux(), cree: Date.now() - depuis, actif: Date.now() - depuis });
+
+  it('expiration (règles) : salle modifiable à 29 min, refusée à 31 min ; partie démarrée modifiable à 31 min, refusée après 3 h', async () => {
+    await E.rest('PUT', 'parties/RUNE', salleInactive(29 * minute), { admin: true });
+    assert.ok((await E.rest('PUT', 'parties/RUNE/actif', ts)).ok, 'salle inactive depuis 29 min encore modifiable');
+    await E.rest('PUT', 'parties/RUNE', salleInactive(31 * minute), { admin: true });
+    assert.equal((await E.rest('PUT', 'parties/RUNE/actif', ts)).statut, 401, 'salle inactive depuis 31 min expirée');
+    await E.rest('PUT', 'parties/RUNE', partieDemarree(31 * minute), { admin: true });
+    assert.ok((await E.rest('PUT', 'parties/RUNE/actif', ts)).ok, 'partie démarrée inactive depuis 31 min encore modifiable');
+    await E.rest('PUT', 'parties/RUNE', partieDemarree(EXPIRATION_PARTIE_MS + minute), { admin: true });
+    assert.equal((await E.rest('PUT', 'parties/RUNE/actif', ts)).statut, 401, 'partie démarrée inactive depuis plus de 3 h expirée');
+    assert.equal((await E.rest('DELETE', 'parties/RUNE')).statut, 200, 'suppression complète permise');
+  });
+
+  it('expiration (salon.js) : la salle inactive depuis 31 min est nettoyée, la partie démarrée inactive depuis 31 min est gardée', async () => {
+    const { salon: S } = await E.chargerModules();
+    const c = E.client();
+    try {
+      await E.rest('PUT', 'parties/RUNE', salleInactive(31 * minute), { admin: true });
+      await E.rest('PUT', 'parties/ONYX', partieDemarree(31 * minute), { admin: true });
+      await E.rest('PUT', 'parties/AURORE', partieDemarree(EXPIRATION_PARTIE_MS + minute), { admin: true });
+      assert.deepEqual([...await S.codesPris(c.fb, ['RUNE', 'ONYX', 'AURORE'])], ['ONYX']);
+      assert.equal((await E.rest('GET', 'parties/RUNE', undefined, { admin: true })).corps, null, 'salle expirée supprimée');
+      assert.equal((await E.rest('GET', 'parties/AURORE', undefined, { admin: true })).corps, null, 'partie expirée supprimée');
+      assert.equal((await S.rejoindrePartie(c.fb, { code: 'ONYX', id: C })).issue, S.ISSUES.COMMENCEE, 'partie démarrée toujours là');
+    } finally {
+      await c.fermer();
+    }
   });
   it('création sur un code expiré (salon.js) : la partie expirée est supprimée puis remplacée ; si quelqu\'un crée entre-temps, « pris »', async () => {
     const { salon: S } = await E.chargerModules();
     const config = E.lireJson('config.json');
-    const vieux = Date.now() - EXPIRATION_MS;
+    const vieux = Date.now() - EXPIRATION_SALLE_MS;
     const c = E.client();
     try {
       // Cas normal : code expiré, création réussie avec la nouvelle hôte.

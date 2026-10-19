@@ -63,8 +63,8 @@ test('règles : codes, emblèmes, durée d\'expiration, longueur du prénom et p
   assert.deepEqual(listeRegle(partie.joueurs.$id.embleme['.validate']), emblemes);
   const texte = JSON.stringify(regles);
   const durees = [...texte.matchAll(/now - (\d+)/g)].map((m) => Number(m[1]));
-  assert.ok(durees.length > 0);
-  for (const d of durees) assert.equal(d, salon.EXPIRATION_MS, 'même expiration que salon.js');
+  assert.deepEqual([...new Set(durees)].sort((a, b) => a - b), [salon.EXPIRATION_SALLE_MS, salon.EXPIRATION_PARTIE_MS], 'mêmes expirations que salon.js');
+  assert.ok(partie['.validate'].includes(`now - ${salon.EXPIRATION_SALLE_MS} || (data.child('statut').val() == 'partie' && data.child('actif').val() >= now - ${salon.EXPIRATION_PARTIE_MS})`), 'délai long réservé à une partie démarrée');
   assert.match(partie.joueurs.$id.prenom['.validate'], new RegExp(`length <= ${salon.PRENOM_MAX}\\b`));
   // Places : bornées par le champ « max » de la partie (recopié de config.json), lui-même borné par le nombre
   // d'emblèmes (chaque personne a un emblème différent).
@@ -111,8 +111,16 @@ test('salon.js : fonctions pures (chemin, expiration, ordre d\'arrivée, minimum
   assert.equal(salon.cheminPartie('RUNE'), 'parties/RUNE');
   for (const faux of ['', 'rune', '../x', 'RUNE/joueurs', null, undefined, 'A']) assert.throws(() => salon.cheminPartie(faux), /invalide/);
   const maintenant = 1e12;
-  assert.equal(salon.estExpiree({ actif: maintenant - 1000 }, maintenant), false);
-  assert.equal(salon.estExpiree({ actif: maintenant - salon.EXPIRATION_MS - 1 }, maintenant), true);
+  assert.equal(salon.EXPIRATION_SALLE_MS, 30 * 60 * 1000, 'salle d\'attente : 30 minutes');
+  assert.equal(salon.EXPIRATION_PARTIE_MS, 3 * 60 * 60 * 1000, 'partie démarrée : 3 heures');
+  const minute = 60 * 1000;
+  assert.equal(salon.estExpiree({ statut: 'salle', actif: maintenant - 1000 }, maintenant), false);
+  assert.equal(salon.estExpiree({ statut: 'salle', actif: maintenant - 29 * minute }, maintenant), false, 'salle encore active à 29 min');
+  assert.equal(salon.estExpiree({ statut: 'salle', actif: maintenant - 31 * minute }, maintenant), true, 'salle expirée à 31 min');
+  assert.equal(salon.estExpiree({ actif: maintenant - 31 * minute }, maintenant), true, 'sans statut : délai de la salle');
+  assert.equal(salon.estExpiree({ statut: 'partie', actif: maintenant - 31 * minute }, maintenant), false, 'partie démarrée encore active à 31 min');
+  assert.equal(salon.estExpiree({ statut: 'partie', actif: maintenant - 179 * minute }, maintenant), false);
+  assert.equal(salon.estExpiree({ statut: 'partie', actif: maintenant - 181 * minute }, maintenant), true, 'partie démarrée expirée après 3 h');
   assert.equal(salon.estExpiree(null, maintenant), true);
   const p = { statut: 'salle', joueurs: { b: { rang: 1, pret: true }, a: { rang: 0, pret: false }, c: { rang: 2, pret: true } } };
   assert.deepEqual(salon.joueursOrdonnes(p).map((j) => j.id), ['a', 'b', 'c']);

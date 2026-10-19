@@ -186,8 +186,8 @@ describe('émulateur : salle d\'attente en réseau', () => {
     assert.equal((await S.rejoindrePartie(tard.fb, { code: 'SORTILEGE', id: id() })).issue, S.ISSUES.COMMENCEE);
   });
 
-  it('nettoyage : une partie inactive depuis plus que l\'expiration libère son code et est supprimée', async () => {
-    const vieux = Date.now() - S.EXPIRATION_MS - 60000;
+  it('nettoyage : une salle inactive depuis plus que l\'expiration libère son code et est supprimée', async () => {
+    const vieux = Date.now() - S.EXPIRATION_SALLE_MS - 60000;
     const ancienne = (hote) => ({ cree: vieux, actif: vieux, hote, max: config.joueursMax, nb: 1, statut: 'salle', joueurs: { [hote]: { rang: 0, pret: false } } });
     await E.rest('PUT', 'parties/RUNE', ancienne(id()), { admin: true });
     await E.rest('PUT', 'parties/ONYX', ancienne(id()), { admin: true });
@@ -260,7 +260,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
     assert.deepEqual(hote.espion.ecoutes, ['parties/OBSIDIENNE']);
     hote.espion.lectures.length = 0;
     await S.codesPris(hote.fb, codes);
-    assert.deepEqual(hote.espion.lectures, codes.map((c) => `parties/${c}/actif`), 'lectures ponctuelles, code par code');
+    assert.deepEqual(hote.espion.lectures, codes.flatMap((c) => [`parties/${c}/actif`, `parties/${c}/statut`]), 'lectures ponctuelles, code par code');
     assert.throws(() => S.ecouterPartie(hote.fb, '', () => {}), /invalide/);
     assert.throws(() => S.ecouterPartie(hote.fb, '../', () => {}), /invalide/);
   });
@@ -357,7 +357,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
       await refuse('parties/RUNE/emblemes/dragon', undefined, 'emblème libéré alors que la personne le porte', 'DELETE');
 
       // Partie expirée : une simple écriture ne la fait pas revivre (seule une nouvelle création la remplace).
-      const vieux = Date.now() - S.EXPIRATION_MS - 60000;
+      const vieux = Date.now() - S.EXPIRATION_SALLE_MS - 60000;
       await E.rest('PUT', 'parties/ONYX', { ...base(), cree: vieux, actif: vieux }, { admin: true });
       await refuse('parties/ONYX/actif', ts, 'partie expirée ranimée');
       await refuse('parties/ONYX', { nb: 2, actif: ts, [`joueurs/${idB}`]: { rang: 1, pret: false } }, 'arrivée dans une partie expirée', 'PATCH');
