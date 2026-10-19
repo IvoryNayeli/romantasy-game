@@ -23,14 +23,14 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
 | 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
-| 4 | Multijoueur et salle d'attente | en test | 1 | |
+| 4 | Multijoueur et salle d'attente | prête pour relecture | 1 | [phase-4-iteration-1](rapports/phase-4-iteration-1.md) |
 | 5 | Partie jouable en réseau | à faire | 0 | |
 | 6 | Robustesse | à faire | 0 | |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 4 en test (itération 1) : vérification par `romantasy-testeur`.
+Phase 4 prête pour relecture (itération 1) : relecture par la propriétaire, décisions à confirmer (dont D2, authentification), puis « Phase 4 validée » ou « Phase 4, remarques : … ».
 
 ## Journal
 
@@ -40,6 +40,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-18, phase 4 : itération 1 développée (création et jonction par code, emblèmes, « Je suis là », « Commencer la quête » en réseau ; règles de sécurité ; nettoyage par expiration ; tests sur l'émulateur et dans le navigateur ; README). Reste : vérification par le testeur.
 - 2026-10-18, phase 4 : défauts D1, D3, D4, D5 corrigés dans les règles (et partie expirée ranimée) ; D2 non corrigeable sans authentification, ajouté à la décision correspondante.
 - 2026-10-18, phase 4 : défauts D6 (ordre effacé après le départ), D7 et D8 (partie expirée modifiée ou ranimée) corrigés dans les règles ; README sans nombre de tests figé.
+- 2026-10-19, phase 4 : vérification close sans nouvelle série de contournements (dernière série sans défaut), suite complète 190 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-1](rapports/phase-4-iteration-1.md), prête pour relecture.
 
 ## Défauts ouverts
 
