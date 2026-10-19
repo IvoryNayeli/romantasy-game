@@ -67,8 +67,21 @@ export async function confirmerPresence(code, prenom) {
   return (await salon.confirmerPresence(await base(), { code, id: identite(code), prenom })).issue;
 }
 
-export async function commencer(code) {
-  return (await salon.commencerPartie(await base(), { code, id: identite(code) })).issue;
+// Le départ crée l'état du jeu : il faut les cartes et les réglages (public/data/).
+export async function commencer(code, donnees) {
+  return (await salon.commencerPartie(await base(), {
+    code, id: identite(code), cartes: donnees.cartes, config: donnees.config,
+  })).issue;
+}
+
+// Action de tour (salon.ACTIONS) : « type » pour le choix de carte, « carte » pour la fin d'un effet par échange.
+export async function jouer(code, action, { type = null, carte = null } = {}) {
+  return (await salon.jouer(await base(), { code, id: identite(code), action, type, carte })).issue;
+}
+
+// Partie terminée : supprimée quand une personne quitte l'écran de fin (« Nouvelle quête »).
+export async function supprimer(code) {
+  return salon.supprimerPartie(await base(), code);
 }
 
 // Écoute de la partie en cours ; renvoie la fonction qui l'arrête (appelée en quittant l'écran).
@@ -81,4 +94,4 @@ export function ecouter(code, rappel, enErreur) {
   return () => { arrete = true; if (arreter) arreter(); };
 }
 
-export const { joueursOrdonnes, peutCommencer, PRENOM_MAX, STATUTS } = salon;
+export const { joueursOrdonnes, peutCommencer, PRENOM_MAX, STATUTS, ACTIONS } = salon;

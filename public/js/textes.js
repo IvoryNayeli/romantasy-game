@@ -55,6 +55,9 @@ export const effets = {
   prochainTourSoi: 'Jusqu\'à ton prochain tour',
   prochainTourAutre: 'Jusqu\'à son prochain tour',
   finPartie: 'Jusqu\'à la fin de la partie',
+  // Phase 5 : bouton de chaque effet en cours (partie en réseau), pour dire qu'il a provoqué un échange de butins.
+  // Texte nouveau, absent de docs/regles.md : décision à confirmer (docs/SUIVI.md).
+  echange: 'Échange de butins fait',
 };
 
 export const fin = {

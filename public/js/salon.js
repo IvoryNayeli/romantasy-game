@@ -12,12 +12,17 @@
 //   nb            nombre d'arrivées (le rang de chaque personne est son ordre d'arrivée, donc l'ordre des tours) ;
 //   statut        « salle » puis « partie » quand l'hôte donne le signal ;
 //   joueurs/<id>  { rang, pret, prenom?, embleme? } ;
-//   emblemes/<emblème>  identifiant de la personne qui l'a choisi (un emblème = une seule personne).
+//   emblemes/<emblème>  identifiant de la personne qui l'a choisi (un emblème = une seule personne) ;
+//   ordre         (phase 4) identifiants des personnes présentes au départ, dans l'ordre des tours ;
+//   jeu           (phase 5) état du moteur de game.js (piles, personne dont c'est le tour, carte, effets…),
+//                 créé au départ et modifié ensuite seulement par les actions de tour, via le moteur.
 // Toute modification passe par une transaction sur `parties/<CODE>` : deux personnes qui valident en même temps
 // sont départagées par le serveur (places et emblèmes garantis). Les règles de database.rules.json vérifient
 // en plus la forme, la taille et les mêmes invariants côté serveur.
 
-import { JOUEURS_MINIMUM } from './game.js';
+import {
+  JOUEURS_MINIMUM, ErreurJeu, creerPartie as creerJeu, choisirType, jeterSort, invoquerBouclier, terminerEffetParEchange,
+} from './game.js';
 
 export const RACINE = 'parties';
 
@@ -220,8 +225,9 @@ export function confirmerPresence(fb, { code, id, prenom }) {
 }
 
 // « Commencer la quête » : réservé à l'hôte, dès que le minimum de présences confirmées est atteint.
-// Phase 4 : on inscrit seulement que la partie a commencé ; le déroulé des tours en réseau est la phase 5.
-export function commencerPartie(fb, { code, id }) {
+// Le départ crée aussi l'état du jeu (moteur de game.js), dans la même écriture : piles mélangées, tour 1,
+// première personne de l'ordre. `cartes` et `config` viennent de public/data/ ; `aleatoire` : hasard injecté.
+export function commencerPartie(fb, { code, id, cartes, config, aleatoire = aleatoireCrypto }) {
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
     if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
@@ -229,8 +235,59 @@ export function commencerPartie(fb, { code, id }) {
     const suite = copie(partie);
     suite.statut = STATUTS.PARTIE;
     // Ordre des tours : les personnes qui ont confirmé leur présence, dans l'ordre d'arrivée. Les règles exigent
-    // cette liste (au moins deux personnes prêtes et distinctes) pour accepter le départ.
+    // cette liste (au moins deux personnes présentes et distinctes) pour accepter le départ. Les personnes inscrites
+    // sans « Je suis là » n'y figurent pas : elles ne jouent pas (la salle leur affiche « La quête a déjà commencé »).
     suite.ordre = joueursOrdonnes(partie).filter((j) => j.pret === true).map((j) => j.id);
+    try {
+      suite.jeu = creerJeu({ joueurs: suite.ordre, cartes, config, aleatoire });
+    } catch (erreur) {
+      if (erreur instanceof ErreurJeu) return { refus: ISSUES.REFUSE };
+      throw erreur;
+    }
+    suite.actif = fb.serverTimestamp();
+    return suite;
+  });
+}
+
+// Hasard du mélange des piles (crypto.getRandomValues, disponible aussi hors HTTPS) : nombre dans [0, 1[.
+export function aleatoireCrypto() {
+  return globalThis.crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000;
+}
+
+// Actions de tour (phase 5) : chacune est appliquée par le moteur de game.js à l'état `jeu` de la partie, dans une
+// transaction. Le moteur refuse toute action hors de son moment, en particulier celle d'une personne dont ce n'est
+// pas le tour (issue « refuse », rien n'est écrit) ; les règles de database.rules.json vérifient en plus que l'état
+// écrit suit un enchaînement possible.
+export const ACTIONS = Object.freeze({
+  CHOISIR: 'choisir', // « À toi de jouer ! » : choix du type (paramètre `type`), la carte du dessus est tirée
+  SORT: 'sort', // « Le sort est jeté »
+  BOUCLIER: 'bouclier', // « Invoquer un bouclier »
+  ECHANGE: 'echange', // un effet durable a provoqué un échange de butins (paramètre `carte`) : n'importe qui, à tout moment
+});
+
+function appliquer(jeu, { id, action, type, carte }) {
+  if (action === ACTIONS.CHOISIR) return choisirType(jeu, id, type);
+  if (action === ACTIONS.SORT) return jeterSort(jeu, id);
+  if (action === ACTIONS.BOUCLIER) return invoquerBouclier(jeu, id);
+  if (action === ACTIONS.ECHANGE) return terminerEffetParEchange(jeu, id, carte);
+  return null;
+}
+
+export function jouer(fb, { code, id, action, type = null, carte = null }) {
+  return transaction(fb, code, (partie) => {
+    if (!partie) return null;
+    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
+    if (partie.statut !== STATUTS.PARTIE || !partie.jeu) return { refus: ISSUES.REFUSE };
+    let jeu;
+    try {
+      jeu = appliquer(partie.jeu, { id, action, type, carte });
+    } catch (erreur) {
+      if (erreur instanceof ErreurJeu) return { refus: ISSUES.REFUSE };
+      throw erreur;
+    }
+    if (!jeu) return { refus: ISSUES.REFUSE };
+    const suite = copie(partie);
+    suite.jeu = jeu;
     suite.actif = fb.serverTimestamp();
     return suite;
   });
@@ -242,6 +299,8 @@ export function ecouterPartie(fb, code, rappel, enErreur = () => {}) {
   return fb.onValue(refPartie(fb, code), (instantane) => rappel(instantane.val()), enErreur);
 }
 
+// Suppression d'une partie : partie expirée (nettoyage), ou partie terminée quand une personne quitte l'écran de fin
+// par « Nouvelle quête » (les autres n'écoutent plus la partie une fois l'écran de fin affiché).
 export function supprimerPartie(fb, code) {
   return reseau(fb.remove(refPartie(fb, code)));
 }

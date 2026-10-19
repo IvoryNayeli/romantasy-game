@@ -1,7 +1,8 @@
 // Les écrans du jeu. Chaque fonction reçoit un contexte { donnees, params, naviguer, reseau }
 // et renvoie { noeud, retour?, nettoyer? }. Données fictives (phase 2), sauf « Créer » et « Rejoindre » qui,
-// hors démonstration, passent par la base (`reseau`, voir reseau.js). La salle d'attente en réseau est dans
-// ecrans-reseau.js.
+// hors démonstration, passent par la base (`reseau`, voir reseau.js). La salle d'attente et la partie en réseau
+// sont dans ecrans-reseau.js, qui réutilise les vues des écrans de tour (vueChoix, vueCarte, vueAttente,
+// vueTransition, vueFin) : même rendu, alimenté par la partie réelle.
 
 import { h, icone, lienBouton, coins, filigrane, logo, etoile } from './dom.js';
 import { constellation } from './ciel.js';
@@ -14,7 +15,7 @@ import {
 // Nombre minimal de présences confirmées pour commencer (règle de docs/regles.md) : constante unique du moteur.
 import { JOUEURS_MINIMUM } from './game.js';
 
-const DUREE_TRANSITION_MS = 2000; // « Transition de 2 secondes » (docs/regles.md)
+export const DUREE_TRANSITION_MS = 2000; // « Transition de 2 secondes » (docs/regles.md)
 
 // Étoiles qui scintillent sur l'accueil : marge de gauche (g) ou de droite (d), position verticale en pourcentage.
 const ETOILES_ACCUEIL = [['g', 8], ['d', 14], ['g', 31], ['d', 42], ['g', 58], ['d', 66], ['g', 80], ['d', 90]];
@@ -389,83 +390,116 @@ export function salle({ donnees, params, naviguer }) {
 }
 
 export function choix({ donnees, params }) {
-  const n = tourDepuisParametres(donnees, params);
-  const dos = (type) => h('a', {
-    classe: `dos dos-${type}`, href: `?ecran=carte&type=${type}&tour=${n}`, 'data-nav': '',
-  }, contenuDos(type));
-  const noeud = h('section', { classe: 'ecran ecran-choix' },
-    compteurEl(donnees, n),
+  return { noeud: vueChoix(donnees, { tour: tourDepuisParametres(donnees, params) }) };
+}
+
+// Vue « À toi de jouer ! » (aussi utilisée par la partie en réseau, ecrans-reseau.js). Sans `choisir`, les dos de
+// cartes sont des liens de démonstration ; avec `choisir(type)`, un toucher tire la carte du type choisi.
+export function vueChoix(donnees, { tour, choisir = null, effets = [], signaler = null }) {
+  const dos = (type) => h('a', choisir
+    ? {
+      classe: `dos dos-${type}`, href: '#', role: 'button',
+      onclick: (evenement) => { evenement.preventDefault(); choisir(type); },
+    }
+    : { classe: `dos dos-${type}`, href: `?ecran=carte&type=${type}&tour=${tour}`, 'data-nav': '' }, contenuDos(type));
+  return h('section', { classe: 'ecran ecran-choix' },
+    compteurEl(donnees, tour),
     h('h2', { classe: 'titre-tour' }, T.tour.aToi),
-    h('div', { classe: 'dos-cartes' }, dos('epreuve'), dos('revelation')));
-  return { noeud };
+    h('div', { classe: 'dos-cartes' }, dos('epreuve'), dos('revelation')),
+    panneauEffets(donnees, effets, signaler));
 }
 
 export function carte({ donnees, params, naviguer }) {
   const n = tourDepuisParametres(donnees, params);
-  const c = carteDepuisParametres(donnees, params);
+  return {
+    noeud: vueCarte(donnees, {
+      tour: n,
+      carte: carteDepuisParametres(donnees, params),
+      sortJete: lienBouton(T.tour.sortJete, { ecran: 'transition', tour: n, auto: 1 }),
+      bouclier: () => naviguer({ ecran: 'transition', bouclier: 1, tour: n, auto: 1 }),
+    }),
+  };
+}
+
+// Vue de la carte révélée, pour la personne dont c'est le tour. `sortJete` : bouton (ou lien de démonstration)
+// « Le sort est jeté » ; `bouclier()` : appelé après la confirmation légère.
+export function vueCarte(donnees, { tour, carte: c, sortJete, bouclier, effets = [], signaler = null }) {
   const dialogue = h('dialog', { classe: 'dialogue', 'aria-labelledby': 'dialogue-texte' },
     coins(),
     h('p', { id: 'dialogue-texte', classe: 'dialogue-texte' }, T.tour.confirmation),
     h('div', { classe: 'dialogue-boutons' },
       h('button', {
         classe: 'bouton bouton-principal', type: 'button',
-        onclick: () => naviguer({ ecran: 'transition', bouclier: 1, tour: n, auto: 1 }),
+        onclick: () => { if (dialogue.open) dialogue.close(); bouclier(); },
       }, icone('bouclier'), h('span', null, T.tour.confirmer)),
       h('button', {
         classe: 'bouton bouton-secondaire', type: 'button', onclick: () => dialogue.close(),
       }, h('span', null, T.tour.annuler))));
-  const noeud = h('section', { classe: 'ecran ecran-carte' },
-    compteurEl(donnees, n),
+  return h('section', { classe: 'ecran ecran-carte' },
+    compteurEl(donnees, tour),
     carteEl(c, 'soi'),
+    panneauEffets(donnees, effets, signaler),
     dialogue,
     barreBas(
-      lienBouton(T.tour.sortJete, { ecran: 'transition', tour: n, auto: 1 }),
+      sortJete,
       h('button', {
         classe: 'bouton bouton-secondaire', type: 'button',
         onclick: () => (dialogue.showModal ? dialogue.showModal() : dialogue.setAttribute('open', '')),
       }, icone('bouclier'), h('span', null, T.tour.bouclier))));
-  return { noeud };
 }
 
 export function attente({ donnees, params }) {
-  const n = tourDepuisParametres(donnees, params);
-  const c = carteDepuisParametres(donnees, params);
   const premier = joueursFictifs(donnees, 1)[0];
-  const actif = {
-    prenom: params.get('prenom') || premier.prenom,
-    embleme: emblemeParId(donnees, params.get('embleme') || premier.embleme),
+  return {
+    noeud: vueAttente(donnees, {
+      tour: tourDepuisParametres(donnees, params),
+      carte: carteDepuisParametres(donnees, params),
+      actif: {
+        prenom: params.get('prenom') || premier.prenom,
+        embleme: emblemeParId(donnees, params.get('embleme') || premier.embleme),
+      },
+      effets: params.get('effets') === '0' ? [] : effetsEnCours(donnees),
+    }),
   };
-  const enCours = params.get('effets') === '0' ? [] : effetsEnCours(donnees);
-  const bandeauGlobal = enCours.length === 0 ? null : h('section', { classe: 'panneau effets-en-cours', 'aria-label': T.effets.enCours },
+}
+
+// Panneau « Effets en cours », visible par tout le monde. Chaque effet : { joueur: { prenom, embleme }, effet, duree,
+// carte?, soi? }. Avec `signaler(carte)` (partie en réseau), chaque effet a un bouton pour dire qu'il a provoqué
+// un échange de butins, ce qui y met fin.
+export function panneauEffets(donnees, effets, signaler = null) {
+  if (!effets || effets.length === 0) return null;
+  return h('section', { classe: 'panneau effets-en-cours', 'aria-label': T.effets.enCours },
     coins(),
     h('h2', { classe: 'effets-titre' }, icone('lueur'), T.effets.enCours),
-    h('ul', { classe: 'effets-liste' }, enCours.map((e) => h('li', { classe: 'effets-item' },
+    h('ul', { classe: 'effets-liste' }, effets.map((e) => h('li', { classe: 'effets-item' },
       h('span', { classe: 'effets-joueur' }, emblemeEl(emblemeParId(donnees, e.joueur.embleme)), e.joueur.prenom),
       h('strong', { classe: 'effets-texte' }, e.effet),
-      h('span', { classe: 'bandeau-duree' }, dureeTexte(e.duree, 'autre'))))));
-  const noeud = h('section', { classe: 'ecran ecran-attente' },
-    compteurEl(donnees, n),
+      h('span', { classe: 'bandeau-duree' }, dureeTexte(e.duree, e.soi ? 'soi' : 'autre')),
+      signaler ? h('button', {
+        classe: 'bouton-echange', type: 'button', onclick: () => signaler(e.carte),
+      }, T.effets.echange) : null))));
+}
+
+// Vue des autres personnes pendant un tour : « Au tour de… », la carte tirée (s'il y en a une) sans boutons,
+// les effets en cours et « En attente de… ».
+export function vueAttente(donnees, { tour, carte: c = null, actif, effets = [], signaler = null }) {
+  return h('section', { classe: 'ecran ecran-attente' },
+    compteurEl(donnees, tour),
     h('h2', { classe: 'titre-tour' }, `${T.tour.auTourDe} `, h('span', { classe: 'nom-actif' }, emblemeEl(actif.embleme), actif.prenom)),
-    carteEl(c, 'autre'),
-    bandeauGlobal,
+    c ? carteEl(c, 'autre') : null,
+    panneauEffets(donnees, effets, signaler),
     h('p', { classe: 'attente-message', role: 'status' }, T.tour.enAttente(actif.prenom)));
-  return { noeud };
 }
 
 export function transition({ donnees, params, naviguer }) {
   const n = tourDepuisParametres(donnees, params);
-  const bouclier = params.get('bouclier') === '1';
   const acteur = joueursFictifs(donnees, 1)[0];
-  const prenom = params.get('prenom') || acteur.prenom;
-  const emb = emblemeParId(donnees, params.get('embleme') || acteur.embleme);
-  const noeud = h('section', { classe: `ecran ecran-transition${bouclier ? ' transition-bouclier' : ''}` },
-    compteurEl(donnees, n),
-    cielLibre('orion'),
-    h('div', { classe: 'transition-corps', role: 'status' },
-      h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier-grand' : 'sort-jete', 'icone-presence')),
-      emblemeEl(emb, 'embleme-grand'),
-      h('p', { classe: 'transition-texte' }, bouclier ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom))),
-    cielLibre('croix', 2.4));
+  const noeud = vueTransition(donnees, {
+    tour: n,
+    bouclier: params.get('bouclier') === '1',
+    prenom: params.get('prenom') || acteur.prenom,
+    embleme: emblemeParId(donnees, params.get('embleme') || acteur.embleme),
+  });
   let minuteur = null;
   if (params.get('auto') === '1') {
     // Parcours de démonstration : après 2 secondes, tour suivant ou fin (le nombre de tours vient de config.json).
@@ -476,14 +510,32 @@ export function transition({ donnees, params, naviguer }) {
   return { noeud, nettoyer: () => clearTimeout(minuteur) };
 }
 
+// Vue de la transition de 2 secondes, visible par tout le monde (la durée est gérée par l'appelant).
+export function vueTransition(donnees, { tour, bouclier, prenom, embleme: emb }) {
+  return h('section', { classe: `ecran ecran-transition${bouclier ? ' transition-bouclier' : ''}` },
+    compteurEl(donnees, tour),
+    cielLibre('orion'),
+    h('div', { classe: 'transition-corps', role: 'status' },
+      h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier-grand' : 'sort-jete', 'icone-presence')),
+      emblemeEl(emb, 'embleme-grand'),
+      h('p', { classe: 'transition-texte' }, bouclier ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom))),
+    cielLibre('croix', 2.4));
+}
+
 export function fin() {
-  const noeud = h('section', { classe: 'ecran ecran-fin' },
+  return { noeud: vueFin() };
+}
+
+// Vue de fin. `nouvelleQuete()` (partie en réseau) : appelé au toucher de « Nouvelle quête », avant le retour à l'accueil.
+export function vueFin({ nouvelleQuete = null } = {}) {
+  const bouton = lienBouton(T.fin.bouton, { ecran: 'accueil' });
+  if (nouvelleQuete) bouton.addEventListener('click', nouvelleQuete);
+  return h('section', { classe: 'ecran ecran-fin' },
     cielLibre('lyre', 2.4),
     h('div', { classe: 'fin-corps' },
       h('p', { classe: 'accueil-salut' }, T.fin.titre),
       h('div', { classe: 'ornement', 'aria-hidden': 'true' }, filigrane()),
       h('p', { classe: 'texte' }, T.fin.texte)),
     cielLibre('cassiopee'),
-    barreBas(lienBouton(T.fin.bouton, { ecran: 'accueil' })));
-  return { noeud };
+    barreBas(bouton));
 }

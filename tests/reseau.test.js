@@ -72,7 +72,8 @@ test('règles : codes, emblèmes, durée d\'expiration, longueur du prénom et p
   assert.match(partie.nb['.validate'], /newData\.val\(\) <= newData\.parent\(\)\.child\('max'\)\.val\(\)/);
   const config = E.lireJson('config.json');
   assert.ok(config.joueursMax <= emblemes.length, 'config.joueursMax ne dépasse pas le nombre d\'emblèmes');
-  assert.doesNotMatch(texte, /joueursMax|tours/, 'aucun réglage de config.json recopié dans les règles');
+  // Phase 5 : « tours » n'apparaît que comme nom du champ de l'état du jeu (recopié par le moteur à la création).
+  assert.doesNotMatch(texte.replace(/'tours'|"tours"/g, ''), /joueursMax|tours/, 'aucun réglage de config.json recopié dans les règles');
 });
 
 test('règles : invariants vérifiés au niveau de la partie (emblème unique pour chaque emblème, départ à 2 présences)', async () => {

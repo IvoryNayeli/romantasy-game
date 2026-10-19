@@ -1,12 +1,23 @@
-// Salle d'attente en réseau (phase 4) : même écran que la salle fictive de ecrans.js (mêmes blocs, mêmes classes),
-// alimenté par l'écoute de la partie en cours (parties/<CODE>) et non par des données fictives.
-// L'écoute ne fait qu'afficher : seules les actions de la personne (emblème, « Je suis là », « Commencer la quête »)
-// écrivent dans la base, une transaction chacune.
+// Écrans en réseau, alimentés par l'écoute de la partie en cours (parties/<CODE>) et non par des données fictives :
+// - salle d'attente (phase 4) : même écran que la salle fictive de ecrans.js (mêmes blocs, mêmes classes) ;
+// - partie (phase 5) : les écrans de tour et de fin de ecrans.js (mêmes vues), selon l'état du jeu dans la base.
+// L'écoute ne fait qu'afficher : seules les actions de la personne (emblème, « Je suis là », « Commencer la quête »,
+// choix de carte, « Le sort est jeté », « Invoquer un bouclier », fin d'un effet) écrivent dans la base,
+// une transaction chacune.
 
 import { h, icone, coins } from './dom.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
-import { ligneJoueur, barreBas } from './ecrans.js';
+import {
+  ligneJoueur, barreBas, vueChoix, vueCarte, vueAttente, vueTransition, vueFin, panneauEffets, DUREE_TRANSITION_MS,
+} from './ecrans.js';
+import { emblemeParId } from './fictif.js';
+import { ETAPES, ISSUES as ISSUES_TOUR } from './game.js';
+
+// Une personne joue si elle figure dans l'ordre des tours (présence confirmée au départ).
+function joue(partie, id) {
+  return Boolean(id) && (partie?.ordre || []).includes(id);
+}
 
 export function salle({ donnees, params, naviguer, reseau }) {
   const S = T.salle;
@@ -69,7 +80,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
   }
   champ.addEventListener('input', () => { prenomSaisi = champ.value; maj(); });
   boutonPret.addEventListener('click', () => agir(() => reseau.confirmerPresence(code, prenomSaisi)));
-  boutonCommencer.addEventListener('click', () => agir(() => reseau.commencer(code)));
+  boutonCommencer.addEventListener('click', () => agir(() => reseau.commencer(code, donnees)));
 
   function maj() {
     const max = partie?.max || donnees.config.joueursMax;
@@ -85,8 +96,9 @@ export function salle({ donnees, params, naviguer, reseau }) {
     for (let i = joueurs.length; i < max; i += 1) lignes.push(h('li', { classe: 'joueur-ligne joueur-libre', 'aria-hidden': 'true' }));
     liste.replaceChildren(...lignes);
 
-    // Personne absente de la liste : partie complète ou déjà commencée (formulaire remplacé par l'avis).
-    const exclu = Boolean(partie) && !fiche;
+    // Personne absente de la liste (partie complète ou déjà commencée), ou inscrite sans « Je suis là » quand la
+    // quête commence : formulaire remplacé par l'avis.
+    const exclu = Boolean(partie) && (!fiche || (partie.statut === reseau.STATUTS.PARTIE && !joue(partie, moi)));
     formulaire.hidden = exclu;
     barre.hidden = exclu;
     avis.hidden = !exclu;
@@ -115,7 +127,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
     partie = valeur;
     if (!partie) { aller({ ecran: 'rejoindre', code, erreur: 'inconnu' }); return; }
     const fiche = partie.joueurs?.[moi];
-    if (fiche && partie.statut === reseau.STATUTS.PARTIE) { aller({ ecran: 'choix', tour: 1 }); return; }
+    if (partie.statut === reseau.STATUTS.PARTIE && joue(partie, moi)) { aller({ ecran: 'jeu', code }); return; }
     const places = Object.keys(partie.joueurs || {}).length < partie.max;
     if (!fiche && partie.statut === reseau.STATUTS.SALLE && places) { aller({ ecran: 'rejoindre', code }); return; }
     maj();
@@ -137,4 +149,184 @@ export function salle({ donnees, params, naviguer, reseau }) {
     barre);
   maj();
   return { noeud, nettoyer: () => { actif = false; if (arreter) arreter(); } };
+}
+
+// Partie en réseau (phase 5). Selon l'état du jeu (parties/<CODE>/jeu, moteur de game.js) :
+// - la personne dont c'est le tour voit « À toi de jouer ! » puis la carte révélée et ses deux boutons ;
+// - les autres voient « Au tour de… », la même carte, sans boutons, et « En attente de… » ;
+// - après chaque tour, tout le monde voit la transition de 2 secondes, puis le tour suivant ou l'écran de fin ;
+// - les effets durables en cours sont affichés à tout le monde.
+// L'écran affiché est remplacé par `vue(nom, noeud)` (app.js) ; il n'est reconstruit que s'il change.
+export function jeu({ donnees, params, naviguer, reseau, vue }) {
+  const code = trouverCode(params.get('code'), donnees.codes);
+  const moi = code ? reseau.identiteConnue(code) : null;
+  let actif = true;
+  let arreter = null;
+  let partie = null;
+  let vus = null; // nombre de cartes jouées déjà vues (une de plus : transition)
+  let enTransition = false;
+  let minuteur = null;
+  let cleVue = '';
+  let cleEffets = '';
+  let enCours = false;
+  let finie = false;
+  let ecranCourant = null;
+
+  function aller(cible) {
+    setTimeout(() => { if (actif) naviguer(cible); }, 0);
+  }
+
+  function arreterEcoute() {
+    if (arreter) arreter();
+    arreter = null;
+  }
+
+  if (!code || !moi) {
+    aller(code ? { ecran: 'salle', code } : { ecran: 'rejoindre' });
+    return { noeud: h('section', { classe: 'ecran' }) };
+  }
+
+  const personne = (id) => {
+    const fiche = partie.joueurs?.[id] || {};
+    return { prenom: fiche.prenom || '', embleme: emblemeParId(donnees, fiche.embleme) };
+  };
+  const carteParId = (id) => donnees.cartes.find((c) => c.id === id) || null;
+
+  // Effets en cours, au format du panneau de ecrans.js.
+  function effets(jeuEnCours) {
+    return (jeuEnCours.effets || []).map((e) => {
+      const p = personne(e.joueur);
+      return {
+        joueur: { prenom: p.prenom, embleme: p.embleme.id }, effet: e.effet, duree: e.duree, carte: e.carte, soi: e.joueur === moi,
+      };
+    });
+  }
+
+  // Action de tour : une seule à la fois ; en cas d'erreur réseau, message sous l'écran.
+  function agir(action, extra) {
+    if (enCours || !actif) return;
+    enCours = true;
+    reseau.jouer(code, action, extra)
+      .then((issue) => { if (issue === reseau.ISSUES.INTROUVABLE) aller({ ecran: 'rejoindre', code, erreur: 'inconnu' }); })
+      .catch(() => {
+        if (!actif || !ecranCourant) return;
+        let message = ecranCourant.querySelector('.erreur-champ');
+        if (!message) {
+          message = h('p', { classe: 'erreur-champ', role: 'alert' });
+          ecranCourant.append(message);
+        }
+        message.textContent = T.reseau.indisponible;
+      })
+      .finally(() => { enCours = false; });
+  }
+  const signaler = (carte) => agir(reseau.ACTIONS.ECHANGE, { carte });
+
+  function afficher(nom, noeud) {
+    ecranCourant = noeud;
+    vue(nom, noeud);
+  }
+
+  function rendre() {
+    const etat = partie.jeu;
+    const listeEffets = effets(etat);
+    const nouvelleCleEffets = JSON.stringify(listeEffets.map((e) => e.carte));
+    const jouees = etat.jouees || [];
+    let cle;
+    if (enTransition) cle = `transition:${jouees.length}`;
+    else if (etat.etape === ETAPES.FIN) cle = 'fin';
+    else cle = `${etat.etape}:${etat.tour}:${etat.indexJoueur}`;
+
+    if (cle === cleVue) {
+      // Même écran : seul le panneau des effets peut avoir changé (fin d'un effet par échange). Il est remplacé
+      // sur place, sans reconstruire l'écran (la carte ne se retourne pas une seconde fois).
+      if (nouvelleCleEffets !== cleEffets && ecranCourant && cle !== 'fin' && !enTransition) {
+        cleEffets = nouvelleCleEffets;
+        const ancien = ecranCourant.querySelector('.effets-en-cours');
+        const nouveau = panneauEffets(donnees, listeEffets, signaler);
+        if (ancien && nouveau) ancien.replaceWith(nouveau);
+        else if (ancien) ancien.remove();
+        else rendreEcran(etat, listeEffets, etat.joueurs[etat.indexJoueur]);
+      }
+      return;
+    }
+    cleVue = cle;
+    cleEffets = nouvelleCleEffets;
+
+    if (enTransition) {
+      const derniere = etat.derniere || {};
+      const tour = jouees.length ? jouees[jouees.length - 1].tour : etat.tour;
+      const p = personne(derniere.joueur);
+      afficher('transition', vueTransition(donnees, {
+        tour, bouclier: derniere.issue === ISSUES_TOUR.BOUCLIER, prenom: p.prenom, embleme: p.embleme,
+      }));
+      return;
+    }
+    if (etat.etape === ETAPES.FIN) {
+      // Écran de fin : plus rien ne change, on cesse d'écouter. « Nouvelle quête » supprime la partie terminée.
+      finie = true;
+      arreterEcoute();
+      afficher('fin', vueFin({ nouvelleQuete: () => { reseau.supprimer(code).catch(() => {}); } }));
+      return;
+    }
+    rendreEcran(etat, listeEffets, etat.joueurs[etat.indexJoueur]);
+  }
+
+  function rendreEcran(etat, listeEffets, courant) {
+    const aMoi = courant === moi;
+    const c = etat.carte ? carteParId(etat.carte) : null;
+    if (aMoi && etat.etape === ETAPES.CHOIX) {
+      afficher('choix', vueChoix(donnees, {
+        tour: etat.tour, effets: listeEffets, signaler,
+        choisir: (type) => agir(reseau.ACTIONS.CHOISIR, { type }),
+      }));
+    } else if (aMoi && etat.etape === ETAPES.CARTE && c) {
+      const sortJete = h('button', {
+        classe: 'bouton bouton-principal', type: 'button', onclick: () => agir(reseau.ACTIONS.SORT),
+      }, h('span', null, T.tour.sortJete));
+      afficher('carte', vueCarte(donnees, {
+        tour: etat.tour, carte: c, effets: listeEffets, signaler, sortJete,
+        bouclier: () => agir(reseau.ACTIONS.BOUCLIER),
+      }));
+    } else {
+      // Les autres n'ont aucun bouton de tour ; ils peuvent seulement signaler un échange depuis le panneau des effets.
+      afficher('attente', vueAttente(donnees, {
+        tour: etat.tour, carte: c, actif: personne(courant), effets: listeEffets, signaler,
+      }));
+    }
+  }
+
+  function recevoir(valeur) {
+    if (!actif || finie) return;
+    if (!valeur) { aller({ ecran: 'rejoindre', code, erreur: 'inconnu' }); return; }
+    partie = valeur;
+    const etat = partie.jeu;
+    if (partie.statut !== reseau.STATUTS.PARTIE || !etat || !(etat.joueurs || []).includes(moi)) {
+      aller({ ecran: 'salle', code });
+      return;
+    }
+    const nombre = (etat.jouees || []).length;
+    if (vus === null) vus = nombre;
+    if (nombre > vus) {
+      // Un tour vient de se terminer : transition de 2 secondes pour tout le monde, puis l'état courant.
+      vus = nombre;
+      enTransition = true;
+      clearTimeout(minuteur);
+      minuteur = setTimeout(() => {
+        enTransition = false;
+        if (actif && partie) rendre();
+      }, DUREE_TRANSITION_MS);
+    }
+    rendre();
+  }
+
+  arreter = reseau.ecouter(code, recevoir, () => {
+    if (actif && ecranCourant && !ecranCourant.querySelector('.erreur-champ')) {
+      ecranCourant.append(h('p', { classe: 'erreur-champ', role: 'alert' }, T.reseau.indisponible));
+    }
+  });
+
+  return {
+    noeud: h('section', { classe: 'ecran' }),
+    nettoyer: () => { actif = false; clearTimeout(minuteur); arreterEcoute(); },
+  };
 }

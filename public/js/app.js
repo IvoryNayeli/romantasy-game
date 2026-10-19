@@ -2,7 +2,9 @@
 // Écrans : accueil, regles, creer, rejoindre, salle, choix, carte, attente, transition, fin (voir README et demo.html).
 // Phase 4 : « Créer », « Rejoindre » et la salle d'attente passent par la base (reseau.js), sauf en démonstration :
 // ?demo=1 (liens de demo.html), ou salle ouverte avec des paramètres fictifs (hote, autres, complete…).
-// Les écrans de tour et de fin restent fictifs jusqu'à la phase 5.
+// Phase 5 : la partie en réseau est l'écran ?ecran=jeu&code=… (ecrans-reseau.js), qui affiche tour à tour les vues
+// choix, carte, attente, transition et fin d'après la base. Les adresses ?ecran=choix, carte, attente, transition
+// et fin restent les écrans de démonstration, avec des données fictives.
 
 import { chargerDonnees } from './donnees.js';
 import { adresse, h } from './dom.js';
@@ -26,6 +28,7 @@ const CIEL_ENTETE = {
   attente: ['fleche', 'ourse'],
   transition: null,
   fin: null,
+  jeu: null,
 };
 
 const ECRANS = {
@@ -57,19 +60,35 @@ const cielEntete = document.getElementById('ciel-entete');
 let donnees = null;
 let nettoyer = null;
 
+// Pose un écran (ou une vue de la partie en réseau) : contenu, nom sur le body, constellations de l'en-tête.
+function montrer(nom, noeud) {
+  document.body.dataset.ecran = nom;
+  const paire = CIEL_ENTETE[nom];
+  cielEntete.replaceChildren(...(paire ? [constellation(paire[0], { classe: 'c-gauche' }), constellation(paire[1], { classe: 'c-droite' })] : []));
+  zone.replaceChildren(noeud);
+}
+
 function afficher(premiere = false) {
   if (nettoyer) nettoyer();
   const params = new URLSearchParams(window.location.search);
-  const nom = Object.hasOwn(ECRANS, params.get('ecran')) ? params.get('ecran') : 'accueil';
+  const demande = params.get('ecran');
+  let nom = Object.hasOwn(ECRANS, demande) || demande === 'jeu' ? demande : 'accueil';
   const demo = modeDemo(nom, params);
-  const fonction = nom === 'salle' && !demo ? ecransReseau.salle : ECRANS[nom];
-  const resultat = fonction({ donnees, params, naviguer, reseau: demo ? null : reseau });
-  nettoyer = resultat.nettoyer || null;
-  document.body.dataset.ecran = nom;
+  if (nom === 'jeu' && demo) nom = 'accueil'; // pas de partie en réseau en démonstration
+  let fonction = ECRANS[nom];
+  if (nom === 'salle' && !demo) fonction = ecransReseau.salle;
+  if (nom === 'jeu') fonction = ecransReseau.jeu;
+  let actuel = true;
+  // Changement de vue demandé par la partie en réseau, tant que l'écran est affiché.
+  const vue = (nomVue, noeud) => {
+    if (!actuel) return;
+    montrer(nomVue, noeud);
+    window.scrollTo(0, 0);
+  };
+  const resultat = fonction({ donnees, params, naviguer, reseau: demo ? null : reseau, vue });
+  nettoyer = () => { actuel = false; if (resultat.nettoyer) resultat.nettoyer(); };
   enteteGauche.replaceChildren(...(resultat.retour ? [resultat.retour] : []));
-  const paire = CIEL_ENTETE[nom];
-  cielEntete.replaceChildren(...(paire ? [constellation(paire[0], { classe: 'c-gauche' }), constellation(paire[1], { classe: 'c-droite' })] : []));
-  zone.replaceChildren(resultat.noeud);
+  montrer(nom, resultat.noeud);
   window.scrollTo(0, 0);
   if (!premiere) zone.focus({ preventScroll: true });
 }
