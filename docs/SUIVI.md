@@ -23,14 +23,14 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
 | 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
-| 4 | Multijoueur et salle d'attente | en test | 2 | [phase-4-iteration-1](rapports/phase-4-iteration-1.md) |
+| 4 | Multijoueur et salle d'attente | prête pour relecture | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | à faire | 0 | |
 | 6 | Robustesse | à faire | 0 | |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 4 en test (itération 2) : vérification de la remarque 1 (délai de 30 minutes pour une salle non démarrée) par `romantasy-testeur`.
+Phase 4 prête pour relecture (itération 2) : relecture par la propriétaire, décisions à confirmer (dont D2, authentification), puis « Phase 4 validée » ou « Phase 4, remarques : … ».
 
 ## Journal
 
@@ -43,6 +43,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-19, phase 4 : vérification close sans nouvelle série de contournements (dernière série sans défaut), suite complète 190 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-1](rapports/phase-4-iteration-1.md), prête pour relecture.
 - 2026-10-19, phase 4 : remarques de l'itération 1 reçues ([remarques/phase-4](remarques/phase-4.md)), lancement de l'itération 2.
 - 2026-10-19, phase 4 : remarque 1 traitée, expiration après 30 minutes pour une salle d'attente, 3 heures pour une partie démarrée (salon.js, règles, tests, README).
+- 2026-10-19, phase 4 : remarque 1 vérifiée par le testeur, suite complète 192 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-2](rapports/phase-4-iteration-2.md), prête pour relecture.
 
 ## Défauts ouverts
 
