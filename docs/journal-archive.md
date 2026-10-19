@@ -40,3 +40,7 @@ Lignes de journal des phases validées, déplacées depuis `docs/SUIVI.md`. Les 
 - 2026-10-19 | phase 4 | Remarque 1 traitée, expiration après 30 minutes pour une salle d'attente, 3 heures pour une partie démarrée (salon.js, règles, tests, README).
 - 2026-10-19 | phase 4 | Remarque 1 vérifiée par le testeur, suite complète 192 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-2](rapports/phase-4-iteration-2.md), prête pour relecture.
 - 2026-10-19 | phase 4 validée | Validation explicite de la propriétaire, fusion de `phase-4` dans `main`, tag `phase-4`.
+- 2026-10-19 | phase 5 | Lancement, branche `phase-5`, itération 1 en cours.
+- 2026-10-19 | phase 5 | Développement de l'itération 1 terminé (tours en réseau, règles, tests), passage en test.
+- 2026-10-19 | phase 5 | Test, D9 corrigé, D10 requalifié, D11 corrigé (tests) ; rapport [phase-5-iteration-1](rapports/phase-5-iteration-1.md), prête pour relecture.
+- 2026-10-19 | phase 5 validée | Validation explicite de la propriétaire, fusion de `phase-5` dans `main`, tag `phase-5`.

@@ -36,27 +36,13 @@ Phase 5 validée le 2026-10-19. Phase 6 possible, sur demande de la propriétair
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
-- 2026-10-19, phase 5 : lancement, branche `phase-5`, itération 1 en cours.
-- 2026-10-19, phase 5 : développement de l'itération 1 terminé (tours en réseau, règles, tests), passage en test.
-- 2026-10-19, phase 5 : test, D9 corrigé, D10 requalifié, D11 corrigé (tests) ; rapport [phase-5-iteration-1](rapports/phase-5-iteration-1.md), prête pour relecture.
-- 2026-10-19, phase 5 validée : validation explicite de la propriétaire, fusion de `phase-5` dans `main`, tag `phase-5`.
-
-
 ## Défauts ouverts
 
 Aucun.
 
 ## Décisions à confirmer
 
-Phase 5, itération 1 (développeur) :
-
-- **Nouveau texte « Échange de butins fait »** (absent de `regles.md`) : bouton sous chaque effet du panneau « Effets en cours », visible par tout le monde ; n'importe quelle personne de la partie peut le toucher, à tout moment, pour dire que l'effet a provoqué un échange de butins (il prend fin, comme décidé pour le moteur en phase 3).
-- **Personnes inscrites sans « Je suis là » au départ** : elles ne jouent pas (absentes de l'ordre des tours) et voient l'avis existant « La quête a déjà commencé » à la place du formulaire.
-- **Suppression de la partie terminée** : faite quand une personne touche « Nouvelle quête » sur l'écran de fin. Les autres restent sur l'écran de fin (il n'écoute plus la base). Si personne ne la touche, le nettoyage des 3 heures s'applique.
-- **Panneau « Effets en cours »** affiché sur tous les écrans de tour (choix, carte révélée, attente) et non plus seulement chez les autres ; pour ses propres effets, la personne lit « Jusqu'à ton prochain tour ».
-- **Avant le tirage**, les autres voient l'écran d'attente sans carte (« Au tour de… », « En attente de… »), la carte apparaît dès qu'elle est tirée.
-- **Rechargement de la page** pendant une partie : on reprend l'état courant, sans rejouer la dernière transition.
-- **Règles de la base** : elles vérifient que chaque écriture suit un enchaînement possible : pas de personne sautée, carte jouée = carte tirée par la personne dont c'est le tour, cartes jouées non réécrites, liste des cartes jouées et première d'entre elles non effaçables, partie terminée qui ne repart pas (étape et dernière carte figées, entrées de pile non réécrites après la fin). Sans authentification, elles ne savent pas qui écrit (risque D2 déjà accepté). Limites connues liées à D2 (défauts D9 et D10 du testeur, requalifiés) : par écriture directe, on peut encore effacer une carte jouée isolée autre que la première, ou une entrée isolée d'une pile ; et la règle « une carte ne sort qu'une seule fois » n'est garantie que par le jeu, pas par la base (une carte déjà jouée peut être réécrite comme carte tirée, ou remise dans une pile). Les vérifier demanderait de parcourir des listes, ce que les règles de la base ne savent pas faire simplement.
+Aucune.
 
 ## Risques reportés
 
@@ -82,3 +68,4 @@ Phase 5, itération 1 (développeur) :
 - Choix de la phase 2 (libellés d'interface dont « Je suis là », « C'est bon », « La compagnie » ; écriture inclusive allégée et ses 9 cartes reformulées ; accueil sans titre et onglet « Romantasy » ; écarts à la charte : formes pleines du bouclier et du sort jeté, étoiles dans les marges, constellations, polices hébergées, types de carte à la place des raretés, texte à 20 px, filigranes ambre ; code de la salle petit et discret ; « C'est bon » définitif) : validés avec la phase le 2026-10-18. Détail dans les rapports [phase-2-iteration-1](rapports/phase-2-iteration-1.md) à [phase-2-iteration-5](rapports/phase-2-iteration-5.md). `regles.md` garde « améthyste » (Révélation) et « affiché en grand » (code) : non modifiés, l'interface suit la charte et les remarques.
 - Choix du moteur de la phase 3 (effet rattaché à la personne qui a joué la carte, même pour le groupe ; « prochain tour » fini au début de son tour suivant, ou à la fin s'il est obtenu au dernier tour ; effets effacés à l'écran de fin ; échange de butins signalé par n'importe qui, à tout moment avant la fin ; ordre d'arrivée ; partie refusée si une pile est insuffisante ; minimum de 2 en constante) : validés avec la phase le 2026-10-18. Détail en section 7 de [phase-3-iteration-1](rapports/phase-3-iteration-1.md).
 - Choix de la phase 4 (codes choisis dans la liste et non tirés au hasard ; nettoyage sans Cloud Functions, 30 minutes pour une salle d'attente et 3 heures pour une partie démarrée ; minimum de 2 en constante ; émulateur sur le réseau local et `?base=dev` ; pas de clé d'API ; pas d'authentification, risque D2 accepté ; nouveaux textes « Connexion impossible. Vérifie ton réseau et réessaie. », « Ce code est déjà pris par une autre partie. Choisis-en un autre. », « La quête a déjà commencé » ; prénom de 24 caractères envoyé au « Je suis là » ; identité gardée dans l'onglet ; écran de choix fictif après le départ ; `?demo=1` ; SDK Firebase 11.10.0) : validés avec la phase le 2026-10-19. Détail en section 7 de [phase-4-iteration-1](rapports/phase-4-iteration-1.md) et [phase-4-iteration-2](rapports/phase-4-iteration-2.md).
+- Choix de la phase 5 (nouveau texte « Échange de butins fait », touchable par n'importe qui à tout moment ; personnes sans « Je suis là » au départ exclues, avec « La quête a déjà commencé » ; partie terminée supprimée à « Nouvelle quête », sinon nettoyage des 3 heures ; panneau « Effets en cours » sur tous les écrans de tour, « Jusqu'à ton prochain tour » pour ses propres effets ; attente sans carte avant le tirage ; reprise après rechargement sans rejouer la transition ; règles de la base vérifiant l'enchaînement des tours, avec les limites D9 et D10 liées au risque D2) : validés avec la phase le 2026-10-19. Détail en section 7 de [phase-5-iteration-1](rapports/phase-5-iteration-1.md).
