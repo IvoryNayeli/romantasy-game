@@ -610,6 +610,24 @@ h2 {
 .effets-joueur { display: flex; align-items: center; gap: 8px; color: var(--c-lune); font: 500 1rem/1.3 var(--f-texte); }
 .effets-joueur .embleme { font-size: 1.25rem; }
 .effets-texte { color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: break-word; }
+/* Phase 5 : bouton discret de chaque effet en cours (partie en réseau), pour dire qu'il a provoqué un échange de butins.
+   Même famille que le bouton secondaire, en plus petit ; cible tactile de 48 px. */
+.bouton-echange {
+  align-self: flex-start;
+  min-height: var(--cible);
+  margin-top: 8px;
+  padding: 0 16px;
+  border: 1px solid var(--c-lune);
+  border-radius: var(--r-bouton);
+  background: transparent;
+  color: var(--c-lune);
+  font: 500 14px/1.2 var(--f-texte);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 150ms var(--ease);
+}
+.bouton-echange:active { transform: scale(.97); }
 
 /* ---------- Transition de 2 secondes ---------- */
 .ecran-transition .transition-corps {
