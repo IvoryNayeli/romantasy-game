@@ -24,19 +24,20 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
-| 5 | Partie jouable en réseau | en cours | 1 | |
+| 5 | Partie jouable en réseau | en test | 1 | |
 | 6 | Robustesse | à faire | 0 | |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 5, itération 1 : développement en cours (développeur), puis test (testeur obligatoire).
+Phase 5, itération 1 : développement terminé, test en cours (testeur).
 
 ## Journal
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
 - 2026-10-19, phase 5 : lancement, branche `phase-5`, itération 1 en cours.
+- 2026-10-19, phase 5 : développement de l'itération 1 terminé (tours en réseau, règles, tests), passage en test.
 
 
 ## Défauts ouverts
