@@ -4,7 +4,7 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaqu
 
 ## Lancer le jeu
 
-**Le jeu n'est pas encore entièrement jouable** : à ce stade (phase 4), la salle d'attente fonctionne en réseau (créer une partie, la rejoindre depuis d'autres téléphones, choisir prénom et emblème, « Je suis là », « Commencer la quête »). Les tours de jeu qui suivent sont encore des écrans de démonstration, avec des données fictives (le jeu en réseau complet arrive en phase 5).
+**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je suis là », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. La robustesse (téléphone qui se met en veille, connexion perdue) arrive en phase 6, la mise en ligne en phase 7.
 
 ### Ce qu'il faut sur l'ordinateur
 
@@ -31,6 +31,7 @@ Depuis le dossier du projet, ouvrir **deux terminaux**.
 
 3. Ouvrir `http://localhost:8000/` dans le navigateur, puis « Comment ça marche ? », « Créer une partie » et choisir un code. Les codes déjà pris par une partie en cours sont grisés.
 4. Pour les autres personnes : « Rejoindre une partie » et saisir le même code (majuscules, minuscules et accents n'ont pas d'importance). Sur un seul ordinateur, chaque **onglet** compte pour une personne différente : on peut donc essayer à plusieurs avec plusieurs onglets.
+5. Une fois au moins deux présences confirmées, l'hôte touche « Commencer la quête ». Chaque personne joue à son tour, dans l'ordre d'arrivée ; seule la personne dont c'est le tour voit les cartes à choisir et les boutons. Les personnes inscrites sans avoir touché « Je suis là » ne jouent pas. À l'écran de fin, « Nouvelle quête » ramène à l'accueil et efface la partie terminée.
 
 Pour arrêter : `Ctrl+C` dans chacun des deux terminaux. Les parties de l'émulateur sont effacées à son arrêt.
 
@@ -63,7 +64,7 @@ Les écrans restent consultables avec des données fictives, sans base ni émula
 
 | Paramètre | Valeurs | Rôle |
 |---|---|---|
-| `ecran` | `accueil`, `regles`, `creer` (choix du code), `rejoindre` (saisie du code), `salle`, `choix`, `carte`, `attente`, `transition`, `fin` | Écran à afficher (accueil par défaut) |
+| `ecran` | `accueil`, `regles`, `creer` (choix du code), `rejoindre` (saisie du code), `salle`, `choix`, `carte`, `attente`, `transition`, `fin` | Écran à afficher (accueil par défaut). Les écrans de tour et de fin ouverts ainsi sont toujours ceux de démonstration ; la partie en réseau a sa propre adresse, `?ecran=jeu&code=…`, ouverte par la salle d'attente au départ. |
 | `demo` | `1` | Démonstration : « Créer », « Rejoindre » et la salle d'attente utilisent des données fictives, sans base. Gardé d'un écran à l'autre. |
 | `base` | `dev` | Utilise la base `romantasy-dev` au lieu de l'émulateur local (voir plus haut) |
 | `type` | `epreuve`, `revelation` | Type de la carte (première carte de ce type) |
@@ -80,7 +81,6 @@ Le nombre de tours et de places maximum vient uniquement de `public/data/config.
 
 | À partir de | Ce qui sera documenté ici |
 |---|---|
-| Phase 5 | Les tours de jeu en réseau, jusqu'à la fin de la partie. |
 | Phase 7 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec son groupe. |
 
 ## Développement du projet avec des agents (Copilot ou Claude Code)
@@ -105,8 +105,8 @@ npm test
 Il y a trois familles de tests :
 
 - **Tests sans navigateur ni émulateur** (données, cartes, emblèmes, codes, réglages ; écrans et design : polices hébergées, tailles minimales, palette, textes inclusifs, réglages jamais écrits en dur ; moteur de jeu, dans `tests/moteur.test.js` : parties complètes simulées de 2 personnes jusqu'au maximum de `config.json`, effets durables, bouclier, fin de partie, actions refusées ; réseau, dans `tests/reseau.test.js` : garde-fou qui refuse toute base non locale, règles de sécurité cohérentes avec les données, SDK Firebase isolé dans `public/js/firebase.js`, écoutes limitées au chemin de la partie, choix de la base). Ils n'ont besoin d'aucune installation : `npm run test:rapide` suffit. Lancer `node --test tests/` sans passer par npm fait échouer les tests de l'émulateur avec un message qui explique quoi faire.
-- **Tests sur l'émulateur** (`tests/emulateur.test.js` et `tests/emulateur-regles.test.js`, outils communs dans `tests/aide-emulateur.js`) : clients simultanés, sixième personne refusée, deux personnes visant le même emblème, code introuvable, code déjà pris, ordre d'arrivée, règles de sécurité (taille, forme), non-boucle d'écriture, écoutes limitées au chemin de la partie, nettoyage des parties expirées. Ils utilisent le paquet `firebase` (dépendance de développement, même version que le SDK chargé par la page depuis le CDN).
-- **Tests de navigateur** (cinq fichiers : `tests/navigateur.test.js` pour les captures aux largeurs 360 et 412 px, les débordements, les contrastes mesurés à l'écran, les animations et les 40 cartes ; `tests/navigateur-parcours.test.js` pour les parcours « Créer » et « Rejoindre » de démonstration et le retrait de l'option d'animations ; `tests/navigateur-charte.test.js` pour la conformité à la charte graphique ; `tests/navigateur-reseau.test.js` pour la salle d'attente en réseau, avec plusieurs pages à la fois sur l'émulateur ; `tests/aide-navigateur.js` pour les outils communs, sans test). Ils demandent `npm install` (qui installe `playwright-core`, utilisé uniquement par ces tests) et **Google Chrome ou Chromium** installé sur l'ordinateur. Ils durent **environ 5 à 7 minutes**. Sans `playwright-core` ou sans Chrome, ils sont sautés proprement avec un message, et le reste des tests tourne normalement. Ils n'accèdent à aucune adresse extérieure : le SDK Firebase leur est servi depuis `node_modules`.
+- **Tests sur l'émulateur** (`tests/emulateur.test.js`, `tests/emulateur-regles.test.js` et `tests/emulateur-partie.test.js`, outils communs dans `tests/aide-emulateur.js`) : partie complète à plusieurs clients (seule la personne dont c'est le tour peut agir, même état pour tout le monde, effets durables, fin, enchaînement des tours vérifié par les règles), clients simultanés, sixième personne refusée, deux personnes visant le même emblème, code introuvable, code déjà pris, ordre d'arrivée, règles de sécurité (taille, forme), non-boucle d'écriture, écoutes limitées au chemin de la partie, nettoyage des parties expirées. Ils utilisent le paquet `firebase` (dépendance de développement, même version que le SDK chargé par la page depuis le CDN).
+- **Tests de navigateur** (cinq fichiers : `tests/navigateur.test.js` pour les captures aux largeurs 360 et 412 px, les débordements, les contrastes mesurés à l'écran, les animations et les 40 cartes ; `tests/navigateur-parcours.test.js` pour les parcours « Créer » et « Rejoindre » de démonstration et le retrait de l'option d'animations ; `tests/navigateur-charte.test.js` pour la conformité à la charte graphique ; `tests/navigateur-reseau.test.js` pour la salle d'attente et une partie complète en réseau, avec plusieurs pages à la fois sur l'émulateur ; `tests/aide-navigateur.js` pour les outils communs, sans test). Ils demandent `npm install` (qui installe `playwright-core`, utilisé uniquement par ces tests) et **Google Chrome ou Chromium** installé sur l'ordinateur. Ils durent **environ 5 à 7 minutes**. Sans `playwright-core` ou sans Chrome, ils sont sautés proprement avec un message, et le reste des tests tourne normalement. Ils n'accèdent à aucune adresse extérieure : le SDK Firebase leur est servi depuis `node_modules`.
 
 Le résumé de `npm test` donne le nombre de tests réussis, échoués, sautés et « à faire ». Un test sur l'émulateur est marqué « à faire » (todo) en attendant une décision (voir docs/SUIVI.md) : il tourne sans compter comme échec.
 

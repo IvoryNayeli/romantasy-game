@@ -45,7 +45,15 @@ Aucun.
 
 ## Décisions à confirmer
 
-Aucune.
+Phase 5, itération 1 (développeur) :
+
+- **Nouveau texte « Échange de butins fait »** (absent de `regles.md`) : bouton sous chaque effet du panneau « Effets en cours », visible par tout le monde ; n'importe quelle personne de la partie peut le toucher, à tout moment, pour dire que l'effet a provoqué un échange de butins (il prend fin, comme décidé pour le moteur en phase 3).
+- **Personnes inscrites sans « Je suis là » au départ** : elles ne jouent pas (absentes de l'ordre des tours) et voient l'avis existant « La quête a déjà commencé » à la place du formulaire.
+- **Suppression de la partie terminée** : faite quand une personne touche « Nouvelle quête » sur l'écran de fin. Les autres restent sur l'écran de fin (il n'écoute plus la base). Si personne ne la touche, le nettoyage des 3 heures s'applique.
+- **Panneau « Effets en cours »** affiché sur tous les écrans de tour (choix, carte révélée, attente) et non plus seulement chez les autres ; pour ses propres effets, la personne lit « Jusqu'à ton prochain tour ».
+- **Avant le tirage**, les autres voient l'écran d'attente sans carte (« Au tour de… », « En attente de… »), la carte apparaît dès qu'elle est tirée.
+- **Rechargement de la page** pendant une partie : on reprend l'état courant, sans rejouer la dernière transition.
+- **Règles de la base** : elles vérifient que chaque écriture suit un enchaînement possible (pas de personne sautée, carte jouée = carte tirée par la personne dont c'est le tour, cartes jouées non modifiables, partie terminée figée), mais sans authentification elles ne peuvent pas savoir qui écrit (risque D2 déjà accepté).
 
 ## Risques reportés
 
