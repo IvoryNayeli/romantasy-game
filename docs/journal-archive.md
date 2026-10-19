@@ -31,3 +31,12 @@ Lignes de journal des phases validées, déplacées depuis `docs/SUIVI.md`. Les 
 - 2026-10-18 | phase 3, lancement | Itération 1, branche `phase-3`. Reste : développement.
 - 2026-10-18 | phase 3, itération 1, rapport | Moteur (`public/js/game.js`), 16 tests, 640 parties simulées sans anomalie ; 137 tests sur 137 (relancés par le chef de phase). Rapport : [phase-3-iteration-1](rapports/phase-3-iteration-1.md). Reste : relecture et validation.
 - 2026-10-18 | phase 3 validée | Validation explicite de la propriétaire (« Phase 3 validée »), après l'itération 1. Fusion de `phase-3` dans `main`, tag `phase-3`. Reste : phase 4.
+- 2026-10-18 | phase 4 | Lancement de l'itération 1 (prérequis vérifiés : Firebase CLI connectée, bases `romantasy-dev` et `romantasy-prod` actives en europe-west1, Java 21).
+- 2026-10-18 | phase 4 | Itération 1 développée (création et jonction par code, emblèmes, « Je suis là », « Commencer la quête » en réseau ; règles de sécurité ; nettoyage par expiration ; tests sur l'émulateur et dans le navigateur ; README). Reste : vérification par le testeur.
+- 2026-10-18 | phase 4 | Défauts D1, D3, D4, D5 corrigés dans les règles (et partie expirée ranimée) ; D2 non corrigeable sans authentification, ajouté à la décision correspondante.
+- 2026-10-18 | phase 4 | Défauts D6 (ordre effacé après le départ), D7 et D8 (partie expirée modifiée ou ranimée) corrigés dans les règles ; README sans nombre de tests figé.
+- 2026-10-19 | phase 4 | Vérification close sans nouvelle série de contournements (dernière série sans défaut), suite complète 190 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-1](rapports/phase-4-iteration-1.md), prête pour relecture.
+- 2026-10-19 | phase 4 | Remarques de l'itération 1 reçues ([remarques/phase-4](remarques/phase-4.md)), lancement de l'itération 2.
+- 2026-10-19 | phase 4 | Remarque 1 traitée, expiration après 30 minutes pour une salle d'attente, 3 heures pour une partie démarrée (salon.js, règles, tests, README).
+- 2026-10-19 | phase 4 | Remarque 1 vérifiée par le testeur, suite complète 192 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-2](rapports/phase-4-iteration-2.md), prête pour relecture.
+- 2026-10-19 | phase 4 validée | Validation explicite de la propriétaire, fusion de `phase-4` dans `main`, tag `phase-4`.
