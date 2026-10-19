@@ -24,13 +24,13 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
-| 5 | Partie jouable en réseau | en test | 1 | |
+| 5 | Partie jouable en réseau | prête pour relecture | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | à faire | 0 | |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 5, itération 1 : développement terminé, test en cours (testeur).
+Phase 5, itération 1 prête pour relecture : la propriétaire lit [phase-5-iteration-1](rapports/phase-5-iteration-1.md) et répond « Phase 5 validée » ou « Phase 5, remarques : … ».
 
 ## Journal
 
@@ -38,6 +38,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 
 - 2026-10-19, phase 5 : lancement, branche `phase-5`, itération 1 en cours.
 - 2026-10-19, phase 5 : développement de l'itération 1 terminé (tours en réseau, règles, tests), passage en test.
+- 2026-10-19, phase 5 : test, D9 corrigé, D10 requalifié, D11 corrigé (tests) ; rapport [phase-5-iteration-1](rapports/phase-5-iteration-1.md), prête pour relecture.
 
 
 ## Défauts ouverts
@@ -54,7 +55,7 @@ Phase 5, itération 1 (développeur) :
 - **Panneau « Effets en cours »** affiché sur tous les écrans de tour (choix, carte révélée, attente) et non plus seulement chez les autres ; pour ses propres effets, la personne lit « Jusqu'à ton prochain tour ».
 - **Avant le tirage**, les autres voient l'écran d'attente sans carte (« Au tour de… », « En attente de… »), la carte apparaît dès qu'elle est tirée.
 - **Rechargement de la page** pendant une partie : on reprend l'état courant, sans rejouer la dernière transition.
-- **Règles de la base** : elles vérifient que chaque écriture suit un enchaînement possible : pas de personne sautée, carte jouée = carte tirée par la personne dont c'est le tour, cartes jouées non réécrites, liste des cartes jouées et première d'entre elles non effaçables, partie terminée qui ne repart pas (étape, dernière carte et piles figées). Sans authentification, elles ne savent pas qui écrit (risque D2 déjà accepté). Limites connues liées à D2 (défauts D9 et D10 du testeur, requalifiés) : par écriture directe, on peut encore effacer une carte jouée isolée autre que la première, ou une entrée isolée d'une pile ; et la règle « une carte ne sort qu'une seule fois » n'est garantie que par le jeu, pas par la base (une carte déjà jouée peut être réécrite comme carte tirée, ou remise dans une pile). Les vérifier demanderait de parcourir des listes, ce que les règles de la base ne savent pas faire simplement.
+- **Règles de la base** : elles vérifient que chaque écriture suit un enchaînement possible : pas de personne sautée, carte jouée = carte tirée par la personne dont c'est le tour, cartes jouées non réécrites, liste des cartes jouées et première d'entre elles non effaçables, partie terminée qui ne repart pas (étape et dernière carte figées, entrées de pile non réécrites après la fin). Sans authentification, elles ne savent pas qui écrit (risque D2 déjà accepté). Limites connues liées à D2 (défauts D9 et D10 du testeur, requalifiés) : par écriture directe, on peut encore effacer une carte jouée isolée autre que la première, ou une entrée isolée d'une pile ; et la règle « une carte ne sort qu'une seule fois » n'est garantie que par le jeu, pas par la base (une carte déjà jouée peut être réécrite comme carte tirée, ou remise dans une pile). Les vérifier demanderait de parcourir des listes, ce que les règles de la base ne savent pas faire simplement.
 
 ## Risques reportés
 
