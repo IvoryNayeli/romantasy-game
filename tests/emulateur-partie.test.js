@@ -299,6 +299,8 @@ describe('émulateur : partie jouable en réseau', () => {
       assert.ok(correct.ok, `fin de tour légitime refusée (${JSON.stringify(correct.corps)})`);
       await refuse('PUT', `${chemin}/jouees/0/issue`, 'bouclier', 'issue d\'une carte jouée réécrite');
       await refuse('PUT', `${chemin}/jouees/0/joueur`, b.id, 'personne d\'une carte jouée réécrite');
+      await refuse('DELETE', `${chemin}/jouees/0`, undefined, 'carte jouée effacée en cours de partie (D9)');
+      await refuse('DELETE', `${chemin}/jouees`, undefined, 'cartes jouées effacées en cours de partie (D9)');
       // Le jeu continue normalement par salon.js après cette écriture.
       assert.equal((await S.jouer(b.c.fb, { code, id: b.id, action: S.ACTIONS.CHOISIR, type: 'revelation' })).issue, S.ISSUES.OK);
     });
@@ -316,9 +318,7 @@ describe('émulateur : partie jouable en réseau', () => {
       await refuse('PATCH', `parties/${code}/jeu`, { etape: 'carte', carte: 'rev-01' }, 'carte tirée après la fin');
     });
 
-    it('D9 : une carte jouée ne peut pas être effacée, et une partie terminée reste figée (dernière carte, piles)', {
-      todo: 'protections annoncées dans docs/SUIVI.md (« cartes jouées non modifiables », « partie terminée figée ») : les règles ne les tiennent pas encore pour les suppressions, ni pour derniere et piles',
-    }, async () => {
+    it('D9 : une carte jouée ne peut pas être effacée, et une partie terminée reste figée (dernière carte, piles)', async () => {
       const code = 'OBSIDIENNE';
       const { membres } = await partieCommencee(code, 2);
       let partie = await lire(code);
