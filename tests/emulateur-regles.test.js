@@ -238,6 +238,8 @@ describe('règles : écritures directes (contournement du jeu)', () => {
     assert.equal((await E.rest('PUT', 'parties/RUNE/actif', ts)).statut, 401, 'salle inactive depuis 31 min expirée');
     await E.rest('PUT', 'parties/RUNE', partieDemarree(31 * minute), { admin: true });
     assert.ok((await E.rest('PUT', 'parties/RUNE/actif', ts)).ok, 'partie démarrée inactive depuis 31 min encore modifiable');
+    await E.rest('PUT', 'parties/RUNE', partieDemarree(EXPIRATION_PARTIE_MS - minute), { admin: true });
+    assert.ok((await E.rest('PUT', 'parties/RUNE/actif', ts)).ok, 'partie démarrée inactive depuis 2 h 59 encore modifiable');
     await E.rest('PUT', 'parties/RUNE', partieDemarree(EXPIRATION_PARTIE_MS + minute), { admin: true });
     assert.equal((await E.rest('PUT', 'parties/RUNE/actif', ts)).statut, 401, 'partie démarrée inactive depuis plus de 3 h expirée');
     assert.equal((await E.rest('DELETE', 'parties/RUNE')).statut, 200, 'suppression complète permise');
