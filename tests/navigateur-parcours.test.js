@@ -21,7 +21,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
   const { ouvrir, fermer, texteVisible } = ctx;
   const codeDe = (page) => new URL(page.url()).searchParams.get('code');
   const sautVers = async (page, chemin) => {
-    await page.goto(new URL(chemin, `${ctx.base}/`).toString());
+    await page.goto(ctx.url(chemin).toString());
     await page.waitForSelector('#ecran > *');
   };
 
@@ -379,7 +379,10 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     for (const f of fichiers) {
       const t = fs.readFileSync(f, 'utf8');
       const nom = path.relative(A.RACINE, f);
-      assert.ok(!/localStorage|sessionStorage|indexedDB/.test(t), `${nom} : stockage local`);
+      // Phase 4 : seul reseau.js garde une donnée dans l'onglet (sessionStorage) : l'identité de la personne dans
+      // la partie en cours, pas un réglage.
+      if (nom !== path.join('public', 'js', 'reseau.js')) assert.ok(!/localStorage|sessionStorage|indexedDB/.test(t), `${nom} : stockage local`);
+      else assert.ok(!/localStorage|indexedDB/.test(t), `${nom} : stockage local`);
       assert.ok(!/réduire les animations/i.test(t), `${nom} : texte « Réduire les animations »`);
       assert.ok(!/data-animations|dataset\.animations|animations-reduites|reglage/i.test(t), `${nom} : reste du réglage d'animations`);
     }

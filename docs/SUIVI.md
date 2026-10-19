@@ -23,18 +23,28 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
 | 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
-| 4 | Multijoueur et salle d'attente | à faire | 0 | |
+| 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | à faire | 0 | |
 | 6 | Robustesse | à faire | 0 | |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 3 validée le 2026-10-18. Prochaine étape : phase 4 (multijoueur et salle d'attente), à lancer par la propriétaire (`/romantasy-chef-de-phase Lance la phase 4`, dans une nouvelle session). Prérequis à installer avant : deux projets Firebase gratuits `romantasy-dev` et `romantasy-prod` (région européenne) et Firebase CLI (voir `docs/PLAN.md`).
+Phase 4 validée le 2026-10-19. Phase 5 possible, sur demande de la propriétaire (« Lance la phase 5 »).
 
 ## Journal
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
+
+- 2026-10-18, phase 4 : lancement de l'itération 1 (prérequis vérifiés : Firebase CLI connectée, bases `romantasy-dev` et `romantasy-prod` actives en europe-west1, Java 21).
+- 2026-10-18, phase 4 : itération 1 développée (création et jonction par code, emblèmes, « Je suis là », « Commencer la quête » en réseau ; règles de sécurité ; nettoyage par expiration ; tests sur l'émulateur et dans le navigateur ; README). Reste : vérification par le testeur.
+- 2026-10-18, phase 4 : défauts D1, D3, D4, D5 corrigés dans les règles (et partie expirée ranimée) ; D2 non corrigeable sans authentification, ajouté à la décision correspondante.
+- 2026-10-18, phase 4 : défauts D6 (ordre effacé après le départ), D7 et D8 (partie expirée modifiée ou ranimée) corrigés dans les règles ; README sans nombre de tests figé.
+- 2026-10-19, phase 4 : vérification close sans nouvelle série de contournements (dernière série sans défaut), suite complète 190 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-1](rapports/phase-4-iteration-1.md), prête pour relecture.
+- 2026-10-19, phase 4 : remarques de l'itération 1 reçues ([remarques/phase-4](remarques/phase-4.md)), lancement de l'itération 2.
+- 2026-10-19, phase 4 : remarque 1 traitée, expiration après 30 minutes pour une salle d'attente, 3 heures pour une partie démarrée (salon.js, règles, tests, README).
+- 2026-10-19, phase 4 : remarque 1 vérifiée par le testeur, suite complète 192 réussis, 1 à faire (D2) ; rapport [phase-4-iteration-2](rapports/phase-4-iteration-2.md), prête pour relecture.
+- 2026-10-19, phase 4 validée : validation explicite de la propriétaire, fusion de `phase-4` dans `main`, tag `phase-4`.
 
 ## Défauts ouverts
 
@@ -42,11 +52,23 @@ Aucun.
 
 ## Décisions à confirmer
 
-Aucune.
+Phase 4, itération 1 (choix du développeur) :
+
+- **Codes de partie** : l'écran « Créer » validé en phase 2 (choix du code dans la liste) est gardé ; les codes déjà pris par une partie en cours y sont grisés et inactifs, et un code pris entre-temps est refusé avec un message. `PROJET.md` parle d'un tirage au hasard parmi les codes libres : non appliqué, à trancher.
+- **Nettoyage des parties** (sans Cloud Functions) : chaque écriture met à jour un horodatage du serveur (`actif`) ; une partie sans écriture depuis **30 minutes** si elle est encore en salle d'attente (statut `salle`), ou depuis **3 heures** si elle a démarré (statut `partie`), est abandonnée (mêmes délais dans `salon.js` et dans les règles, cohérence vérifiée par les tests). Elle est supprimée par le premier client qui la croise (ouverture de « Créer », qui lit les 10 codes un par un, ou tentative de la rejoindre), et son code redevient libre. Les règles interdisent toute modification d'une partie expirée, par quelque chemin que ce soit : seule sa suppression complète est permise, puis une nouvelle partie peut être créée sur l'emplacement vide. Les règles n'acceptent que les 10 codes de `codes.json` : 10 parties au plus dans la base. Partie terminée : fonction de suppression prête, à appeler à la fin de partie en phase 5.
+- **Minimum de 2 présences** : reste une constante, pas dans `config.json` (règle du jeu de `regles.md`, pas un réglage). Source unique : `JOUEURS_MINIMUM` de `game.js`, reprise par la salle fictive et la salle en réseau (la copie `PRETS_MINIMUM` de `fictif.js` est supprimée).
+- **Jouer sur le réseau local** : l'émulateur écoute sur toutes les adresses de l'ordinateur (`firebase.json`) ; une page ouverte depuis l'ordinateur ou une adresse privée (192.168…, 10…, 172.16 à 31…, `.local`) utilise l'émulateur de la même machine (port 9000). `?base=dev` force `romantasy-dev`. Une page servie ailleurs utilise `romantasy-dev` jusqu'à la phase 7 ; `romantasy-prod` n'est encore jamais choisie.
+- **Pas de clé d'API ni d'application Web** : la page n'initialise Firebase qu'avec l'identifiant du projet et l'adresse de la base, ce qui suffit à la Realtime Database seule (vérifié sur l'émulateur, pas sur la vraie base).
+- **Pas d'authentification** : sans Firebase Auth (qui demanderait d'enregistrer une application Web), les règles vérifient la forme, la taille et les invariants (places, emblème unique, rang, présence définitive, code en cours non réattribuable), mais ne peuvent pas empêcher une personne malveillante qui connaît un code de modifier ou supprimer cette partie. Exemple relevé par le testeur (défaut D2) : l'emblème d'une personne qui n'a pas encore dit « Je suis là » peut être changé par quelqu'un d'autre, par écriture directe dans la base ; la base ne peut pas savoir qui écrit. Le test correspondant (`tests/emulateur-regles.test.js`) est marqué « à faire » en attendant ce choix. À décider : ajouter l'authentification anonyme (phase 6 ?) ou accepter ce risque pour un jeu entre amis. Les défauts D1, D3, D4 et D5 (emblème en double, personne prête retirée, départ sans 2 présences, arrivée après le départ) sont corrigés dans les règles, ainsi que la partie expirée ranimée par une simple écriture ; au départ, la base reçoit désormais l'ordre des tours (`ordre` : les personnes prêtes, dans l'ordre d'arrivée).
+- **Nouveaux textes affichés** (absents de `regles.md`) : « Connexion impossible. Vérifie ton réseau et réessaie. » (réseau ou base indisponible), « Ce code est déjà pris par une autre partie. Choisis-en un autre. » (écran « Créer »), « La quête a déjà commencé » (salle, à la place de « La partie est complète » quand la partie a commencé).
+- **Prénom** : 24 caractères au plus (champ et règles) ; envoyé seulement au « Je suis là » (avant, les autres voient « … » et l'emblème choisi).
+- **Identité** : gardée dans l'onglet (`sessionStorage`) ; un onglet = une personne, ce qui permet d'essayer à plusieurs sur un ordinateur. La reconnexion de la phase 6 pourra la garder plus durablement.
+- **Après « Commencer la quête »** : la base passe la partie au statut « partie » et tout le monde est envoyé sur l'écran de choix de carte, encore fictif (le tour en réseau est la phase 5, qui décidera aussi du sort des personnes inscrites sans « Je suis là »).
+- **Mode démonstration** : `?demo=1` (ajouté à tous les liens de `demo.html` et gardé d'un écran à l'autre) ou une salle ouverte avec ses paramètres fictifs (`hote`, `autres`, `complete`…) gardent les écrans de la phase 2 sans base. Les tests de navigateur des phases précédentes s'ouvrent désormais en démonstration.
+- **SDK Firebase 11.10.0** (et non la dernière, 13.0.0) : les versions 12 et 13 demandent Node 20, alors que l'ordinateur a Node 18 ; même version pour le CDN et pour le paquet `firebase` des tests (nouvelle dépendance de développement, nécessaire pour tester la logique réelle contre l'émulateur).
 
 ## Risques reportés
 
-- Phase 4 ou 5 : le nombre minimal de personnes présentes pour commencer (2, de `regles.md`) est une constante de `public/js/fictif.js`, absente de `config.json` ; « Créer » et « Rejoindre » ne vérifient le code que dans `codes.json`, sans réseau ni unicité.
 - Phase 7 : `demo.html` et le paramètre `?ecran=` (outils de validation de la phase 2) à retirer ou masquer ; icônes SVG faites pour le projet (épée, étoile, bouclier) à remplacer ou garder selon le choix des icônes game-icons.net.
 - Phase 7 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.

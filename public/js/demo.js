@@ -1,4 +1,5 @@
-// Page de démonstration : liste de liens vers chaque écran avec des données fictives.
+// Page de démonstration : liste de liens vers chaque écran avec des données fictives
+// (paramètre demo=1 : aucun accès à la base, même pour « Créer », « Rejoindre » et la salle d'attente).
 // Le nombre de tours et de personnes vient de config.json (voir donnees.js).
 
 import { chargerDonnees } from './donnees.js';
@@ -6,7 +7,7 @@ import { h, adresse } from './dom.js';
 
 const PAGE = 'index.html';
 
-const lien = (texte, params) => h('a', { classe: 'demo-lien', href: PAGE + adresse(params) }, texte);
+const lien = (texte, params) => h('a', { classe: 'demo-lien', href: PAGE + adresse({ demo: 1, ...params }) }, texte);
 
 function groupe(titre, liens) {
   return h('section', { classe: 'demo-groupe' },

@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "romantasy-dev",
+    "dev": "romantasy-dev",
+    "prod": "romantasy-prod"
+  }
+}

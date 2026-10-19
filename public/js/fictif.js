@@ -57,6 +57,3 @@ export function entierDepuisParametres(params, nom, defaut, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
-// Nombre minimal de personnes ayant confirmé leur présence (« Je suis là ») pour que l'hôte puisse commencer (règle de docs/regles.md,
-// absente de config.json : choix à confirmer, voir le rapport de la phase 2).
-export const PRETS_MINIMUM = 2;

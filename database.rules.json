@@ -1,0 +1,65 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "parties": {
+      "$code": {
+        ".read": "$code.matches(/^(ECLIPSE|RUNE|ONYX|AURORE|CRYPTE|GRIMOIRE|TALISMAN|ELIXIR|SORTILEGE|OBSIDIENNE)$/)",
+        ".write": "$code.matches(/^(ECLIPSE|RUNE|ONYX|AURORE|CRYPTE|GRIMOIRE|TALISMAN|ELIXIR|SORTILEGE|OBSIDIENNE)$/)",
+        ".validate": "newData.hasChildren(['cree', 'actif', 'hote', 'max', 'nb', 'statut', 'joueurs']) && (!newData.child('emblemes').child('dragon').exists() || newData.child('joueurs').child(newData.child('emblemes').child('dragon').val()).child('embleme').val() == 'dragon') && (!data.child('emblemes').child('dragon').exists() || newData.child('emblemes').child('dragon').val() == data.child('emblemes').child('dragon').val() || newData.child('joueurs').child(data.child('emblemes').child('dragon').val()).child('embleme').val() != 'dragon') && (!newData.child('emblemes').child('sorciere').exists() || newData.child('joueurs').child(newData.child('emblemes').child('sorciere').val()).child('embleme').val() == 'sorciere') && (!data.child('emblemes').child('sorciere').exists() || newData.child('emblemes').child('sorciere').val() == data.child('emblemes').child('sorciere').val() || newData.child('joueurs').child(data.child('emblemes').child('sorciere').val()).child('embleme').val() != 'sorciere') && (!newData.child('emblemes').child('vampire').exists() || newData.child('joueurs').child(newData.child('emblemes').child('vampire').val()).child('embleme').val() == 'vampire') && (!data.child('emblemes').child('vampire').exists() || newData.child('emblemes').child('vampire').val() == data.child('emblemes').child('vampire').val() || newData.child('joueurs').child(data.child('emblemes').child('vampire').val()).child('embleme').val() != 'vampire') && (!newData.child('emblemes').child('fee').exists() || newData.child('joueurs').child(newData.child('emblemes').child('fee').val()).child('embleme').val() == 'fee') && (!data.child('emblemes').child('fee').exists() || newData.child('emblemes').child('fee').val() == data.child('emblemes').child('fee').val() || newData.child('joueurs').child(data.child('emblemes').child('fee').val()).child('embleme').val() != 'fee') && (!newData.child('emblemes').child('elfe').exists() || newData.child('joueurs').child(newData.child('emblemes').child('elfe').val()).child('embleme').val() == 'elfe') && (!data.child('emblemes').child('elfe').exists() || newData.child('emblemes').child('elfe').val() == data.child('emblemes').child('elfe').val() || newData.child('joueurs').child(data.child('emblemes').child('elfe').val()).child('embleme').val() != 'elfe') && (!newData.child('emblemes').child('loup-garou').exists() || newData.child('joueurs').child(newData.child('emblemes').child('loup-garou').val()).child('embleme').val() == 'loup-garou') && (!data.child('emblemes').child('loup-garou').exists() || newData.child('emblemes').child('loup-garou').val() == data.child('emblemes').child('loup-garou').val() || newData.child('joueurs').child(data.child('emblemes').child('loup-garou').val()).child('embleme').val() != 'loup-garou') && (!newData.child('emblemes').child('sirene').exists() || newData.child('joueurs').child(newData.child('emblemes').child('sirene').val()).child('embleme').val() == 'sirene') && (!data.child('emblemes').child('sirene').exists() || newData.child('emblemes').child('sirene').val() == data.child('emblemes').child('sirene').val() || newData.child('joueurs').child(data.child('emblemes').child('sirene').val()).child('embleme').val() != 'sirene') && (!newData.child('emblemes').child('phenix').exists() || newData.child('joueurs').child(newData.child('emblemes').child('phenix').val()).child('embleme').val() == 'phenix') && (!data.child('emblemes').child('phenix').exists() || newData.child('emblemes').child('phenix').val() == data.child('emblemes').child('phenix').val() || newData.child('joueurs').child(data.child('emblemes').child('phenix').val()).child('embleme').val() != 'phenix') && (!newData.child('emblemes').child('licorne').exists() || newData.child('joueurs').child(newData.child('emblemes').child('licorne').val()).child('embleme').val() == 'licorne') && (!data.child('emblemes').child('licorne').exists() || newData.child('emblemes').child('licorne').val() == data.child('emblemes').child('licorne').val() || newData.child('joueurs').child(data.child('emblemes').child('licorne').val()).child('embleme').val() != 'licorne') && (!newData.child('emblemes').child('chevalier').exists() || newData.child('joueurs').child(newData.child('emblemes').child('chevalier').val()).child('embleme').val() == 'chevalier') && (!data.child('emblemes').child('chevalier').exists() || newData.child('emblemes').child('chevalier').val() == data.child('emblemes').child('chevalier').val() || newData.child('joueurs').child(data.child('emblemes').child('chevalier').val()).child('embleme').val() != 'chevalier') && (!data.exists() || data.child('actif').val() >= now - 1800000 || (data.child('statut').val() == 'partie' && data.child('actif').val() >= now - 10800000)) && (newData.child('statut').val() != 'partie' || newData.child('ordre').exists()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('0').val() == data.child('ordre').child('0').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('1').val() == data.child('ordre').child('1').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('2').val() == data.child('ordre').child('2').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('3').val() == data.child('ordre').child('3').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('4').val() == data.child('ordre').child('4').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('5').val() == data.child('ordre').child('5').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('6').val() == data.child('ordre').child('6').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('7').val() == data.child('ordre').child('7').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('8').val() == data.child('ordre').child('8').val()) && (data.child('statut').val() != 'partie' || newData.child('ordre').child('9').val() == data.child('ordre').child('9').val())",
+        "cree": {
+          ".validate": "newData.isNumber() && newData.val() <= now && (newData.val() == data.val() || !data.parent().exists())"
+        },
+        "actif": {
+          ".validate": "newData.isNumber() && newData.val() <= now && (!data.exists() || newData.val() >= data.val())"
+        },
+        "hote": {
+          ".validate": "newData.isString() && newData.parent().child('joueurs').child(newData.val()).exists() && (newData.val() == data.val() || !data.parent().exists())"
+        },
+        "max": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10 && (newData.val() == data.val() || !data.parent().exists())"
+        },
+        "nb": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= newData.parent().child('max').val() && ((newData.val() == 1 && !data.parent().exists()) || newData.val() == data.val() || (newData.val() == data.val() + 1 && newData.parent().child('statut').val() == 'salle' && data.parent().child('statut').val() == 'salle'))"
+        },
+        "statut": {
+          ".validate": "newData.isString() && (newData.val() == data.val() || (newData.val() == 'salle' && !data.parent().exists()) || (newData.val() == 'partie' && data.val() == 'salle' && newData.parent().child('ordre').child('0').exists() && newData.parent().child('ordre').child('1').exists() && newData.parent().child('ordre').child('0').val() != newData.parent().child('ordre').child('1').val()))"
+        },
+        "joueurs": {
+          "$id": {
+            ".validate": "$id.matches(/^[A-Za-z0-9_-]{16,40}$/) && newData.hasChildren(['rang', 'pret']) && (newData.child('pret').val() == false || newData.hasChildren(['prenom', 'embleme'])) && (data.child('pret').val() != true || (newData.child('pret').val() == true && newData.child('prenom').val() == data.child('prenom').val() && newData.child('embleme').val() == data.child('embleme').val()))",
+            "rang": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < newData.parent().parent().parent().child('max').val() && (newData.val() == data.val() || (!data.exists() && newData.val() + 1 == newData.parent().parent().parent().child('nb').val() && newData.parent().parent().parent().child('statut').val() == 'salle'))"
+            },
+            "prenom": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24 && !newData.val().matches(/^ *$/)"
+            },
+            "embleme": {
+              ".validate": "newData.isString() && newData.val().matches(/^(dragon|sorciere|vampire|fee|elfe|loup-garou|sirene|phenix|licorne|chevalier)$/) && newData.parent().parent().parent().child('emblemes').child(newData.val()).val() == $id"
+            },
+            "pret": {
+              ".validate": "newData.isBoolean()"
+            },
+            "$autre": {
+              ".validate": false
+            }
+          }
+        },
+        "emblemes": {
+          "$embleme": {
+            ".validate": "$embleme.matches(/^(dragon|sorciere|vampire|fee|elfe|loup-garou|sirene|phenix|licorne|chevalier)$/) && newData.isString() && newData.parent().parent().child('joueurs').child(newData.val()).child('embleme').val() == $embleme"
+          }
+        },
+        "ordre": {
+          ".validate": "newData.parent().child('statut').val() == 'partie' && newData.hasChildren(['0', '1'])",
+          "$i": {
+            ".validate": "$i.matches(/^[0-9]$/) && newData.isString() && newData.parent().parent().child('joueurs').child(newData.val()).child('pret').val() == true && (newData.val() == data.val() || data.parent().parent().child('statut').val() == 'salle')"
+          }
+        },
+        "$autre": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}

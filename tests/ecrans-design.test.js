@@ -307,10 +307,19 @@ test('design : polices Cormorant Garamond (500, 600, 500 italique) et Jost (300,
   assert.doesNotMatch(css, /\bfont:\s*(?:italic\s+)?(?:700|800|900|bold)\b/);
 });
 
+// Phase 4 : seules exceptions, les deux modules Firebase (SDK du CDN officiel gstatic, adresses des bases),
+// contrôlés en détail par tests/reseau.test.js.
+const MODULES_FIREBASE = ['firebase.js', 'firebase-config.js'].map((n) => path.join(PUBLIC, 'js', n));
+
 test('design : aucune ressource externe (pas de Google Fonts, pas de CDN, pas d\'URL distante)', () => {
   const fichiers = listerFichiers(PUBLIC, /\.(html|css|js)$/).filter((f) => !f.includes(`${path.sep}data${path.sep}`));
   for (const f of fichiers) {
     const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f);
+    if (MODULES_FIREBASE.includes(f)) {
+      const urls = [...code.matchAll(/https?:\/\/[^\s"'`)]+/g)].map((m) => m[0]);
+      for (const u of urls) assert.match(u, /^https:\/\/(?:www\.gstatic\.com\/firebasejs\/[\d.]+\/firebase-[a-z]+\.js|[a-z-]+-default-rtdb\.(?:europe-west1\.firebasedatabase\.app|firebaseio\.com))$/, `${path.relative(RACINE, f)} : ${u}`);
+      continue;
+    }
     assert.doesNotMatch(code, /googleapis|gstatic|fonts\.google|cdn\.|unpkg|jsdelivr|cdnjs/i, `${path.relative(RACINE, f)} : service externe`);
     const urls = [...code.matchAll(/https?:\/\/[^\s"'`)]+/g)].map((m) => m[0]).filter((u) => u !== 'http://www.w3.org/2000/svg');
     assert.deepEqual(urls, [], `${path.relative(RACINE, f)} : URL externe`);
@@ -715,10 +724,14 @@ test('textes : la page n\'affiche aucun emoji en dehors des emblèmes (les embl�
   }
 });
 
-test('données fictives : aucun réseau, aucun Firebase, aucune logique de jeu dans les écrans', () => {
+// Phase 4 : Firebase n'est nommé que dans les modules réseau (SDK, configuration, chargement à la demande).
+const MODULES_RESEAU = ['firebase.js', 'firebase-config.js', 'reseau.js'].map((n) => path.join(PUBLIC, 'js', n));
+
+test('données fictives : aucun réseau ni Firebase hors des modules réseau, aucune logique de jeu dans les écrans', () => {
   for (const f of listerFichiers(path.join(PUBLIC, 'js'), /\.js$/)) {
     const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f);
-    assert.doesNotMatch(code, /firebase|WebSocket|XMLHttpRequest|EventSource|sendBeacon/i, `${path.relative(RACINE, f)} : accès réseau`);
+    if (!MODULES_RESEAU.includes(f)) assert.doesNotMatch(code, /firebase/i, `${path.relative(RACINE, f)} : accès réseau`);
+    assert.doesNotMatch(code, /WebSocket|XMLHttpRequest|EventSource|sendBeacon/i, `${path.relative(RACINE, f)} : accès réseau`);
     assert.doesNotMatch(code, /Math\.random/, `${path.relative(RACINE, f)} : tirage au sort (logique de jeu)`);
   }
   // Seul fetch autorisé : le chargement des fichiers de public/data/.

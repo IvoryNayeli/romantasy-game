@@ -11,7 +11,7 @@
 // `aleatoireDepuisGraine` pour un tirage reproductible.
 
 // Nombre minimal de personnes pour commencer (docs/regles.md : « actif dès que 2 personnes ont confirmé
-// leur présence »). Absent de config.json, comme PRETS_MINIMUM dans fictif.js (risque déjà noté dans SUIVI.md).
+// leur présence »). Règle du jeu, pas un réglage : constante unique, reprise par fictif.js et salon.js.
 export const JOUEURS_MINIMUM = 2;
 
 // Étapes d'une partie.

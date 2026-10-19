@@ -9,7 +9,10 @@
 // CAPTURES_DIR (dossier des captures, par défaut un dossier temporaire hors du dépôt).
 // Sans playwright-core ou sans Chrome, les tests de navigateur sont SAUTÉS avec un message clair.
 // Sécurité : le serveur écoute uniquement sur 127.0.0.1 et toute requête vers une autre adresse est bloquée
-// et signalée comme défaut. Aucun accès réseau externe, aucun Firebase.
+// et signalée comme défaut. Aucun accès réseau externe.
+// Phase 4 : les pages s'ouvrent par défaut en démonstration (?demo=1 : données fictives, aucun accès à la base).
+// Avec l'option { reseau: true }, la page utilise l'émulateur Firebase local (127.0.0.1) ; le SDK, normalement chargé
+// depuis le CDN gstatic, est alors servi depuis node_modules/firebase (même version), sans sortir de la machine.
 
 const { before, after } = require('node:test');
 const assert = require('node:assert/strict');
@@ -39,6 +42,9 @@ if (!raisonSaut && !CHROME) {
 if (raisonSaut) console.warn(`# SAUT des tests de navigateur : ${raisonSaut}`);
 
 const lireJson = (nom) => JSON.parse(fs.readFileSync(path.join(PUBLIC, 'data', nom), 'utf8'));
+// SDK Firebase servi localement (paquet de développement « firebase », version figée dans package.json).
+const VERSION_FIREBASE = JSON.parse(fs.readFileSync(path.join(RACINE, 'package.json'), 'utf8')).devDependencies.firebase;
+const SDK_LOCAL = path.join(RACINE, 'node_modules', 'firebase');
 const config = lireJson('config.json');
 const cartes = lireJson('cartes.json');
 const codes = lireJson('codes.json');
@@ -319,9 +325,16 @@ function contexte() {
     if (serveur) serveur.close();
   });
 
-  // Ouvre une page avec relevé des problèmes. Refuse toute adresse non locale.
-  ctx.ouvrir = async function ouvrir(chemin, { largeur = 360, hauteur = 800, reduit = null, config: cfg = null, init = null, couleur = 'dark', dpr = 1 } = {}) {
+  // Adresse d'une page du jeu : démonstration par défaut (demo=1 ajouté en tête, encodage d'origine conservé).
+  ctx.url = (chemin, { reseau = false } = {}) => {
     const url = new URL(chemin, `${ctx.base}/`);
+    const pageJeu = url.pathname === '/' || url.pathname.endsWith('/index.html');
+    if (!reseau && pageJeu && !url.searchParams.has('demo')) url.search = `?demo=1${url.search ? `&${url.search.slice(1)}` : ''}`;
+    return url;
+  };
+  // Ouvre une page avec relevé des problèmes. Refuse toute adresse non locale.
+  ctx.ouvrir = async function ouvrir(chemin, { largeur = 360, hauteur = 800, reduit = null, config: cfg = null, init = null, couleur = 'dark', dpr = 1, reseau = false } = {}) {
+    const url = ctx.url(chemin, { reseau });
     assert.equal(url.hostname, '127.0.0.1', `adresse non locale refusée : ${url}`);
     const c = await navigateur.newContext({
       viewport: { width: largeur, height: hauteur }, deviceScaleFactor: dpr, hasTouch: true, isMobile: false,
@@ -330,6 +343,10 @@ function contexte() {
     await c.route('**/*', (route) => {
       const u = new URL(route.request().url());
       if (u.hostname === '127.0.0.1' || u.protocol === 'data:') return route.continue();
+      const sdk = u.hostname === 'www.gstatic.com' && u.pathname.match(/^\/firebasejs\/([\d.]+)\/(firebase-[a-z]+\.js)$/);
+      if (sdk && sdk[1] === VERSION_FIREBASE && fs.existsSync(path.join(SDK_LOCAL, sdk[2]))) {
+        return route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: fs.readFileSync(path.join(SDK_LOCAL, sdk[2])) });
+      }
       ctx.requetesExternes.push(route.request().url());
       return route.abort();
     });
