@@ -23,14 +23,14 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 1 | Contenu | validée le 2026-10-15 | 1 | [phase-1-iteration-1](rapports/phase-1-iteration-1.md) |
 | 2 | Écrans et design | validée le 2026-10-18 | 5 | [phase-2-iteration-5](rapports/phase-2-iteration-5.md) |
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
-| 4 | Multijoueur et salle d'attente | en cours (itération 2) | 2 | [phase-4-iteration-1](rapports/phase-4-iteration-1.md) |
+| 4 | Multijoueur et salle d'attente | en test | 2 | [phase-4-iteration-1](rapports/phase-4-iteration-1.md) |
 | 5 | Partie jouable en réseau | à faire | 0 | |
 | 6 | Robustesse | à faire | 0 | |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 4 en cours (itération 2) : remarque 1 de [remarques/phase-4](remarques/phase-4.md) (délai de 30 minutes pour une salle non démarrée), par `romantasy-developpeur`.
+Phase 4 en test (itération 2) : vérification de la remarque 1 (délai de 30 minutes pour une salle non démarrée) par `romantasy-testeur`.
 
 ## Journal
 
