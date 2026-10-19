@@ -203,6 +203,37 @@ test('moteur : état relu sans tableaux vides (comme Firebase, qui ne les stocke
   assert.equal(M.joueurCourant(suite), 'b');
 });
 
+test('moteur (phase 6) : tour d\'une personne absente passé par une autre, compté comme un bouclier', async () => {
+  const M = await chargement;
+  const durable = cartes.find((c) => c.type === 'epreuve' && c.duree);
+  let etat = partie(M, ['a', 'b', 'c'], { liste: cartesDansLOrdre(durable.id) });
+  // Sans carte tirée : le tour de « a » est noté sans carte, « b » joue ensuite.
+  assert.equal(codeRefus(() => M.passerTour(etat, 'a', 'a')), 'son-propre-tour');
+  assert.equal(codeRefus(() => M.passerTour(etat, 'b', 'b')), 'pas-son-tour', 'la cible doit être la personne dont c\'est le tour');
+  assert.equal(codeRefus(() => M.passerTour(etat, 'z', 'a')), 'joueur-inconnu');
+  etat = M.passerTour(etat, 'b', 'a');
+  assert.equal(M.joueurCourant(etat), 'b');
+  assert.deepEqual(etat.derniere, { carte: null, joueur: 'a', issue: M.ISSUES.PASSE });
+  assert.equal(etat.jouees.length, 1);
+  // Carte durable déjà tirée : elle est consumée, sans effet ; la cible déjà passée ne peut pas l'être deux fois.
+  etat = M.choisirType(etat, 'b', 'epreuve');
+  assert.equal(etat.carte, durable.id);
+  const avant = etat;
+  etat = M.passerTour(etat, 'c', 'b');
+  assert.equal(codeRefus(() => M.passerTour(etat, 'a', 'b')), 'pas-son-tour');
+  assert.deepEqual(etat.derniere, { carte: durable.id, joueur: 'b', issue: M.ISSUES.PASSE });
+  assert.deepEqual(M.effetsEnCours(etat), []);
+  assert.equal(M.cartesRestantes(etat, 'epreuve'), M.cartesRestantes(avant, 'epreuve'), 'la carte ne retourne pas dans la pile');
+  assert.equal(M.joueurCourant(etat), 'c');
+  // Jusqu'à la fin : tous les tours passés comptent ; la partie se termine normalement.
+  while (!M.estFinie(etat)) {
+    const j = M.joueurCourant(etat);
+    etat = M.passerTour(etat, j === 'a' ? 'b' : 'a', j);
+  }
+  assert.equal(etat.jouees.length, 3 * config.tours);
+  assert.equal(codeRefus(() => M.passerTour(etat, 'a', 'b')), 'partie-finie');
+});
+
 test('moteur : actions refusées hors de leur moment (cas limites du rapport)', async () => {
   const M = await chargement;
   const cas = sim.casLimites(M, cartes, config);
