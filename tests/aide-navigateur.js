@@ -363,7 +363,13 @@ function contexte() {
     const page = await c.newPage();
     page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) ctx.problemes.push(`console ${m.type()} sur ${chemin} : ${m.text()}`); });
     page.on('pageerror', (e) => ctx.problemes.push(`exception sur ${chemin} : ${e.message}`));
-    page.on('requestfailed', (r) => ctx.problemes.push(`requête échouée sur ${chemin} : ${r.url()} ${r.failure()?.errorText}`));
+    // Une requête locale annulée (ERR_ABORTED) est une connexion longue de l'émulateur coupée à la fermeture de la page
+    // (écoute Firebase en cours) : sans gravité, et sinon le test est instable. Toute autre requête échouée est relevée.
+    page.on('requestfailed', (r) => {
+      const local = new URL(r.url()).hostname === '127.0.0.1';
+      if (local && r.failure()?.errorText === 'net::ERR_ABORTED') return;
+      ctx.problemes.push(`requête échouée sur ${chemin} : ${r.url()} ${r.failure()?.errorText}`);
+    });
     page.on('response', (r) => { if (r.status() >= 400) ctx.problemes.push(`HTTP ${r.status()} sur ${chemin} : ${r.url()}`); });
     page.on('request', (r) => { if (/\.woff2?($|\?)/.test(r.url())) ctx.polices.add(path.basename(new URL(r.url()).pathname)); });
     await page.goto(url.toString());

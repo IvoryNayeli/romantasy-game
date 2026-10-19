@@ -148,6 +148,46 @@ describe('émulateur : partie jouable en réseau', () => {
     assert.equal(await lire(code), null);
   });
 
+  it('partie complète à cinq (maximum de config.json) : chacun joue autant de fois que de tours, même état partout, fin', async () => {
+    const code = 'CRYPTE';
+    const { membres } = await partieCommencee(code, config.joueursMax);
+    const vus = membres.map(() => null);
+    const arrets = membres.map((m, i) => S.ecouterPartie(m.c.fb, code, (v) => { vus[i] = v; }));
+    await attendre(300);
+    let partie = await lire(code);
+    assert.equal(partie.jeu.joueurs.length, config.joueursMax, 'cinq personnes dans l\'ordre des tours');
+    const parId = new Map(membres.map((m) => [m.id, m]));
+    let n = 0;
+    // Comme à l'écran : on n'agit qu'une fois l'état courant reçu par l'écoute (les boutons n'apparaissent qu'alors).
+    const synchro = async (attendu) => {
+      for (let essai = 0; essai < 100 && !vus.every((v) => JSON.stringify(v?.jeu) === JSON.stringify(attendu.jeu)); essai += 1) await attendre(30);
+      for (const v of vus) assert.deepEqual(v.jeu, attendu.jeu, 'toutes les personnes voient le même état');
+    };
+    while (partie.jeu.etape !== G.ETAPES.FIN) {
+      await synchro(partie);
+      const actif = parId.get(courant(partie));
+      const tirage = await S.jouer(actif.c.fb, { code, id: actif.id, action: S.ACTIONS.CHOISIR, type: n % 2 ? 'revelation' : 'epreuve' });
+      assert.equal(tirage.issue, S.ISSUES.OK);
+      await synchro(tirage.partie);
+      const fin = await S.jouer(actif.c.fb, { code, id: actif.id, action: n % 3 === 2 ? S.ACTIONS.BOUCLIER : S.ACTIONS.SORT });
+      assert.equal(fin.issue, S.ISSUES.OK);
+      partie = fin.partie;
+      n += 1;
+    }
+    await synchro(partie);
+    assert.equal(n, config.joueursMax * config.tours, 'chaque personne a joué autant de fois que de tours');
+    assert.equal(partie.jeu.tour, config.tours);
+    partie.jeu.jouees.forEach((j, i) => {
+      assert.equal(j.joueur, membres[i % membres.length].id, 'ordre des tours : ordre d\'arrivée, tour après tour');
+      assert.equal(j.tour, Math.floor(i / membres.length) + 1);
+    });
+    await attendre(500);
+    const finale = await lire(code);
+    assert.deepEqual(finale.jeu, partie.jeu);
+    for (const v of vus) assert.deepEqual(v.jeu, finale.jeu, 'chaque personne a reçu le même état final (écran de fin)');
+    arrets.forEach((a) => a());
+  });
+
   it('personnes inscrites sans « Je suis là » au départ : hors de l\'ordre des tours, aucune action possible', async () => {
     const code = 'AURORE';
     const { membres, partie } = await partieCommencee(code, 2, { sansPresence: 1 });
@@ -274,6 +314,23 @@ describe('émulateur : partie jouable en réseau', () => {
       }
       await refuse('PATCH', `parties/${code}/jeu`, { etape: 'choix', tour: 1 }, 'partie terminée relancée');
       await refuse('PATCH', `parties/${code}/jeu`, { etape: 'carte', carte: 'rev-01' }, 'carte tirée après la fin');
+    });
+
+    it('D9 : une carte jouée ne peut pas être effacée, et une partie terminée reste figée (dernière carte, piles)', {
+      todo: 'protections annoncées dans docs/SUIVI.md (« cartes jouées non modifiables », « partie terminée figée ») : les règles ne les tiennent pas encore pour les suppressions, ni pour derniere et piles',
+    }, async () => {
+      const code = 'OBSIDIENNE';
+      const { membres } = await partieCommencee(code, 2);
+      let partie = await lire(code);
+      while (partie.jeu.etape !== G.ETAPES.FIN) {
+        const m = membres.find((x) => x.id === courant(partie));
+        await S.jouer(m.c.fb, { code, id: m.id, action: S.ACTIONS.CHOISIR, type: 'revelation' });
+        partie = (await S.jouer(m.c.fb, { code, id: m.id, action: S.ACTIONS.SORT })).partie;
+      }
+      await refuse('DELETE', `parties/${code}/jeu/jouees/0`, undefined, 'carte jouée effacée');
+      await refuse('DELETE', `parties/${code}/jeu/jouees`, undefined, 'historique des cartes jouées effacé');
+      await refuse('PUT', `parties/${code}/jeu/derniere`, { carte: 'rev-01', joueur: membres[0].id, issue: 'sort' }, 'dernière carte réécrite après la fin');
+      await refuse('PUT', `parties/${code}/jeu/piles/revelation/0`, 'rev-02', 'pile réécrite après la fin');
     });
   });
 });
