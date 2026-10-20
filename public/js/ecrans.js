@@ -96,7 +96,8 @@ function flecheRetour(ecran, libelle) {
 }
 
 // Ligne d'une personne dans la liste « La compagnie » de la salle d'attente (fictive ou en réseau).
-export function ligneJoueur(donnees, joueur, { hote, soi }) {
+// `absent` (phase 6) : plus aucune connexion ouverte, étiquette « hors ligne ».
+export function ligneJoueur(donnees, joueur, { hote, soi, absent = false }) {
   const S = T.salle;
   const prenom = String(joueur.prenom || '').trim();
   const emb = joueur.embleme ? emblemeParId(donnees, joueur.embleme) : null;
@@ -106,7 +107,8 @@ export function ligneJoueur(donnees, joueur, { hote, soi }) {
     h('span', { classe: 'joueur-etiquettes' },
       hote ? h('span', { classe: 'etiquette' }, S.hote) : null,
       soi ? h('span', { classe: 'etiquette' }, S.vous) : null,
-      joueur.pret ? h('span', { classe: 'etiquette etiquette-pret' }, icone('coche'), S.pret) : null));
+      joueur.pret ? h('span', { classe: 'etiquette etiquette-pret' }, icone('coche'), S.pret) : null,
+      absent ? h('span', { classe: 'etiquette etiquette-absent' }, T.absence.etiquette) : null));
 }
 
 /* ---------- Écrans ---------- */
@@ -325,7 +327,9 @@ export function salle({ donnees, params, naviguer }) {
   function majListe() {
     const lignes = autres.map((j) => ({ j, soi: false }));
     if (!complete) lignes.splice(estHote ? 0 : lignes.length, 0, { j: moi, soi: true });
-    const elements = lignes.map(({ j, soi }, i) => ligneJoueur(donnees, j, { hote: i === 0, soi }));
+    // ?absent=1 (phase 6) : la première des autres personnes est hors ligne.
+    const horsLigne = params.get('absent') === '1' ? autres[0] : null;
+    const elements = lignes.map(({ j, soi }, i) => ligneJoueur(donnees, j, { hote: i === 0, soi, absent: Boolean(horsLigne) && j === horsLigne }));
     for (let i = lignes.length; i < max; i += 1) {
       elements.push(h('li', { classe: 'joueur-ligne joueur-libre', 'aria-hidden': 'true' }));
     }
@@ -450,12 +454,17 @@ export function vueCarte(donnees, { tour, carte: c, sortJete, bouclier, effets =
 
 export function attente({ donnees, params }) {
   const premier = joueursFictifs(donnees, 1)[0];
+  const prenom = params.get('prenom') || premier.prenom;
+  // ?absent=1 (phase 6) : la personne dont c'est le tour est hors ligne et son tour peut être passé (sans effet ici).
+  const absence = params.get('absent') === '1' ? blocAbsence() : null;
+  if (absence) absence.majAbsence({ prenom, passer: () => {} });
   return {
     noeud: vueAttente(donnees, {
+      pied: absence ? absence.noeud : null,
       tour: tourDepuisParametres(donnees, params),
       carte: carteDepuisParametres(donnees, params),
       actif: {
-        prenom: params.get('prenom') || premier.prenom,
+        prenom,
         embleme: emblemeParId(donnees, params.get('embleme') || premier.embleme),
       },
       effets: params.get('effets') === '0' ? [] : effetsEnCours(donnees),
@@ -481,14 +490,35 @@ export function panneauEffets(donnees, effets, signaler = null) {
 }
 
 // Vue des autres personnes pendant un tour : « Au tour de… », la carte tirée (s'il y en a une) sans boutons,
-// les effets en cours et « En attente de… ».
-export function vueAttente(donnees, { tour, carte: c = null, actif, effets = [], signaler = null }) {
+// les effets en cours et « En attente de… ». `pied` (phase 6) : bloc d'absence de blocAbsence(), posé à la fin.
+export function vueAttente(donnees, { tour, carte: c = null, actif, effets = [], signaler = null, pied = null }) {
   return h('section', { classe: 'ecran ecran-attente' },
     compteurEl(donnees, tour),
     h('h2', { classe: 'titre-tour' }, `${T.tour.auTourDe} `, h('span', { classe: 'nom-actif' }, emblemeEl(actif.embleme), actif.prenom)),
     c ? carteEl(c, 'autre') : null,
     panneauEffets(donnees, effets, signaler),
-    h('p', { classe: 'attente-message', role: 'status' }, T.tour.enAttente(actif.prenom)));
+    h('p', { classe: 'attente-message', role: 'status' }, T.tour.enAttente(actif.prenom)),
+    pied);
+}
+
+// Bloc d'absence de l'écran d'attente (phase 6), mis à jour sur place (la carte affichée ne se retourne pas une
+// seconde fois) : majAbsence(null) le cache ; { prenom } affiche « … est hors ligne. » ; avec `passer`, le bouton
+// « Passer son tour » apparaît aussi (une fois le délai de config.json écoulé, voir ecrans-reseau.js).
+export function blocAbsence() {
+  const message = h('p', { classe: 'absence-message', role: 'status' });
+  const bouton = h('button', { classe: 'bouton bouton-secondaire', type: 'button' }, h('span', null, T.absence.passer));
+  const barre = barreBas(bouton);
+  const noeud = h('div', { classe: 'absence' }, message, barre);
+  let action = null;
+  bouton.addEventListener('click', () => { if (action) action(); });
+  function majAbsence(etat) {
+    noeud.hidden = !etat;
+    message.textContent = etat ? T.absence.message(etat.prenom) : '';
+    action = etat?.passer || null;
+    barre.hidden = !action;
+  }
+  majAbsence(null);
+  return { noeud, majAbsence };
 }
 
 export function transition({ donnees, params, naviguer }) {
@@ -497,6 +527,7 @@ export function transition({ donnees, params, naviguer }) {
   const noeud = vueTransition(donnees, {
     tour: n,
     bouclier: params.get('bouclier') === '1',
+    passe: params.get('passe') === '1',
     prenom: params.get('prenom') || acteur.prenom,
     embleme: emblemeParId(donnees, params.get('embleme') || acteur.embleme),
   });
@@ -511,14 +542,21 @@ export function transition({ donnees, params, naviguer }) {
 }
 
 // Vue de la transition de 2 secondes, visible par tout le monde (la durée est gérée par l'appelant).
-export function vueTransition(donnees, { tour, bouclier, prenom, embleme: emb }) {
+// `passe` (phase 6) : tour d'une personne absente passé par une autre ; même apparence que le bouclier.
+function texteTransition({ bouclierInvoque, passe, prenom }) {
+  if (passe) return T.absence.transitionPasse(prenom);
+  return bouclierInvoque ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom);
+}
+
+export function vueTransition(donnees, { tour, bouclier: bouclierInvoque, passe = false, prenom, embleme: emb }) {
+  const bouclier = bouclierInvoque || passe;
   return h('section', { classe: `ecran ecran-transition${bouclier ? ' transition-bouclier' : ''}` },
     compteurEl(donnees, tour),
     cielLibre('orion'),
     h('div', { classe: 'transition-corps', role: 'status' },
       h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier-grand' : 'sort-jete', 'icone-presence')),
       emblemeEl(emb, 'embleme-grand'),
-      h('p', { classe: 'transition-texte' }, bouclier ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom))),
+      h('p', { classe: 'transition-texte' }, texteTransition({ bouclierInvoque, passe, prenom }))),
     cielLibre('croix', 2.4));
 }
 

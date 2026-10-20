@@ -1,4 +1,5 @@
 {
   "tours": 4,
-  "joueursMax": 5
+  "joueursMax": 5,
+  "delaiAbsenceSecondes": 10
 }

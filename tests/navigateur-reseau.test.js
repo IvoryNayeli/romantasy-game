@@ -33,8 +33,8 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
   before(async () => { E.adresseEmulateur(); await E.chargerRegles(); });
   beforeEach(async () => { await E.viderBase(); });
 
-  async function personne(chemin) {
-    const page = await ouvrir(chemin, { reseau: true });
+  async function personne(chemin, { config: cfg = null } = {}) {
+    const page = await ouvrir(chemin, { reseau: true, config: cfg });
     const envoyees = [];
     trames.set(page, envoyees);
     page.on('websocket', (ws) => {
@@ -198,7 +198,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
       return page;
     };
     const invite = await rejoindre();
-    const absente = await rejoindre();
+    const sansPresence = await rejoindre();
     await attendreLignes(hote, 3);
 
     const presence = async (page, prenom, embleme) => {
@@ -210,16 +210,16 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     };
     await presence(hote, 'Léa', 'Fée');
     await presence(invite, 'Tom', 'Dragon');
-    await absente.fill('#champ-prenom', 'Noa');
-    await absente.locator('.embleme-choix', { hasText: 'Sirène' }).click();
+    await sansPresence.fill('#champ-prenom', 'Noa');
+    await sansPresence.locator('.embleme-choix', { hasText: 'Sirène' }).click();
     await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
     await hote.locator('button', { hasText: 'Commencer la quête' }).click();
 
     // La personne inscrite sans « Je suis là » ne joue pas : elle voit « La quête a déjà commencé ».
-    await absente.waitForSelector('.avis-complete:not([hidden])', { timeout: DELAI });
-    assert.equal((await absente.locator('.avis-complete').textContent()).trim(), 'La quête a déjà commencé');
-    assert.equal(await absente.locator('.formulaire').isVisible(), false);
-    assert.equal(await forcer(absente, 'choisir', { type: 'epreuve' }), 'refuse');
+    await sansPresence.waitForSelector('.avis-complete:not([hidden])', { timeout: DELAI });
+    assert.equal((await sansPresence.locator('.avis-complete').textContent()).trim(), 'La quête a déjà commencé');
+    assert.equal(await sansPresence.locator('.formulaire').isVisible(), false);
+    assert.equal(await forcer(sansPresence, 'choisir', { type: 'epreuve' }), 'refuse');
 
     const joueurs = [{ page: hote, prenom: 'Léa' }, { page: invite, prenom: 'Tom' }];
     await attendreEcran(hote, 'choix');
@@ -239,7 +239,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
       assert.equal(await autre.page.locator('.attente-message').textContent(), `En attente de ${actif.prenom}…`);
       // Seule la personne dont c'est le tour peut agir : aucun dos de carte ni bouton de tour chez l'autre,
       // et une action forcée est refusée.
-      assert.equal(await autre.page.locator('.dos, .barre-bas').count(), 0);
+      assert.equal(await autre.page.locator('.dos, .barre-bas:visible').count(), 0);
       assert.equal(await forcer(autre.page, 'choisir', { type: 'revelation' }), 'refuse');
 
       const type = n < joueurs.length ? 'epreuve' : (n % 3 === 0 ? 'epreuve' : 'revelation');
@@ -300,7 +300,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await ctx.capture(invite, 'partie-fin-360', { fullPage: true });
 
     // Écoutes : uniquement la partie en cours, jamais la racine.
-    for (const page of [hote, invite, absente]) {
+    for (const page of [hote, invite, sansPresence]) {
       for (const c of ecoutes(page)) assert.equal(c, `/parties/${CODE}`);
     }
 
@@ -313,7 +313,164 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
 
     await fermer(hote);
     await fermer(invite);
-    await fermer(absente);
+    await fermer(sansPresence);
+  });
+
+  it('phase 6 : coupure réseau simulée, rechargement en pleine partie, absence prolongée et tour passé', async () => {
+    // Délai d'absence ramené à 1 seconde (config.json servi modifié) pour ne pas allonger le test.
+    const cfg = { ...config, delaiAbsenceSecondes: 1 };
+    const code = 'AURORE';
+    const hote = await personne('index.html?ecran=creer', { config: cfg });
+    await hote.locator('.code-option', { hasText: code }).click();
+    await hote.locator('.ecran-creer button[type=submit]').click();
+    await attendreLignes(hote, 1);
+    const invite = await personne('index.html?ecran=rejoindre', { config: cfg });
+    await invite.fill('#champ-code', code.toLowerCase());
+    await invite.locator('.ecran-rejoindre button[type=submit]').click();
+    await invite.waitForSelector('.ecran-salle .code-valeur', { timeout: DELAI });
+    await attendreLignes(hote, 2);
+    for (const [page, prenom, embleme] of [[hote, 'Léa', 'Fée'], [invite, 'Tom', 'Dragon']]) {
+      await page.fill('#champ-prenom', prenom);
+      await page.locator('.embleme-choix', { hasText: embleme }).click();
+      await page.waitForSelector(`.embleme-choix[aria-checked="true"]:has-text("${embleme}")`, { timeout: DELAI });
+      await page.locator('button', { hasText: 'Je suis là' }).click();
+      await page.waitForSelector('button[aria-pressed="true"]', { timeout: DELAI });
+    }
+    const horsLigne = (page) => page.locator('.liste-joueurs .etiquette-absent');
+    assert.equal(await horsLigne(hote).count(), 0, 'personne hors ligne avant la coupure');
+
+    // Coupure réseau simulée dans la salle : « hors ligne » chez l'hôte, puis plus rien au retour du réseau.
+    await invite.context().setOffline(true);
+    await hote.waitForSelector('.liste-joueurs .joueur-ligne:has-text("Tom") .etiquette-absent', { timeout: DELAI });
+    assert.equal((await horsLigne(hote).textContent()).trim(), 'hors ligne');
+    await ctx.capture(hote, 'robustesse-salle-hors-ligne-360', { fullPage: true });
+    await invite.context().setOffline(false);
+    await hote.waitForSelector('.liste-joueurs .etiquette-absent', { state: 'detached', timeout: DELAI });
+
+    await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
+    await hote.locator('button', { hasText: 'Commencer la quête' }).click();
+    await attendreEcran(hote, 'choix');
+    await attendreEcran(invite, 'attente');
+
+    // Rechargement en pleine partie : la personne retrouve son tour (même identité, gardée dans l'onglet).
+    await hote.reload();
+    await attendreEcran(hote, 'choix');
+    assert.equal(await hote.locator('.titre-tour').textContent(), 'À toi de jouer !');
+    // Après le rechargement, l'hôte est de nouveau présent : aucun bloc d'absence chez l'invité.
+    await invite.waitForSelector('.absence', { state: 'hidden', timeout: DELAI });
+    await hote.locator('.dos-epreuve').click();
+    await attendreEcran(hote, 'carte');
+    const idCarte = await hote.locator('.carte').getAttribute('data-carte');
+    await hote.reload();
+    await attendreEcran(hote, 'carte');
+    assert.equal(await hote.locator('.carte').getAttribute('data-carte'), idCarte, 'même carte après le rechargement');
+    await hote.getByRole('button', { name: /Le sort est jeté/i }).click();
+    await attendreEcran(invite, 'choix');
+    await attendreEcran(hote, 'attente');
+
+    // Au tour de Tom, coupure : « Tom est hors ligne. », puis « Passer son tour » après le délai ; rien de tout cela
+    // si Tom revient avant.
+    await invite.locator('.dos-revelation').click();
+    await attendreEcran(invite, 'carte');
+    await invite.context().setOffline(true);
+    await hote.waitForSelector('.absence-message:has-text("Tom est hors ligne.")', { timeout: DELAI });
+    await hote.waitForSelector('button:has-text("Passer son tour")', { state: 'visible', timeout: DELAI });
+    await ctx.capture(hote, 'robustesse-attente-hors-ligne-360', { fullPage: true });
+    assert.deepEqual(await hote.evaluate(A.mesurerDebordements), [], 'écran d\'attente avec absence : aucun débordement');
+    await invite.context().setOffline(false);
+    await hote.waitForSelector('.absence', { state: 'hidden', timeout: DELAI });
+    assert.equal(await ecran(invite), 'carte', 'Tom retrouve sa carte au retour du réseau');
+
+    // Nouvelle coupure, cette fois le tour est passé par l'hôte : transition pour l'hôte, puis Tom, revenu, suit.
+    await invite.context().setOffline(true);
+    await hote.locator('button:has-text("Passer son tour")').click({ timeout: DELAI });
+    await attendreEcran(hote, 'transition');
+    assert.equal(await hote.locator('.transition-texte').textContent(), 'Le tour de Tom est passé.');
+    await ctx.capture(hote, 'robustesse-transition-passe-360', { fullPage: true });
+    await attendreEcran(hote, 'choix');
+    assert.equal(await hote.locator('.compteur').textContent(), `Tour 2 / ${config.tours}`);
+    await invite.context().setOffline(false);
+    await attendreEcran(invite, 'attente');
+    let partie = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;
+    assert.deepEqual(partie.jeu.jouees[1], { carte: partie.jeu.jouees[1].carte, joueur: partie.ordre[1], tour: 1, issue: 'passe' });
+    assert.ok(partie.jeu.jouees[1].carte, 'la carte tirée par Tom est consumée');
+
+    // Absence prolongée : Tom ferme sa page. L'hôte joue chacun de ses tours et passe ceux de Tom jusqu'à la fin.
+    await fermer(invite);
+    for (let tour = 2; tour <= config.tours; tour += 1) {
+      await attendreEcran(hote, 'choix');
+      await hote.locator('.dos-revelation').click();
+      await attendreEcran(hote, 'carte');
+      await hote.getByRole('button', { name: /Le sort est jeté/i }).click();
+      await attendreEcran(hote, 'attente');
+      await hote.locator('button:has-text("Passer son tour")').click({ timeout: DELAI });
+    }
+    await attendreEcran(hote, 'fin');
+    partie = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;
+    assert.equal(partie.jeu.etape, 'fin');
+    assert.equal(partie.jeu.jouees.filter((j) => j.issue === 'passe').length, config.tours);
+    // Écran de fin : la présence de l'hôte est retirée, il n'y a plus de tour à passer.
+    for (let i = 0; i < 50 && (await E.rest('GET', `parties/${code}/presents`, undefined, { admin: true })).corps !== null; i += 1) await hote.waitForTimeout(100);
+    assert.equal((await E.rest('GET', `parties/${code}/presents`, undefined, { admin: true })).corps, null, 'plus aucune présence à la fin');
+    for (const c of ecoutes(hote)) assert.equal(c, `/parties/${code}`);
+    await fermer(hote);
+    // Les essais de reconnexion du SDK pendant la coupure simulée échouent, comme prévu : le navigateur les note en
+    // console (ERR_INTERNET_DISCONNECTED). Seuls ceux-là sont retirés du relevé des problèmes ; tout le reste compte.
+    const attendus = ctx.problemes.filter((p) => /net::ERR_INTERNET_DISCONNECTED/.test(p));
+    assert.ok(attendus.length > 0, 'la coupure a bien été simulée');
+    ctx.problemes.splice(0, ctx.problemes.length, ...ctx.problemes.filter((p) => !attendus.includes(p)));
+  });
+
+  it('phase 6 : Wake Lock demandé sur la salle et la partie, redemandé au retour de la page, silencieux sans l\'API', async () => {
+    // Faux Wake Lock (Chrome sans écran ne l'accorde pas) : on compte les demandes et les libérations.
+    const faux = () => {
+      window.__wakelock = { demandes: 0, liberations: 0 };
+      const verrou = () => {
+        const cibles = new EventTarget();
+        const v = {
+          released: false,
+          addEventListener: (...a) => cibles.addEventListener(...a),
+          release: async () => { if (!v.released) { v.released = true; window.__wakelock.liberations += 1; cibles.dispatchEvent(new Event('release')); } },
+        };
+        window.__wakelock.dernier = v;
+        return v;
+      };
+      Object.defineProperty(navigator, 'wakeLock', { value: { request: async () => { window.__wakelock.demandes += 1; return verrou(); } } });
+    };
+    const page = await ouvrir('index.html?ecran=creer', { reseau: true, init: faux });
+    await page.locator('.code-option', { hasText: 'ECLIPSE' }).click();
+    await page.locator('.ecran-creer button[type=submit]').click();
+    await page.waitForSelector('.ecran-salle .code-valeur', { timeout: DELAI });
+    await page.waitForFunction(() => window.__wakelock.demandes === 1, null, { timeout: DELAI });
+    // Le navigateur relâche le verrou quand la page est cachée ; il est redemandé à son retour.
+    await page.evaluate(() => window.__wakelock.dernier.release());
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+    await page.waitForFunction(() => window.__wakelock.demandes === 2, null, { timeout: DELAI });
+    // Retour aux règles : le verrou est libéré.
+    await page.evaluate(() => window.history.back());
+    await page.waitForFunction(() => document.body.dataset.ecran !== 'salle', null, { timeout: DELAI });
+    await page.waitForFunction(() => window.__wakelock.liberations === 2, null, { timeout: DELAI });
+    await fermer(page);
+
+    // Sans l'API (page hors HTTPS, navigateur ancien) : aucune erreur, la salle fonctionne.
+    const sans = await ouvrir('index.html?ecran=creer', {
+      reseau: true, init: () => { Object.defineProperty(navigator, 'wakeLock', { value: undefined }); },
+    });
+    await sans.locator('.code-option', { hasText: 'ELIXIR' }).click();
+    await sans.locator('.ecran-creer button[type=submit]').click();
+    await sans.waitForSelector('.ecran-salle .code-valeur', { timeout: DELAI });
+    await attendreLignes(sans, 1);
+    // Refusé par le navigateur : aucun message non plus.
+    const refuse = await ouvrir('index.html?ecran=creer', {
+      reseau: true,
+      init: () => { Object.defineProperty(navigator, 'wakeLock', { value: { request: () => Promise.reject(new DOMException('refus', 'NotAllowedError')) } }); },
+    });
+    await refuse.locator('.code-option', { hasText: 'TALISMAN' }).click();
+    await refuse.locator('.ecran-creer button[type=submit]').click();
+    await refuse.waitForSelector('.ecran-salle .code-valeur', { timeout: DELAI });
+    await attendreLignes(refuse, 1);
+    await fermer(sans);
+    await fermer(refuse);
   });
 
   it('aucune requête externe, aucune erreur de console', () => {

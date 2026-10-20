@@ -94,6 +94,17 @@ function chargerModules() {
   return modules;
 }
 
+// Mêmes informations locales du SDK que firebase.js (infos) : reprise à l'identique, firebase.js ne pouvant pas être
+// importé dans Node (adresses du CDN). Un test de tests/reseau.test.js vérifie que les deux versions concordent.
+function infos(db, base) {
+  let decalage = 0;
+  db.onValue(db.ref(base, '.info/serverTimeOffset'), (instantane) => { decalage = Number(instantane.val()) || 0; });
+  return {
+    surConnexion: (rappel) => db.onValue(db.ref(base, '.info/connected'), (instantane) => rappel(instantane.val() === true)),
+    maintenant: () => Date.now() + decalage,
+  };
+}
+
 // Un client = une application Firebase distincte, avec sa propre connexion (comme un téléphone).
 // `espion` compte les transactions, suppressions, lectures et écoutes, avec le chemin visé.
 let numero = 0;
@@ -115,8 +126,16 @@ function client() {
     remove: (r) => { espion.suppressions.push(chemin(r)); return db.remove(r); },
     get: (r) => { espion.lectures.push(chemin(r)); return db.get(r); },
     onValue: (r, ...args) => { espion.ecoutes.push(chemin(r)); return db.onValue(r, ...args); },
+    // Phase 6 : présence (une entrée par connexion, retirée par le serveur à la coupure), comme firebase.js.
+    set: db.set,
+    push: db.push,
+    onDisconnect: db.onDisconnect,
+    ...infos(db, base),
   };
-  return { fb, espion, app, fermer: () => deleteApp(app) };
+  // Coupure et retour du réseau simulés : le SDK ferme sa connexion, le serveur exécute les retraits programmés.
+  const couper = () => db.goOffline(base);
+  const retablir = () => db.goOnline(base);
+  return { fb, espion, app, couper, retablir, fermer: () => deleteApp(app) };
 }
 
 module.exports = {

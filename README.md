@@ -4,7 +4,7 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaqu
 
 ## Lancer le jeu
 
-**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je suis là », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. La robustesse (téléphone qui se met en veille, connexion perdue) arrive en phase 6, la mise en ligne en phase 7.
+**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je suis là », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. Depuis la phase 6, l'écran reste allumé pendant la salle et la partie (si le navigateur le permet), une personne dont la connexion est perdue est affichée « hors ligne » sans être retirée et retrouve la partie automatiquement quand le réseau revient ou après un rechargement de la page ; si c'est son tour, les autres peuvent le passer après quelques secondes. La mise en ligne arrive en phase 7.
 
 ### Ce qu'il faut sur l'ordinateur
 
@@ -44,6 +44,8 @@ Pour arrêter : `Ctrl+C` dans chacun des deux terminaux. Les parties de l'émula
 
 Si la page ne s'ouvre pas, ou si « Connexion impossible » s'affiche, vérifier que le pare-feu de l'ordinateur autorise les ports **8000** (la page) et **9000** (l'émulateur), et que le Wi-Fi n'isole pas les appareils entre eux (c'est parfois le cas des réseaux d'invité). L'émulateur accepte les appareils du réseau local : ne le lancer que sur un réseau de confiance (celui de la maison).
 
+Sur le réseau local, la page est ouverte en `http://` : les navigateurs n'y autorisent pas le maintien de l'écran allumé (Wake Lock, réservé aux pages `https://`). Le jeu fonctionne normalement, mais le téléphone peut se mettre en veille ; allonger le délai de mise en veille pendant l'essai si besoin. Une fois le jeu en ligne (phase 7, `https://`), l'écran restera allumé.
+
 ### Utiliser la vraie base de développement (`romantasy-dev`)
 
 Ajouter `?base=dev` à l'adresse, par exemple `http://192.168.1.23:8000/?base=dev` : la page utilise alors la base `romantasy-dev` au lieu de l'émulateur (le paramètre est gardé d'un écran à l'autre). Les règles de sécurité (`database.rules.json`) doivent d'abord y être publiées, une fois puis à chaque changement, par la propriétaire du projet, connectée à son compte Firebase :
@@ -73,9 +75,9 @@ Les écrans restent consultables avec des données fictives, sans base ni émula
 | `code` | un mot de `public/data/codes.json` (accents et casse libres) | Code déjà choisi (`creer`), code déjà saisi (`rejoindre`) ou code de la partie (`salle`) |
 | `erreur` | `vide`, `inconnu` | Affiche le message d'erreur de l'écran `rejoindre` |
 | `hote`, `autres`, `complete`, `prenom`, `embleme`, `pret` | voir `public/js/ecrans.js` | Variantes de la salle d'attente fictive (leur présence suffit à ouvrir la salle de démonstration) |
-| `bouclier`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition et de l'attente |
+| `bouclier`, `passe`, `absent`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition (bouclier, tour passé), de l'attente (personne hors ligne et « Passer son tour ») et de la salle (une personne hors ligne) |
 
-Le nombre de tours et de places maximum vient uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
+Le nombre de tours, de places maximum et le délai avant de pouvoir passer le tour d'une personne hors ligne (`delaiAbsenceSecondes`) viennent uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
 
 ### Plus tard
 

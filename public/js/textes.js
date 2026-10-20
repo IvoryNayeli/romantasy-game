@@ -49,6 +49,15 @@ export const tour = {
   transitionBouclier: (prenom) => `${prenom} a invoqué un bouclier.`,
 };
 
+// Phase 6 : personne absente (plus aucune connexion) et passage de son tour. Textes nouveaux, absents de
+// docs/regles.md : décision à confirmer (libellé neutre, sans accord : « hors ligne »).
+export const absence = {
+  etiquette: 'hors ligne',
+  message: (prenom) => `${prenom} est hors ligne.`,
+  passer: 'Passer son tour',
+  transitionPasse: (prenom) => `Le tour de ${prenom} est passé.`,
+};
+
 export const effets = {
   carte: 'Effet durable',
   enCours: 'Effets en cours',

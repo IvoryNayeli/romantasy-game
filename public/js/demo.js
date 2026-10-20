@@ -41,6 +41,7 @@ function ecrans(donnees) {
       lien('Dernière place de la salle', { ecran: 'salle', autres: joueursMax - 1 }),
       lien('Partie complète', { ecran: 'salle', complete: 1 }),
       lien('Code le plus long', { ecran: 'salle', code: 'OBSIDIENNE', autres: 2 }),
+      lien('Une personne hors ligne', { ecran: 'salle', hote: 1, autres: 2, absent: 1 }),
     ]),
     groupe('Tour de jeu', [
       lien('Choix de la carte, tour 1', { ecran: 'choix', tour: 1 }),
@@ -54,7 +55,9 @@ function ecrans(donnees) {
       lien('Attente, carte à effet durable', { ecran: 'attente', carte: durable, tour: 2 }),
       lien('Attente, sans effets en cours', { ecran: 'attente', carte: premiere('revelation'), effets: 0 }),
       lien('Transition : le sort est jeté', { ecran: 'transition' }),
+      lien('Attente, personne hors ligne, tour à passer', { ecran: 'attente', carte: premiere('epreuve'), tour: 2, absent: 1 }),
       lien('Transition : bouclier', { ecran: 'transition', bouclier: 1 }),
+      lien('Transition : tour passé', { ecran: 'transition', passe: 1 }),
     ]),
     groupe('Fin de partie', [lien('La quête s\'achève', { ecran: 'fin' })]),
   ];

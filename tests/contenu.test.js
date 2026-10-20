@@ -173,10 +173,12 @@ test('cartes : les exceptions déclarées sont encore utiles', () => {
   }
 });
 
-test('config : 4 tours et 5 personnes au maximum', () => {
-  assert.deepEqual(Object.keys(config).sort(), ['joueursMax', 'tours']);
+test('config : 4 tours, 5 personnes au maximum, délai avant de pouvoir passer le tour d\'une personne absente', () => {
+  assert.deepEqual(Object.keys(config).sort(), ['delaiAbsenceSecondes', 'joueursMax', 'tours']);
   assert.equal(config.tours, 4);
   assert.equal(config.joueursMax, 5);
+  // Phase 6 : « quelques secondes » (docs/PROJET.md), entier positif.
+  assert.ok(Number.isInteger(config.delaiAbsenceSecondes) && config.delaiAbsenceSecondes >= 1 && config.delaiAbsenceSecondes <= 60);
 });
 
 test('config : une pile peut fournir tous les tours (joueurs × tours <= cartes par type)', () => {

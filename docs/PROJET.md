@@ -20,6 +20,12 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 - Les cartes sont chargées depuis le site (`public/data/cartes.json`), pas depuis la base. La base ne contient que l'état de la partie.
 - L'état de la partie (tour, carte, compteur, effets) vit dans Firebase, pas sur le téléphone de l'hôte.
 - Écran allumé : API Wake Lock. Reconnexion automatique : l'identité de chaque personne est mémorisée sur son téléphone. Une personne déconnectée est marquée « absente » sans être retirée de la partie (libellé neutre à choisir en phase 6). Si c'est son tour et qu'elle est absente, n'importe qui dans le groupe peut passer son tour après quelques secondes.
+  Mise en œuvre (phase 6, à confirmer) :
+  - Écran allumé (`public/js/wakelock.js`) : demandé sur la salle d'attente et la partie, redemandé au retour de la page au premier plan, relâché à l'écran de fin. Sans aucun message si l'API manque (page `http://` du réseau local, navigateur ancien) ou si le navigateur refuse.
+  - Reconnexion : le SDK Firebase se reconnecte de lui-même et l'écoute de la partie reprend. L'identité reste gardée dans l'onglet (`sessionStorage`, choix de la phase 4) : elle survit à une coupure réseau et à un rechargement, pas à la fermeture de l'onglet.
+  - Présence : une entrée par connexion ouverte sous `parties/<CODE>/presents/<id>`, retirée par le serveur à la coupure (`onDisconnect`) ; une personne sans aucune connexion est affichée « hors ligne » (libellé neutre, sans accord), sans être retirée de la partie. Seules écritures du jeu hors transaction.
+  - Tour d'une personne hors ligne : « Passer son tour » apparaît chez les autres quand l'absence dure depuis `delaiAbsenceSecondes` (`config.json`, 10 secondes, compté sur chaque téléphone depuis qu'il a vu l'absence). Le tour est compté, comme un bouclier : une carte déjà tirée est consumée, sans effet durable. Transition : « Le tour de [prénom] est passé. ». Les règles de la base n'acceptent un tour passé que si la personne n'a plus aucune connexion.
+  - Expiration des parties jugée à l'heure du serveur estimée par le SDK (`.info/serverTimeOffset`), et non à l'horloge du téléphone.
 - Plan Spark : 100 connexions simultanées, 1 Go de stockage, 10 Go par mois de téléchargements de la base, 10 Go de transfert d'hébergement. Pas de Cloud Functions : toute la logique tourne dans les navigateurs.
 - Écoutes de la base uniquement sur le chemin de la partie en cours, jamais à la racine. Taille de l'état et nombre d'écritures par tour bornés.
 - Suppression de la partie à la fin, expiration des parties abandonnées.
@@ -87,7 +93,7 @@ romantasy-game/
 ├── public/
 │   ├── index.html
 │   ├── css/style.css
-│   ├── js/             app.js, game.js, firebase.js, wakelock.js
+│   ├── js/             app.js, game.js, firebase.js, wakelock.js, …
 │   ├── data/           cartes.json, emblemes.json, codes.json, config.json
 │   └── fonts/
 ├── tests/

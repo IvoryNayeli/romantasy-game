@@ -75,8 +75,47 @@ export async function commencer(code, donnees) {
 }
 
 // Action de tour (salon.ACTIONS) : « type » pour le choix de carte, « carte » pour la fin d'un effet par échange.
-export async function jouer(code, action, { type = null, carte = null } = {}) {
-  return (await salon.jouer(await base(), { code, id: identite(code), action, type, carte })).issue;
+// « cible » pour le passage du tour d'une personne absente (phase 6).
+export async function jouer(code, action, { type = null, carte = null, cible = null } = {}) {
+  return (await salon.jouer(await base(), { code, id: identite(code), action, type, carte, cible })).issue;
+}
+
+// Présence de la personne dans la partie (phase 6), une seule à la fois par page. Les écrans de la salle et de la
+// partie la demandent à leur construction ; la fonction renvoyée la libère au tour suivant de la boucle d'événements,
+// sauf si l'écran suivant la redemande pour la même partie (passage de la salle à la partie, nouvelle vue) : les
+// autres ne voient donc jamais la personne absente le temps d'un changement d'écran.
+let presence = null; // { code, arreter, minuteur }
+
+function demarrerPresence(code) {
+  let arreter = null;
+  let arrete = false;
+  base()
+    .then((fb) => { if (!arrete) arreter = salon.signalerPresence(fb, code, identite(code)); })
+    .catch(() => { /* hors ligne : le SDK n'a pas pu se charger, rien à signaler */ });
+  return () => { arrete = true; if (arreter) arreter(); };
+}
+
+export function arreterPresence() {
+  if (!presence) return;
+  clearTimeout(presence.minuteur);
+  presence.arreter();
+  presence = null;
+}
+
+export function signalerPresence(code) {
+  if (presence && presence.code === code) {
+    clearTimeout(presence.minuteur);
+    presence.minuteur = null;
+  } else {
+    arreterPresence();
+    presence = { code, arreter: demarrerPresence(code), minuteur: null };
+  }
+  const courante = presence;
+  return () => {
+    if (presence !== courante) return;
+    clearTimeout(courante.minuteur);
+    courante.minuteur = setTimeout(() => { if (presence === courante) arreterPresence(); }, 0);
+  };
 }
 
 // Partie terminée : supprimée quand une personne quitte l'écran de fin (« Nouvelle quête »).
@@ -94,4 +133,6 @@ export function ecouter(code, rappel, enErreur) {
   return () => { arrete = true; if (arreter) arreter(); };
 }
 
-export const { joueursOrdonnes, peutCommencer, PRENOM_MAX, STATUTS, ACTIONS } = salon;
+export const {
+  joueursOrdonnes, peutCommencer, estAbsent, PRENOM_MAX, STATUTS, ACTIONS,
+} = salon;
