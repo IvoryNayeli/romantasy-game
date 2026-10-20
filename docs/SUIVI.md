@@ -36,24 +36,19 @@ Phase 6 validée le 2026-10-20. Phase 7 possible, sur demande de la propriétair
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
-- 2026-10-19, phase 6 : lancement de l'itération 1 (branche `phase-6`).
-- 2026-10-20, phase 6 : itération 1 développée et testée, prête pour relecture ([rapport](rapports/phase-6-iteration-1.md)).
-- 2026-10-20, phase 6 validée : validation explicite de la propriétaire, fusion de `phase-6` dans `main`, tag `phase-6`.
-
 ## Défauts ouverts
 
 Aucun.
 
 ## Décisions à confirmer
 
-Phase 6 (détail en section 7 de [phase-6-iteration-1](rapports/phase-6-iteration-1.md)) : libellé « hors ligne » ; nouveaux textes « [prénom] est hors ligne. », « Passer son tour », « Le tour de [prénom] est passé. » ; délai de 10 secondes (`delaiAbsenceSecondes`) ; tour passé compté comme un bouclier, carte tirée consumée, sans confirmation ; identité toujours gardée dans l'onglet (fermer l'onglet fait perdre sa place) ; écran allumé aussi dans la salle ; étiquette jamais sur sa propre ligne ; expiration à l'heure du serveur.
+Aucune.
 
 ## Risques reportés
 
 - Phase 7 : `demo.html` et le paramètre `?ecran=` (outils de validation de la phase 2) à retirer ou masquer ; icônes SVG faites pour le projet (épée, étoile, bouclier) à remplacer ou garder selon le choix des icônes game-icons.net.
 - Phase 7 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
-- Phase 6 : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`), et depuis la phase 6 fausser la présence. L'authentification anonyme reste possible si la propriétaire le demande.
-- Phase 6 : l'expiration était jugée avec l'horloge du téléphone ; traité en itération 1 de la phase 6 (heure du serveur estimée par le SDK, test avec 40 minutes d'avance), à confirmer avec la phase.
+- Risque accepté (phases 4 à 6) : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`), et depuis la phase 6 fausser la présence. L'authentification anonyme reste possible si la propriétaire le demande.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
 
 ## Décisions confirmées
@@ -73,3 +68,4 @@ Phase 6 (détail en section 7 de [phase-6-iteration-1](rapports/phase-6-iteratio
 - Choix du moteur de la phase 3 (effet rattaché à la personne qui a joué la carte, même pour le groupe ; « prochain tour » fini au début de son tour suivant, ou à la fin s'il est obtenu au dernier tour ; effets effacés à l'écran de fin ; échange de butins signalé par n'importe qui, à tout moment avant la fin ; ordre d'arrivée ; partie refusée si une pile est insuffisante ; minimum de 2 en constante) : validés avec la phase le 2026-10-18. Détail en section 7 de [phase-3-iteration-1](rapports/phase-3-iteration-1.md).
 - Choix de la phase 4 (codes choisis dans la liste et non tirés au hasard ; nettoyage sans Cloud Functions, 30 minutes pour une salle d'attente et 3 heures pour une partie démarrée ; minimum de 2 en constante ; émulateur sur le réseau local et `?base=dev` ; pas de clé d'API ; pas d'authentification, risque D2 accepté ; nouveaux textes « Connexion impossible. Vérifie ton réseau et réessaie. », « Ce code est déjà pris par une autre partie. Choisis-en un autre. », « La quête a déjà commencé » ; prénom de 24 caractères envoyé au « Je suis là » ; identité gardée dans l'onglet ; écran de choix fictif après le départ ; `?demo=1` ; SDK Firebase 11.10.0) : validés avec la phase le 2026-10-19. Détail en section 7 de [phase-4-iteration-1](rapports/phase-4-iteration-1.md) et [phase-4-iteration-2](rapports/phase-4-iteration-2.md).
 - Choix de la phase 5 (nouveau texte « Échange de butins fait », touchable par n'importe qui à tout moment ; personnes sans « Je suis là » au départ exclues, avec « La quête a déjà commencé » ; partie terminée supprimée à « Nouvelle quête », sinon nettoyage des 3 heures ; panneau « Effets en cours » sur tous les écrans de tour, « Jusqu'à ton prochain tour » pour ses propres effets ; attente sans carte avant le tirage ; reprise après rechargement sans rejouer la transition ; règles de la base vérifiant l'enchaînement des tours, avec les limites D9 et D10 liées au risque D2) : validés avec la phase le 2026-10-19. Détail en section 7 de [phase-5-iteration-1](rapports/phase-5-iteration-1.md).
+- Choix de la phase 6 (libellé « hors ligne » ; nouveaux textes « [prénom] est hors ligne. », « Passer son tour », « Le tour de [prénom] est passé. » ; délai de 10 secondes dans `config.json` (`delaiAbsenceSecondes`) ; tour passé compté comme un bouclier, carte tirée consumée, sans confirmation ; identité toujours gardée dans l'onglet, fermer l'onglet fait perdre sa place ; écran allumé aussi dans la salle ; étiquette jamais sur sa propre ligne ; expiration jugée à l'heure du serveur, risque de l'horloge du téléphone clos) : validés avec la phase le 2026-10-20. Détail en section 7 de [phase-6-iteration-1](rapports/phase-6-iteration-1.md).

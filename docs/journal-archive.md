@@ -44,3 +44,6 @@ Lignes de journal des phases validées, déplacées depuis `docs/SUIVI.md`. Les 
 - 2026-10-19 | phase 5 | Développement de l'itération 1 terminé (tours en réseau, règles, tests), passage en test.
 - 2026-10-19 | phase 5 | Test, D9 corrigé, D10 requalifié, D11 corrigé (tests) ; rapport [phase-5-iteration-1](rapports/phase-5-iteration-1.md), prête pour relecture.
 - 2026-10-19 | phase 5 validée | Validation explicite de la propriétaire, fusion de `phase-5` dans `main`, tag `phase-5`.
+- 2026-10-19 | phase 6 | Lancement, branche `phase-6`, itération 1 en cours.
+- 2026-10-20 | phase 6 | Itération 1 développée (présence, hors ligne, tour passé, écran allumé, heure du serveur) et testée, D12 et D13 corrigés (tests) ; rapport [phase-6-iteration-1](rapports/phase-6-iteration-1.md), prête pour relecture.
+- 2026-10-20 | phase 6 validée | Validation explicite de la propriétaire, fusion de `phase-6` dans `main`, tag `phase-6`.
