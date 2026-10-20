@@ -44,3 +44,22 @@ Reproduites mot pour mot.
 > - Sur l'écran du joueur qui patiente après le tirage, "au tour de" doit être centré verticalement, avec la carte
 > - afficher les règles dans un cadre « parchemin de nuit » (voir ~/Bureau/demo-parchemin.html), titres de section en IM Fell English SC
 > - Sur l'écrn du joueur, quand la carte est tirée, tous les éléments sont collés en haut de l'écran. Les boutons doivent etre en bas, la carte centrée.
+
+## Deuxièmes remarques complémentaires (reçues le 2026-10-20, pendant l'itération 2, avant son rapport), traitées en itération 2
+
+Reproduites mot pour mot.
+
+> Phase 7, remarques :
+> - Augmente l'effet de scintillement des étoiles, il est trop discrets.
+> - Il y a beaucoup d'étoiles sur le bords et très peu au milieu, mais avec une coupure nette alors que moi je veux un dégradé progressif de densité.
+> - Sur tous les écrans sans exception, il faut toujours laisser de la marge sur les côtés, que les éléments ne soient pas collés aux bords de l'écran. Tous les éléments qui n'occupent pas toute la longueur de l'écran doivent être centrés verticalement, à l'exception du logo, du code de la partie, 
+> - Sur l'écran d'enregistrement du joueur, il faut le faire en deux écrans : un premier où il renseigne son prénom (champ + indication centrée verticalement et bouton "Je suis là !"), un second où il choisit son emblème ( 2 emblèmes par ligne, 4 lignes, les meblèmes doivent occuper le plus de place possible pour avoir une grande taille et être bien visibles. En bs, un bouton "Je rejoins l'aventure").
+> - Dans la salle d'attente, remplacer la mention "C'est bon" par "A rejoint la compagnie".
+> - Remplace "Rassemblez votre troupe. La quête commencera quand l'hôte donnera le signal." par "La quête commencera quand l'hôte donnera le signal."
+> - Remplace "La compagnie" sur l'céran de la salle d'attente par "Le cercle des initié(e)s :"
+> - Il y  toujours un décalage dans la phrase "Au tour de X". X est plus bas que "Au tour de".
+> - Sur l'écran de celui qui ne joue pas, avant le tirage de cartes, augmente encore la taille de l'emblème
+> - Sur les cartes, laisse le titre et le filigrane en haut, mais centre verticalment le contenu texte de la carte
+> - Quand on affiche "Le sort est jeté pour" ou "a invoqué un bouclier" on met déjà l'image de bouclier ou d'étoile, alors ne met pas l'emblème en plus, ça surcharge
+> - Quand on clique sur "échange de buton fait" et que le bandeau de sorts en cours disparaît, fais un petit effet d'étoiles qui se dispersent en explosion, discret
+> - À l'exception de la page d'acceuil, le logo doit avoir exactement la même taille sur toutes les pages. Cale tout sur la taille qui est sur la page
