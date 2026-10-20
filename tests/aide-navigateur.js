@@ -220,6 +220,8 @@ function collecterTextes() {
     const t = noeud.textContent.trim();
     const parent = noeud.parentElement;
     if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-image')) continue;
+    // Bandeau replié (details fermé, phase 7) : son détail n'est pas affiché.
+    if (parent.closest('details:not([open]) > :not(summary)')) continue;
     const s = getComputedStyle(parent);
     const r0 = parent.getBoundingClientRect();
     if (s.visibility === 'hidden' || s.display === 'none' || r0.width === 0) continue;
@@ -447,6 +449,9 @@ const ECRANS = [
   ['attente-durable', `?ecran=attente&carte=${durable.id}&tour=2`],
   ['attente-sans-effets', '?ecran=attente&type=revelation&effets=0'],
   ['attente-prenom-long', `?ecran=attente&type=epreuve&prenom=${'M'.repeat(45)}`],
+  ['attente-sans-carte', '?ecran=attente&etape=choix&tour=2'],
+  ['choix-effets', '?ecran=choix&tour=2&effets=1'],
+  ['carte-effets', '?ecran=carte&type=epreuve&tour=2&effets=1'],
   ['transition-jete', '?ecran=transition'],
   ['attente-hors-ligne', `?ecran=attente&carte=${durable.id}&tour=2&absent=1`],
   ['attente-hors-ligne-prenom-long', `?ecran=attente&type=epreuve&absent=1&prenom=${'M'.repeat(45)}`],

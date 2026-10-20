@@ -651,7 +651,7 @@ test('animations : retournement 3D, fondu de 300 ms, étoiles, opacity et transf
   assert.ok(propriete('.ecran', 'animation').some((a) => /^fondu var\(--t-rapide\)/.test(a)), 'fondu de 300 ms entre les écrans');
   assert.equal(variables()['--t-rapide'], '300ms');
   // Règle système de la charte (pas une option du jeu) : tout mouvement coupé si l'appareil le demande.
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\*\s*\{\s*animation:\s*none !important;\s*transition-duration:\s*1ms !important;\s*\}\s*\}/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\*, \*::before, \*::after\s*\{\s*animation:\s*none !important;\s*transition-duration:\s*1ms !important;\s*\}\s*\}/);
   // Étoiles du fond de l'accueil : scintillement lent, opacité seule.
   assert.match(css, /\.etoile\s*\{\s*animation:\s*scintille 5s/);
   assert.match(lirePublic('js', 'ecrans.js'), /ciel-accueil/);

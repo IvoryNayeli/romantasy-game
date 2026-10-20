@@ -402,7 +402,9 @@ export function salle({ donnees, params, naviguer }) {
 }
 
 export function choix({ donnees, params }) {
-  return { noeud: vueChoix(donnees, { tour: tourDepuisParametres(donnees, params) }) };
+  // ?effets=1 (phase 7) : bandeau des effets en cours fictifs, pour voir le pied de l'écran.
+  const effets = params.get('effets') === '1' ? effetsEnCours(donnees) : [];
+  return { noeud: vueChoix(donnees, { tour: tourDepuisParametres(donnees, params), effets }) };
 }
 
 // Vue « À toi de jouer ! » (aussi utilisée par la partie en réseau, ecrans-reseau.js). Sans `choisir`, les dos de
@@ -427,6 +429,7 @@ export function carte({ donnees, params, naviguer }) {
     noeud: vueCarte(donnees, {
       tour: n,
       carte: carteDepuisParametres(donnees, params),
+      effets: params.get('effets') === '1' ? effetsEnCours(donnees) : [], // ?effets=1 (phase 7) : bandeau fictif
       sortJete: lienBouton(T.tour.sortJete, { ecran: 'transition', tour: n, auto: 1 }),
       bouclier: () => naviguer({ ecran: 'transition', bouclier: 1, tour: n, auto: 1 }),
     }),
@@ -469,7 +472,8 @@ export function attente({ donnees, params }) {
     noeud: vueAttente(donnees, {
       pied: absence ? absence.noeud : null,
       tour: tourDepuisParametres(donnees, params),
-      carte: carteDepuisParametres(donnees, params),
+      // ?etape=choix (phase 7) : la personne dont c'est le tour n'a pas encore choisi sa carte.
+      carte: params.get('etape') === 'choix' ? null : carteDepuisParametres(donnees, params),
       actif: {
         prenom,
         embleme: emblemeParId(donnees, params.get('embleme') || premier.embleme),

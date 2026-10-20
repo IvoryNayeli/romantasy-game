@@ -334,7 +334,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
 
   it('§3 couleurs : chaque forme des symboles SVG fixe elle-même son remplissage (rien ne retombe sur le noir par défaut)', () => {
     const symboles = [...html.matchAll(/<symbol id="([^"]+)"[\s\S]*?<\/symbol>/g)];
-    assert.ok(symboles.length >= 8);
+    assert.ok(symboles.length >= 5);
     for (const [bloc, id] of symboles) {
       for (const forme of bloc.matchAll(/<(path|circle|rect|ellipse|polygon|line)\b[^>]*>/g)) {
         assert.ok(/\bfill\s*=|fill\s*:/.test(forme[0]), `${id} : forme sans fill explicite : ${forme[0].slice(0, 60)}`);
@@ -766,14 +766,14 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     });
   }
 
-  it('§5 logo : image de la propriétaire, version complète (96 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
+  it('§5 logo : image de la propriétaire, version complète (160 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
     const accueil = await ouvrir('index.html?ecran=accueil', { reduit: true });
     const a = await accueil.evaluate(() => {
       const complet = document.querySelector('.logo-complet'); const image = document.querySelector('img.logo-grand'); const g = image.getBoundingClientRect();
       const compact = document.querySelector('.logo-compact');
       return { role: complet.getAttribute('role'), nom: complet.getAttribute('aria-label'), w: g.width, h: g.height, compactVisible: getComputedStyle(compact).visibility, src: image.getAttribute('src'), charge: image.naturalWidth > 0, masquee: image.getAttribute('aria-hidden') };
     });
-    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 96, h: 96, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
+    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 160, h: 160, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
     await fermer(accueil);
     for (const [nom, c] of ECRANS.filter(([n]) => n !== 'accueil').slice(0, 12)) {
       const page = await ouvrir(`index.html${c}`, { reduit: true });

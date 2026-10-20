@@ -140,6 +140,36 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     assert.deepEqual(defauts, []);
   });
 
+  // Phase 7 : bandeau « Effets en cours » replié par défaut ; une fois déroulé, son détail reste lisible et le bouton
+  // « Échange de butins fait » reste atteignable, sans masquer les boutons d'action.
+  it('bandeau des effets en cours : replié par défaut, déroulé lisible (contrastes), boutons d\'action toujours visibles', async () => {
+    const defauts = [];
+    for (const largeur of LARGEURS) {
+      for (const chemin of ['?ecran=attente&type=epreuve&tour=2', '?ecran=carte&type=epreuve&tour=2&effets=1', '?ecran=choix&tour=2&effets=1']) {
+        const page = await ouvrir(`index.html${chemin}`, { largeur, hauteur: 640, reduit: true });
+        if (!(await page.locator('.effets-en-cours').count())) { await fermer(page); continue; }
+        assert.equal(await page.locator('.effets-en-cours').evaluate((d) => d.tagName === 'DETAILS' && !d.open), true, `${chemin} : replié par défaut`);
+        await page.locator('.effets-titre').click();
+        assert.equal(await page.locator('.effets-en-cours').evaluate((d) => d.open), true, `${chemin} : se déroule au toucher`);
+        const geo = await page.evaluate(() => {
+          const pied = document.querySelector('.pied-tour').getBoundingClientRect();
+          const boutons = [...document.querySelectorAll('.pied-tour .barre-bas .bouton')].map((b) => b.getBoundingClientRect());
+          return { piedBas: pied.bottom, piedHaut: pied.top, H: innerHeight, boutons: boutons.map((b) => [b.top, b.bottom]) };
+        });
+        if (geo.piedBas > geo.H + 0.5) defauts.push(`[${chemin} ${largeur}] pied hors de l'écran`);
+        if (geo.piedHaut < 0) defauts.push(`[${chemin} ${largeur}] bandeau déroulé plus haut que l'écran`);
+        if (geo.boutons.some(([h, b]) => h < 0 || b > geo.H + 0.5)) defauts.push(`[${chemin} ${largeur}] bouton d'action masqué`);
+        for (const r of await ctx.contrastes(page)) {
+          if (r.desactive || !Number.isFinite(r.ratio)) continue;
+          const seuil = r.taille >= 24 || (r.taille >= 18.66 && r.gras) ? 3 : 4.5;
+          if (r.ratio < seuil) defauts.push(`[${chemin} ${largeur}] contraste ${r.ratio.toFixed(2)} : « ${r.texte} »`);
+        }
+        await fermer(page);
+      }
+    }
+    assert.deepEqual(defauts, []);
+  });
+
   it('contrastes : textes de la fenêtre de confirmation du bouclier', async () => {
     const page = await ouvrir('index.html?ecran=carte&type=epreuve', { reduit: true });
     await page.getByRole('button', { name: /Invoquer un bouclier/i }).click();
@@ -406,7 +436,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     const t = await texteVisible(att);
     assert.match(t, /Tour 2 \/ \d+/);
     assert.match(t, /Au tour de\s+\S+/);
-    assert.match(t, /En attente de Léa…/);
+    assert.doesNotMatch(t, /En attente de/, 'phrase « En attente de… » retirée (phase 7)');
     assert.equal(await att.locator('.ecran-attente button, .ecran-attente a').count(), 0, 'l\'écran d\'attente ne doit avoir aucun bouton d\'action');
     assert.match(t, /Effets en cours/i);
     await fermer(att);
@@ -545,6 +575,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
   });
 
   // Itération 5, remarque 7 : le halo (inset -22 %, pulsation de 8 % comprise) ne touche ni l'emblème ni le texte.
+  // Phase 7 : le texte (avec le prénom) vient avant l'emblème.
   it('transition : le halo de la forme ne chevauche ni l\'emblème ni le texte (sort et bouclier, 360 et 412 px)', async () => {
     for (const largeur of [360, 412]) {
       for (const bouclier of [0, 1]) {
@@ -555,8 +586,8 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
           return { bas, emb: document.querySelector('.transition-corps .embleme').getBoundingClientRect().top,
             texte: document.querySelector('.transition-texte').getBoundingClientRect().top };
         });
-        assert.ok(m.emb - m.bas >= 8, `${largeur} px bouclier=${bouclier} : halo (${m.bas.toFixed(0)}) trop près de l'emblème (${m.emb.toFixed(0)})`);
-        assert.ok(m.texte > m.emb, 'le texte reste sous l\'emblème');
+        assert.ok(m.texte - m.bas >= 8, `${largeur} px bouclier=${bouclier} : halo (${m.bas.toFixed(0)}) trop près du texte (${m.texte.toFixed(0)})`);
+        assert.ok(m.emb > m.texte, 'l\'emblème vient après le texte (prénom puis emblème)');
         await fermer(page);
       }
     }

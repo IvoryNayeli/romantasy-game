@@ -75,7 +75,8 @@ Les écrans restent consultables avec des données fictives, sans base ni émula
 | `code` | un mot de `public/data/codes.json` (accents et casse libres) | Code déjà choisi (`creer`), code déjà saisi (`rejoindre`) ou code de la partie (`salle`) |
 | `erreur` | `vide`, `inconnu` | Affiche le message d'erreur de l'écran `rejoindre` |
 | `hote`, `autres`, `complete`, `prenom`, `embleme`, `pret` | voir `public/js/ecrans.js` | Variantes de la salle d'attente fictive (leur présence suffit à ouvrir la salle de démonstration) |
-| `bouclier`, `passe`, `absent`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition (bouclier, tour passé), de l'attente (personne hors ligne et « Passer son tour ») et de la salle (une personne hors ligne) |
+| `bouclier`, `passe`, `absent`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition (bouclier, tour passé), de l'attente (personne hors ligne et « Passer son tour ») et de la salle (une personne hors ligne) ; `effets=1` ajoute le bandeau des effets en cours au choix et à la carte révélée, `effets=0` le retire de l'attente |
+| `etape` | `choix` | Attente avant que la personne dont c'est le tour ait choisi sa carte (« Au tour de… » et l'emblème en grand) |
 
 Le nombre de tours, de places maximum et le délai avant de pouvoir passer le tour d'une personne hors ligne (`delaiAbsenceSecondes`) viennent uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
 
