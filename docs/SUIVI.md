@@ -38,6 +38,7 @@ Phase 7, itération 1 : en cours sur la branche `phase-7` (mise en place ; les a
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
 - 2026-10-20, phase 7 : lancement de l'itération 1 (branche `phase-7`), sans remarque pour l'instant.
+- 2026-10-20, phase 7 : remarques reçues ([remarques/phase-7](remarques/phase-7.md)), traitées dans l'itération 1 (pas encore de rapport) ; questions posées à la propriétaire sur la correspondance des avatars.
 
 ## Défauts ouverts
 
