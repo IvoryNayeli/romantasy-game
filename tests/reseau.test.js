@@ -183,7 +183,7 @@ test('écoutes : uniquement sur le chemin de la partie en cours, jamais sur la r
   assert.equal((salon.match(/fb\.ref\(/g) || []).length, 1, 'une seule fabrique de références');
 });
 
-test('choix de la base : émulateur pour une page locale ou du réseau local, jamais la prod avant la phase 7', async () => {
+test('choix de la base : émulateur pour une page locale ou du réseau local, jamais la prod avant la phase 8', async () => {
   const { config } = await E.chargerModules();
   const p = (q = '') => new URLSearchParams(q);
   for (const hote of ['localhost', '127.0.0.1', '192.168.1.23', '10.0.0.5', '172.20.1.2', 'mon-ordi.local']) {
@@ -195,7 +195,7 @@ test('choix de la base : émulateur pour une page locale ou du réseau local, ja
   assert.equal(config.choisirBase('192.168.1.23', p('base=dev')).nom, 'dev');
   assert.equal(config.choisirBase('ivorynayeli.github.io', p()).nom, 'dev');
   assert.equal(config.choisirBase('172.32.0.1', p()).nom, 'dev', '172.32 n\'est pas une adresse privée');
-  assert.equal(config.choisirBase('exemple.fr', p('base=prod')).nom, 'dev', 'prod non sélectionnable avant la phase 7');
+  assert.equal(config.choisirBase('exemple.fr', p('base=prod')).nom, 'dev', 'prod non sélectionnable avant la phase 8');
   assert.match(config.BASES.dev.databaseURL, /^https:\/\/romantasy-dev-default-rtdb\.europe-west1\.firebasedatabase\.app$/);
   assert.match(config.BASES.prod.databaseURL, /^https:\/\/romantasy-prod-default-rtdb\.europe-west1\.firebasedatabase\.app$/);
   assert.doesNotMatch(sansCommentaires(lireJs('firebase-config.js')), /apiKey|AIza|secret|token|password/i, 'aucune clé ni jeton');
