@@ -317,6 +317,8 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
   });
 
   it('phase 6 : coupure réseau simulée, rechargement en pleine partie, absence prolongée et tour passé', async () => {
+    // Relevé des problèmes de console : seuls ceux de ce test sont examinés (le relevé est partagé par tout le describe).
+    const debut = ctx.problemes.length;
     // Délai d'absence ramené à 1 seconde (config.json servi modifié) pour ne pas allonger le test.
     const cfg = { ...config, delaiAbsenceSecondes: 1 };
     const code = 'AURORE';
@@ -424,9 +426,11 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await fermer(hote);
     // Les essais de reconnexion du SDK pendant la coupure simulée échouent, comme prévu : le navigateur les note en
     // console (ERR_INTERNET_DISCONNECTED). Seuls ceux-là sont retirés du relevé des problèmes ; tout le reste compte.
-    const attendus = ctx.problemes.filter((p) => /net::ERR_INTERNET_DISCONNECTED/.test(p));
-    assert.ok(attendus.length > 0, 'la coupure a bien été simulée');
-    ctx.problemes.splice(0, ctx.problemes.length, ...ctx.problemes.filter((p) => !attendus.includes(p)));
+    // Seuls les problèmes relevés pendant ce test sont examinés ; ceux des tests précédents restent tels quels.
+    const pendant = ctx.problemes.splice(debut);
+    const coupure = (p) => /net::ERR_INTERNET_DISCONNECTED/.test(p);
+    assert.ok(pendant.some(coupure), 'la coupure a bien été simulée');
+    ctx.problemes.push(...pendant.filter((p) => !coupure(p)));
   });
 
   it('phase 6 : Wake Lock demandé sur la salle et la partie, redemandé au retour de la page, silencieux sans l\'API', async () => {

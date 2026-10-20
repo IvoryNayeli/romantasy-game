@@ -197,6 +197,9 @@ describe('émulateur : robustesse (présence, coupure, absence, horloge)', () =>
     assert.equal(courant(vue), b.id);
     await S.jouer(b.c.fb, { code, id: b.id, action: S.ACTIONS.CHOISIR, type: 'revelation' });
     assert.equal((await S.jouer(b.c.fb, { code, id: b.id, action: S.ACTIONS.SORT })).issue, S.ISSUES.OK);
+    // A n'agit qu'une fois sa propre écoute à jour : sinon son action part d'un état périmé et est refusée (course).
+    for (let i = 0; i < 150 && !(vue?.jeu?.indexJoueur === 0 && vue?.jeu?.tour === 2); i += 1) await attendre(30);
+    assert.ok(vue?.jeu?.indexJoueur === 0 && vue?.jeu?.tour === 2, 'A voit le tour suivant');
     assert.equal((await S.jouer(a.c.fb, { code, id: a.id, action: S.ACTIONS.CHOISIR, type: 'revelation' })).issue, S.ISSUES.OK);
     arreter();
   });
