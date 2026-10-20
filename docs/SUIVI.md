@@ -26,12 +26,12 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
-| 7 | Ajustements visuels | en cours | 1 | |
+| 7 | Ajustements visuels | prête pour relecture | 1 | [phase-7-iteration-1](rapports/phase-7-iteration-1.md) |
 | 8 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 7, itération 1 : en cours sur la branche `phase-7` (mise en place ; les ajustements visuels arrivent par « Phase 7, remarques : … »).
+Phase 7, itération 1 : prête pour relecture. Attente de la propriétaire (« Phase 7 validée » ou « Phase 7, remarques : … »).
 
 ## Journal
 
@@ -39,6 +39,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 
 - 2026-10-20, phase 7 : lancement de l'itération 1 (branche `phase-7`), sans remarque pour l'instant.
 - 2026-10-20, phase 7 : remarques reçues ([remarques/phase-7](remarques/phase-7.md)), traitées dans l'itération 1 (pas encore de rapport) ; questions posées à la propriétaire sur la correspondance des avatars.
+- 2026-10-20, phase 7 : remarque 1 faite (logo, 8 emblèmes, épée et étoile en images), suite complète 217 réussis ; prête pour relecture ([rapport](rapports/phase-7-iteration-1.md)).
 
 ## Défauts ouverts
 
@@ -46,7 +47,7 @@ Aucun.
 
 ## Décisions à confirmer
 
-Aucune.
+Phase 7 (détail en section 7 de [phase-7-iteration-1](rapports/phase-7-iteration-1.md)) : correspondance des avatars (`avatar_4` Chevalier, `avatar_7` Démon, fichier Gemini Sorcière) ; grande étoile de la transition « Le sort est jeté » non remplacée ; épée, étoile et emblèmes agrandis ; originaux gardés dans `docs/images-source/` ; icônes game-icons.net des emblèmes à retirer du plan de la phase 8 ; personnes fictives portant Démon et Chevalier.
 
 ## Risques reportés
 
@@ -54,7 +55,6 @@ Aucune.
 - Phase 8 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
 - Risque accepté (phases 4 à 6) : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`), et depuis la phase 6 fausser la présence. L'authentification anonyme reste possible si la propriétaire le demande.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
-- Phase 7 insérée le 2026-10-20 (ancienne phase 7 devenue phase 8) : les commentaires de `public/js/firebase-config.js` (ligne 32) et de `tests/reseau.test.js` (test « jamais la prod avant la phase 7 ») désignent encore la mise en ligne par « phase 7 ». À corriger en « phase 8 » par le développeur en phase 7.
 
 ## Décisions confirmées
 
