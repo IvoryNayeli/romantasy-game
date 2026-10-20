@@ -500,7 +500,8 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.ok(!/@media[^{]*hover/.test(css), 'style.css contient @media (hover…)');
     const cas = [
       ['index.html?ecran=regles', ['.barre-bas .bouton-principal', '.barre-bas .bouton-secondaire', '.bouton-retour']],
-      ['index.html?ecran=salle&hote=1&autres=1', ['.embleme-choix:not(:disabled)', '.champ']],
+      ['index.html?ecran=salle&hote=1&autres=1', ['.champ']],
+      ['index.html?ecran=salle&hote=1&autres=1&prenom=Noa&etape=embleme', ['.embleme-choix:not(:disabled)']],
       ['index.html?ecran=choix', ['.dos-epreuve', '.dos-revelation']],
       ['index.html?ecran=creer', ['.code-option-nom']],
       ['index.html?ecran=accueil', ['.bouton-principal']],
@@ -766,14 +767,14 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     });
   }
 
-  it('§5 logo : image de la propriétaire, version complète (160 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
+  it('§5 logo : image de la propriétaire, version complète (230 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
     const accueil = await ouvrir('index.html?ecran=accueil', { reduit: true });
     const a = await accueil.evaluate(() => {
       const complet = document.querySelector('.logo-complet'); const image = document.querySelector('img.logo-grand'); const g = image.getBoundingClientRect();
       const compact = document.querySelector('.logo-compact');
       return { role: complet.getAttribute('role'), nom: complet.getAttribute('aria-label'), w: g.width, h: g.height, compactVisible: getComputedStyle(compact).visibility, src: image.getAttribute('src'), charge: image.naturalWidth > 0, masquee: image.getAttribute('aria-hidden') };
     });
-    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 160, h: 160, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
+    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 230, h: 230, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
     await fermer(accueil);
     for (const [nom, c] of ECRANS.filter(([n]) => n !== 'accueil').slice(0, 12)) {
       const page = await ouvrir(`index.html${c}`, { reduit: true });

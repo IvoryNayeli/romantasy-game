@@ -264,15 +264,15 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
     radial-gradient(circle at 85.2% 114px, var(--c-lune) 0 0.9px, transparent 1.7px),
     radial-gradient(circle at 13.2% 379px, var(--c-lune) 0 0.7px, transparent 1.5px),
     radial-gradient(circle at 85.8% 153px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 72.7% 167px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 72.7% 167px, #C9D8EE99 0 0.8px, transparent 1.6px),
     radial-gradient(circle at 1.6% 470px, var(--c-etoile) 0 1.2px, transparent 2.0px),
     radial-gradient(circle at 78.8% 146px, var(--c-lune) 0 0.9px, transparent 1.7px),
     radial-gradient(circle at 89.7% 315px, var(--c-lune) 0 0.9px, transparent 1.7px),
     radial-gradient(circle at 95.5% 296px, var(--c-lune) 0 1.4px, transparent 2.2px),
     radial-gradient(circle at 96.5% 498px, var(--c-lune) 0 0.8px, transparent 1.6px),
-    radial-gradient(circle at 44.6% 223px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 30.8% 48px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 70.0% 148px, var(--c-lune) 0 0.7px, transparent 1.5px);
+    radial-gradient(circle at 44.6% 223px, #C9D8EE99 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 30.8% 48px, #C9D8EE99 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 70.0% 148px, #C9D8EE99 0 0.7px, transparent 1.5px);
   background-size: 100% 520px;
   background-repeat: repeat-y;
   animation: scintille 8s var(--ease) -5s infinite;
@@ -280,12 +280,12 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 /* Deuxième calque du dégradé de densité (voir .ecran-zone::before). */
 .page::after {
   background-image:
-    radial-gradient(circle at 67.5% 258px, var(--c-lune) 0 0.7px, transparent 1.5px),
-    radial-gradient(circle at 25.7% 412px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 67.5% 258px, #C9D8EE99 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 25.7% 412px, #C9D8EE99 0 0.6px, transparent 1.4px),
     radial-gradient(circle at 80.1% 269px, var(--c-lune) 0 0.8px, transparent 1.6px),
     radial-gradient(circle at 17.3% 391px, var(--c-lune) 0 0.5px, transparent 1.3px),
     radial-gradient(circle at 83.5% 352px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 61.8% 187px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 61.8% 187px, #C9D8EE99 0 0.6px, transparent 1.4px),
     radial-gradient(circle at 7.2% 98px, var(--c-lune) 0 1.5px, transparent 2.3px),
     radial-gradient(circle at 10.0% 154px, var(--c-etoile) 0 0.9px, transparent 1.7px),
     radial-gradient(circle at 94.5% 217px, var(--c-etoile) 0 1.1px, transparent 1.9px),
@@ -295,7 +295,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
     radial-gradient(circle at 3.9% 319px, var(--c-lune) 0 0.7px, transparent 1.5px),
     radial-gradient(circle at 78.1% 398px, var(--c-lune) 0 0.6px, transparent 1.4px),
     radial-gradient(circle at 13.0% 224px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 28.2% 336px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 28.2% 336px, #C9D8EE99 0 0.8px, transparent 1.6px),
     radial-gradient(circle at 88.0% 66px, var(--c-lune) 0 1.1px, transparent 1.9px),
     radial-gradient(circle at 6.0% 362px, var(--c-etoile) 0 0.7px, transparent 1.5px),
     radial-gradient(circle at 5.0% 227px, var(--c-lune) 0 0.7px, transparent 1.5px),
@@ -533,11 +533,11 @@ h2 {
    par ecrans.js ; une lettre vaut environ 0,6 em, capitales comprises), sans dépasser 2,25 rem ; la place de
    l'emblème est réservée quand il suit le prénom. Coupé par des points de suspension en dernier recours. */
 .ecran-attente .titre-tour {
-  font-size: clamp(.875rem, calc((min(100vw, 30rem) - 2 * var(--marge)) / var(--lettres, 14)), 2.25rem);
+  font-size: clamp(.9375rem, calc((min(100vw, 30rem) - 2 * var(--marge)) / var(--lettres, 14)), 2.25rem);
   overflow-wrap: anywhere;
 }
 .ecran-attente:not(.attente-sans-carte) .titre-tour {
-  font-size: clamp(.875rem, calc((min(100vw, 30rem) - 2 * var(--marge) - 3.5rem) / var(--lettres, 14)), 2.25rem);
+  font-size: clamp(.9375rem, calc((min(100vw, 30rem) - 2 * var(--marge) - 3.5rem) / var(--lettres, 14)), 2.25rem);
 }
 .nom-actif { display: inline; }   /* phase 7 : même ligne de base que « Au tour de » */
 .nom-actif .embleme { display: inline-block; margin-left: 8px; vertical-align: middle; }
@@ -948,8 +948,8 @@ h2 {
 .salle-corps [hidden], .barre-bas[hidden], .barre-bas [hidden] { display: none; }
 .salle-corps { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
 /* Phase 7 : premier écran, le prénom (libellé et champ) centré verticalement ; deuxième écran, les emblèmes. */
-.salle-prenom { margin: auto 0; }
-.salle-emblemes { margin-top: 4px; }
+.salle-corps .salle-prenom { margin: auto 0; padding-bottom: 48px; }
+.salle-corps .salle-emblemes { margin-top: 4px; }
 .code-partie {
   display: flex;
   flex-wrap: wrap;

@@ -91,22 +91,30 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     assert.match(await lignes(invite).nth(0).textContent(), /hôte/);
     assert.match(await lignes(invite).nth(1).textContent(), /toi/);
 
+    // Phase 7 : inscription en deux écrans. Prénom puis « Je suis là ! » (rien n'est encore envoyé), puis l'emblème.
     // L'invité prend le démon : grisé chez l'hôte.
+    await invite.fill('#champ-prenom', 'tom');
+    await invite.locator('button', { hasText: 'Je suis là !' }).click();
     await invite.locator(`.embleme-choix:has(img[alt="Démon"])`).click();
+    await hote.fill('#champ-prenom', 'léa');
+    await hote.locator('button', { hasText: 'Je suis là !' }).click();
     await hote.waitForSelector('.embleme-choix.embleme-pris:has(img[alt="Démon"])', { timeout: 8000 });
     assert.ok(await hote.locator(`.embleme-choix:has(img[alt="Démon"])`).isDisabled());
     await invite.waitForSelector('.embleme-choix[aria-checked="true"]:has(img[alt="Démon"])');
 
-    await hote.fill('#champ-prenom', 'Léa');
     await hote.locator(`.embleme-choix:has(img[alt="Fée"])`).click();
     await hote.waitForSelector('.embleme-choix[aria-checked="true"]:has(img[alt="Fée"])');
     await hote.locator('button', { hasText: 'Je rejoins l\'aventure' }).click();
-    await invite.waitForFunction(() => /Léa/.test(document.querySelector('.liste-joueurs').textContent), null, { timeout: 8000 });
+    await invite.waitForFunction(() => /LÉA/.test(document.querySelector('.liste-joueurs').textContent), null, { timeout: 8000 });
     assert.ok(await hote.locator('button', { hasText: 'Commencer la quête' }).isDisabled(), 'une seule présence confirmée');
 
-    await invite.fill('#champ-prenom', 'Tom');
     await invite.locator('button', { hasText: 'Je rejoins l\'aventure' }).click();
-    await hote.waitForSelector('button:has(img[alt="Commencer la quête"]):not([disabled])', { timeout: 8000 });
+    // Rechargement en pleine salle, présence confirmée : directement la salle d'attente (troisième écran).
+    await invite.waitForSelector('.salle-attente:not([hidden])', { timeout: 8000 });
+    await invite.reload();
+    await invite.waitForSelector('.salle-attente:not([hidden])', { timeout: 8000 });
+    assert.equal(await invite.locator('.salle-prenom').isVisible(), false);
+    await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: 8000 });
     await ctx.capture(hote, 'reseau-salle-hote-360', { fullPage: true });
     await hote.locator('button', { hasText: 'Commencer la quête' }).click();
 
@@ -129,7 +137,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
   it('Créer : un code déjà pris par une partie en cours est grisé et ne peut pas être choisi', async () => {
     const hote = await creer('ONYX');
     const autre = await personne('index.html?ecran=creer');
-    await autre.waitForSelector('.code-option.code-pris:has(img[alt="ONYX"])', { timeout: 8000 });
+    await autre.waitForSelector('.code-option.code-pris:has-text("ONYX")', { timeout: 8000 });
     assert.ok(await autre.locator('.code-option', { hasText: 'ONYX' }).locator('input').isDisabled());
     assert.equal(await autre.locator('.code-option.code-pris').count(), 1);
     await ctx.capture(autre, 'reseau-creer-code-pris-360', { fullPage: true });
@@ -203,25 +211,27 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
 
     const presence = async (page, prenom, embleme) => {
       await page.fill('#champ-prenom', prenom);
+      await page.locator('button', { hasText: 'Je suis là !' }).click();
       await page.locator(`.embleme-choix:has(img[alt="${embleme}"])`).click();
       await page.waitForSelector(`.embleme-choix[aria-checked="true"]:has(img[alt="${embleme}"])`, { timeout: DELAI });
       await page.locator('button', { hasText: 'Je rejoins l\'aventure' }).click();
-      await page.waitForSelector('button[aria-pressed="true"]', { timeout: DELAI });
+      await page.waitForSelector('.salle-attente:not([hidden])', { timeout: DELAI });
     };
-    await presence(hote, 'Léa', 'Fée');
-    await presence(invite, 'Tom', 'Démon');
-    await sansPresence.fill('#champ-prenom', 'Noa');
+    await presence(hote, 'LÉA', 'Fée');
+    await presence(invite, 'TOM', 'Démon');
+    await sansPresence.fill('#champ-prenom', 'NOA');
+    await sansPresence.locator('button', { hasText: 'Je suis là !' }).click();
     await sansPresence.locator(`.embleme-choix:has(img[alt="Sirène"])`).click();
-    await hote.waitForSelector('button:has(img[alt="Commencer la quête"]):not([disabled])', { timeout: DELAI });
+    await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
     await hote.locator('button', { hasText: 'Commencer la quête' }).click();
 
     // La personne inscrite sans « Je rejoins l'aventure » ne joue pas : elle voit « La quête a déjà commencé ».
     await sansPresence.waitForSelector('.avis-complete:not([hidden])', { timeout: DELAI });
     assert.equal((await sansPresence.locator('.avis-complete').textContent()).trim(), 'La quête a déjà commencé');
-    assert.equal(await sansPresence.locator('.formulaire').isVisible(), false);
+    assert.equal(await sansPresence.locator('.salle-emblemes').isVisible(), false);
     assert.equal(await forcer(sansPresence, 'choisir', { type: 'epreuve' }), 'refuse');
 
-    const joueurs = [{ page: hote, prenom: 'Léa' }, { page: invite, prenom: 'Tom' }];
+    const joueurs = [{ page: hote, prenom: 'LÉA' }, { page: invite, prenom: 'TOM' }];
     await attendreEcran(hote, 'choix');
     await attendreEcran(invite, 'attente');
     assert.equal(new URL(hote.url()).searchParams.get('ecran'), 'jeu');
@@ -250,7 +260,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
       assert.equal(cartes.find((c) => c.id === idCarte).type, type, 'carte du type choisi');
       // La même carte est visible par tout le monde, sans boutons chez l'autre.
       await autre.page.waitForSelector(`.ecran-attente .carte[data-carte="${idCarte}"]`, { timeout: DELAI });
-      assert.equal(await autre.page.locator('button:has(img[alt="Le sort est jeté"]), button:has(img[alt="Invoquer un bouclier"])').count(), 0);
+      assert.equal(await autre.page.locator('button:has-text("Le sort est jeté"), button:has-text("Invoquer un bouclier")').count(), 0);
       assert.equal(await forcer(autre.page, 'sort'), 'refuse');
       if (n === 0) {
         await ctx.capture(actif.page, 'partie-carte-360', { fullPage: true });
@@ -278,7 +288,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
         const effet = durables.find((c) => c.id === idCarte).effet;
         for (const j of joueurs) {
           await j.page.waitForSelector('.effets-en-cours', { timeout: DELAI });
-          assert.match(await j.page.locator('.effets-en-cours').textContent(), new RegExp(`Léa.*${effet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+          assert.match(await j.page.locator('.effets-en-cours').textContent(), new RegExp(`LÉA.*${effet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
         }
         await ctx.capture(hote, 'partie-attente-effet-360', { fullPage: true });
         const debordements = await hote.evaluate(A.mesurerDebordements);
@@ -333,25 +343,26 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await invite.locator('.ecran-rejoindre button[type=submit]').click();
     await invite.waitForSelector('.ecran-salle .code-valeur', { timeout: DELAI });
     await attendreLignes(hote, 2);
-    for (const [page, prenom, embleme] of [[hote, 'Léa', 'Fée'], [invite, 'Tom', 'Démon']]) {
+    for (const [page, prenom, embleme] of [[hote, 'LÉA', 'Fée'], [invite, 'TOM', 'Démon']]) {
       await page.fill('#champ-prenom', prenom);
+      await page.locator('button', { hasText: 'Je suis là !' }).click();
       await page.locator(`.embleme-choix:has(img[alt="${embleme}"])`).click();
       await page.waitForSelector(`.embleme-choix[aria-checked="true"]:has(img[alt="${embleme}"])`, { timeout: DELAI });
       await page.locator('button', { hasText: 'Je rejoins l\'aventure' }).click();
-      await page.waitForSelector('button[aria-pressed="true"]', { timeout: DELAI });
+      await page.waitForSelector('.salle-attente:not([hidden])', { timeout: DELAI });
     }
     const horsLigne = (page) => page.locator('.liste-joueurs .etiquette-absent');
     assert.equal(await horsLigne(hote).count(), 0, 'personne hors ligne avant la coupure');
 
     // Coupure réseau simulée dans la salle : « hors ligne » chez l'hôte, puis plus rien au retour du réseau.
     await invite.context().setOffline(true);
-    await hote.waitForSelector('.liste-joueurs .joueur-ligne:has(img[alt="Tom"]) .etiquette-absent', { timeout: DELAI });
+    await hote.waitForSelector('.liste-joueurs .joueur-ligne:has-text("TOM") .etiquette-absent', { timeout: DELAI });
     assert.equal((await horsLigne(hote).textContent()).trim(), 'hors ligne');
     await ctx.capture(hote, 'robustesse-salle-hors-ligne-360', { fullPage: true });
     await invite.context().setOffline(false);
     await hote.waitForSelector('.liste-joueurs .etiquette-absent', { state: 'detached', timeout: DELAI });
 
-    await hote.waitForSelector('button:has(img[alt="Commencer la quête"]):not([disabled])', { timeout: DELAI });
+    await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
     const connexions = async () => {
       const p = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;
       return Object.keys(p.presents?.[p.hote] || {});
@@ -380,24 +391,24 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await attendreEcran(invite, 'choix');
     await attendreEcran(hote, 'attente');
 
-    // Au tour de Tom, coupure : « Tom est hors ligne. », puis « Passer son tour » après le délai ; rien de tout cela
-    // si Tom revient avant.
+    // Au tour de TOM, coupure : « TOM est hors ligne. », puis « Passer son tour » après le délai ; rien de tout cela
+    // si TOM revient avant.
     await invite.locator('.dos-revelation').click();
     await attendreEcran(invite, 'carte');
     await invite.context().setOffline(true);
-    await hote.waitForSelector('.absence-message:has(img[alt="Tom est hors ligne."])', { timeout: DELAI });
-    await hote.waitForSelector('button:has(img[alt="Passer son tour"])', { state: 'visible', timeout: DELAI });
+    await hote.waitForSelector('.absence-message:has-text("TOM est hors ligne.")', { timeout: DELAI });
+    await hote.waitForSelector('button:has-text("Passer son tour")', { state: 'visible', timeout: DELAI });
     await ctx.capture(hote, 'robustesse-attente-hors-ligne-360', { fullPage: true });
     assert.deepEqual(await hote.evaluate(A.mesurerDebordements), [], 'écran d\'attente avec absence : aucun débordement');
     await invite.context().setOffline(false);
     await hote.waitForSelector('.absence', { state: 'hidden', timeout: DELAI });
-    assert.equal(await ecran(invite), 'carte', 'Tom retrouve sa carte au retour du réseau');
+    assert.equal(await ecran(invite), 'carte', 'TOM retrouve sa carte au retour du réseau');
 
-    // Nouvelle coupure, cette fois le tour est passé par l'hôte : transition pour l'hôte, puis Tom, revenu, suit.
+    // Nouvelle coupure, cette fois le tour est passé par l'hôte : transition pour l'hôte, puis TOM, revenu, suit.
     await invite.context().setOffline(true);
-    await hote.locator('button:has(img[alt="Passer son tour"])').click({ timeout: DELAI });
+    await hote.locator('button:has-text("Passer son tour")').click({ timeout: DELAI });
     await attendreEcran(hote, 'transition');
-    assert.equal(await hote.locator('.transition-texte').textContent(), 'Le tour de Tom est passé.');
+    assert.equal(await hote.locator('.transition-texte').textContent(), 'Le tour de TOM est passé.');
     await ctx.capture(hote, 'robustesse-transition-passe-360', { fullPage: true });
     await attendreEcran(hote, 'choix');
     assert.equal(await hote.locator('.compteur').textContent(), `Tour 2 / ${config.tours}`);
@@ -405,9 +416,9 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await attendreEcran(invite, 'attente');
     let partie = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;
     assert.deepEqual(partie.jeu.jouees[1], { carte: partie.jeu.jouees[1].carte, joueur: partie.ordre[1], tour: 1, issue: 'passe' });
-    assert.ok(partie.jeu.jouees[1].carte, 'la carte tirée par Tom est consumée');
+    assert.ok(partie.jeu.jouees[1].carte, 'la carte tirée par TOM est consumée');
 
-    // Absence prolongée : Tom ferme sa page. L'hôte joue chacun de ses tours et passe ceux de Tom jusqu'à la fin.
+    // Absence prolongée : TOM ferme sa page. L'hôte joue chacun de ses tours et passe ceux de TOM jusqu'à la fin.
     await fermer(invite);
     for (let tour = 2; tour <= config.tours; tour += 1) {
       await attendreEcran(hote, 'choix');
@@ -415,7 +426,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
       await attendreEcran(hote, 'carte');
       await hote.getByRole('button', { name: /Le sort est jeté/i }).click();
       await attendreEcran(hote, 'attente');
-      await hote.locator('button:has(img[alt="Passer son tour"])').click({ timeout: DELAI });
+      await hote.locator('button:has-text("Passer son tour")').click({ timeout: DELAI });
     }
     await attendreEcran(hote, 'fin');
     partie = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;

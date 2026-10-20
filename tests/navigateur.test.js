@@ -406,7 +406,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
         'Récupérez votre butin, choisissez votre emblème et laissez le sort décider du trésor qui sera le vôtre.', 'Comment ça marche ?'],
       regles: ['But du jeu', 'Déroulement', 'Invoquer un bouclier', 'Fin de la partie', 'Créer une partie', 'Rejoindre une partie'],
       fin: ['La quête s\'achève.', 'Le destin a rendu son verdict. Chaque personne tient désormais entre ses mains le butin que le sort lui a réservé. Le moment est venu de le découvrir !', 'Nouvelle quête'],
-      salle: ['Rassemblez votre troupe. La quête commencera quand l\'hôte donnera le signal.', 'Commencer la quête'],
+      salle: ['La quête commencera quand l\'hôte donnera le signal.', 'Commencer la quête'],
     };
     for (const [nom, q] of Object.entries(pages)) {
       const page = await ouvrir(`index.html${q}`);
@@ -586,11 +586,11 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
         const m = await page.evaluate(() => {
           const r = document.querySelector('.transition-icone').getBoundingClientRect();
           const bas = r.bottom + r.height * (0.22 + 0.04); // 0,22 de halo + moitié de 8 % d'agrandissement
-          return { bas, emb: document.querySelector('.transition-corps .embleme').getBoundingClientRect().top,
+          return { bas, emb: document.querySelectorAll('.transition-corps .embleme').length,
             texte: document.querySelector('.transition-texte').getBoundingClientRect().top };
         });
         assert.ok(m.texte - m.bas >= 8, `${largeur} px bouclier=${bouclier} : halo (${m.bas.toFixed(0)}) trop près du texte (${m.texte.toFixed(0)})`);
-        assert.ok(m.emb > m.texte, 'l\'emblème vient après le texte (prénom puis emblème)');
+        assert.equal(m.emb, 0, 'plus d\'emblème sur la transition (remarque 33)');
         await fermer(page);
       }
     }

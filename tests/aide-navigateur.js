@@ -294,6 +294,9 @@ const STYLE_FOND_SANS_TEXTE = `
   input::placeholder { color: transparent !important; }
   .erreur-champ::before { border-color: transparent !important; }
   .grain, .etoile, .ciel-accueil { display: none !important; }
+  /* Phase 7 (remarques 17 et 24) : la propriétaire veut aussi des étoiles au milieu de l'écran ; ces calques de décor
+     (très petites étoiles, pâles vers le centre) sont neutralisés comme les autres étoiles pour mesurer le texte. */
+  .page::after, .ecran-zone::before { display: none !important; }
   body.ciel { background: radial-gradient(ellipse at 85% 0%, #3C5A8C55, transparent 50%), radial-gradient(ellipse at 50% 110%, #D9693A33, transparent 55%), #060B1E !important; }
 `;
 

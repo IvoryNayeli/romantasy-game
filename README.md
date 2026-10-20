@@ -76,7 +76,8 @@ Les écrans restent consultables avec des données fictives, sans base ni émula
 | `erreur` | `vide`, `inconnu` | Affiche le message d'erreur de l'écran `rejoindre` |
 | `hote`, `autres`, `complete`, `prenom`, `embleme`, `pret` | voir `public/js/ecrans.js` | Variantes de la salle d'attente fictive (leur présence suffit à ouvrir la salle de démonstration) |
 | `bouclier`, `passe`, `absent`, `prenom`, `embleme`, `effets` | `1` ou `0`, texte, identifiant d'emblème | Variantes de la transition (bouclier, tour passé), de l'attente (personne hors ligne et « Passer son tour ») et de la salle (une personne hors ligne) ; `effets=1` ajoute le bandeau des effets en cours au choix et à la carte révélée, `effets=0` le retire de l'attente |
-| `etape` | `choix` | Attente avant que la personne dont c'est le tour ait choisi sa carte (« Au tour de… » et l'emblème en grand) |
+| `etape` | `choix`, `embleme` | `choix` : attente avant que la personne dont c'est le tour ait choisi sa carte (« Au tour de… » et l'emblème en grand) ; `embleme` (avec `prenom`) : deuxième écran de l'inscription dans la salle (choix de l'emblème) |
+| `echange` | `1` | Attente : bouton « Échange de butins fait » de démonstration, qui retire l'effet et montre l'éclat d'étoiles |
 
 Le nombre de tours, de places maximum et le délai avant de pouvoir passer le tour d'une personne hors ligne (`delaiAbsenceSecondes`) viennent uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
 
