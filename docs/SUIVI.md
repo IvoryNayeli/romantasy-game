@@ -26,16 +26,18 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
-| 7 | Ajustements visuels | à faire | 0 | |
+| 7 | Ajustements visuels | en cours | 1 | |
 | 8 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 6 validée le 2026-10-20. Phase 7 (ajustements visuels, insérée le 2026-10-20) possible, sur demande de la propriétaire (« Lance la phase 7 »), puis ajustements par « Phase 7, remarques : … ». GitHub Pages n'est requis qu'avant la phase 8.
+Phase 7, itération 1 : en cours sur la branche `phase-7` (mise en place ; les ajustements visuels arrivent par « Phase 7, remarques : … »).
 
 ## Journal
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
+
+- 2026-10-20, phase 7 : lancement de l'itération 1 (branche `phase-7`), sans remarque pour l'instant.
 
 ## Défauts ouverts
 
