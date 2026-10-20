@@ -284,6 +284,8 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
         const debordements = await hote.evaluate(A.mesurerDebordements);
         assert.deepEqual(debordements, [], 'écran d\'attente avec effet : aucun débordement');
         // L'échange de butins est signalé par une personne dont ce n'est pas le tour : l'effet disparaît partout.
+        // Phase 7 : le bandeau est replié par défaut, on le déroule d'abord.
+        await hote.locator('.effets-titre').click();
         await hote.locator('.bouton-echange', { hasText: 'Échange de butins fait' }).click();
         for (const j of joueurs) await j.page.waitForSelector('.effets-en-cours', { state: 'detached', timeout: DELAI });
       }
