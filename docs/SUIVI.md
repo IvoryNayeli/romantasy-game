@@ -25,12 +25,12 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
-| 6 | Robustesse | prête pour relecture | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
+| 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 6, itération 1 : prête pour relecture. Attente de la propriétaire (« Phase 6 validée » ou « Phase 6, remarques : … »).
+Phase 6 validée le 2026-10-20. Phase 7 possible, sur demande de la propriétaire (« Lance la phase 7 »), après activation de GitHub Pages (prérequis de `docs/PLAN.md`).
 
 ## Journal
 
@@ -38,6 +38,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 
 - 2026-10-19, phase 6 : lancement de l'itération 1 (branche `phase-6`).
 - 2026-10-20, phase 6 : itération 1 développée et testée, prête pour relecture ([rapport](rapports/phase-6-iteration-1.md)).
+- 2026-10-20, phase 6 validée : validation explicite de la propriétaire, fusion de `phase-6` dans `main`, tag `phase-6`.
 
 ## Défauts ouverts
 
