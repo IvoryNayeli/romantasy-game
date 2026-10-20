@@ -74,7 +74,7 @@ Aucune autre phrase : en particulier, ne pas ajouter de rappel sur les échanges
 ## Salle d'attente
 
 - Code de partie : un mot du thème, affiché en grand, sans bouton copier ni partager.
-- Prénom et emblème obligatoires pour confirmer sa présence (« Je suis là »).
+- Prénom et emblème obligatoires pour confirmer sa présence (« Je rejoins l'aventure »).
 - Un emblème déjà pris est grisé.
 - 5 personnes au maximum ; une sixième personne voit « La partie est complète ».
 - Le bouton « Commencer la quête » n'est visible que de l'hôte, actif dès que 2 personnes ont confirmé leur présence.

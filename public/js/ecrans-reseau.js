@@ -1,7 +1,7 @@
 // Écrans en réseau, alimentés par l'écoute de la partie en cours (parties/<CODE>) et non par des données fictives :
 // - salle d'attente (phase 4) : même écran que la salle fictive de ecrans.js (mêmes blocs, mêmes classes) ;
 // - partie (phase 5) : les écrans de tour et de fin de ecrans.js (mêmes vues), selon l'état du jeu dans la base.
-// L'écoute ne fait qu'afficher : seules les actions de la personne (emblème, « Je suis là », « Commencer la quête »,
+// L'écoute ne fait qu'afficher : seules les actions de la personne (emblème, « Je rejoins l'aventure », « Commencer la quête »,
 // choix de carte, « Le sort est jeté », « Invoquer un bouclier », fin d'un effet, tour passé) écrivent dans la base,
 // une transaction chacune.
 // Phase 6 : sur ces deux écrans, l'écran reste allumé (wakelock.js) et la présence de la personne est signalée
@@ -13,6 +13,7 @@ import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
   ligneJoueur, barreBas, vueChoix, vueCarte, vueAttente, vueTransition, vueFin, panneauEffets, blocAbsence, DUREE_TRANSITION_MS,
+  majuscules, enteteSalle, grilleEmblemes,
 } from './ecrans.js';
 import { garderEcranAllume } from './wakelock.js';
 import { emblemeParId } from './fictif.js';
@@ -45,7 +46,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
   }
 
   const liste = h('ul', { classe: 'liste-joueurs', 'aria-labelledby': 'titre-groupe' });
-  const grille = h('div', { classe: 'grille-emblemes', role: 'radiogroup', 'aria-label': S.embleme });
+  const grille = grilleEmblemes(donnees);
   const boutonsEmbleme = new Map();
   const champ = h('input', {
     classe: 'champ', id: 'champ-prenom', type: 'text', value: '', autocomplete: 'off',
@@ -59,9 +60,14 @@ export function salle({ donnees, params, naviguer, reseau }) {
     h('label', { classe: 'etiquette-champ', for: 'champ-prenom' }, S.prenomLibelle),
     champ,
     h('p', { classe: 'etiquette-champ' }, S.embleme),
-    grille,
-    messageErreur);
+    grille);
   const barre = barreBas(boutonPret, boutonCommencer);
+  const etapeFiche = h('div', { classe: 'salle-etape salle-fiche' }, formulaire);
+  const etapeSalle = h('div', { classe: 'salle-etape salle-attente' },
+    avis,
+    h('h2', { classe: 'titre-liste', id: 'titre-groupe' }, S.groupe),
+    liste,
+    h('p', { classe: 'texte texte-centre' }, S.accompagnement));
 
   // Action réseau de la personne : une seule à la fois, erreur affichée sous le formulaire.
   function agir(action) {
@@ -83,7 +89,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }
-  champ.addEventListener('input', () => { prenomSaisi = champ.value; maj(); });
+  champ.addEventListener('input', () => { prenomSaisi = majuscules(champ.value); maj(); });
   boutonPret.addEventListener('click', () => agir(() => reseau.confirmerPresence(code, prenomSaisi)));
   boutonCommencer.addEventListener('click', () => agir(() => reseau.commencer(code, donnees)));
 
@@ -102,12 +108,17 @@ export function salle({ donnees, params, naviguer, reseau }) {
     for (let i = joueurs.length; i < max; i += 1) lignes.push(h('li', { classe: 'joueur-ligne joueur-libre', 'aria-hidden': 'true' }));
     liste.replaceChildren(...lignes);
 
-    // Personne absente de la liste (partie complète ou déjà commencée), ou inscrite sans « Je suis là » quand la
+    // Personne absente de la liste (partie complète ou déjà commencée), ou inscrite sans « Je rejoins l'aventure » quand la
     // quête commence : formulaire remplacé par l'avis.
     const exclu = Boolean(partie) && (!fiche || (partie.statut === reseau.STATUTS.PARTIE && !joue(partie, moi)));
-    formulaire.hidden = exclu;
-    barre.hidden = exclu;
     avis.hidden = !exclu;
+    // Phase 7 : deux écrans successifs. D'abord prénom + emblème ; une fois la présence confirmée (ou au
+    // rechargement d'une présence déjà confirmée), la salle d'attente avec la liste. L'hôte y garde « Commencer ».
+    const enSalle = exclu || pret;
+    etapeFiche.hidden = enSalle;
+    etapeSalle.hidden = !enSalle;
+    boutonPret.hidden = pret;
+    barre.hidden = exclu || (pret && !estHote);
     if (exclu) avis.replaceChildren(...coins(), partie.statut === reseau.STATUTS.SALLE ? S.complete : T.reseau.commencee);
 
     const valide = Boolean(prenomSaisi.trim() && fiche?.embleme);
@@ -146,15 +157,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
 
   avis.hidden = true;
   const noeud = h('section', { classe: 'ecran ecran-salle' },
-    h('div', { classe: 'salle-corps' },
-      h('p', { classe: 'code-partie' },
-        h('span', { classe: 'code-libelle' }, S.codeLibelle), ' ',
-        h('span', { classe: 'code-valeur' }, code)),
-      formulaire,
-      avis,
-      h('h2', { classe: 'titre-liste', id: 'titre-groupe' }, S.groupe),
-      liste,
-      h('p', { classe: 'texte texte-centre' }, S.accompagnement)),
+    h('div', { classe: 'salle-corps' }, enteteSalle(code), etapeFiche, etapeSalle, messageErreur),
     barre);
   maj();
   return {

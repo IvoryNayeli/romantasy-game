@@ -52,6 +52,13 @@ export function coins() {
   return ['hg', 'hd', 'bg', 'bd'].map((place) => symbole('etincelle', `coin coin-${place}`));
 }
 
+// Étincelle seule (décor), par exemple les fermoirs et la poussière d'étoiles du parchemin des règles.
+export function etincelle(classe, style = null) {
+  const svg = symbole('etincelle', classe);
+  if (style) svg.setAttribute('style', style);
+  return svg;
+}
+
 // Séparateur filigrane.
 export function filigrane(classe = '') {
   return symbole('filigrane', `filigrane ${classe}`.trim());

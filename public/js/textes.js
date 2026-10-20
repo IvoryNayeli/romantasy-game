@@ -79,14 +79,14 @@ export const erreurs = {
 };
 
 export const salle = {
-  codeLibelle: 'Code de la partie',
+  codeLibelle: 'Partie\u00A0:',
   accompagnement: 'Rassemblez votre troupe. La quête commencera quand l\'hôte donnera le signal.',
   hote: 'hôte',
   vous: 'toi',
   prenomLibelle: 'Ton prénom',
   embleme: 'Ton emblème',
   pret: 'C\'est bon',
-  pretBouton: 'Je suis là',
+  pretBouton: "Je rejoins l'aventure",
   commencer: 'Commencer la quête',
   complete: 'La partie est complète',
   groupe: 'La compagnie',

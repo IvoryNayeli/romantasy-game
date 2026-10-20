@@ -4,7 +4,7 @@
 // sont dans ecrans-reseau.js, qui réutilise les vues des écrans de tour (vueChoix, vueCarte, vueAttente,
 // vueTransition, vueFin) : même rendu, alimenté par la partie réelle.
 
-import { h, icone, imageEmbleme, lienBouton, coins, filigrane, logo, etoile } from './dom.js';
+import { h, icone, imageEmbleme, lienBouton, coins, filigrane, logo, etoile, etincelle } from './dom.js';
 import { constellation } from './ciel.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
@@ -139,8 +139,17 @@ export function accueil() {
 
 export function regles({ donnees }) {
   const R = T.regles;
+  // Phase 7 : les règles dans un « parchemin de nuit » (maquette de la propriétaire) : double filet, étincelles aux
+  // coins, fermoirs en haut et en bas, poussière d'étoiles entre les filets (jamais sous le texte).
+  const decor = [
+    ...coins(),
+    etincelle('fermoir fermoir-h'), etincelle('fermoir fermoir-b'),
+    ...[['left', 18], ['left', 47], ['left', 76], ['right', 31], ['right', 62], ['right', 88]]
+      .map(([cote, y]) => etincelle('poussiere', `${cote}:9px;top:${y}%`)),
+  ];
   const noeud = h('section', { classe: 'ecran ecran-regles' },
-    h('div', { classe: 'regles-corps' },
+    h('div', { classe: 'regles-corps parchemin' },
+      decor,
       titreSection(R.butTitre),
       h('p', { classe: 'texte' }, R.but),
       titreSection(R.deroulementTitre),
@@ -303,6 +312,26 @@ export function rejoindre({ donnees, params, naviguer, reseau = null }) {
   };
 }
 
+// Prénom toujours en majuscules (phase 7) : conversion à la saisie, accents conservés (« léa » donne « LÉA »).
+export function majuscules(texte) {
+  return String(texte).toLocaleUpperCase('fr');
+}
+
+// Grille du choix de l'emblème : deux lignes (phase 7, huit emblèmes : deux lignes de quatre).
+export function grilleEmblemes(donnees) {
+  return h('div', {
+    classe: 'grille-emblemes', role: 'radiogroup', 'aria-label': T.salle.embleme,
+    style: `--colonnes:${Math.ceil(donnees.emblemes.length / 2)}`,
+  });
+}
+
+// Haut de la salle d'attente : « Partie : CODE », discret.
+export function enteteSalle(code) {
+  return h('p', { classe: 'code-partie' },
+    h('span', { classe: 'code-libelle' }, T.salle.codeLibelle), ' ',
+    h('span', { classe: 'code-valeur' }, code));
+}
+
 export function salle({ donnees, params, naviguer }) {
   const S = T.salle;
   const max = donnees.config.joueursMax;
@@ -314,13 +343,13 @@ export function salle({ donnees, params, naviguer }) {
   const pris = new Set(autres.map((j) => j.embleme));
 
   // Ma propre fiche : saisie locale (aucun envoi).
-  const moi = { prenom: params.get('prenom') || '', embleme: null, pret: false };
+  const moi = { prenom: majuscules(params.get('prenom') || ''), embleme: null, pret: false };
   const embleParam = params.get('embleme');
   if (embleParam && !pris.has(embleParam) && donnees.emblemes.some((e) => e.id === embleParam)) moi.embleme = embleParam;
   moi.pret = params.get('pret') === '1' && Boolean(moi.prenom.trim() && moi.embleme);
 
   const liste = h('ul', { classe: 'liste-joueurs', 'aria-labelledby': 'titre-groupe' });
-  const grille = h('div', { classe: 'grille-emblemes', role: 'radiogroup', 'aria-label': S.embleme });
+  const grille = grilleEmblemes(donnees);
   const boutonsEmbleme = new Map();
   const champ = h('input', {
     classe: 'champ', id: 'champ-prenom', type: 'text', value: moi.prenom, autocomplete: 'off',
@@ -354,6 +383,13 @@ export function salle({ donnees, params, naviguer }) {
     boutonPret.replaceChildren(...(moi.pret ? [icone('coche')] : []), h('span', null, moi.pret ? S.pret : S.pretBouton));
     boutonCommencer.disabled = autres.length + (moi.pret ? 1 : 0) < JOUEURS_MINIMUM;
     champ.disabled = moi.pret;
+    // Phase 7 : deux écrans successifs. D'abord prénom + emblème ; une fois la présence confirmée, la salle
+    // d'attente avec la liste. L'hôte garde « Commencer la quête » dans la salle d'attente.
+    const enSalle = complete || moi.pret;
+    etapeFiche.hidden = enSalle;
+    etapeSalle.hidden = !enSalle;
+    boutonPret.hidden = enSalle;
+    if (barre) barre.hidden = enSalle && !estHote;
     for (const [id, bouton] of boutonsEmbleme) {
       bouton.setAttribute('aria-checked', String(moi.embleme === id));
       bouton.disabled = moi.pret || pris.has(id);
@@ -375,8 +411,8 @@ export function salle({ donnees, params, naviguer }) {
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }
-  champ.addEventListener('input', () => { moi.prenom = champ.value; moi.pret = false; maj(); });
-  boutonPret.addEventListener('click', () => { if (!moi.pret) { moi.pret = true; maj(); } });
+  champ.addEventListener('input', () => { moi.prenom = majuscules(champ.value); moi.pret = false; maj(); });
+  boutonPret.addEventListener('click', () => { if (!moi.pret) { moi.pret = true; maj(); window.scrollTo(0, 0); } });
 
   const formulaire = complete
     ? h('p', { classe: 'panneau avis-complete', role: 'status' }, coins(), S.complete)
@@ -386,17 +422,17 @@ export function salle({ donnees, params, naviguer }) {
       h('p', { classe: 'etiquette-champ' }, S.embleme),
       grille);
 
-  // Ordre voulu par la propriétaire : code (discret), menu emblème + prénom, puis liste du groupe.
+  // Ordre voulu par la propriétaire : code (discret), puis prénom + emblème ; ensuite seulement, la salle d'attente.
+  const etapeFiche = h('div', { classe: 'salle-etape salle-fiche' }, complete ? null : formulaire);
+  const etapeSalle = h('div', { classe: 'salle-etape salle-attente' },
+    complete ? formulaire : null,
+    h('h2', { classe: 'titre-liste', id: 'titre-groupe' }, S.groupe),
+    liste,
+    h('p', { classe: 'texte texte-centre' }, S.accompagnement));
+  const barre = complete ? null : barreBas(boutonPret, estHote ? boutonCommencer : null);
   const noeud = h('section', { classe: 'ecran ecran-salle' },
-    h('div', { classe: 'salle-corps' },
-      h('p', { classe: 'code-partie' },
-        h('span', { classe: 'code-libelle' }, S.codeLibelle), ' ',
-        h('span', { classe: 'code-valeur' }, code)),
-      formulaire,
-      h('h2', { classe: 'titre-liste', id: 'titre-groupe' }, S.groupe),
-      liste,
-      h('p', { classe: 'texte texte-centre' }, S.accompagnement)),
-    complete ? null : barreBas(boutonPret, estHote ? boutonCommencer : null));
+    h('div', { classe: 'salle-corps' }, enteteSalle(code), etapeFiche, etapeSalle),
+    barre);
   maj();
   return { noeud };
 }
@@ -464,7 +500,7 @@ export function vueCarte(donnees, { tour, carte: c, sortJete, bouclier, effets =
 
 export function attente({ donnees, params }) {
   const premier = joueursFictifs(donnees, 1)[0];
-  const prenom = params.get('prenom') || premier.prenom;
+  const prenom = majuscules(params.get('prenom') || premier.prenom);
   // ?absent=1 (phase 6) : la personne dont c'est le tour est hors ligne et son tour peut être passé (sans effet ici).
   const absence = params.get('absent') === '1' ? blocAbsence() : null;
   if (absence) absence.majAbsence({ prenom, passer: () => {} });
@@ -508,8 +544,9 @@ export function panneauEffets(donnees, effets, signaler = null) {
 export function vueAttente(donnees, { tour, carte: c = null, actif, effets = [], signaler = null, pied = null }) {
   return h('section', { classe: `ecran ecran-attente${c ? '' : ' attente-sans-carte'}` },
     compteurEl(donnees, tour),
-    h('h2', { classe: 'titre-tour' }, `${T.tour.auTourDe} `,
-      h('span', { classe: 'nom-actif' }, actif.prenom, c ? emblemeEl(actif.embleme) : null)),
+    // Une seule ligne (phase 7) : la taille du titre suit sa longueur (--lettres, voir style.css).
+    h('h2', { classe: 'titre-tour', style: `--lettres:${T.tour.auTourDe.length + 1 + String(actif.prenom).length}` },
+      `${T.tour.auTourDe} `, h('span', { classe: 'nom-actif' }, actif.prenom, c ? emblemeEl(actif.embleme) : null)),
     c ? carteEl(c, 'autre') : emblemeEl(actif.embleme, 'embleme-grand embleme-attente'),
     piedTour(panneauEffets(donnees, effets, signaler), pied));
 }
@@ -541,7 +578,7 @@ export function transition({ donnees, params, naviguer }) {
     tour: n,
     bouclier: params.get('bouclier') === '1',
     passe: params.get('passe') === '1',
-    prenom: params.get('prenom') || acteur.prenom,
+    prenom: majuscules(params.get('prenom') || acteur.prenom),
     embleme: emblemeParId(donnees, params.get('embleme') || acteur.embleme),
   });
   let minuteur = null;

@@ -251,13 +251,18 @@ test('codes : saisie insensible à la casse et aux accents, seuls les mots de co
   for (const faux of ['', '   ', 'DRAGON', 'ECLIPS', 'ECLIPSEE', 'RUN E', null]) assert.equal(trouverCode(faux, codes), null, `« ${faux} » ne doit pas être accepté`);
 });
 
-test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste du groupe', () => {
+test('salle d\'attente : code (discret), puis deux écrans successifs (prénom + emblème, puis liste du groupe)', () => {
   const ecrans = lirePublic('js', 'ecrans.js');
   const salle = ecrans.slice(ecrans.indexOf('export function salle('), ecrans.indexOf('export function choix('));
-  const construction = salle.slice(salle.indexOf('const noeud = h('));
-  const positions = ['code-partie', 'formulaire,', 'titre-groupe', 'liste,'].map((m) => construction.indexOf(m));
+  const construction = salle.slice(salle.indexOf('const etapeFiche = h('));
+  const positions = ["classe: 'salle-etape salle-fiche' }, complete ? null : formulaire", 'titre-groupe', 'liste,', 'enteteSalle(code), etapeFiche, etapeSalle']
+    .map((m) => construction.indexOf(m));
   assert.ok(positions.every((p) => p >= 0), 'élément manquant dans la salle d\'attente');
-  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : code, menu emblème/prénom, liste du groupe');
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : prénom/emblème, liste du groupe, puis assemblage code + étapes');
+  // Phase 7 (remarque 13) : la liste n'apparaît qu'après la présence confirmée, dans la salle fictive comme en réseau.
+  assert.match(salle, /const enSalle = complete \|\| moi\.pret;\s*etapeFiche\.hidden = enSalle;\s*etapeSalle\.hidden = !enSalle;/);
+  assert.match(lirePublic('js', 'ecrans-reseau.js'), /const enSalle = exclu \|\| pret;\s*etapeFiche\.hidden = enSalle;\s*etapeSalle\.hidden = !enSalle;/);
+  assert.match(ecrans, /export function enteteSalle\(code\) \{\s*return h\('p', \{ classe: 'code-partie' \}/);
   assert.match(lirePublic('js', 'textes.js'), /groupe: 'La compagnie'/);
   // Le code est discret : petit et en couleur secondaire (pas un grand encadré).
   for (const sel of ['.code-libelle', '.code-valeur']) {
@@ -275,12 +280,12 @@ test('textes : plus de « participant(e)s » ni de « participantes » (formulat
   }
 });
 
-test('design : polices Cormorant Garamond (500, 600, 500 italique) et Jost (300, 400, 500) hébergées, licences OFL, plus de Cinzel', () => {
+test('design : polices Cormorant Garamond (500, 600, 500 italique), Jost (300, 400, 500) et IM Fell English SC (titres de section, phase 7) hébergées, licences OFL, plus de Cinzel', () => {
   const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
   const declarees = faces.map((f) => `${f.match(/font-family:\s*'([^']+)'/)[1]}|${f.match(/font-weight:\s*(\d+)/)[1]}|${f.match(/font-style:\s*(\w+)/)[1]}`).sort();
   assert.deepEqual(declarees, [
     'Cormorant Garamond|500|italic', 'Cormorant Garamond|500|normal', 'Cormorant Garamond|600|normal',
-    'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal',
+    'IM Fell English SC|400|normal', 'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal',
   ]);
   for (const face of faces) {
     const src = face.match(/url\('([^']+)'\)\s*format\('woff2'\)/);
@@ -289,7 +294,7 @@ test('design : polices Cormorant Garamond (500, 600, 500 italique) et Jost (300,
     assert.ok(fs.existsSync(fichier), `police manquante : ${src[1]}`);
     assert.equal(fs.readFileSync(fichier).subarray(0, 4).toString('latin1'), 'wOF2', `${src[1]} n'est pas un woff2`);
   }
-  for (const licence of ['LICENSE-Jost-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt']) {
+  for (const licence of ['LICENSE-Jost-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt', 'LICENSE-IMFellEnglishSC-OFL.txt']) {
     assert.ok(existe('fonts', licence), `${licence} manquante`);
     assert.match(lirePublic('fonts', licence), /SIL Open Font License/);
   }
@@ -337,9 +342,10 @@ test('design : variables de la charte (docs/charte-graphique.md, section 2) repr
     '--c-lune-douce': '#8FA6C8', '--c-etoile': '#F4F1E8', '--c-ambre': '#F0A35E', '--c-braise': '#D9693A',
   };
   for (const [nom, couleur] of Object.entries(attendu)) assert.equal((v[nom] || '').toUpperCase(), couleur, nom);
-  // Toute variable utilisée dans le CSS existe : dans :root, ou propre à un composant (--rarete, --lueur de la charte).
+  // Toute variable utilisée dans le CSS existe : dans :root, ou propre à un composant (--rarete, --lueur de la charte ;
+  // phase 7 : --lettres et --colonnes, posées par ecrans.js sur le titre d'attente et la grille des emblèmes).
   const utilisees = new Set([...css.matchAll(/var\((--[\w-]+)/g)].map((m) => m[1]));
-  for (const nom of utilisees) assert.ok(nom in v || ['--rarete', '--lueur'].includes(nom), `variable inventée : ${nom}`);
+  for (const nom of utilisees) assert.ok(nom in v || ['--rarete', '--lueur', '--lettres', '--colonnes'].includes(nom), `variable inventée : ${nom}`);
   assert.doesNotMatch(css, /@import/);
   // docs/PROJET.md, section « Design » : nouvelle palette et nouvelles polices, renvoi à la charte, plus d'ancienne palette.
   const projet = lire('docs', 'PROJET.md');
@@ -363,11 +369,12 @@ test('design : interdits de la charte (violets, roses, blanc et noir purs, ombre
     const { t, s } = teinteSaturation(`#${hex}`);
     assert.ok(!(t >= 255 && t <= 345 && s > 0.12), `#${m[1]} : violet ou rose (teinte ${t.toFixed(0)})`);
   }
-  assert.doesNotMatch(css, /\b(?:white|black|purple|violet|pink|magenta|rgba?\(\s*(?:0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255))/i, 'couleur nommée ou noir/blanc pur');
+  assert.doesNotMatch(css, /\b(?:white(?!-space)|black|purple|violet|pink|magenta|rgba?\(\s*(?:0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255))/i, 'couleur nommée ou noir/blanc pur');
   assert.doesNotMatch(css, /box-shadow:[^;]*(?:rgba?\(\s*0\s*,\s*0\s*,\s*0|#000)/i, 'ombre portée noire');
   assert.doesNotMatch(css, /:hover/, 'aucun effet au survol');
   assert.doesNotMatch(css, /border-radius:\s*(?:999|9999)/, 'pilule');
-  assert.doesNotMatch(css, /border-radius:\s*50%/, 'le cercle est réservé au logo et au badge de coût (absent du jeu)');
+  // Seule exception, demandée par la propriétaire (phase 7, maquette du parchemin) : les fermoirs ronds des règles.
+  assert.doesNotMatch(css.replace(/\.fermoir \{[^}]*\}/, ''), /border-radius:\s*50%/, 'le cercle est réservé au logo, au badge de coût (absent du jeu) et aux fermoirs du parchemin');
   assert.doesNotMatch(sansRoot, /(?:^|[;{\s])color\s*:\s*var\(--c-brume\)/m, 'texte en --c-brume');
   assert.doesNotMatch(css, /\.etincelles\b/, 'ancien fond d\'étincelles');
   // Les violets et roses de l'ancienne palette ont disparu des textes de conception.
@@ -715,7 +722,7 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   const textes = lirePublic('js', 'textes.js');
   // Seule exception voulue par la propriétaire (itération 4) : la salutation « Bienvenue, voyageur(se). ».
   assert.doesNotMatch(textes.replace('voyageur(se)', 'voyageur'), /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
-  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je suis là', 'La compagnie']) {
+  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je rejoins l\'aventure', 'La compagnie']) {
     assert.ok(textes.includes(forme), `formulation neutre « ${forme} » absente`);
   }
   assert.match(textes, /butin/);

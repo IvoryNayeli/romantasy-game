@@ -164,8 +164,8 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.equal(await page.locator('.joueur-ligne:not(.joueur-libre)').count(), 2, 'l\'hôte + une personne déjà là');
     assert.match(await page.locator('.joueur-ligne.joueur-soi').first().textContent(), /hôte/i);
     assert.equal(await page.locator('.joueur-ligne.joueur-soi').count(), 1);
-    const pret = page.getByRole('button', { name: /Je suis là/i });
-    assert.ok(await pret.isDisabled(), 'Je suis là inactif sans prénom ni emblème');
+    const pret = page.getByRole('button', { name: /Je rejoins l.aventure/i });
+    assert.ok(await pret.isDisabled(), 'Je rejoins l\'aventure inactif sans prénom ni emblème');
     assert.ok(await page.getByRole('button', { name: /Commencer la quête/i }).isDisabled());
     assert.equal(await page.getByRole('button', { name: /copier|partager/i }).count(), 0);
     await ctx.capture(page, 'salle-apres-creer-360', { fullPage: true });
@@ -298,7 +298,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
   /* ============ Salle : menu emblème / prénom ============ */
   it('salle : « prêt(e) » exige un prénom ET un emblème, un emblème déjà pris est grisé, cinq places au plus, partie complète', async () => {
     const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1&code=RUNE');
-    const pret = page.getByRole('button', { name: /Je suis là/i });
+    const pret = page.getByRole('button', { name: /Je rejoins l.aventure/i });
     assert.ok(await pret.isDisabled());
     await page.locator('#champ-prenom').fill('Robin');
     assert.ok(await pret.isDisabled(), 'prêt(e) inactif sans emblème');
@@ -317,21 +317,21 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     const seule = await ouvrir('index.html?ecran=salle&hote=1&autres=0');
     await seule.locator('#champ-prenom').fill('Ana');
     await seule.getByRole('radio', { name: /Fée/i }).click();
-    await seule.getByRole('button', { name: /Je suis là/i }).click();
+    await seule.getByRole('button', { name: /Je rejoins l.aventure/i }).click();
     assert.ok(await seule.getByRole('button', { name: /Commencer la quête/i }).isDisabled(), 'une seule personne prête : commencer reste inactif');
     await fermer(seule);
   });
 
-  it('salle : après « Je suis là », « C\'est bon » est définitif (bouton inactif, clic sans effet, prénom et emblèmes verrouillés)', async () => {
+  it('salle : après « Je rejoins l\'aventure », « C\'est bon » est définitif (bouton inactif, clic sans effet, prénom et emblèmes verrouillés)', async () => {
     const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1&code=RUNE');
     await page.locator('#champ-prenom').fill('Robin');
     await page.getByRole('radio', { name: /Démon/i }).click();
-    await page.getByRole('button', { name: /Je suis là/i }).click();
+    await page.getByRole('button', { name: /Je rejoins l.aventure/i }).click();
     const bouton = page.getByRole('button', { name: /C'est bon/i });
     assert.ok(await bouton.isDisabled(), 'le bouton est inactif une fois validé');
     await bouton.click({ force: true });
     assert.match(await page.locator('.joueur-soi').textContent(), /C'est bon/i, 'un second clic ne doit pas annuler');
-    assert.equal(await page.getByRole('button', { name: /Je suis là/i }).count(), 0);
+    assert.equal(await page.getByRole('button', { name: /Je rejoins l.aventure/i }).count(), 0);
     assert.ok(await page.locator('#champ-prenom').isDisabled(), 'prénom verrouillé');
     assert.equal(await page.locator('.embleme-choix:not(:disabled)').count(), 0, 'emblèmes verrouillés');
     assert.equal(await page.getByRole('radio', { name: /Démon/i }).getAttribute('aria-checked'), 'true');
@@ -406,7 +406,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await page.locator('.code-option').filter({ hasText: /^\s*GRIMOIRE\s*$/ }).click();
     await page.locator('button[type=submit]').click();
     assert.equal((await blocsSalle(page)).code, 'GRIMOIRE');
-    const bouton = page.getByRole('button', { name: /Je suis là/i });
+    const bouton = page.getByRole('button', { name: /Je rejoins l.aventure/i });
     const commencer = page.getByRole('button', { name: /Commencer la quête/i });
     assert.ok(await bouton.isDisabled());
     assert.ok(await commencer.isDisabled());
@@ -461,7 +461,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.equal((await blocsSalle(page)).code, 'TALISMAN');
     await page.locator('#champ-prenom').fill('Maé');
     await page.locator('.embleme-choix:not(:disabled)').first().click();
-    await page.getByRole('button', { name: /Je suis là/i }).click();
+    await page.getByRole('button', { name: /Je rejoins l.aventure/i }).click();
     assert.match(await page.locator('.joueur-soi').textContent(), /Maé/);
     assert.match(await page.locator('.joueur-soi').textContent(), /C'est bon/i);
     assert.equal(await page.getByRole('button', { name: /Commencer la quête/i }).count(), 0);

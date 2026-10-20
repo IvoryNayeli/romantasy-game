@@ -4,6 +4,13 @@
 
 /* ---------- Polices hébergées avec le site (licence OFL, voir public/fonts/) ---------- */
 @font-face {
+  font-family: 'IM Fell English SC';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/IMFellEnglishSC-400.woff2') format('woff2');
+}
+@font-face {
   font-family: 'Cormorant Garamond';
   font-weight: 500;
   font-style: normal;
@@ -234,6 +241,36 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   background-size: 100% 380px;
   animation: scintille 9s var(--ease) infinite;
 }
+/* Phase 7 (remarque 17) : étoiles aussi au milieu de l'écran, moins nombreuses qu'au bord (dégradé progressif :
+   denses vers 5-20 % et 80-95 % de la largeur, rares au centre), très petites et en clair de lune, pour ne pas gêner
+   la lecture. Calque derrière le contenu, scintillement de l'opacité seulement. */
+.ecran-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 6% 40px, var(--c-lune) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at 14% 170px, var(--c-etoile) 0 .8px, transparent 1.5px),
+    radial-gradient(circle at 9% 300px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 19% 420px, var(--c-lune) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at 94% 110px, var(--c-lune) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at 86% 240px, var(--c-etoile) 0 .8px, transparent 1.5px),
+    radial-gradient(circle at 91% 360px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 81% 470px, var(--c-lune) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at 28% 90px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 73% 330px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 34% 390px, var(--c-lune) 0 .5px, transparent 1px),
+    radial-gradient(circle at 66% 30px, var(--c-lune) 0 .5px, transparent 1px),
+    radial-gradient(circle at 46% 210px, var(--c-lune) 0 .5px, transparent 1px);
+  background-size: 100% 520px;
+  background-repeat: repeat-y;
+  animation: scintille 8s var(--ease) -5s infinite;
+}
 /* Phase 7 : plus d'étoiles, de tailles différentes, qui scintillent. Deuxième calque, toujours dans les marges
    latérales (moins de 12 px du bord), décalé dans le temps : on n'anime que l'opacité des deux calques. */
 .page::after {
@@ -289,7 +326,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Logo (image du disque central, fond transparent : elle se fond dans --c-nuit) ---------- */
 .logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.logo-grand { width: 160px; height: 160px; }
+.logo-grand { width: 230px; height: 230px; }
 .logo-grand, .logo-compact, .dos-logo { display: block; object-fit: contain; }
 
 /* ---------- Boutons (charte, section 7) ---------- */
@@ -399,6 +436,43 @@ h2 {
 
 /* ---------- Règles ---------- */
 .regles-corps { padding-bottom: 8px; }
+/* Phase 7 : « parchemin de nuit » (maquette de la propriétaire, variante v-nuit) : papier bleu nuit, encre clair de
+   lune, bordure ambre et double filet comme les cartes, étincelles aux coins, fermoirs au milieu des bords haut et bas,
+   poussière d'étoiles entre les deux filets. Le grain de papier de la maquette n'est pas repris : l'écran a déjà son
+   unique calque de grain (charte, section 8). Ombres en nuit, jamais en noir. */
+.parchemin {
+  position: relative;
+  margin: 24px 0 28px;
+  padding: 36px 24px 40px;
+  border: var(--bordure) solid var(--c-ambre);
+  border-radius: var(--r-carte);
+  background:
+    radial-gradient(ellipse at 50% 30%, #3C5A8C55, transparent 70%),
+    linear-gradient(180deg, var(--c-minuit), var(--c-nuit));
+  box-shadow: inset 0 0 40px #060B1ECC, var(--lueur-ambre);
+}
+.parchemin::before {                    /* double filet ambre, comme les cartes */
+  content: ''; position: absolute; inset: 7px; pointer-events: none;
+  border: var(--filet) solid #F0A35E55; border-radius: 4px;
+}
+.parchemin::after {                     /* filet clair de lune intérieur */
+  content: ''; position: absolute; inset: 17px; pointer-events: none;
+  border: var(--filet) solid #C9D8EE44; border-radius: 2px;
+}
+.parchemin > .coin { width: 14px; height: 14px; color: var(--c-ambre); }
+.parchemin > .coin-hg { top: 10px; left: 10px; }
+.parchemin > .coin-hd { top: 10px; right: 10px; }
+.parchemin > .coin-bg { bottom: 10px; left: 10px; }
+.parchemin > .coin-bd { bottom: 10px; right: 10px; }
+.fermoir {
+  position: absolute; left: 50%; width: 24px; height: 24px; margin-left: -12px; padding: 4px;
+  border: var(--filet) solid var(--c-ambre); border-radius: 50%;
+  background: var(--c-nuit); color: var(--c-ambre); pointer-events: none;
+}
+.fermoir-h { top: -12px; }
+.fermoir-b { bottom: -12px; }
+.poussiere { position: absolute; width: 6px; height: 6px; color: #C9D8EEAA; pointer-events: none; }
+.parchemin .titre-section:first-child, .parchemin .poussiere + .titre-section { margin-top: 4px; }
 /* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), alignés à gauche, filigrane ambre
    sous le titre sur toute la largeur (motif central, filets de part et d'autre), grande marge supérieure.
    Les titres d'écran restent à 32-40 px (charte, section 4). */
@@ -410,8 +484,8 @@ h2 {
 .titre-section h2 {
   margin: 0;
   color: var(--c-etoile);
-  font: 600 1.875rem/1.15 var(--f-titre);
-  letter-spacing: .06em;
+  font: 400 1.75rem/1.15 'IM Fell English SC', var(--f-titre);   /* phase 7 : petites capitales, maquette de la propriétaire */
+  letter-spacing: .02em;
   overflow-wrap: break-word;
 }
 .liste-types { margin: 0 0 16px; padding: 0; list-style: none; }
@@ -438,6 +512,16 @@ h2 {
   overflow-wrap: anywhere;
 }
 .ecran-attente .titre-tour { margin: 16px 0 8px; font-size: 2rem; }
+/* Phase 7 : « Au tour de [prénom] » sur une seule ligne. La taille baisse avec la longueur du titre (--lettres, posé
+   par ecrans.js ; une lettre vaut environ 0,6 em, capitales comprises), sans dépasser 2,25 rem ; la place de
+   l'emblème est réservée quand il suit le prénom. Coupé par des points de suspension en dernier recours. */
+.ecran-attente .titre-tour {
+  overflow: hidden;
+  font-size: min(2.25rem, calc((min(100vw, 30rem) - 2 * var(--marge)) / (var(--lettres, 14) * .6)));
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ecran-attente:not(.attente-sans-carte) .titre-tour { font-size: min(2.25rem, calc((min(100vw, 30rem) - 2 * var(--marge) - 3.25rem) / (var(--lettres, 14) * .6))); }
 .nom-actif { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
 
 /* Emblèmes : images de la propriétaire (fond transparent), carrées ; agrandies en phase 7 pour qu'on les voie mieux. */
@@ -605,11 +689,13 @@ h2 {
 /* ---------- Attente (écran des autres personnes) ---------- */
 /* Phase 7 : carte révélée centrée verticalement entre le compteur et le pied (écran de la personne qui joue et des
    autres). Sans carte encore choisie : « Au tour de [prénom] » et l'emblème en grand dessous, au centre. */
-.ecran-carte .carte, .ecran-attente .carte { margin: auto; }
-.ecran-carte .compteur, .ecran-attente .titre-tour { margin-bottom: 16px; }
+.ecran-carte .carte { margin: auto; }
+.ecran-carte .compteur { margin-bottom: 16px; }
 .ecran-carte .pied-tour, .ecran-attente .pied-tour { margin-top: 20px; }
-.attente-sans-carte .titre-tour { margin: auto 0 16px; }
-.embleme-attente { margin: 0 auto auto; }
+/* Écran des autres : le bloc « Au tour de… » + carte (ou emblème en grand) est centré verticalement. */
+.ecran-attente .titre-tour { margin: auto 0 16px; }
+.ecran-attente .carte { margin: 0 auto auto; }
+.embleme-attente { align-self: center; width: min(12rem, 60vw); height: min(12rem, 60vw); margin: 8px auto auto; }
 /* Phase 7 : ce n'est pas votre tour. Le titre, l'emblème et la carte sont un peu ternis (moins saturés, moins
    lumineux) ; le texte reste très contrasté sur le fond nuit. Le pied (effets, absence) garde son éclat. */
 .ecran-attente > .compteur, .ecran-attente > .titre-tour, .ecran-attente > .carte, .ecran-attente > .embleme-attente {
@@ -760,6 +846,8 @@ h2 {
   letter-spacing: .2em;
   text-transform: uppercase;
 }
+/* Prénom : toujours en majuscules (affichage ici, conversion à la saisie dans ecrans.js et ecrans-reseau.js). */
+#champ-prenom { text-transform: uppercase; }
 .champ {
   display: block;
   width: 100%;
@@ -885,41 +973,37 @@ h2 {
 
 .formulaire { margin-top: 8px; }
 .formulaire .etiquette-champ:first-child { margin-top: 12px; }
-.grille-emblemes { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: 8px; }
+.grille-emblemes { display: grid; grid-template-columns: repeat(var(--colonnes), minmax(0, 1fr)); gap: 8px; }  /* deux lignes (--colonnes : ecrans.js) */
+/* Phase 7 : emblèmes sans cadre ; l'emblème choisi s'allume d'un halo ambre ; l'emblème pris est grisé et pâli. */
 .embleme-choix {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
   min-width: 0;
-  min-height: 4.5rem;
-  padding: 6px 4px;
-  border: var(--filet) solid var(--c-lune-douce);
-  border-radius: var(--r-bouton);
+  min-height: var(--cible);
+  padding: 4px;
+  border: 0;
+  border-radius: var(--r-carte);
   background: transparent;
   color: var(--c-lune);
-  font-family: var(--f-texte);
   cursor: pointer;
   transition: transform 150ms var(--ease);
 }
 .embleme-choix:active { transform: scale(.97); }
-/* Choix de l'emblème (phase 7) : l'image seule, aussi grande que la case le permet ; le nom est son texte alternatif. */
-.embleme-image { display: block; width: min(100%, 4.25rem); height: auto; aspect-ratio: 1; object-fit: contain; }
+.embleme-choix:focus-visible { outline: 2px solid var(--c-etoile); outline-offset: 2px; }
+/* L'image seule, aussi grande que la case le permet ; le nom de l'emblème est son texte alternatif. */
+.embleme-image { display: block; width: min(100%, 5.5rem); height: auto; aspect-ratio: 1; object-fit: contain; }
 .embleme-choix[aria-checked="true"] {
-  border: var(--bordure) solid var(--c-ambre);
-  background: #F0A35E1F;
-  box-shadow: var(--lueur-ambre);
+  background: radial-gradient(circle closest-side, #F0A35E55, #F0A35E22 60%, transparent 100%);
 }
-/* Verrouillé après « C'est bon » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
+.embleme-choix[aria-checked="true"] .embleme-image { filter: drop-shadow(0 0 6px var(--c-ambre)) drop-shadow(0 0 2px var(--c-ambre)); }
+/* Verrouillé après « Je rejoins l'aventure » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
 .embleme-choix:disabled:not(.embleme-pris) { cursor: default; }
 .embleme-choix:disabled:not(.embleme-pris)[aria-checked="false"] { opacity: .45; }
 .embleme-pris, .embleme-pris:disabled {
-  border-style: dashed;
-  color: var(--c-lune-douce);
   cursor: not-allowed;
-  filter: grayscale(1);
-  opacity: .45;
+  filter: grayscale(1) brightness(.7);
+  opacity: .35;
 }
 
 .avis-complete {

@@ -2,7 +2,7 @@
 // Décor pur (aria-hidden), dessiné en SVG à la volée. Elles ne sont posées que dans des zones sans texte :
 // la bande d'en-tête (de part et d'autre du logo) et l'espace libre au-dessus et au-dessous du contenu de l'accueil,
 // de l'écran de fin et de l'écran de transition (voir `.ciel-libre` dans style.css).
-// Couleurs : --c-etoile et --c-lune seulement ; on n'anime que l'opacité (quelques étoiles scintillent, classe `etoile`).
+// Couleurs : --c-etoile et --c-lune seulement ; on n'anime que l'opacité (une étoile sur deux scintille, classe `etoile`).
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -73,11 +73,16 @@ export function constellation(nom, { classe = '', echelle = 1, fluide = false } 
   svg.append(el('path', {
     class: 'liens', d: m.liens.map(([a, b]) => `M${p[a][0]} ${p[a][1]}L${p[b][0]} ${p[b][1]}`).join(''),
   }));
-  m.etoiles.forEach(([, , r, scintille], i) => {
+  // Phase 7 : on doit voir les constellations scintiller. En plus des étoiles marquées, une étoile sur deux
+  // scintille, chacune décalée dans le temps (retard négatif : le cycle est déjà en cours à l'affichage).
+  m.etoiles.forEach(([, , r, marquee], i) => {
     const clair = r >= 1.6;
-    svg.append(el('circle', {
+    const scintille = marquee || i % 2 === 0;
+    const circle = el('circle', {
       class: `astre${clair ? '' : ' astre-lune'}${scintille ? ' etoile' : ''}`, cx: p[i][0], cy: p[i][1], r: clair ? r + 0.3 : r + 0.2,
-    }));
+    });
+    if (scintille) circle.setAttribute('style', `animation-delay:-${(i * 1.3) % 3}s`);
+    svg.append(circle);
   });
   return svg;
 }
