@@ -15,13 +15,17 @@
 //   emblemes/<emblème>  identifiant de la personne qui l'a choisi (un emblème = une seule personne) ;
 //   ordre         (phase 4) identifiants des personnes présentes au départ, dans l'ordre des tours ;
 //   jeu           (phase 5) état du moteur de game.js (piles, personne dont c'est le tour, carte, effets…),
-//                 créé au départ et modifié ensuite seulement par les actions de tour, via le moteur.
+//                 créé au départ et modifié ensuite seulement par les actions de tour, via le moteur ;
+//   presents/<id>/<connexion>  (phase 6) une entrée par connexion ouverte de la personne, retirée par le serveur
+//                 à la coupure (onDisconnect). Une personne sans aucune connexion est « absente ».
 // Toute modification passe par une transaction sur `parties/<CODE>` : deux personnes qui valident en même temps
-// sont départagées par le serveur (places et emblèmes garantis). Les règles de database.rules.json vérifient
+// sont départagées par le serveur (places et emblèmes garantis). Seule exception : les entrées de présence,
+// écrites et retirées une à une par la connexion concernée (voir signalerPresence). Les règles de database.rules.json vérifient
 // en plus la forme, la taille et les mêmes invariants côté serveur.
 
 import {
   JOUEURS_MINIMUM, ErreurJeu, creerPartie as creerJeu, choisirType, jeterSort, invoquerBouclier, terminerEffetParEchange,
+  passerTour,
 } from './game.js';
 
 export const RACINE = 'parties';
@@ -64,6 +68,13 @@ export class ErreurReseau extends Error {
 }
 
 const CODE_VALIDE = /^[A-Z]{3,12}$/;
+
+// Heure de référence pour juger l'expiration : celle du serveur estimée par le SDK quand elle est disponible
+// (fb.maintenant, voir firebase.js), sinon celle de l'appareil. Un téléphone dont l'horloge avance ne juge donc pas
+// expirée une partie encore active (risque relevé en phase 4).
+function horloge(fb) {
+  return typeof fb?.maintenant === 'function' ? fb.maintenant : () => Date.now();
+}
 const EXPIREE = 'expiree'; // issue interne de creerPartie
 
 export function cheminPartie(code) {
@@ -142,7 +153,7 @@ function copie(partie) {
 
 // Création : prend le code s'il est libre (aucune partie, ou partie expirée), sinon « pris ».
 // Si la partie en cours a déjà cette personne pour hôte (nouvel essai après un délai dépassé), c'est un succès.
-export async function creerPartie(fb, { code, id, config, maintenant = () => Date.now() }) {
+export async function creerPartie(fb, { code, id, config, maintenant = horloge(fb) }) {
   if (!config || !Number.isInteger(config.joueursMax) || config.joueursMax < 1) throw new Error('config.joueursMax manquant');
   const essai = () => transaction(fb, code, (partie) => {
     if (partie && estExpiree(partie, maintenant())) return { refus: EXPIREE };
@@ -168,7 +179,7 @@ export async function creerPartie(fb, { code, id, config, maintenant = () => Dat
 
 // Jonction : refusée si le code ne correspond à aucune partie en cours, si la partie est complète
 // ou déjà commencée. Une personne déjà inscrite (même identifiant) est simplement acceptée.
-export async function rejoindrePartie(fb, { code, id, maintenant = () => Date.now() }) {
+export async function rejoindrePartie(fb, { code, id, maintenant = horloge(fb) }) {
   let expiree = false;
   const r = await transaction(fb, code, (partie) => {
     expiree = false;
@@ -191,7 +202,7 @@ export async function rejoindrePartie(fb, { code, id, maintenant = () => Date.no
 export function choisirEmbleme(fb, { code, id, embleme }) {
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
-    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
+    if (estExpiree(partie, horloge(fb)())) return { refus: ISSUES.INTROUVABLE };
     const moi = partie.joueurs?.[id];
     if (!moi || moi.pret || partie.statut !== STATUTS.SALLE) return { refus: ISSUES.REFUSE };
     const titulaire = partie.emblemes?.[embleme];
@@ -213,7 +224,7 @@ export function confirmerPresence(fb, { code, id, prenom }) {
   if (!propre || propre.length > PRENOM_MAX) return Promise.resolve({ issue: ISSUES.REFUSE, partie: null });
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
-    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
+    if (estExpiree(partie, horloge(fb)())) return { refus: ISSUES.INTROUVABLE };
     const moi = partie.joueurs?.[id];
     if (!moi || moi.pret || !moi.embleme || partie.statut !== STATUTS.SALLE) return { refus: ISSUES.REFUSE };
     const suite = copie(partie);
@@ -230,7 +241,7 @@ export function confirmerPresence(fb, { code, id, prenom }) {
 export function commencerPartie(fb, { code, id, cartes, config, aleatoire = aleatoireCrypto }) {
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
-    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
+    if (estExpiree(partie, horloge(fb)())) return { refus: ISSUES.INTROUVABLE };
     if (partie.hote !== id || !peutCommencer(partie)) return { refus: ISSUES.REFUSE };
     const suite = copie(partie);
     suite.statut = STATUTS.PARTIE;
@@ -263,24 +274,33 @@ export const ACTIONS = Object.freeze({
   SORT: 'sort', // « Le sort est jeté »
   BOUCLIER: 'bouclier', // « Invoquer un bouclier »
   ECHANGE: 'echange', // un effet durable a provoqué un échange de butins (paramètre `carte`) : n'importe qui, à tout moment
+  PASSER: 'passer', // (phase 6) passer le tour d'une personne absente (paramètre `cible`) : n'importe qui d'autre
 });
 
-function appliquer(jeu, { id, action, type, carte }) {
+// Une personne de la partie est absente quand plus aucune de ses connexions n'est ouverte (phase 6).
+export function estAbsent(partie, id) {
+  return Boolean(partie?.joueurs?.[id]) && !partie?.presents?.[id];
+}
+
+function appliquer(jeu, { id, action, type, carte, cible }) {
   if (action === ACTIONS.CHOISIR) return choisirType(jeu, id, type);
   if (action === ACTIONS.SORT) return jeterSort(jeu, id);
   if (action === ACTIONS.BOUCLIER) return invoquerBouclier(jeu, id);
   if (action === ACTIONS.ECHANGE) return terminerEffetParEchange(jeu, id, carte);
+  if (action === ACTIONS.PASSER) return passerTour(jeu, id, cible);
   return null;
 }
 
-export function jouer(fb, { code, id, action, type = null, carte = null }) {
+export function jouer(fb, { code, id, action, type = null, carte = null, cible = null }) {
   return transaction(fb, code, (partie) => {
     if (!partie) return null;
-    if (estExpiree(partie)) return { refus: ISSUES.INTROUVABLE };
+    if (estExpiree(partie, horloge(fb)())) return { refus: ISSUES.INTROUVABLE };
     if (partie.statut !== STATUTS.PARTIE || !partie.jeu) return { refus: ISSUES.REFUSE };
+    // Un tour ne se passe que si la personne est absente au moment de l'écriture (retour possible entre-temps).
+    if (action === ACTIONS.PASSER && !estAbsent(partie, cible)) return { refus: ISSUES.REFUSE };
     let jeu;
     try {
-      jeu = appliquer(partie.jeu, { id, action, type, carte });
+      jeu = appliquer(partie.jeu, { id, action, type, carte, cible });
     } catch (erreur) {
       if (erreur instanceof ErreurJeu) return { refus: ISSUES.REFUSE };
       throw erreur;
@@ -299,6 +319,36 @@ export function ecouterPartie(fb, code, rappel, enErreur = () => {}) {
   return fb.onValue(refPartie(fb, code), (instantane) => rappel(instantane.val()), enErreur);
 }
 
+// Présence (phase 6) : tant que la fonction renvoyée n'est pas appelée, la personne `id` est notée présente dans la
+// partie à chaque (re)connexion du téléphone, sous une entrée propre à cette connexion, que le serveur retire de
+// lui-même à la coupure (onDisconnect). Une entrée par connexion : si une ancienne connexion n'est détectée comme
+// coupée qu'après le retour de la personne (changement de réseau), son retrait n'efface pas la nouvelle.
+// Le retrait programmé est posé avant l'écriture : une coupure entre les deux ne laisse jamais d'entrée orpheline.
+// Seules écritures hors transaction du jeu : une entrée de présence ne touche à rien d'autre de la partie.
+export function signalerPresence(fb, code, id, enErreur = () => {}) {
+  const personne = refPartie(fb, code, `presents/${id}`);
+  let arrete = false;
+  let connexion = null;
+  const arreterEcoute = fb.surConnexion((connecte) => {
+    if (!connecte || arrete) return;
+    const entree = fb.push(personne); // clé tirée localement, rien n'est encore écrit
+    connexion = entree;
+    fb.onDisconnect(entree).remove()
+      .then(() => (arrete || connexion !== entree ? undefined : fb.set(entree, true)))
+      .catch(enErreur);
+  });
+  return () => {
+    if (arrete) return;
+    arrete = true;
+    arreterEcoute();
+    if (connexion) {
+      const entree = connexion;
+      fb.onDisconnect(entree).cancel().catch(() => {});
+      fb.remove(entree).catch(() => {});
+    }
+  };
+}
+
 // Suppression d'une partie : partie expirée (nettoyage), ou partie terminée quand une personne quitte l'écran de fin
 // par « Nouvelle quête » (les autres n'écoutent plus la partie une fois l'écran de fin affiché).
 export function supprimerPartie(fb, code) {
@@ -307,7 +357,7 @@ export function supprimerPartie(fb, code) {
 
 // Codes déjà pris par une partie en cours (lecture ponctuelle de `parties/<CODE>/actif` et `statut` pour
 // chaque code, sans écoute). Les parties expirées croisées au passage sont supprimées : c'est le nettoyage opportuniste.
-export async function codesPris(fb, codes, { maintenant = () => Date.now() } = {}) {
+export async function codesPris(fb, codes, { maintenant = horloge(fb) } = {}) {
   const lus = await Promise.all(codes.map(async (code) => {
     const [actif, statut] = await Promise.all(['actif', 'statut'].map(async (champ) => (await reseau(fb.get(refPartie(fb, code, champ)))).val()));
     return { code, actif, statut };

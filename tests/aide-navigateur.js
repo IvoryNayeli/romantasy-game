@@ -434,6 +434,7 @@ const ECRANS = [
   ['salle-hote-seul', '?ecran=salle&hote=1&autres=0'],
   ['salle-derniere-place', `?ecran=salle&autres=${config.joueursMax - 1}`],
   ['salle-complete', '?ecran=salle&complete=1'],
+  ['salle-hors-ligne', '?ecran=salle&hote=1&autres=2&absent=1'],
   ['salle-code-long-prenom-long', `?ecran=salle&code=OBSIDIENNE&autres=2&prenom=${'W'.repeat(40)}&embleme=loup-garou`],
   ['choix-tour-1', '?ecran=choix&tour=1'],
   ['choix-dernier-tour', `?ecran=choix&tour=${config.tours}`],
@@ -447,7 +448,10 @@ const ECRANS = [
   ['attente-sans-effets', '?ecran=attente&type=revelation&effets=0'],
   ['attente-prenom-long', `?ecran=attente&type=epreuve&prenom=${'M'.repeat(45)}`],
   ['transition-jete', '?ecran=transition'],
+  ['attente-hors-ligne', `?ecran=attente&carte=${durable.id}&tour=2&absent=1`],
+  ['attente-hors-ligne-prenom-long', `?ecran=attente&type=epreuve&absent=1&prenom=${'M'.repeat(45)}`],
   ['transition-bouclier', '?ecran=transition&bouclier=1'],
+  ['transition-passe', '?ecran=transition&passe=1'],
   ['fin', '?ecran=fin'],
 ];
 

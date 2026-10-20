@@ -2,15 +2,19 @@
 // - salle d'attente (phase 4) : même écran que la salle fictive de ecrans.js (mêmes blocs, mêmes classes) ;
 // - partie (phase 5) : les écrans de tour et de fin de ecrans.js (mêmes vues), selon l'état du jeu dans la base.
 // L'écoute ne fait qu'afficher : seules les actions de la personne (emblème, « Je suis là », « Commencer la quête »,
-// choix de carte, « Le sort est jeté », « Invoquer un bouclier », fin d'un effet) écrivent dans la base,
+// choix de carte, « Le sort est jeté », « Invoquer un bouclier », fin d'un effet, tour passé) écrivent dans la base,
 // une transaction chacune.
+// Phase 6 : sur ces deux écrans, l'écran reste allumé (wakelock.js) et la présence de la personne est signalée
+// (reseau.signalerPresence) ; une personne sans connexion est affichée « hors ligne », et si c'est son tour,
+// les autres peuvent le passer après le délai de config.json (delaiAbsenceSecondes).
 
 import { h, icone, coins } from './dom.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
-  ligneJoueur, barreBas, vueChoix, vueCarte, vueAttente, vueTransition, vueFin, panneauEffets, DUREE_TRANSITION_MS,
+  ligneJoueur, barreBas, vueChoix, vueCarte, vueAttente, vueTransition, vueFin, panneauEffets, blocAbsence, DUREE_TRANSITION_MS,
 } from './ecrans.js';
+import { garderEcranAllume } from './wakelock.js';
 import { emblemeParId } from './fictif.js';
 import { ETAPES, ISSUES as ISSUES_TOUR } from './game.js';
 
@@ -27,6 +31,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
   let partie = null;
   let enCours = false;
   let prenomSaisi = '';
+  let libererPresence = null;
   const moi = code ? reseau.identiteConnue(code) : null;
 
   // Navigation différée : jamais pendant la construction de l'écran.
@@ -90,9 +95,10 @@ export function salle({ donnees, params, naviguer, reseau }) {
     const pret = fiche?.pret === true;
 
     // Liste « La compagnie », dans l'ordre d'arrivée. Ma ligne montre le prénom en cours de saisie.
+    // Ma propre ligne n'est jamais « hors ligne » : sans connexion, cet écran ne serait de toute façon plus à jour.
     const lignes = joueurs.map((j) => ligneJoueur(donnees, {
       prenom: j.id === moi && !pret ? prenomSaisi : j.prenom || '', embleme: j.embleme || null, pret: j.pret === true,
-    }, { hote: j.id === partie.hote, soi: j.id === moi }));
+    }, { hote: j.id === partie.hote, soi: j.id === moi, absent: j.id !== moi && reseau.estAbsent(partie, j.id) }));
     for (let i = joueurs.length; i < max; i += 1) lignes.push(h('li', { classe: 'joueur-ligne joueur-libre', 'aria-hidden': 'true' }));
     liste.replaceChildren(...lignes);
 
@@ -127,6 +133,8 @@ export function salle({ donnees, params, naviguer, reseau }) {
     partie = valeur;
     if (!partie) { aller({ ecran: 'rejoindre', code, erreur: 'inconnu' }); return; }
     const fiche = partie.joueurs?.[moi];
+    // Présence signalée dès que la personne figure dans la partie (jamais avant : la base refuserait l'écriture).
+    if (fiche && !libererPresence) libererPresence = reseau.signalerPresence(code);
     if (partie.statut === reseau.STATUTS.PARTIE && joue(partie, moi)) { aller({ ecran: 'jeu', code }); return; }
     const places = Object.keys(partie.joueurs || {}).length < partie.max;
     if (!fiche && partie.statut === reseau.STATUTS.SALLE && places) { aller({ ecran: 'rejoindre', code }); return; }
@@ -134,6 +142,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
   }
 
   arreter = reseau.ecouter(code, recevoir, () => { if (actif) messageErreur.textContent = T.reseau.indisponible; });
+  const libererEcran = garderEcranAllume();
 
   avis.hidden = true;
   const noeud = h('section', { classe: 'ecran ecran-salle' },
@@ -148,7 +157,15 @@ export function salle({ donnees, params, naviguer, reseau }) {
       h('p', { classe: 'texte texte-centre' }, S.accompagnement)),
     barre);
   maj();
-  return { noeud, nettoyer: () => { actif = false; if (arreter) arreter(); } };
+  return {
+    noeud,
+    nettoyer: () => {
+      actif = false;
+      if (arreter) arreter();
+      if (libererPresence) libererPresence();
+      libererEcran();
+    },
+  };
 }
 
 // Partie en réseau (phase 5). Selon l'état du jeu (parties/<CODE>/jeu, moteur de game.js) :
@@ -171,6 +188,12 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
   let enCours = false;
   let finie = false;
   let ecranCourant = null;
+  let libererPresence = null;
+  let libererEcran = null;
+  let bloc = null; // bloc d'absence de l'écran d'attente affiché (blocAbsence)
+  let minuteurAbsence = null;
+  const absentDepuis = new Map(); // personne -> heure (de ce téléphone) où son absence a été vue pour la première fois
+  const delaiAbsence = Number(donnees.config.delaiAbsenceSecondes) * 1000;
 
   function aller(cible) {
     setTimeout(() => { if (actif) naviguer(cible); }, 0);
@@ -185,6 +208,9 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
     aller(code ? { ecran: 'salle', code } : { ecran: 'rejoindre' });
     return { noeud: h('section', { classe: 'ecran' }) };
   }
+  libererEcran = garderEcranAllume();
+  // Arrivée depuis la salle : la présence déjà signalée est gardée sans interruption (sinon, elle l'est à la réception).
+  libererPresence = reseau.signalerPresence(code, { siDejaSignalee: true });
 
   const personne = (id) => {
     const fiche = partie.joueurs?.[id] || {};
@@ -221,9 +247,27 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
   }
   const signaler = (carte) => agir(reseau.ACTIONS.ECHANGE, { carte });
 
-  function afficher(nom, noeud) {
+  function afficher(nom, noeud, blocAffiche = null) {
     ecranCourant = noeud;
+    bloc = blocAffiche;
     vue(nom, noeud);
+  }
+
+  // Écran d'attente : « … est hors ligne. » dès que la personne dont c'est le tour n'a plus de connexion, puis
+  // « Passer son tour » quand son absence dure depuis le délai de config.json (compté depuis que ce téléphone l'a vue).
+  // Retour de la personne entre-temps : le bloc disparaît ; retour pendant qu'on passe son tour : la base refuse.
+  function majAbsence() {
+    clearTimeout(minuteurAbsence);
+    for (const id of absentDepuis.keys()) if (!reseau.estAbsent(partie, id)) absentDepuis.delete(id);
+    if (!bloc) return;
+    const etat = partie.jeu;
+    const courant = etat.joueurs[etat.indexJoueur];
+    if (!reseau.estAbsent(partie, courant)) { bloc.majAbsence(null); return; }
+    if (!absentDepuis.has(courant)) absentDepuis.set(courant, Date.now());
+    const reste = absentDepuis.get(courant) + delaiAbsence - Date.now();
+    const passer = reste <= 0 ? () => agir(reseau.ACTIONS.PASSER, { cible: courant }) : null;
+    bloc.majAbsence({ prenom: personne(courant).prenom, passer });
+    if (!passer) minuteurAbsence = setTimeout(() => { if (actif && !finie && partie) majAbsence(); }, reste);
   }
 
   function rendre() {
@@ -257,14 +301,20 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
       const tour = jouees.length ? jouees[jouees.length - 1].tour : etat.tour;
       const p = personne(derniere.joueur);
       afficher('transition', vueTransition(donnees, {
-        tour, bouclier: derniere.issue === ISSUES_TOUR.BOUCLIER, prenom: p.prenom, embleme: p.embleme,
+        tour, bouclier: derniere.issue === ISSUES_TOUR.BOUCLIER, passe: derniere.issue === ISSUES_TOUR.PASSE,
+        prenom: p.prenom, embleme: p.embleme,
       }));
       return;
     }
     if (etat.etape === ETAPES.FIN) {
       // Écran de fin : plus rien ne change, on cesse d'écouter. « Nouvelle quête » supprime la partie terminée.
+      // La présence et l'écran allumé s'arrêtent aussi : il n'y a plus de tour à passer.
       finie = true;
       arreterEcoute();
+      clearTimeout(minuteurAbsence);
+      reseau.arreterPresence();
+      libererPresence = null;
+      libererEcran();
       afficher('fin', vueFin({ nouvelleQuete: () => { reseau.supprimer(code).catch(() => {}); } }));
       return;
     }
@@ -288,10 +338,12 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
         bouclier: () => agir(reseau.ACTIONS.BOUCLIER),
       }));
     } else {
-      // Les autres n'ont aucun bouton de tour ; ils peuvent seulement signaler un échange depuis le panneau des effets.
+      // Les autres n'ont aucun bouton de tour ; ils peuvent seulement signaler un échange depuis le panneau des effets,
+      // et passer le tour d'une personne absente (bloc d'absence, voir majAbsence).
+      const absence = blocAbsence();
       afficher('attente', vueAttente(donnees, {
-        tour: etat.tour, carte: c, actif: personne(courant), effets: listeEffets, signaler,
-      }));
+        tour: etat.tour, carte: c, actif: personne(courant), effets: listeEffets, signaler, pied: absence.noeud,
+      }), absence);
     }
   }
 
@@ -304,6 +356,8 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
       aller({ ecran: 'salle', code });
       return;
     }
+    // Présence signalée dès que la partie confirme que la personne y joue (jamais avant : la base refuserait).
+    if (!libererPresence) libererPresence = reseau.signalerPresence(code);
     const nombre = (etat.jouees || []).length;
     if (vus === null) vus = nombre;
     if (nombre > vus) {
@@ -313,10 +367,11 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
       clearTimeout(minuteur);
       minuteur = setTimeout(() => {
         enTransition = false;
-        if (actif && partie) rendre();
+        if (actif && partie) { rendre(); majAbsence(); }
       }, DUREE_TRANSITION_MS);
     }
     rendre();
+    if (!finie) majAbsence();
   }
 
   arreter = reseau.ecouter(code, recevoir, () => {
@@ -327,6 +382,13 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
 
   return {
     noeud: h('section', { classe: 'ecran' }),
-    nettoyer: () => { actif = false; clearTimeout(minuteur); arreterEcoute(); },
+    nettoyer: () => {
+      actif = false;
+      clearTimeout(minuteur);
+      clearTimeout(minuteurAbsence);
+      arreterEcoute();
+      if (libererPresence) libererPresence();
+      if (libererEcran) libererEcran();
+    },
   };
 }

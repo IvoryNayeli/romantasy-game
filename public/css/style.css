@@ -578,6 +578,17 @@ h2 {
   overflow-wrap: anywhere;
 }
 
+/* Phase 6 : bloc d'absence de l'écran d'attente ; ses enfants (message, barre du bas) se placent comme ceux de l'écran */
+.absence:not([hidden]) { display: contents; }
+.absence[hidden] { display: none; }
+.absence-message {
+  margin: 0 0 24px;
+  color: var(--c-braise);
+  font: 500 1.25rem/1.4 var(--f-texte);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
 /* Panneau (charte, section 7) : dégradé minuit vers nuit, bordure brume, double filet, étincelles aux coins */
 .panneau {
   --rarete: var(--c-lune-douce);
@@ -799,6 +810,8 @@ h2 {
 }
 .etiquette .icone { width: .875rem; height: .875rem; }
 .etiquette-pret { border-color: var(--c-ambre); color: var(--c-ambre); }
+/* Phase 6 : personne hors ligne (plus aucune connexion) : alerte en braise, jamais par la couleur seule (mot écrit) */
+.etiquette-absent { border-color: var(--c-braise); color: var(--c-braise); }
 
 .formulaire { margin-top: 8px; }
 .formulaire .etiquette-champ:first-child { margin-top: 12px; }

@@ -163,7 +163,20 @@ test('écoutes : uniquement sur le chemin de la partie en cours, jamais sur la r
     }
     assert.doesNotMatch(source, /\bref\(\s*(?:fb\.)?db\s*\)/, `${f} : référence à la racine`);
     assert.doesNotMatch(source, /\bref\(\s*(?:fb\.)?db\s*,\s*['"`](?:\/?|\/?parties\/?)['"`]\s*\)/, `${f} : référence à la racine ou à « parties »`);
-    assert.doesNotMatch(source, /\bfb\.(?:set|update|push)\(/, `${f} : écritures par transaction seulement`);
+    // Écritures par transaction seulement, sauf la présence (phase 6) : une entrée par connexion, dans signalerPresence.
+    const horsPresence = f === 'salon.js' ? source.replace(/export function signalerPresence[\s\S]*?\n\}\n/, '') : source;
+    assert.doesNotMatch(horsPresence, /\bfb\.(?:set|update|push|onDisconnect)\(/, `${f} : écritures par transaction seulement`);
+  }
+  const presence = sansCommentaires(lireJs('salon.js')).match(/export function signalerPresence[\s\S]*?\n\}\n/)[0];
+  assert.match(presence, /refPartie\(fb, code, `presents\/\$\{id\}`\)/, 'présence : sous parties/<CODE>/presents/<id> seulement');
+  assert.equal((presence.match(/fb\.set\(/g) || []).length, 1, 'présence : une seule écriture, la valeur true');
+  assert.doesNotMatch(presence, /fb\.(?:update|runTransaction|onValue)\(/);
+  // Les chemins « .info » sont tenus par le SDK lui-même (aucune lecture de la base) et ne sont lus que par firebase.js ;
+  // l'aide des tests (aide-emulateur.js) en reprend la même lecture.
+  const aide = fs.readFileSync(path.join(__dirname, 'aide-emulateur.js'), 'utf8');
+  for (const motif of [/'\.info\/connected'/, /'\.info\/serverTimeOffset'/, /maintenant: \(\) => Date\.now\(\) \+ decalage/, /instantane\.val\(\) === true/]) {
+    assert.match(lireJs('firebase.js'), motif);
+    assert.match(aide, motif, `aide-emulateur.js : ${motif}`);
   }
   const salon = sansCommentaires(lireJs('salon.js'));
   assert.match(salon, /function refPartie\(fb, code, sousChemin = ''\) \{\s*return fb\.ref\(fb\.db, sousChemin \? `\$\{cheminPartie\(code\)\}\/\$\{sousChemin\}` : cheminPartie\(code\)\);/);

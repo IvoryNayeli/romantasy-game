@@ -25,16 +25,20 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 3 | Moteur de jeu | validée le 2026-10-18 | 1 | [phase-3-iteration-1](rapports/phase-3-iteration-1.md) |
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
-| 6 | Robustesse | à faire | 0 | |
+| 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
 | 7 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 5 validée le 2026-10-19. Phase 6 possible, sur demande de la propriétaire (« Lance la phase 6 »).
+Phase 6 validée le 2026-10-20. Phase 7 possible, sur demande de la propriétaire (« Lance la phase 7 »), après activation de GitHub Pages (prérequis de `docs/PLAN.md`).
 
 ## Journal
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
+
+- 2026-10-19, phase 6 : lancement de l'itération 1 (branche `phase-6`).
+- 2026-10-20, phase 6 : itération 1 développée et testée, prête pour relecture ([rapport](rapports/phase-6-iteration-1.md)).
+- 2026-10-20, phase 6 validée : validation explicite de la propriétaire, fusion de `phase-6` dans `main`, tag `phase-6`.
 
 ## Défauts ouverts
 
@@ -42,14 +46,14 @@ Aucun.
 
 ## Décisions à confirmer
 
-Aucune.
+Phase 6 (détail en section 7 de [phase-6-iteration-1](rapports/phase-6-iteration-1.md)) : libellé « hors ligne » ; nouveaux textes « [prénom] est hors ligne. », « Passer son tour », « Le tour de [prénom] est passé. » ; délai de 10 secondes (`delaiAbsenceSecondes`) ; tour passé compté comme un bouclier, carte tirée consumée, sans confirmation ; identité toujours gardée dans l'onglet (fermer l'onglet fait perdre sa place) ; écran allumé aussi dans la salle ; étiquette jamais sur sa propre ligne ; expiration à l'heure du serveur.
 
 ## Risques reportés
 
 - Phase 7 : `demo.html` et le paramètre `?ecran=` (outils de validation de la phase 2) à retirer ou masquer ; icônes SVG faites pour le projet (épée, étoile, bouclier) à remplacer ou garder selon le choix des icônes game-icons.net.
 - Phase 7 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
-- Phase 6 : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`). L'authentification anonyme reste possible si la propriétaire le demande.
-- Phase 6 : l'expiration est jugée avec l'horloge du téléphone côté page et celle du serveur dans les règles ; un téléphone très en avance (plus de 30 minutes) pourrait supprimer une salle encore active (relevé par le testeur, itération 2 de la phase 4).
+- Phase 6 : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`), et depuis la phase 6 fausser la présence. L'authentification anonyme reste possible si la propriétaire le demande.
+- Phase 6 : l'expiration était jugée avec l'horloge du téléphone ; traité en itération 1 de la phase 6 (heure du serveur estimée par le SDK, test avec 40 minutes d'avance), à confirmer avec la phase.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
 
 ## Décisions confirmées

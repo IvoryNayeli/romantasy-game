@@ -17,8 +17,9 @@ export const JOUEURS_MINIMUM = 2;
 // Étapes d'une partie.
 export const ETAPES = Object.freeze({ CHOIX: 'choix', CARTE: 'carte', FIN: 'fin' });
 
-// Issues d'un tour : « Le sort est jeté » ou « Invoquer un bouclier ».
-export const ISSUES = Object.freeze({ SORT: 'sort', BOUCLIER: 'bouclier' });
+// Issues d'un tour : « Le sort est jeté », « Invoquer un bouclier », ou tour passé par une autre personne
+// pendant l'absence de la personne qui devait jouer (phase 6).
+export const ISSUES = Object.freeze({ SORT: 'sort', BOUCLIER: 'bouclier', PASSE: 'passe' });
 
 // Durées des effets durables (champ `duree` de cartes.json).
 export const DUREES = Object.freeze({ PROCHAIN_TOUR: 'prochain_tour', FIN_PARTIE: 'fin_partie' });
@@ -237,4 +238,19 @@ export function terminerEffetParEchange(etatInitial, joueur, carte) {
   etat.effets = etat.effets.filter((e) => e.carte !== carte);
   if (etat.effets.length === avant) refuser('effet-inconnu', 'Aucun effet en cours pour cette carte.');
   return etat;
+}
+
+// Phase 6 : tour d'une personne absente passé par une autre personne de la partie (`joueur`). `cible` : la personne
+// dont le tour est passé ; si ce n'est plus son tour (déjà passé par quelqu'un d'autre), l'action est refusée, pour
+// ne jamais passer deux tours d'un coup. Le tour est compté, comme un bouclier : une carte déjà tirée est consumée
+// (elle ne ressortira pas) et son effet durable ne commence pas ; si aucune carte n'était tirée, le tour est noté
+// sans carte. L'absence elle-même est jugée par la couche réseau (salon.js), pas par le moteur.
+export function passerTour(etatInitial, joueur, cible) {
+  const etat = copier(etatInitial);
+  if (etat.etape === ETAPES.FIN) refuser('partie-finie', 'La partie est terminée.');
+  if (!etat.joueurs.includes(joueur)) refuser('joueur-inconnu', 'Cette personne ne fait pas partie de la partie.');
+  const courant = joueurCourant(etat);
+  if (cible !== courant) refuser('pas-son-tour', 'Ce n\'est pas le tour de cette personne.');
+  if (joueur === courant) refuser('son-propre-tour', 'Pas question de passer son propre tour : le bouclier est fait pour ça.');
+  return terminerTour(etat, courant, ISSUES.PASSE);
 }
