@@ -39,7 +39,6 @@ export const tour = {
   aToi: 'À toi de jouer !',
   compteur: (n, total) => `Tour ${n} / ${total}`,
   auTourDe: 'Au tour de',
-  enAttente: (prenom) => `En attente de ${prenom}…`,
   sortJete: 'Le sort est jeté',
   bouclier: 'Invoquer un bouclier',
   confirmation: 'Invoquer un bouclier ? Ton tour sera tout de même compté.',

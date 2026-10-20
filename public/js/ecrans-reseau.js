@@ -79,7 +79,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
     const bouton = h('button', {
       classe: 'embleme-choix', type: 'button', role: 'radio', 'aria-checked': 'false',
       onclick: () => agir(() => reseau.choisirEmbleme(code, emb.id)),
-    }, imageEmbleme(emb, 'embleme-image', ''), h('span', { classe: 'embleme-nom' }, emb.nom));
+    }, imageEmbleme(emb, 'embleme-image'));
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }
@@ -287,8 +287,14 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
         cleEffets = nouvelleCleEffets;
         const ancien = ecranCourant.querySelector('.effets-en-cours');
         const nouveau = panneauEffets(donnees, listeEffets, signaler);
-        if (ancien && nouveau) ancien.replaceWith(nouveau);
-        else if (ancien) ancien.remove();
+        if (ancien && nouveau) {
+          nouveau.open = ancien.open; // le bandeau reste déroulé s'il l'était
+          ancien.replaceWith(nouveau);
+        } else if (ancien) {
+          const pied = ancien.parentElement;
+          ancien.remove();
+          if (pied && pied.classList.contains('pied-tour') && !pied.children.length) pied.remove();
+        }
         else rendreEcran(etat, listeEffets, etat.joueurs[etat.indexJoueur]);
       }
       return;

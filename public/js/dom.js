@@ -31,10 +31,11 @@ function symbole(nom, classe) {
   return svg;
 }
 
-// Icônes dessinées par la propriétaire (images à fond transparent, phase 7) : elles remplacent les symboles SVG du même nom.
-const ICONES_IMAGES = { epee: 'img/epee.webp', etoile: 'img/etoile.webp' };
+// Icônes dessinées par la propriétaire (images à fond transparent, phase 7) : épée, étoile (aussi sur la transition
+// « Le sort est jeté ») et bouclier (boutons et transition du bouclier). Elles remplacent les symboles SVG.
+const ICONES_IMAGES = { epee: 'img/epee.webp', etoile: 'img/etoile.webp', bouclier: 'img/bouclier.webp' };
 
-// Icône décorative : image de la propriétaire (épée, étoile) ou symbole SVG au trait fin (bouclier, retour, coche, lueur).
+// Icône décorative : image de la propriétaire (épée, étoile, bouclier) ou symbole SVG au trait fin (retour, coche, lueur).
 export function icone(nom, classe = '') {
   const src = ICONES_IMAGES[nom];
   if (src) return h('img', { classe: `icone icone-image icone-${nom} ${classe}`.trim(), src, alt: '', 'aria-hidden': 'true' });

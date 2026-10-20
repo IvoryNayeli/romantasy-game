@@ -475,11 +475,11 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.equal(textes.types.epreuve.nom, 'Épreuve');
   assert.equal(textes.types.revelation.nom, 'Révélation');
   const html = lirePublic('index.html');
-  for (const symbole of ['bouclier', 'bouclier-grand', 'sort-jete', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane']) {
+  for (const symbole of ['retour', 'coche', 'lueur', 'etincelle', 'filigrane']) {
     assert.match(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole ${symbole}`);
   }
   // Phase 7 : l'épée et l'étoile sont les images de la propriétaire (plus de symbole SVG).
-  for (const symbole of ['epee', 'etoile']) {
+  for (const symbole of ['epee', 'etoile', 'bouclier']) {
     assert.doesNotMatch(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole SVG ${symbole} retiré`);
     assert.match(lirePublic('js', 'dom.js'), new RegExp(`${symbole}: 'img/${symbole}\\.webp'`), `image ${symbole} posée par icone()`);
   }
@@ -518,25 +518,27 @@ test('logo : image de la propriétaire (fond transparent), version complète et 
 // Phase 7 : images de la propriétaire (logo, emblèmes, épée, étoile), légères, présentes, toutes utilisées.
 test('images : chaque emblème a son image, les images référencées existent, aucune image orpheline ni à la racine', () => {
   const emblemes = JSON.parse(lirePublic('data', 'emblemes.json'));
-  const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', ...emblemes.map((e) => e.image)]);
+  const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', ...emblemes.map((e) => e.image)]);
   const code = [lirePublic('index.html'), lirePublic('demo.html'), ...listerFichiers(path.join(PUBLIC, 'js'), /\.js$/).map((f) => fs.readFileSync(f, 'utf8'))].join('\n');
-  for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
+  for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
   for (const chemin of references) {
     const fichier = path.join(PUBLIC, chemin);
     assert.ok(fs.existsSync(fichier), `${chemin} absente`);
     const brut = fs.readFileSync(fichier);
     assert.equal(brut.toString('latin1', 0, 4) + brut.toString('latin1', 8, 12), 'RIFFWEBP', `${chemin} : WebP`);
-    assert.ok(brut.length < (chemin === 'img/logo.webp' ? 100 : 40) * 1024, `${chemin} trop lourde`);
+    // Logo, étoile et bouclier (aussi en grand sur la transition) : 384 px ; emblèmes et épée : 192 px.
+    const limite = ['img/logo.webp', 'img/etoile.webp', 'img/bouclier.webp'].includes(chemin) ? 100 : 40;
+    assert.ok(brut.length < limite * 1024, `${chemin} trop lourde`);
   }
   const presentes = listerFichiers(path.join(PUBLIC, 'img'), /\.\w+$/).map((f) => path.relative(PUBLIC, f).split(path.sep).join('/'));
   assert.deepEqual(presentes.sort(), [...references].sort(), 'images de public/img/ = images référencées');
   // Images déposées par la propriétaire à la racine (remarque 1 de la phase 7) : déplacées, il n'en reste aucune.
-  const deposees = ['logo.png', 'épée.png', 'étoile.png', 'Gemini_Generated_Image_ntcqu3ntcqu3ntcq(8).png',
+  const deposees = ['logo.png', 'épée.png', 'étoile.png', 'bouclier.png', 'Gemini_Generated_Image_ntcqu3ntcqu3ntcq(8).png',
     ...Array.from({ length: 7 }, (_, i) => `avatar_${i + 1}.png`)];
   assert.deepEqual(deposees.filter((n) => fs.existsSync(path.join(RACINE, n))), [], 'images de la remarque encore à la racine');
 });
 
-test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf bouclier et sort jeté) ; un seul calque de grain par écran', () => {
+test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (épée, étoile et bouclier en images) ; un seul calque de grain par écran', () => {
   const html = lirePublic('index.html');
   for (const nom of ['retour', 'coche', 'lueur']) {
     const symbole = html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
@@ -544,34 +546,11 @@ test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf boucli
     assert.match(symbole, /stroke-width="1\.5"/, `${nom} : trait de 1,5 px`);
     assert.doesNotMatch(symbole, /fill="currentColor"/, `${nom} : icône pleine`);
   }
-  // Remarque de la propriétaire (itération 3) : le bouclier et le « sort est jeté » sont trop discrets au trait fin.
-  // Écart volontaire à la charte, noté dans docs/PROJET.md : formes pleines, grandes, avec halo ambre ou braise.
-  const symbole = (nom) => html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
-  assert.match(symbole('bouclier'), /fill="currentColor"/, 'bouclier des boutons : forme pleine');
-  assert.doesNotMatch(symbole('bouclier'), /fill="none"/, 'bouclier des boutons : plus de forme creuse');
-  {
-    const s = symbole('bouclier-grand');
-    assert.doesNotMatch(s, /fill="none"|fill:none/, 'bouclier-grand : forme creuse');
-    assert.ok((s.match(/fill:var\(--c-(ambre|braise|etoile)\)/g) || []).length >= 3, 'bouclier-grand : formes pleines aux couleurs de la charte');
-    assert.match(s, /--c-ambre/);
-    assert.match(s, /--c-braise/);
-  }
-  // Itération 5, remarque 8 : le sort jeté est une vraie étoile à cinq branches, pleine, ambre (10 sommets, un seul tracé).
-  {
-    const s = symbole('sort-jete');
-    assert.doesNotMatch(s, /fill="none"|fill:none|<circle/, 'sort-jete : forme creuse ou cercle');
-    assert.equal((s.match(/<path/g) || []).length, 1, 'sort-jete : un seul tracé');
-    assert.match(s, /fill:var\(--c-ambre\)/, 'sort-jete : étoile ambre');
-    const sommets = s.match(/d="([^"]+)"/)[1].replace(/[MZ]/g, ' ').trim().split(/[\s,]+/).map(Number);
-    assert.equal(sommets.length, 20, 'sort-jete : 10 sommets (étoile à cinq branches)');
-    const rayons = [];
-    for (let i = 0; i < 20; i += 2) rayons.push(Math.hypot(sommets[i] - 50, sommets[i + 1] - 54.6)); // centre du cercle circonscrit, boîte centrée dans 100 x 100
-    for (let i = 0; i < 10; i++) {
-      assert.ok(Math.abs(rayons[i] - (i % 2 === 0 ? 48 : rayons[1])) < 0.2, `sort-jete : sommet ${i} irrégulier (${rayons[i].toFixed(1)})`);
-    }
-  }
+  // Phase 7 : le bouclier (boutons et transition) et le « sort est jeté » (transition) sont les images de la
+  // propriétaire (bouclier, étoile) : plus de symbole SVG plein.
+  for (const nom of ['bouclier', 'bouclier-grand', 'sort-jete']) assert.doesNotMatch(html, new RegExp(`<symbol id="i-${nom}"`), `symbole ${nom} retiré`);
   const transition = lirePublic('js', 'ecrans.js');
-  assert.match(transition, /icone\(bouclier \? 'bouclier-grand' : 'sort-jete', 'icone-presence'\)/, 'écran de transition : grandes formes pleines');
+  assert.match(transition, /icone\(bouclier \? 'bouclier' : 'etoile', 'icone-presence'\)/, 'écran de transition : images du bouclier et de l\'étoile');
   assert.ok(Math.max(...propriete('.transition-icone .icone', 'width').map((t) => enPixels(t, variables()))) >= 128, 'forme de transition : au moins 128 px');
   assert.ok(propriete('.transition-icone::before', 'background').join(' ').includes('#F0A35E'), 'halo ambre');
   assert.ok(propriete('.transition-bouclier .transition-icone::before', 'background').join(' ').includes('#D9693A'), 'halo braise');
@@ -701,7 +680,6 @@ test('textes : l\'interface reprend les textes validés de docs/regles.md', asyn
     T.tour.aToi, T.tour.sortJete, T.tour.bouclier, T.tour.confirmation,
     T.tour.transitionJete('[prénom]').replace('[prénom]', '[prénom]'),
     T.tour.transitionBouclier('[prénom]'),
-    T.tour.enAttente('[prénom]'),
     T.fin.titre, T.fin.texte, T.fin.bouton,
     T.salle.accompagnement, T.salle.complete, T.salle.commencer,
   ];

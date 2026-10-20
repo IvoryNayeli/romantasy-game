@@ -206,7 +206,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 /* Étoiles des marges : motif répété sur toute la hauteur de la page, dans les marges latérales seulement (x à moins de
    12 px du bord, le texte commence à 16 px), en pixels et non en pourcentage de la hauteur : jamais derrière le texte,
    quelle que soit la longueur de l'écran. Derrière le contenu (z-index -1), non interactif. */
-.page::before {
+.page::before, .page::after {
   content: '';
   position: absolute;
   top: 0;
@@ -215,15 +215,41 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   right: calc(-1 * var(--marge));
   z-index: -1;
   pointer-events: none;
+  background-repeat: repeat-y;
+}
+.page::before {
   background-image:
     radial-gradient(circle at 6px 64px, var(--c-etoile) 0 1px, transparent 2px),
     radial-gradient(circle at calc(100% - 5px) 118px, var(--c-lune) 0 1px, transparent 2px),
     radial-gradient(circle at 10px 176px, var(--c-lune) 0 .8px, transparent 1.6px),
     radial-gradient(circle at calc(100% - 9px) 232px, var(--c-etoile) 0 1.2px, transparent 2.2px),
     radial-gradient(circle at 4px 296px, var(--c-etoile) 0 .8px, transparent 1.6px),
-    radial-gradient(circle at calc(100% - 4px) 352px, var(--c-lune) 0 1px, transparent 2px);
+    radial-gradient(circle at calc(100% - 4px) 352px, var(--c-lune) 0 1px, transparent 2px),
+    radial-gradient(circle at 9px 22px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at calc(100% - 11px) 40px, var(--c-etoile) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 3px 140px, var(--c-etoile) 0 .5px, transparent 1px),
+    radial-gradient(circle at calc(100% - 7px) 196px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 11px 262px, var(--c-lune) 0 .5px, transparent 1px),
+    radial-gradient(circle at calc(100% - 3px) 318px, var(--c-etoile) 0 .6px, transparent 1.2px);
   background-size: 100% 380px;
-  background-repeat: repeat-y;
+  animation: scintille 9s var(--ease) infinite;
+}
+/* Phase 7 : plus d'étoiles, de tailles différentes, qui scintillent. Deuxième calque, toujours dans les marges
+   latérales (moins de 12 px du bord), décalé dans le temps : on n'anime que l'opacité des deux calques. */
+.page::after {
+  background-image:
+    radial-gradient(circle at 8px 30px, var(--c-etoile) 0 1.6px, transparent 2.6px),
+    radial-gradient(circle at calc(100% - 7px) 86px, var(--c-etoile) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at 5px 108px, var(--c-lune) 0 1.2px, transparent 2.2px),
+    radial-gradient(circle at calc(100% - 10px) 160px, var(--c-etoile) 0 1.8px, transparent 2.8px),
+    radial-gradient(circle at 10px 214px, var(--c-etoile) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at calc(100% - 5px) 270px, var(--c-lune) 0 1.3px, transparent 2.3px),
+    radial-gradient(circle at 6px 336px, var(--c-etoile) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 8px) 392px, var(--c-etoile) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at 4px 430px, var(--c-lune) 0 1px, transparent 2px),
+    radial-gradient(circle at calc(100% - 4px) 468px, var(--c-etoile) 0 1.4px, transparent 2.4px);
+  background-size: 100% 500px;
+  animation: scintille 6s var(--ease) -3s infinite;
 }
 
 .ecran {
@@ -263,7 +289,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Logo (image du disque central, fond transparent : elle se fond dans --c-nuit) ---------- */
 .logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.logo-grand { width: 96px; height: 96px; }
+.logo-grand { width: 160px; height: 160px; }
 .logo-grand, .logo-compact, .dos-logo { display: block; object-fit: contain; }
 
 /* ---------- Boutons (charte, section 7) ---------- */
@@ -286,6 +312,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   transition: transform 150ms var(--ease);
 }
 .bouton .icone { width: 1.25rem; height: 1.25rem; }
+.bouton .icone-image { width: 1.75rem; height: 1.75rem; margin: -4px 0; }
 .bouton-principal {
   background: var(--c-ambre);
   color: var(--c-nuit);
@@ -413,12 +440,13 @@ h2 {
 .ecran-attente .titre-tour { margin: 16px 0 8px; font-size: 2rem; }
 .nom-actif { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
 
-/* Emblèmes : images de la propriétaire (fond transparent), carrées. */
-.embleme { display: block; width: 2rem; height: 2rem; flex: none; object-fit: contain; }
-.embleme-grand { width: 4.5rem; height: 4.5rem; }
+/* Emblèmes : images de la propriétaire (fond transparent), carrées ; agrandies en phase 7 pour qu'on les voie mieux. */
+.embleme { display: block; width: 2.75rem; height: 2.75rem; flex: none; object-fit: contain; }
+.embleme-grand { width: 7rem; height: 7rem; }
+.nom-actif .embleme { width: 2.75rem; height: 2.75rem; }
 .embleme-vide {
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: var(--filet) dashed var(--c-lune-douce);
   border-radius: var(--r-bouton);
 }
@@ -574,14 +602,20 @@ h2 {
 .bandeau-texte { color: var(--c-etoile); font: 500 max(6.5cqw, 1.25rem)/1.3 var(--f-texte); overflow-wrap: break-word; }
 .bandeau-duree { color: var(--c-lune-douce); font: 400 1rem/1.3 var(--f-texte); }
 
-/* ---------- Attente ---------- */
-.attente-message {
-  margin: 8px 0 24px;
-  color: var(--c-lune-douce);
-  font: italic 500 1.5rem/1.25 var(--f-titre);
-  text-align: center;
-  overflow-wrap: anywhere;
+/* ---------- Attente (écran des autres personnes) ---------- */
+/* Phase 7 : carte révélée centrée verticalement entre le compteur et le pied (écran de la personne qui joue et des
+   autres). Sans carte encore choisie : « Au tour de [prénom] » et l'emblème en grand dessous, au centre. */
+.ecran-carte .carte, .ecran-attente .carte { margin: auto; }
+.ecran-carte .compteur, .ecran-attente .titre-tour { margin-bottom: 16px; }
+.ecran-carte .pied-tour, .ecran-attente .pied-tour { margin-top: 20px; }
+.attente-sans-carte .titre-tour { margin: auto 0 16px; }
+.embleme-attente { margin: 0 auto auto; }
+/* Phase 7 : ce n'est pas votre tour. Le titre, l'emblème et la carte sont un peu ternis (moins saturés, moins
+   lumineux) ; le texte reste très contrasté sur le fond nuit. Le pied (effets, absence) garde son éclat. */
+.ecran-attente > .compteur, .ecran-attente > .titre-tour, .ecran-attente > .carte, .ecran-attente > .embleme-attente {
+  filter: saturate(.5) brightness(.82);
 }
+.ecran-attente > .titre-tour { color: var(--c-lune); }
 
 /* Phase 6 : bloc d'absence de l'écran d'attente ; ses enfants (message, barre du bas) se placent comme ceux de l'écran */
 .absence:not([hidden]) { display: contents; }
@@ -608,23 +642,52 @@ h2 {
   border: var(--filet) solid color-mix(in srgb, var(--rarete) 33%, transparent);
   border-radius: 4px;
 }
-.effets-en-cours { margin: 0 0 8px; }
+/* Pied des écrans de tour (phase 7) : collé en bas, il porte le bandeau des effets en cours au-dessus des boutons. */
+.pied-tour {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  margin: auto calc(-1 * var(--marge)) 0;
+}
+.pied-tour .barre-bas { position: static; margin: 0; }
+.pied-tour:not(:has(.barre-bas:not([hidden]))) { padding-bottom: calc(8px + var(--bas)); }
+.pied-tour .absence-message { margin: 0; padding: 12px var(--marge); background: #060B1EE6; }
+
+/* Bandeau « Effets en cours » : replié par défaut (une ligne), déroulé d'un toucher ; le détail défile s'il est long,
+   pour ne jamais pousser les boutons hors de l'écran. */
+.effets-en-cours { margin: 0 var(--marge) 8px; padding: 0 16px; box-shadow: 0 -8px 24px #060B1ECC; }
 .effets-titre {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 12px;
+  min-height: var(--cible);
   color: var(--c-ambre);
   font: 500 .875rem/1.2 var(--f-texte);
   letter-spacing: .25em;
   text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+}
+.effets-titre::-webkit-details-marker { display: none; }
+.effets-titre::after {                   /* chevron : vers le haut replié, vers le bas déroulé */
+  content: ''; width: 8px; height: 8px; margin: 4px 4px 0 auto; flex: none;
+  border: solid currentColor; border-width: 1.5px 0 0 1.5px; transform: rotate(45deg);
+  transition: transform var(--t-rapide) var(--ease);
+}
+.effets-en-cours[open] > .effets-titre::after { transform: translateY(-4px) rotate(225deg); }
+.effets-nombre {
+  display: inline-grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 6px;
+  border: var(--filet) solid var(--c-ambre); border-radius: var(--r-bouton);
+  letter-spacing: 0; font-size: .875rem;
 }
 .effets-titre .icone { width: 1.25rem; height: 1.25rem; }
-.effets-liste { margin: 0; padding: 0; list-style: none; }
+.effets-liste { margin: 0; padding: 4px 0 16px; list-style: none; max-height: 45dvh; overflow-y: auto; }
 .effets-item { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-top: var(--filet) solid #3C5A8C99; }
 .effets-item:first-child { padding-top: 0; border-top: 0; }
 .effets-joueur { display: flex; align-items: center; gap: 8px; color: var(--c-lune); font: 500 1rem/1.3 var(--f-texte); }
-.effets-joueur .embleme { width: 1.5rem; height: 1.5rem; }
+.effets-joueur .embleme { width: 2.25rem; height: 2.25rem; }
 .effets-texte { color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: break-word; }
 /* Phase 5 : bouton discret de chaque effet en cours (partie en réseau), pour dire qu'il a provoqué un échange de butins.
    Même famille que le bouton secondaire, en plus petit ; cible tactile de 48 px. */
@@ -679,6 +742,8 @@ h2 {
   background: radial-gradient(circle closest-side, #D9693AAA 0, #D9693AAA 45%, #F0A35E66 62%, #D9693A33 82%, transparent 100%);
 }
 .transition-icone .icone { position: relative; width: 9rem; height: 9rem; }
+/* Phase 7 : étoile (sort jeté) et bouclier sont les images de la propriétaire. */
+.transition-icone .icone-image { object-fit: contain; }
 .transition-texte {
   margin: 0;
   color: var(--c-etoile);
@@ -798,9 +863,9 @@ h2 {
 }
 .joueur-soi { border-color: var(--c-lune); }
 .joueur-libre { border-style: dashed; background: transparent; }
-.joueur-prenom { flex: 1 1 5rem; min-width: 0; color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: anywhere; }
+.joueur-prenom { flex: 0 1 auto; min-width: 0; color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: anywhere; }
 .joueur-prenom-vide { color: var(--c-lune-douce); }
-.joueur-etiquettes { display: flex; flex-wrap: wrap; gap: 6px; }
+.joueur-etiquettes { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
 .etiquette {
   display: inline-flex;
   align-items: center;
@@ -839,14 +904,13 @@ h2 {
   transition: transform 150ms var(--ease);
 }
 .embleme-choix:active { transform: scale(.97); }
-.embleme-image { display: block; width: 2.5rem; height: 2.5rem; object-fit: contain; }
-.embleme-nom { max-width: 100%; font: 400 .9375rem/1.1 var(--f-texte); overflow-wrap: anywhere; text-align: center; }
+/* Choix de l'emblème (phase 7) : l'image seule, aussi grande que la case le permet ; le nom est son texte alternatif. */
+.embleme-image { display: block; width: min(100%, 4.25rem); height: auto; aspect-ratio: 1; object-fit: contain; }
 .embleme-choix[aria-checked="true"] {
   border: var(--bordure) solid var(--c-ambre);
   background: #F0A35E1F;
   box-shadow: var(--lueur-ambre);
 }
-.embleme-choix[aria-checked="true"] .embleme-nom { color: var(--c-ambre); font-weight: 500; }
 /* Verrouillé après « C'est bon » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
 .embleme-choix:disabled:not(.embleme-pris) { cursor: default; }
 .embleme-choix:disabled:not(.embleme-pris)[aria-checked="false"] { opacity: .45; }

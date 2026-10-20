@@ -56,7 +56,7 @@ Phrase sur les effets durables, validée, à placer sous « Déroulement », apr
 
 - Pour la personne dont c'est le tour, choix : « À toi de jouer ! » puis deux dos de cartes (Épreuve, Révélation).
 - Pour la personne dont c'est le tour, carte révélée : type de carte en en-tête, texte en grand, deux boutons.
-- Pour les autres : « Au tour de [emblème + prénom] », même carte affichée, sans boutons, « En attente de [prénom]… ».
+- Pour les autres : « Au tour de [prénom + emblème] », même carte affichée, sans boutons ; tant que la carte n'est pas choisie, l'emblème est affiché en grand sous « Au tour de [prénom] ».
 - Transition de 2 secondes visible par tout le monde : « Le sort est jeté pour [prénom]. » ou « [prénom] a invoqué un bouclier. »
 - Compteur : « Tour N / 4 » (tour de la partie).
 - Un bandeau visible par tout le monde affiche les effets durables en cours (par exemple « Léa : miaule jusqu'à son prochain tour »).

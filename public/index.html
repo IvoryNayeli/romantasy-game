@@ -11,25 +11,10 @@
   <script type="module" src="js/app.js"></script>
 </head>
 <body class="ciel">
-  <!-- Icônes et ornements : symboles SVG dessinés pour le projet, au trait fin de 1,5 px (sauf le bouclier et le sort jeté,
-       formes pleines demandées par la propriétaire). L'épée et l'étoile sont des images de la propriétaire (img/epee.webp,
-       img/etoile.webp, phase 7), posées par icone() dans js/dom.js. -->
+  <!-- Icônes et ornements : symboles SVG dessinés pour le projet, au trait fin de 1,5 px. L'épée, l'étoile et le bouclier
+       sont des images de la propriétaire (img/epee.webp, img/etoile.webp, img/bouclier.webp, phase 7), posées par icone()
+       dans js/dom.js. -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-    <!-- Bouclier plein (boutons) : forme pleine en currentColor, étincelle évidée au centre. Écart volontaire à la charte
-         (icônes au trait fin), demandé par la propriétaire : voir docs/PROJET.md. -->
-    <symbol id="i-bouclier" viewBox="0 0 24 24">
-      <path d="M12 1.8 21 5.2v7c0 5.4-3.8 9.2-9 11-5.2-1.8-9-5.6-9-11v-7ZM12 7.2Q12.9 11.1 16.8 12Q12.9 12.9 12 16.8Q11.1 12.9 7.2 12Q11.1 11.1 12 7.2Z" fill="currentColor" fill-rule="evenodd"/>
-    </symbol>
-    <!-- Grand bouclier de l'écran de transition : formes pleines, ambre (bord) et braise (face), étincelle clair de lune -->
-    <symbol id="i-bouclier-grand" viewBox="0 0 100 100">
-      <path d="M50 3 91 18V50C91 77 73 91 50 98 27 91 9 77 9 50V18Z" style="fill:var(--c-ambre)"/>
-      <path d="M50 14 80 25V50C80 69 67 80 50 87 33 80 20 69 20 50V25Z" style="fill:var(--c-braise);stroke:var(--c-nuit)" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M50 29Q53.6 46.4 71 50Q53.6 53.6 50 71Q46.4 53.6 29 50Q46.4 46.4 50 29Z" style="fill:var(--c-etoile)"/>
-    </symbol>
-    <!-- Sort jeté (écran de transition) : étoile à cinq branches régulière, pleine, ambre (rayon 48, centrée dans 100 x 100) -->
-    <symbol id="i-sort-jete" viewBox="0 0 100 100">
-      <path d="M50 6.6 60.77 39.77 95.65 39.77 67.43 60.26 78.21 93.43 50 72.93 21.79 93.43 32.57 60.26 4.35 39.77 39.23 39.77Z" style="fill:var(--c-ambre)"/>
-    </symbol>
     <symbol id="i-retour" viewBox="0 0 24 24">
       <path d="M15 4.5 7.5 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
     </symbol>

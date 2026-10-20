@@ -82,6 +82,13 @@ export function barreBas(...boutons) {
   return h('div', { classe: 'barre-bas' }, ...boutons);
 }
 
+// Pied des écrans de tour (phase 7) : collé en bas de l'écran, il porte le bandeau « Effets en cours » (replié par
+// défaut) au-dessus des boutons d'action ou du bloc d'absence. Rien quand il n'y a ni effet ni bouton.
+function piedTour(...enfants) {
+  const presents = enfants.filter(Boolean);
+  return presents.length ? h('div', { classe: 'pied-tour' }, ...presents) : null;
+}
+
 // Titre de section de la page des règles : titre en Cormorant Garamond, filigrane ambre pleine largeur dessous
 // (le motif du symbole n'est pas étiré : deux filets de part et d'autre).
 function titreSection(texte) {
@@ -103,8 +110,8 @@ export function ligneJoueur(donnees, joueur, { hote, soi, absent = false }) {
   const prenom = String(joueur.prenom || '').trim();
   const emb = joueur.embleme ? emblemeParId(donnees, joueur.embleme) : null;
   return h('li', { classe: `joueur-ligne${soi ? ' joueur-soi' : ''}` },
-    emb ? emblemeEl(emb) : h('span', { classe: 'embleme embleme-vide', 'aria-hidden': 'true' }),
     h('span', { classe: `joueur-prenom${prenom ? '' : ' joueur-prenom-vide'}` }, prenom || '…'),
+    emb ? emblemeEl(emb) : h('span', { classe: 'embleme embleme-vide', 'aria-hidden': 'true' }),
     h('span', { classe: 'joueur-etiquettes' },
       hote ? h('span', { classe: 'etiquette' }, S.hote) : null,
       soi ? h('span', { classe: 'etiquette' }, S.vous) : null,
@@ -364,7 +371,7 @@ export function salle({ donnees, params, naviguer }) {
       classe: `embleme-choix${prisParAutre ? ' embleme-pris' : ''}`, type: 'button', role: 'radio',
       'aria-checked': 'false', disabled: prisParAutre,
       onclick: () => { moi.embleme = emb.id; moi.pret = false; maj(); },
-    }, imageEmbleme(emb, 'embleme-image', ''), h('span', { classe: 'embleme-nom' }, emb.nom));
+    }, imageEmbleme(emb, 'embleme-image'));
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }
@@ -411,7 +418,7 @@ export function vueChoix(donnees, { tour, choisir = null, effets = [], signaler 
     compteurEl(donnees, tour),
     h('h2', { classe: 'titre-tour' }, T.tour.aToi),
     h('div', { classe: 'dos-cartes' }, dos('epreuve'), dos('revelation')),
-    panneauEffets(donnees, effets, signaler));
+    piedTour(panneauEffets(donnees, effets, signaler)));
 }
 
 export function carte({ donnees, params, naviguer }) {
@@ -443,14 +450,13 @@ export function vueCarte(donnees, { tour, carte: c, sortJete, bouclier, effets =
   return h('section', { classe: 'ecran ecran-carte' },
     compteurEl(donnees, tour),
     carteEl(c, 'soi'),
-    panneauEffets(donnees, effets, signaler),
     dialogue,
-    barreBas(
+    piedTour(panneauEffets(donnees, effets, signaler), barreBas(
       sortJete,
       h('button', {
         classe: 'bouton bouton-secondaire', type: 'button',
         onclick: () => (dialogue.showModal ? dialogue.showModal() : dialogue.setAttribute('open', '')),
-      }, icone('bouclier'), h('span', null, T.tour.bouclier))));
+      }, icone('bouclier'), h('span', null, T.tour.bouclier)))));
 }
 
 export function attente({ donnees, params }) {
@@ -473,16 +479,18 @@ export function attente({ donnees, params }) {
   };
 }
 
-// Panneau « Effets en cours », visible par tout le monde. Chaque effet : { joueur: { prenom, embleme }, effet, duree,
-// carte?, soi? }. Avec `signaler(carte)` (partie en réseau), chaque effet a un bouton pour dire qu'il a provoqué
-// un échange de butins, ce qui y met fin.
+// Bandeau « Effets en cours », visible par tout le monde, en bas de l'écran (pied de tour). Phase 7 : petit bandeau
+// replié par défaut (titre et nombre d'effets), qu'on déroule d'un toucher pour voir le détail (élément details).
+// Chaque effet : { joueur: { prenom, embleme }, effet, duree, carte?, soi? }. Avec `signaler(carte)` (partie en
+// réseau), chaque effet a un bouton pour dire qu'il a provoqué un échange de butins, ce qui y met fin.
 export function panneauEffets(donnees, effets, signaler = null) {
   if (!effets || effets.length === 0) return null;
-  return h('section', { classe: 'panneau effets-en-cours', 'aria-label': T.effets.enCours },
+  return h('details', { classe: 'panneau effets-en-cours' },
     coins(),
-    h('h2', { classe: 'effets-titre' }, icone('lueur'), T.effets.enCours),
+    h('summary', { classe: 'effets-titre' }, icone('lueur'), h('span', null, T.effets.enCours),
+      h('span', { classe: 'effets-nombre' }, String(effets.length))),
     h('ul', { classe: 'effets-liste' }, effets.map((e) => h('li', { classe: 'effets-item' },
-      h('span', { classe: 'effets-joueur' }, emblemeEl(emblemeParId(donnees, e.joueur.embleme)), e.joueur.prenom),
+      h('span', { classe: 'effets-joueur' }, e.joueur.prenom, emblemeEl(emblemeParId(donnees, e.joueur.embleme))),
       h('strong', { classe: 'effets-texte' }, e.effet),
       h('span', { classe: 'bandeau-duree' }, dureeTexte(e.duree, e.soi ? 'soi' : 'autre')),
       signaler ? h('button', {
@@ -490,16 +498,16 @@ export function panneauEffets(donnees, effets, signaler = null) {
       }, T.effets.echange) : null))));
 }
 
-// Vue des autres personnes pendant un tour : « Au tour de… », la carte tirée (s'il y en a une) sans boutons,
-// les effets en cours et « En attente de… ». `pied` (phase 6) : bloc d'absence de blocAbsence(), posé à la fin.
+// Vue des autres personnes pendant un tour (écran un peu terni : ce n'est pas leur tour). Phase 7 : « Au tour de
+// [prénom] » ; tant que la carte n'est pas choisie, l'emblème en grand dessous ; ensuite, l'emblème après le prénom
+// et la carte tirée, sans boutons. En bas : effets en cours, puis `pied` (phase 6, bloc d'absence de blocAbsence()).
 export function vueAttente(donnees, { tour, carte: c = null, actif, effets = [], signaler = null, pied = null }) {
-  return h('section', { classe: 'ecran ecran-attente' },
+  return h('section', { classe: `ecran ecran-attente${c ? '' : ' attente-sans-carte'}` },
     compteurEl(donnees, tour),
-    h('h2', { classe: 'titre-tour' }, `${T.tour.auTourDe} `, h('span', { classe: 'nom-actif' }, emblemeEl(actif.embleme), actif.prenom)),
-    c ? carteEl(c, 'autre') : null,
-    panneauEffets(donnees, effets, signaler),
-    h('p', { classe: 'attente-message', role: 'status' }, T.tour.enAttente(actif.prenom)),
-    pied);
+    h('h2', { classe: 'titre-tour' }, `${T.tour.auTourDe} `,
+      h('span', { classe: 'nom-actif' }, actif.prenom, c ? emblemeEl(actif.embleme) : null)),
+    c ? carteEl(c, 'autre') : emblemeEl(actif.embleme, 'embleme-grand embleme-attente'),
+    piedTour(panneauEffets(donnees, effets, signaler), pied));
 }
 
 // Bloc d'absence de l'écran d'attente (phase 6), mis à jour sur place (la carte affichée ne se retourne pas une
@@ -555,9 +563,9 @@ export function vueTransition(donnees, { tour, bouclier: bouclierInvoque, passe 
     compteurEl(donnees, tour),
     cielLibre('orion'),
     h('div', { classe: 'transition-corps', role: 'status' },
-      h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier-grand' : 'sort-jete', 'icone-presence')),
-      emblemeEl(emb, 'embleme-grand'),
-      h('p', { classe: 'transition-texte' }, texteTransition({ bouclierInvoque, passe, prenom }))),
+      h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier' : 'etoile', 'icone-presence')),
+      h('p', { classe: 'transition-texte' }, texteTransition({ bouclierInvoque, passe, prenom })),
+      emblemeEl(emb, 'embleme-grand')),
     cielLibre('croix', 2.4));
 }
 
