@@ -31,7 +31,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 7, itération 2 : en cours (12 remarques de la propriétaire sur l'itération 1).
+Phase 7, itération 2 : 12 remarques traitées par le développeur ; testeur et suite complète en attente que l'émulateur de la propriétaire (port 9000) soit arrêté.
 
 ## Journal
 
@@ -41,6 +41,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-20, phase 7 : remarques reçues ([remarques/phase-7](remarques/phase-7.md)), traitées dans l'itération 1 (pas encore de rapport) ; questions posées à la propriétaire sur la correspondance des avatars.
 - 2026-10-20, phase 7 : remarque 1 faite (logo, 8 emblèmes, épée et étoile en images), suite complète 217 réussis ; prête pour relecture ([rapport](rapports/phase-7-iteration-1.md)).
 - 2026-10-20, phase 7 : 12 remarques reçues sur l'itération 1 ([remarques/phase-7](remarques/phase-7.md)), lancement de l'itération 2.
+- 2026-10-20, phase 7 : itération 2 développée (`ca035ab`), `test:rapide` 86 réussis ; `npm test` non lancé, port 9000 pris par l'émulateur de la propriétaire.
 
 ## Défauts ouverts
 
