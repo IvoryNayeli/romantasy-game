@@ -348,9 +348,17 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await hote.waitForSelector('.liste-joueurs .etiquette-absent', { state: 'detached', timeout: DELAI });
 
     await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
+    const connexions = async () => {
+      const p = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;
+      return Object.keys(p.presents?.[p.hote] || {});
+    };
+    const avantDepart = await connexions();
+    assert.equal(avantDepart.length, 1);
     await hote.locator('button', { hasText: 'Commencer la quête' }).click();
     await attendreEcran(hote, 'choix');
     await attendreEcran(invite, 'attente');
+    await hote.waitForTimeout(300);
+    assert.deepEqual(await connexions(), avantDepart, 'présence gardée sans interruption entre la salle et la partie');
 
     // Rechargement en pleine partie : la personne retrouve son tour (même identité, gardée dans l'onglet).
     await hote.reload();
