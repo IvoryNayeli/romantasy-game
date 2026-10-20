@@ -228,8 +228,11 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     for (const f of await facesChargees(accueil)) chargees.add(f);
     await fermer(accueil);
     const regles = await ouvrir('index.html?ecran=regles');
-    const h2 = await policesDe(regles, ['h2']);
-    assert.ok(h2.h2.every((x) => cormorant.test(x)), `h2 : ${h2.h2}`);
+    // Phase 7 : titres de section des règles en IM Fell English SC (hébergée), maquette de la propriétaire.
+    const h2 = await policesDe(regles, ['.titre-section h2']);
+    const fell = /^IM FELL English SC.*\(hébergée\)|^IM Fell English SC.*\(hébergée\)/i;
+    assert.ok(h2['.titre-section h2'].length && h2['.titre-section h2'].every((x) => fell.test(x)), `titres de section : ${h2['.titre-section h2']}`);
+    for (const f of await facesChargees(regles)) chargees.add(f);
     await fermer(regles);
     for (const url of ['index.html?ecran=regles', 'index.html?ecran=creer', 'index.html?ecran=rejoindre', 'index.html?ecran=salle&autres=2',
       'index.html?ecran=attente&type=revelation&tour=2', `index.html?ecran=carte&carte=${durable.id}`, 'index.html?ecran=transition']) {
@@ -238,11 +241,11 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
       await fermer(p);
     }
     // Chaque graisse réellement utilisée par un écran est bien chargée (italique des titres, lettrine en 600, Jost 300/400/500).
-    for (const attendue of ['Cormorant Garamond|600|normal', 'Cormorant Garamond|500|italic', 'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal']) {
+    for (const attendue of ['Cormorant Garamond|600|normal', 'Cormorant Garamond|500|italic', 'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal', 'IM Fell English SC|400|normal']) {
       assert.ok(chargees.has(attendue), `police ${attendue} jamais chargée : ${[...chargees]}`);
     }
     const demandes = [...ctx.polices];
-    assert.ok(demandes.length >= 5 && demandes.every((p) => /^(CormorantGaramond|Jost)-/.test(p)), `fichiers de police demandés : ${demandes}`);
+    assert.ok(demandes.length >= 5 && demandes.every((p) => /^(CormorantGaramond|Jost|IMFellEnglishSC)-/.test(p)), `fichiers de police demandés : ${demandes}`);
     assert.deepEqual(ctx.requetesExternes, [], 'requêtes vers des adresses non locales');
   });
 
@@ -397,7 +400,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     const regles = fs.readFileSync(path.join(A.RACINE, 'docs', 'regles.md'), 'utf8');
     const norm = (s) => s.replace(/\*+/g, '').replace(/\s+/g, ' ').trim();
     const source = norm(regles);
-    const pages = { accueil: '?ecran=accueil', regles: '?ecran=regles', fin: '?ecran=fin', salle: '?ecran=salle&hote=1&autres=1' };
+    const pages = { accueil: '?ecran=accueil', regles: '?ecran=regles', fin: '?ecran=fin', salle: '?ecran=salle&hote=1&autres=1&prenom=Noa&embleme=sirene&pret=1' };
     const attendus = {
       accueil: ['Bienvenue, voyageur(se).', 'Les Cours s\'agitent, les dragons s\'éveillent et le destin s\'apprête à battre ses cartes.',
         'Récupérez votre butin, choisissez votre emblème et laissez le sort décider du trésor qui sera le vôtre.', 'Comment ça marche ?'],
@@ -441,10 +444,10 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     assert.match(t, /Effets en cours/i);
     await fermer(att);
     const tr = await ouvrir('index.html?ecran=transition');
-    assert.match(await texteVisible(tr), /Le sort est jeté pour Léa\./);
+    assert.match(await texteVisible(tr), /Le sort est jeté pour LÉA\./);
     await fermer(tr);
     const bo = await ouvrir('index.html?ecran=transition&bouclier=1');
-    assert.match(await texteVisible(bo), /Léa a invoqué un bouclier\./);
+    assert.match(await texteVisible(bo), /LÉA a invoqué un bouclier\./);
     await fermer(bo);
     const carte = await ouvrir('index.html?ecran=carte&type=revelation');
     assert.match(await carte.locator('.carte-entete').textContent(), /Révélation/);

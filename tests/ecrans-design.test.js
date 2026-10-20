@@ -254,16 +254,17 @@ test('codes : saisie insensible à la casse et aux accents, seuls les mots de co
 test('salle d\'attente : code (discret), puis deux écrans successifs (prénom + emblème, puis liste du groupe)', () => {
   const ecrans = lirePublic('js', 'ecrans.js');
   const salle = ecrans.slice(ecrans.indexOf('export function salle('), ecrans.indexOf('export function choix('));
-  const construction = salle.slice(salle.indexOf('const etapeFiche = h('));
-  const positions = ["classe: 'salle-etape salle-fiche' }, complete ? null : formulaire", 'titre-groupe', 'liste,', 'enteteSalle(code), etapeFiche, etapeSalle']
-    .map((m) => construction.indexOf(m));
-  assert.ok(positions.every((p) => p >= 0), 'élément manquant dans la salle d\'attente');
-  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : prénom/emblème, liste du groupe, puis assemblage code + étapes');
-  // Phase 7 (remarque 13) : la liste n'apparaît qu'après la présence confirmée, dans la salle fictive comme en réseau.
-  assert.match(salle, /const enSalle = complete \|\| moi\.pret;\s*etapeFiche\.hidden = enSalle;\s*etapeSalle\.hidden = !enSalle;/);
-  assert.match(lirePublic('js', 'ecrans-reseau.js'), /const enSalle = exclu \|\| pret;\s*etapeFiche\.hidden = enSalle;\s*etapeSalle\.hidden = !enSalle;/);
+  // Phase 7 (remarques 13 et 26) : trois écrans successifs, prénom, emblème, puis la salle d'attente et sa liste,
+  // dans la salle fictive comme en réseau ; le code de la partie reste en haut.
+  assert.match(salle, /enteteSalle\(code\), etapePrenom, etapeEmbleme, etapeSalle/);
+  assert.match(lirePublic('js', 'ecrans-reseau.js'), /enteteSalle\(code\), etapePrenom, etapeEmbleme, etapeSalle/);
+  for (const source of [salle, lirePublic('js', 'ecrans-reseau.js')]) {
+    assert.match(source, /etapePrenom\.hidden = ecranCourant !== 'prenom';\s*etapeEmbleme\.hidden = ecranCourant !== 'embleme';\s*etapeSalle\.hidden = ecranCourant !== 'salle';/);
+  }
+  assert.match(salle, /const ecranCourant = complete \|\| moi\.pret \? 'salle' : etape;/);
+  assert.match(lirePublic('js', 'ecrans-reseau.js'), /const ecranCourant = exclu \|\| pret \? 'salle' : etape;/, 'rechargement : présence confirmée, salle d\'attente');
   assert.match(ecrans, /export function enteteSalle\(code\) \{\s*return h\('p', \{ classe: 'code-partie' \}/);
-  assert.match(lirePublic('js', 'textes.js'), /groupe: 'La compagnie'/);
+  assert.match(lirePublic('js', 'textes.js'), /groupe: 'Le cercle des initié\(e\)s :'/);
   // Le code est discret : petit et en couleur secondaire (pas un grand encadré).
   for (const sel of ['.code-libelle', '.code-valeur']) {
     const tailles = taillesDeclarees(sel);
@@ -722,7 +723,7 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   const textes = lirePublic('js', 'textes.js');
   // Seule exception voulue par la propriétaire (itération 4) : la salutation « Bienvenue, voyageur(se). ».
   assert.doesNotMatch(textes.replace('voyageur(se)', 'voyageur'), /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
-  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je rejoins l\'aventure', 'La compagnie']) {
+  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je rejoins l\'aventure', 'A rejoint la compagnie']) {
     assert.ok(textes.includes(forme), `formulation neutre « ${forme} » absente`);
   }
   assert.match(textes, /butin/);

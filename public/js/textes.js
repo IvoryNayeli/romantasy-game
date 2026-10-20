@@ -80,16 +80,17 @@ export const erreurs = {
 
 export const salle = {
   codeLibelle: 'Partie\u00A0:',
-  accompagnement: 'Rassemblez votre troupe. La quête commencera quand l\'hôte donnera le signal.',
+  accompagnement: 'La quête commencera quand l\'hôte donnera le signal.',
   hote: 'hôte',
   vous: 'toi',
   prenomLibelle: 'Ton prénom',
   embleme: 'Ton emblème',
-  pret: 'C\'est bon',
+  pret: 'A rejoint la compagnie',
+  suivant: 'Je suis là !',
   pretBouton: "Je rejoins l'aventure",
   commencer: 'Commencer la quête',
   complete: 'La partie est complète',
-  groupe: 'La compagnie',
+  groupe: 'Le cercle des initié(e)s :',
 };
 
 // Écran « Créer une partie » : choix du code dans la liste.

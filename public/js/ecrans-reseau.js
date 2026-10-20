@@ -8,12 +8,12 @@
 // (reseau.signalerPresence) ; une personne sans connexion est affichée « hors ligne », et si c'est son tour,
 // les autres peuvent le passer après le délai de config.json (delaiAbsenceSecondes).
 
-import { h, icone, imageEmbleme, coins } from './dom.js';
+import { h, imageEmbleme, coins } from './dom.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
   ligneJoueur, barreBas, vueChoix, vueCarte, vueAttente, vueTransition, vueFin, panneauEffets, blocAbsence, DUREE_TRANSITION_MS,
-  majuscules, enteteSalle, grilleEmblemes,
+  majuscules, enteteSalle, grilleEmblemes, champPrenom, etapeSaisiePrenom, etapeChoixEmbleme, remplacerPanneauEffets,
 } from './ecrans.js';
 import { garderEcranAllume } from './wakelock.js';
 import { emblemeParId } from './fictif.js';
@@ -32,6 +32,8 @@ export function salle({ donnees, params, naviguer, reseau }) {
   let partie = null;
   let enCours = false;
   let prenomSaisi = '';
+  let noeud = null;
+  let etape = 'prenom'; // phase 7 : 'prenom' puis 'embleme' ; la salle d'attente une fois la présence confirmée
   let libererPresence = null;
   const moi = code ? reseau.identiteConnue(code) : null;
 
@@ -48,21 +50,15 @@ export function salle({ donnees, params, naviguer, reseau }) {
   const liste = h('ul', { classe: 'liste-joueurs', 'aria-labelledby': 'titre-groupe' });
   const grille = grilleEmblemes(donnees);
   const boutonsEmbleme = new Map();
-  const champ = h('input', {
-    classe: 'champ', id: 'champ-prenom', type: 'text', value: '', autocomplete: 'off',
-    autocapitalize: 'words', spellcheck: 'false', enterkeyhint: 'done', maxlength: String(reseau.PRENOM_MAX),
-  });
+  const champ = champPrenom('', reseau.PRENOM_MAX);
   const messageErreur = h('p', { classe: 'erreur-champ', id: 'erreur-salle', role: 'alert' });
-  const boutonPret = h('button', { classe: 'bouton bouton-principal', type: 'button' });
+  const boutonSuivant = h('button', { classe: 'bouton bouton-principal', type: 'button' }, h('span', null, S.suivant));
+  const boutonPret = h('button', { classe: 'bouton bouton-principal', type: 'button' }, h('span', null, S.pretBouton));
   const boutonCommencer = h('button', { classe: 'bouton bouton-principal', type: 'button' }, h('span', null, S.commencer));
   const avis = h('p', { classe: 'panneau avis-complete', role: 'status' });
-  const formulaire = h('div', { classe: 'formulaire' },
-    h('label', { classe: 'etiquette-champ', for: 'champ-prenom' }, S.prenomLibelle),
-    champ,
-    h('p', { classe: 'etiquette-champ' }, S.embleme),
-    grille);
-  const barre = barreBas(boutonPret, boutonCommencer);
-  const etapeFiche = h('div', { classe: 'salle-etape salle-fiche' }, formulaire);
+  const barre = barreBas(boutonSuivant, boutonPret, boutonCommencer);
+  const etapePrenom = etapeSaisiePrenom(champ);
+  const etapeEmbleme = etapeChoixEmbleme(grille);
   const etapeSalle = h('div', { classe: 'salle-etape salle-attente' },
     avis,
     h('h2', { classe: 'titre-liste', id: 'titre-groupe' }, S.groupe),
@@ -89,7 +85,12 @@ export function salle({ donnees, params, naviguer, reseau }) {
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }
+  // « Je suis là ! » passe au choix de l'emblème (le prénom reste sur ce téléphone) ; « Je rejoins l'aventure »
+  // envoie le prénom et confirme la présence, comme avant (aucun changement côté base).
+  const suivant = () => { if (prenomSaisi.trim()) { etape = 'embleme'; maj(); window.scrollTo(0, 0); } };
   champ.addEventListener('input', () => { prenomSaisi = majuscules(champ.value); maj(); });
+  champ.addEventListener('keydown', (e) => { if (e.key === 'Enter') suivant(); });
+  boutonSuivant.addEventListener('click', suivant);
   boutonPret.addEventListener('click', () => agir(() => reseau.confirmerPresence(code, prenomSaisi)));
   boutonCommencer.addEventListener('click', () => agir(() => reseau.commencer(code, donnees)));
 
@@ -112,21 +113,22 @@ export function salle({ donnees, params, naviguer, reseau }) {
     // quête commence : formulaire remplacé par l'avis.
     const exclu = Boolean(partie) && (!fiche || (partie.statut === reseau.STATUTS.PARTIE && !joue(partie, moi)));
     avis.hidden = !exclu;
-    // Phase 7 : deux écrans successifs. D'abord prénom + emblème ; une fois la présence confirmée (ou au
-    // rechargement d'une présence déjà confirmée), la salle d'attente avec la liste. L'hôte y garde « Commencer ».
-    const enSalle = exclu || pret;
-    etapeFiche.hidden = enSalle;
-    etapeSalle.hidden = !enSalle;
-    boutonPret.hidden = pret;
+    // Phase 7 : trois écrans successifs. Prénom (« Je suis là ! »), emblème (« Je rejoins l'aventure »), puis la
+    // salle d'attente et sa liste, aussi au rechargement d'une présence déjà confirmée. L'hôte y a « Commencer ».
+    const ecranCourant = exclu || pret ? 'salle' : etape;
+    etapePrenom.hidden = ecranCourant !== 'prenom';
+    etapeEmbleme.hidden = ecranCourant !== 'embleme';
+    etapeSalle.hidden = ecranCourant !== 'salle';
+    if (noeud) noeud.dataset.etape = ecranCourant;
+    boutonSuivant.hidden = ecranCourant !== 'prenom';
+    boutonPret.hidden = ecranCourant !== 'embleme';
     barre.hidden = exclu || (pret && !estHote);
     if (exclu) avis.replaceChildren(...coins(), partie.statut === reseau.STATUTS.SALLE ? S.complete : T.reseau.commencee);
 
     const valide = Boolean(prenomSaisi.trim() && fiche?.embleme);
+    boutonSuivant.disabled = !prenomSaisi.trim();
     boutonPret.disabled = !fiche || pret || !valide || enCours;
-    boutonPret.setAttribute('aria-pressed', String(pret));
-    boutonPret.className = `bouton ${pret ? 'bouton-secondaire bouton-valide' : 'bouton-principal'}`;
-    boutonPret.replaceChildren(...(pret ? [icone('coche')] : []), h('span', null, pret ? S.pret : S.pretBouton));
-    boutonCommencer.hidden = !estHote;
+    boutonCommencer.hidden = !estHote || ecranCourant !== 'salle';
     boutonCommencer.disabled = !reseau.peutCommencer(partie) || enCours;
     champ.disabled = !fiche || pret;
     if (pret && champ.value !== fiche.prenom) champ.value = fiche.prenom;
@@ -156,8 +158,8 @@ export function salle({ donnees, params, naviguer, reseau }) {
   const libererEcran = garderEcranAllume();
 
   avis.hidden = true;
-  const noeud = h('section', { classe: 'ecran ecran-salle' },
-    h('div', { classe: 'salle-corps' }, enteteSalle(code), etapeFiche, etapeSalle, messageErreur),
+  noeud = h('section', { classe: 'ecran ecran-salle' },
+    h('div', { classe: 'salle-corps' }, enteteSalle(code), etapePrenom, etapeEmbleme, etapeSalle, messageErreur),
     barre);
   maj();
   return {
@@ -288,17 +290,10 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
       // sur place, sans reconstruire l'écran (la carte ne se retourne pas une seconde fois).
       if (nouvelleCleEffets !== cleEffets && ecranCourant && cle !== 'fin' && !enTransition) {
         cleEffets = nouvelleCleEffets;
-        const ancien = ecranCourant.querySelector('.effets-en-cours');
-        const nouveau = panneauEffets(donnees, listeEffets, signaler);
-        if (ancien && nouveau) {
-          nouveau.open = ancien.open; // le bandeau reste déroulé s'il l'était
-          ancien.replaceWith(nouveau);
-        } else if (ancien) {
-          const pied = ancien.parentElement;
-          ancien.remove();
-          if (pied && pied.classList.contains('pied-tour') && !pied.children.length) pied.remove();
+        // Bandeau remplacé sur place (avec l'éclat d'étoiles quand un effet disparaît, chez tout le monde).
+        if (!remplacerPanneauEffets(ecranCourant, panneauEffets(donnees, listeEffets, signaler))) {
+          rendreEcran(etat, listeEffets, etat.joueurs[etat.indexJoueur]);
         }
-        else rendreEcran(etat, listeEffets, etat.joueurs[etat.indexJoueur]);
       }
       return;
     }
@@ -311,7 +306,7 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
       const p = personne(derniere.joueur);
       afficher('transition', vueTransition(donnees, {
         tour, bouclier: derniere.issue === ISSUES_TOUR.BOUCLIER, passe: derniere.issue === ISSUES_TOUR.PASSE,
-        prenom: p.prenom, embleme: p.embleme,
+        prenom: p.prenom,
       }));
       return;
     }

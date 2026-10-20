@@ -129,7 +129,7 @@ body {
 }
 
 /* Scintillement des étoiles (éléments .etoile séparés, optionnel). Seulement opacity. */
-@keyframes scintille { 0%,100% {opacity:.35} 50% {opacity:1} }
+@keyframes scintille { 0%,100% {opacity:.12} 50% {opacity:1} }  /* phase 7 : scintillement plus marqué */
 .etoile { animation: scintille 5s var(--ease) infinite; }
 .etoile:nth-child(2n) { animation-duration: 7s; animation-delay: -2s; }
 
@@ -241,9 +241,10 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   background-size: 100% 380px;
   animation: scintille 9s var(--ease) infinite;
 }
-/* Phase 7 (remarque 17) : étoiles aussi au milieu de l'écran, moins nombreuses qu'au bord (dégradé progressif :
-   denses vers 5-20 % et 80-95 % de la largeur, rares au centre), très petites et en clair de lune, pour ne pas gêner
-   la lecture. Calque derrière le contenu, scintillement de l'opacité seulement. */
+/* Phase 7 (remarques 17 et 24) : étoiles sur toute la largeur, avec un dégradé progressif de densité (nombreuses
+   près des bords, de plus en plus rares vers le centre, positions tirées une fois pour toutes), plus petites et en
+   clair de lune vers le centre pour ne pas gêner la lecture. Deux calques (.page::after, .ecran-zone::before) qui
+   scintillent en décalé : on n'anime que leur opacité. */
 .ecran-zone::before {
   content: '';
   position: absolute;
@@ -254,37 +255,53 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   z-index: -1;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 6% 40px, var(--c-lune) 0 .7px, transparent 1.4px),
-    radial-gradient(circle at 14% 170px, var(--c-etoile) 0 .8px, transparent 1.5px),
-    radial-gradient(circle at 9% 300px, var(--c-lune) 0 .6px, transparent 1.2px),
-    radial-gradient(circle at 19% 420px, var(--c-lune) 0 .7px, transparent 1.4px),
-    radial-gradient(circle at 94% 110px, var(--c-lune) 0 .7px, transparent 1.4px),
-    radial-gradient(circle at 86% 240px, var(--c-etoile) 0 .8px, transparent 1.5px),
-    radial-gradient(circle at 91% 360px, var(--c-lune) 0 .6px, transparent 1.2px),
-    radial-gradient(circle at 81% 470px, var(--c-lune) 0 .7px, transparent 1.4px),
-    radial-gradient(circle at 28% 90px, var(--c-lune) 0 .6px, transparent 1.2px),
-    radial-gradient(circle at 73% 330px, var(--c-lune) 0 .6px, transparent 1.2px),
-    radial-gradient(circle at 34% 390px, var(--c-lune) 0 .5px, transparent 1px),
-    radial-gradient(circle at 66% 30px, var(--c-lune) 0 .5px, transparent 1px),
-    radial-gradient(circle at 46% 210px, var(--c-lune) 0 .5px, transparent 1px);
+    radial-gradient(circle at 82.4% 54px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 92.2% 471px, var(--c-lune) 0 0.5px, transparent 1.3px),
+    radial-gradient(circle at 24.5% 464px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 81.1% 28px, var(--c-lune) 0 0.5px, transparent 1.3px),
+    radial-gradient(circle at 7.8% 473px, var(--c-etoile) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 76.3% 441px, var(--c-lune) 0 1.0px, transparent 1.8px),
+    radial-gradient(circle at 85.2% 114px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 13.2% 379px, var(--c-lune) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 85.8% 153px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 72.7% 167px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 1.6% 470px, var(--c-etoile) 0 1.2px, transparent 2.0px),
+    radial-gradient(circle at 78.8% 146px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 89.7% 315px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 95.5% 296px, var(--c-lune) 0 1.4px, transparent 2.2px),
+    radial-gradient(circle at 96.5% 498px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 44.6% 223px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 30.8% 48px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 70.0% 148px, var(--c-lune) 0 0.7px, transparent 1.5px);
   background-size: 100% 520px;
   background-repeat: repeat-y;
   animation: scintille 8s var(--ease) -5s infinite;
 }
-/* Phase 7 : plus d'étoiles, de tailles différentes, qui scintillent. Deuxième calque, toujours dans les marges
-   latérales (moins de 12 px du bord), décalé dans le temps : on n'anime que l'opacité des deux calques. */
+/* Deuxième calque du dégradé de densité (voir .ecran-zone::before). */
 .page::after {
   background-image:
-    radial-gradient(circle at 8px 30px, var(--c-etoile) 0 1.6px, transparent 2.6px),
-    radial-gradient(circle at calc(100% - 7px) 86px, var(--c-etoile) 0 .7px, transparent 1.4px),
-    radial-gradient(circle at 5px 108px, var(--c-lune) 0 1.2px, transparent 2.2px),
-    radial-gradient(circle at calc(100% - 10px) 160px, var(--c-etoile) 0 1.8px, transparent 2.8px),
-    radial-gradient(circle at 10px 214px, var(--c-etoile) 0 .7px, transparent 1.4px),
-    radial-gradient(circle at calc(100% - 5px) 270px, var(--c-lune) 0 1.3px, transparent 2.3px),
-    radial-gradient(circle at 6px 336px, var(--c-etoile) 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at calc(100% - 8px) 392px, var(--c-etoile) 0 .7px, transparent 1.4px),
-    radial-gradient(circle at 4px 430px, var(--c-lune) 0 1px, transparent 2px),
-    radial-gradient(circle at calc(100% - 4px) 468px, var(--c-etoile) 0 1.4px, transparent 2.4px);
+    radial-gradient(circle at 67.5% 258px, var(--c-lune) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 25.7% 412px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 80.1% 269px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 17.3% 391px, var(--c-lune) 0 0.5px, transparent 1.3px),
+    radial-gradient(circle at 83.5% 352px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 61.8% 187px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 7.2% 98px, var(--c-lune) 0 1.5px, transparent 2.3px),
+    radial-gradient(circle at 10.0% 154px, var(--c-etoile) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 94.5% 217px, var(--c-etoile) 0 1.1px, transparent 1.9px),
+    radial-gradient(circle at 96.0% 174px, var(--c-lune) 0 1.3px, transparent 2.1px),
+    radial-gradient(circle at 83.2% 349px, var(--c-lune) 0 0.5px, transparent 1.3px),
+    radial-gradient(circle at 99.1% 80px, var(--c-lune) 0 1.6px, transparent 2.4px),
+    radial-gradient(circle at 3.9% 319px, var(--c-lune) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 78.1% 398px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 13.0% 224px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 28.2% 336px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 88.0% 66px, var(--c-lune) 0 1.1px, transparent 1.9px),
+    radial-gradient(circle at 6.0% 362px, var(--c-etoile) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 5.0% 227px, var(--c-lune) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 92.2% 474px, var(--c-lune) 0 1.5px, transparent 2.3px),
+    radial-gradient(circle at 5.6% 158px, var(--c-lune) 0 1.2px, transparent 2.0px),
+    radial-gradient(circle at 11.8% 292px, var(--c-lune) 0 1.3px, transparent 2.1px);
   background-size: 100% 500px;
   animation: scintille 6s var(--ease) -3s infinite;
 }
@@ -516,13 +533,14 @@ h2 {
    par ecrans.js ; une lettre vaut environ 0,6 em, capitales comprises), sans dépasser 2,25 rem ; la place de
    l'emblème est réservée quand il suit le prénom. Coupé par des points de suspension en dernier recours. */
 .ecran-attente .titre-tour {
-  overflow: hidden;
-  font-size: min(2.25rem, calc((min(100vw, 30rem) - 2 * var(--marge)) / (var(--lettres, 14) * .6)));
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  font-size: clamp(.875rem, calc((min(100vw, 30rem) - 2 * var(--marge)) / var(--lettres, 14)), 2.25rem);
+  overflow-wrap: anywhere;
 }
-.ecran-attente:not(.attente-sans-carte) .titre-tour { font-size: min(2.25rem, calc((min(100vw, 30rem) - 2 * var(--marge) - 3.25rem) / (var(--lettres, 14) * .6))); }
-.nom-actif { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
+.ecran-attente:not(.attente-sans-carte) .titre-tour {
+  font-size: clamp(.875rem, calc((min(100vw, 30rem) - 2 * var(--marge) - 3.5rem) / var(--lettres, 14)), 2.25rem);
+}
+.nom-actif { display: inline; }   /* phase 7 : même ligne de base que « Au tour de » */
+.nom-actif .embleme { display: inline-block; margin-left: 8px; vertical-align: middle; }
 
 /* Emblèmes : images de la propriétaire (fond transparent), carrées ; agrandies en phase 7 pour qu'on les voie mieux. */
 .embleme { display: block; width: 2.75rem; height: 2.75rem; flex: none; object-fit: contain; }
@@ -654,7 +672,7 @@ h2 {
 .carte-entete .icone-image { width: max(11cqw, 2rem); height: max(11cqw, 2rem); }
 .carte-filigrane { width: 48cqw; height: auto; aspect-ratio: 150 / 12; flex: none; color: var(--c-ambre); }
 .carte-texte {
-  margin: 0;
+  margin: auto 0;   /* phase 7 : type et filigrane en haut, texte centré dans la place restante */
   color: var(--c-lune);
   font: 400 max(6.5cqw, 1.25rem)/1.5 var(--f-texte);
   overflow-wrap: break-word;
@@ -695,7 +713,7 @@ h2 {
 /* Écran des autres : le bloc « Au tour de… » + carte (ou emblème en grand) est centré verticalement. */
 .ecran-attente .titre-tour { margin: auto 0 16px; }
 .ecran-attente .carte { margin: 0 auto auto; }
-.embleme-attente { align-self: center; width: min(12rem, 60vw); height: min(12rem, 60vw); margin: 8px auto auto; }
+.embleme-attente { align-self: center; width: min(17rem, 75vw); height: min(17rem, 75vw); margin: 8px auto auto; }
 /* Phase 7 : ce n'est pas votre tour. Le titre, l'emblème et la carte sont un peu ternis (moins saturés, moins
    lumineux) ; le texte reste très contrasté sur le fond nuit. Le pied (effets, absence) garde son éclat. */
 .ecran-attente > .compteur, .ecran-attente > .titre-tour, .ecran-attente > .carte, .ecran-attente > .embleme-attente {
@@ -793,6 +811,12 @@ h2 {
   transition: transform 150ms var(--ease);
 }
 .bouton-echange:active { transform: scale(.97); }
+
+/* Phase 7 (remarque 34) : éclat d'étoiles quand un effet en cours disparaît (dom animé par ecrans.js, transform et
+   opacité seulement ; rien avec prefers-reduced-motion). */
+.eclat { position: fixed; z-index: 5; width: 0; height: 0; pointer-events: none; }
+.eclat-brin { position: absolute; left: 0; top: 0; width: 10px; height: 10px; color: var(--c-ambre); }
+.eclat-brin:nth-child(2n) { color: var(--c-etoile); width: 7px; height: 7px; }
 
 /* ---------- Transition de 2 secondes ---------- */
 .ecran-transition .transition-corps {
@@ -922,7 +946,10 @@ h2 {
 /* ---------- Salle d'attente ---------- */
 /* Blocs masqués par l'attribut hidden (salle en réseau : formulaire ou avis « complète »). */
 .salle-corps [hidden], .barre-bas[hidden], .barre-bas [hidden] { display: none; }
-.salle-corps { padding-bottom: 8px; }
+.salle-corps { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
+/* Phase 7 : premier écran, le prénom (libellé et champ) centré verticalement ; deuxième écran, les emblèmes. */
+.salle-prenom { margin: auto 0; }
+.salle-emblemes { margin-top: 4px; }
 .code-partie {
   display: flex;
   flex-wrap: wrap;
@@ -990,20 +1017,21 @@ h2 {
   transition: transform 150ms var(--ease);
 }
 .embleme-choix:active { transform: scale(.97); }
-.embleme-choix:focus-visible { outline: 2px solid var(--c-etoile); outline-offset: 2px; }
+.embleme-choix:focus-visible { outline: 2px solid var(--c-etoile); outline-offset: 3px; }
 /* L'image seule, aussi grande que la case le permet ; le nom de l'emblème est son texte alternatif. */
-.embleme-image { display: block; width: min(100%, 5.5rem); height: auto; aspect-ratio: 1; object-fit: contain; }
+/* Phase 7 (remarque 26) : deux par ligne, quatre lignes, aussi grands que la largeur et la hauteur de l'écran le
+   permettent (place laissée au code, au libellé et au bouton du bas). */
+.embleme-image { display: block; width: min(100%, calc((100dvh - 300px) * .25)); min-width: 4.5rem; height: auto; aspect-ratio: 1; object-fit: contain; }
 .embleme-choix[aria-checked="true"] {
-  background: radial-gradient(circle closest-side, #F0A35E55, #F0A35E22 60%, transparent 100%);
+  background: radial-gradient(circle closest-side, #F0A35E77, #F0A35E33 55%, transparent 100%);
 }
-.embleme-choix[aria-checked="true"] .embleme-image { filter: drop-shadow(0 0 6px var(--c-ambre)) drop-shadow(0 0 2px var(--c-ambre)); }
 /* Verrouillé après « Je rejoins l'aventure » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
 .embleme-choix:disabled:not(.embleme-pris) { cursor: default; }
 .embleme-choix:disabled:not(.embleme-pris)[aria-checked="false"] { opacity: .45; }
 .embleme-pris, .embleme-pris:disabled {
   cursor: not-allowed;
-  filter: grayscale(1) brightness(.7);
-  opacity: .35;
+  filter: grayscale(1);
+  opacity: .4;
 }
 
 .avis-complete {

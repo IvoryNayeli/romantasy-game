@@ -36,6 +36,8 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     const suivant = (a, b) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
     const vp = getComputedStyle(code.querySelector('.code-valeur'));
     return {
+      // Phase 7 : deux écrans successifs ; avant « Je rejoins l'aventure », la liste est masquée.
+      listeMasquee: Boolean(titre.closest('[hidden]')) && Boolean(liste.closest('[hidden]')),
       presents: Boolean(code && formulaire && titre && liste),
       ordreDom: suivant(code, formulaire) && suivant(formulaire, titre) && suivant(titre, liste),
       tops: [haut(code), haut(formulaire), haut(titre), haut(liste)],
@@ -52,7 +54,8 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
   const verifierOrdreSalle = (b, contexteTexte) => {
     assert.ok(b.presents, `${contexteTexte} : bloc manquant`);
     assert.ok(b.ordreDom, `${contexteTexte} : ordre du DOM incorrect (code, menu, liste)`);
-    assert.ok(b.tops[0] < b.tops[1] && b.tops[1] < b.tops[2] && b.tops[2] < b.tops[3], `${contexteTexte} : ordre visuel incorrect ${b.tops}`);
+    assert.ok(b.tops[0] < b.tops[1], `${contexteTexte} : ordre visuel incorrect ${b.tops}`);
+    assert.ok(b.listeMasquee, `${contexteTexte} : la liste du groupe ne doit apparaître qu'après « Je rejoins l'aventure »`);
     assert.ok(b.contientPrenom && b.contientEmblemes === A.emblemes.length, `${contexteTexte} : le menu doit contenir le prénom et les ${A.emblemes.length} emblèmes`);
     assert.equal(b.titreTexte, 'La compagnie');
     // « Discret » : petit, couleur secondaire, pas un titre, plus petit que le texte du menu.
@@ -156,7 +159,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await fermer(page);
   });
 
-  it('Créer : dans la salle, la personne est hôte (étiquette, bouton « Commencer la quête » présent et inactif seule), prénom et emblème obligatoires', async () => {
+  it('Créer : dans la salle, la personne est hôte (étiquette, « Commencer la quête » seulement dans la salle d\'attente), prénom et emblème obligatoires', async () => {
     const page = await ouvrir('index.html?ecran=creer');
     await page.locator('.code-option').filter({ hasText: /^\s*AURORE\s*$/ }).click();
     await page.locator('button[type=submit]').click();
@@ -166,7 +169,13 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.equal(await page.locator('.joueur-ligne.joueur-soi').count(), 1);
     const pret = page.getByRole('button', { name: /Je rejoins l.aventure/i });
     assert.ok(await pret.isDisabled(), 'Je rejoins l\'aventure inactif sans prénom ni emblème');
-    assert.ok(await page.getByRole('button', { name: /Commencer la quête/i }).isDisabled());
+    assert.equal(await page.getByRole('button', { name: /Commencer la quête/i }).count(), 0, 'premier écran : pas encore « Commencer »');
+    await page.locator('#champ-prenom').fill('Robin');
+    await page.getByRole('radio', { name: /Démon/i }).click();
+    await pret.click();
+    assert.ok(await page.locator('.liste-joueurs').isVisible(), 'second écran : la salle d\'attente et sa liste');
+    assert.ok(await page.locator('.formulaire').isHidden(), 'second écran : plus de formulaire');
+    assert.ok(await page.getByRole('button', { name: /Commencer la quête/i }).isEnabled(), 'hôte + une autre personne : commencer actif');
     assert.equal(await page.getByRole('button', { name: /copier|partager/i }).count(), 0);
     await ctx.capture(page, 'salle-apres-creer-360', { fullPage: true });
     await fermer(page);
@@ -322,19 +331,19 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await fermer(seule);
   });
 
-  it('salle : après « Je rejoins l\'aventure », « C\'est bon » est définitif (bouton inactif, clic sans effet, prénom et emblèmes verrouillés)', async () => {
+  it('salle : après « Je rejoins l\'aventure », « C\'est bon » est définitif (salle d\'attente, prénom et emblèmes verrouillés)', async () => {
     const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1&code=RUNE');
     await page.locator('#champ-prenom').fill('Robin');
     await page.getByRole('radio', { name: /Démon/i }).click();
     await page.getByRole('button', { name: /Je rejoins l.aventure/i }).click();
-    const bouton = page.getByRole('button', { name: /C'est bon/i });
-    assert.ok(await bouton.isDisabled(), 'le bouton est inactif une fois validé');
-    await bouton.click({ force: true });
-    assert.match(await page.locator('.joueur-soi').textContent(), /C'est bon/i, 'un second clic ne doit pas annuler');
+    // Phase 7 : on passe à la salle d'attente ; le formulaire (prénom, emblèmes) est masqué et verrouillé.
+    assert.match(await page.locator('.joueur-soi').textContent(), /C'est bon/i);
+    assert.match(await page.locator('.joueur-soi').textContent(), /ROBIN/, 'prénom en majuscules');
     assert.equal(await page.getByRole('button', { name: /Je rejoins l.aventure/i }).count(), 0);
+    assert.ok(await page.locator('.formulaire').isHidden(), 'formulaire masqué');
     assert.ok(await page.locator('#champ-prenom').isDisabled(), 'prénom verrouillé');
     assert.equal(await page.locator('.embleme-choix:not(:disabled)').count(), 0, 'emblèmes verrouillés');
-    assert.equal(await page.getByRole('radio', { name: /Démon/i }).getAttribute('aria-checked'), 'true');
+    assert.equal(await page.locator('.embleme-choix[aria-checked="true"] img[alt="Démon"]').count(), 1);
     assert.ok(await page.getByRole('button', { name: /Commencer la quête/i }).isEnabled(), 'l\'hôte peut commencer');
     await fermer(page);
   });
@@ -409,7 +418,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     const bouton = page.getByRole('button', { name: /Je rejoins l.aventure/i });
     const commencer = page.getByRole('button', { name: /Commencer la quête/i });
     assert.ok(await bouton.isDisabled());
-    assert.ok(await commencer.isDisabled());
+    assert.equal(await commencer.count(), 0, 'premier écran : prénom et emblème seulement');
     await page.locator('#champ-prenom').fill('Robin');
     await page.getByRole('radio', { name: /Démon/i }).click();
     await bouton.click();
@@ -462,7 +471,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await page.locator('#champ-prenom').fill('Maé');
     await page.locator('.embleme-choix:not(:disabled)').first().click();
     await page.getByRole('button', { name: /Je rejoins l.aventure/i }).click();
-    assert.match(await page.locator('.joueur-soi').textContent(), /Maé/);
+    assert.match(await page.locator('.joueur-soi').textContent(), /MAÉ/, 'prénom en majuscules, accent conservé');
     assert.match(await page.locator('.joueur-soi').textContent(), /C'est bon/i);
     assert.equal(await page.getByRole('button', { name: /Commencer la quête/i }).count(), 0);
     await ctx.capture(page, 'parcours-rejoindre-salle-412', { fullPage: true });

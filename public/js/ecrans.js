@@ -317,11 +317,11 @@ export function majuscules(texte) {
   return String(texte).toLocaleUpperCase('fr');
 }
 
-// Grille du choix de l'emblème : deux lignes (phase 7, huit emblèmes : deux lignes de quatre).
+// Grille du choix de l'emblème (phase 7) : deux emblèmes par ligne (huit emblèmes : quatre lignes).
 export function grilleEmblemes(donnees) {
   return h('div', {
     classe: 'grille-emblemes', role: 'radiogroup', 'aria-label': T.salle.embleme,
-    style: `--colonnes:${Math.ceil(donnees.emblemes.length / 2)}`,
+    style: `--colonnes:${Math.min(2, donnees.emblemes.length)}`,
   });
 }
 
@@ -332,6 +332,9 @@ export function enteteSalle(code) {
     h('span', { classe: 'code-valeur' }, code));
 }
 
+// Salle d'attente fictive (phase 7) : trois écrans successifs. 1. le prénom (« Je suis là ! ») ; 2. l'emblème
+// (« Je rejoins l'aventure », qui confirme la présence) ; 3. la salle d'attente et sa liste (l'hôte y a
+// « Commencer la quête »). ?etape=embleme ouvre directement le deuxième écran (avec ?prenom=…).
 export function salle({ donnees, params, naviguer }) {
   const S = T.salle;
   const max = donnees.config.joueursMax;
@@ -347,15 +350,14 @@ export function salle({ donnees, params, naviguer }) {
   const embleParam = params.get('embleme');
   if (embleParam && !pris.has(embleParam) && donnees.emblemes.some((e) => e.id === embleParam)) moi.embleme = embleParam;
   moi.pret = params.get('pret') === '1' && Boolean(moi.prenom.trim() && moi.embleme);
+  let etape = params.get('etape') === 'embleme' && moi.prenom.trim() ? 'embleme' : 'prenom';
 
   const liste = h('ul', { classe: 'liste-joueurs', 'aria-labelledby': 'titre-groupe' });
   const grille = grilleEmblemes(donnees);
   const boutonsEmbleme = new Map();
-  const champ = h('input', {
-    classe: 'champ', id: 'champ-prenom', type: 'text', value: moi.prenom, autocomplete: 'off',
-    autocapitalize: 'words', spellcheck: 'false', enterkeyhint: 'done',
-  });
-  const boutonPret = h('button', { classe: 'bouton bouton-principal', type: 'button' });
+  const champ = champPrenom(moi.prenom);
+  const boutonSuivant = h('button', { classe: 'bouton bouton-principal', type: 'button' }, h('span', null, S.suivant));
+  const boutonPret = h('button', { classe: 'bouton bouton-principal', type: 'button' }, h('span', null, S.pretBouton));
   const boutonCommencer = h('button', {
     classe: 'bouton bouton-principal', type: 'button',
     onclick: () => naviguer({ ecran: 'choix', tour: 1 }),
@@ -374,22 +376,21 @@ export function salle({ donnees, params, naviguer }) {
   }
 
   function majBoutons() {
-    const valide = Boolean(moi.prenom.trim() && moi.embleme);
-    if (!valide) moi.pret = false;
-    // Une fois « C'est bon » validé, plus de retour en arrière : bouton, prénom et emblème sont verrouillés.
-    boutonPret.disabled = !valide || moi.pret;
-    boutonPret.setAttribute('aria-pressed', String(moi.pret));
-    boutonPret.className = `bouton ${moi.pret ? 'bouton-secondaire bouton-valide' : 'bouton-principal'}`;
-    boutonPret.replaceChildren(...(moi.pret ? [icone('coche')] : []), h('span', null, moi.pret ? S.pret : S.pretBouton));
+    if (!(moi.prenom.trim() && moi.embleme)) moi.pret = false;
+    const ecranCourant = complete || moi.pret ? 'salle' : etape;
+    // Une fois la présence confirmée, plus de retour en arrière : prénom et emblème sont verrouillés.
+    boutonSuivant.disabled = !moi.prenom.trim();
+    boutonPret.disabled = !(moi.prenom.trim() && moi.embleme) || moi.pret;
     boutonCommencer.disabled = autres.length + (moi.pret ? 1 : 0) < JOUEURS_MINIMUM;
     champ.disabled = moi.pret;
-    // Phase 7 : deux écrans successifs. D'abord prénom + emblème ; une fois la présence confirmée, la salle
-    // d'attente avec la liste. L'hôte garde « Commencer la quête » dans la salle d'attente.
-    const enSalle = complete || moi.pret;
-    etapeFiche.hidden = enSalle;
-    etapeSalle.hidden = !enSalle;
-    boutonPret.hidden = enSalle;
-    if (barre) barre.hidden = enSalle && !estHote;
+    etapePrenom.hidden = ecranCourant !== 'prenom';
+    etapeEmbleme.hidden = ecranCourant !== 'embleme';
+    etapeSalle.hidden = ecranCourant !== 'salle';
+    boutonSuivant.hidden = ecranCourant !== 'prenom';
+    boutonPret.hidden = ecranCourant !== 'embleme';
+    boutonCommencer.hidden = ecranCourant !== 'salle' || !estHote;
+    if (barre) barre.hidden = ecranCourant === 'salle' && !estHote;
+    noeud.dataset.etape = ecranCourant;
     for (const [id, bouton] of boutonsEmbleme) {
       bouton.setAttribute('aria-checked', String(moi.embleme === id));
       bouton.disabled = moi.pret || pris.has(id);
@@ -411,30 +412,47 @@ export function salle({ donnees, params, naviguer }) {
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }
+  const suivant = () => { if (moi.prenom.trim()) { etape = 'embleme'; maj(); window.scrollTo(0, 0); } };
   champ.addEventListener('input', () => { moi.prenom = majuscules(champ.value); moi.pret = false; maj(); });
+  champ.addEventListener('keydown', (e) => { if (e.key === 'Enter') suivant(); });
+  boutonSuivant.addEventListener('click', suivant);
   boutonPret.addEventListener('click', () => { if (!moi.pret) { moi.pret = true; maj(); window.scrollTo(0, 0); } });
 
-  const formulaire = complete
-    ? h('p', { classe: 'panneau avis-complete', role: 'status' }, coins(), S.complete)
-    : h('div', { classe: 'formulaire' },
-      h('label', { classe: 'etiquette-champ', for: 'champ-prenom' }, S.prenomLibelle),
-      champ,
-      h('p', { classe: 'etiquette-champ' }, S.embleme),
-      grille);
-
-  // Ordre voulu par la propriétaire : code (discret), puis prénom + emblème ; ensuite seulement, la salle d'attente.
-  const etapeFiche = h('div', { classe: 'salle-etape salle-fiche' }, complete ? null : formulaire);
+  const etapePrenom = etapeSaisiePrenom(champ);
+  const etapeEmbleme = etapeChoixEmbleme(grille);
   const etapeSalle = h('div', { classe: 'salle-etape salle-attente' },
-    complete ? formulaire : null,
+    complete ? h('p', { classe: 'panneau avis-complete', role: 'status' }, coins(), S.complete) : null,
     h('h2', { classe: 'titre-liste', id: 'titre-groupe' }, S.groupe),
     liste,
     h('p', { classe: 'texte texte-centre' }, S.accompagnement));
-  const barre = complete ? null : barreBas(boutonPret, estHote ? boutonCommencer : null);
+  const barre = complete ? null : barreBas(boutonSuivant, boutonPret, estHote ? boutonCommencer : null);
   const noeud = h('section', { classe: 'ecran ecran-salle' },
-    h('div', { classe: 'salle-corps' }, enteteSalle(code), etapeFiche, etapeSalle),
+    h('div', { classe: 'salle-corps' }, enteteSalle(code), etapePrenom, etapeEmbleme, etapeSalle),
     barre);
   maj();
   return { noeud };
+}
+
+// Champ du prénom (salle fictive et en réseau) : affiché et converti en majuscules.
+export function champPrenom(valeur = '', maxlength = null) {
+  return h('input', {
+    classe: 'champ', id: 'champ-prenom', type: 'text', value: valeur, autocomplete: 'off',
+    autocapitalize: 'characters', spellcheck: 'false', enterkeyhint: 'next', maxlength: maxlength ? String(maxlength) : null,
+  });
+}
+
+// Premier écran : le prénom, centré verticalement.
+export function etapeSaisiePrenom(champ) {
+  return h('div', { classe: 'salle-etape salle-prenom formulaire' },
+    h('label', { classe: 'etiquette-champ', for: 'champ-prenom' }, T.salle.prenomLibelle),
+    champ);
+}
+
+// Deuxième écran : l'emblème, deux par ligne, aussi grands que possible.
+export function etapeChoixEmbleme(grille) {
+  return h('div', { classe: 'salle-etape salle-emblemes formulaire' },
+    h('p', { classe: 'etiquette-champ' }, T.salle.embleme),
+    grille);
 }
 
 export function choix({ donnees, params }) {
@@ -504,19 +522,27 @@ export function attente({ donnees, params }) {
   // ?absent=1 (phase 6) : la personne dont c'est le tour est hors ligne et son tour peut être passé (sans effet ici).
   const absence = params.get('absent') === '1' ? blocAbsence() : null;
   if (absence) absence.majAbsence({ prenom, passer: () => {} });
-  return {
-    noeud: vueAttente(donnees, {
-      pied: absence ? absence.noeud : null,
-      tour: tourDepuisParametres(donnees, params),
-      // ?etape=choix (phase 7) : la personne dont c'est le tour n'a pas encore choisi sa carte.
-      carte: params.get('etape') === 'choix' ? null : carteDepuisParametres(donnees, params),
-      actif: {
-        prenom,
-        embleme: emblemeParId(donnees, params.get('embleme') || premier.embleme),
-      },
-      effets: params.get('effets') === '0' ? [] : effetsEnCours(donnees),
-    }),
-  };
+  // Effets fictifs (numérotés pour la démonstration de l'échange). ?echange=1 (phase 7) : bouton « Échange de
+  // butins fait » de démonstration, qui retire l'effet sur place et montre l'éclat d'étoiles.
+  let effets = params.get('effets') === '0' ? [] : effetsEnCours(donnees).map((e, i) => ({ ...e, carte: `demo-${i}` }));
+  let noeud = null;
+  const signaler = params.get('echange') === '1' ? (carte) => {
+    effets = effets.filter((e) => e.carte !== carte);
+    remplacerPanneauEffets(noeud, panneauEffets(donnees, effets, signaler));
+  } : null;
+  noeud = vueAttente(donnees, {
+    pied: absence ? absence.noeud : null,
+    tour: tourDepuisParametres(donnees, params),
+    // ?etape=choix (phase 7) : la personne dont c'est le tour n'a pas encore choisi sa carte.
+    carte: params.get('etape') === 'choix' ? null : carteDepuisParametres(donnees, params),
+    actif: {
+      prenom,
+      embleme: emblemeParId(donnees, params.get('embleme') || premier.embleme),
+    },
+    effets,
+    signaler,
+  });
+  return { noeud };
 }
 
 // Bandeau « Effets en cours », visible par tout le monde, en bas de l'écran (pied de tour). Phase 7 : petit bandeau
@@ -538,6 +564,55 @@ export function panneauEffets(donnees, effets, signaler = null) {
       }, T.effets.echange) : null))));
 }
 
+// Largeur estimée de « Au tour de [prénom] », en em (minuscules environ 0,45 em, capitales du prénom 0,7 em) :
+// la taille du titre s'en déduit pour tenir sur une ligne (style.css).
+function largeurTitre(prenom) {
+  return (T.tour.auTourDe.length + 1) * 0.45 + String(prenom).length * 0.7;
+}
+
+// Remplace sur place le bandeau des effets d'un écran (fin d'un effet par échange de butins), sans reconstruire
+// l'écran. Phase 7 (remarque 34) : quand un effet disparaît, petit éclat d'étoiles qui se dispersent depuis le bandeau.
+// Renvoie false si l'écran n'avait pas de bandeau alors qu'il en faut un (l'appelant reconstruit l'écran).
+export function remplacerPanneauEffets(ecran, nouveau) {
+  const ancien = ecran.querySelector('.effets-en-cours');
+  if (!ancien) return !nouveau;
+  const avant = ancien.querySelectorAll('.effets-item').length;
+  const apres = nouveau ? nouveau.querySelectorAll('.effets-item').length : 0;
+  if (apres < avant) {
+    const r = ancien.querySelector('.effets-titre').getBoundingClientRect();
+    eclatEtoiles(r.left + r.width / 2, r.top + r.height / 2);
+  }
+  if (nouveau) {
+    nouveau.open = ancien.open; // le bandeau reste déroulé s'il l'était
+    ancien.replaceWith(nouveau);
+  } else {
+    const pied = ancien.parentElement;
+    ancien.remove();
+    if (pied && pied.classList.contains('pied-tour') && !pied.children.length) pied.remove();
+  }
+  return true;
+}
+
+// Éclat d'étoiles discret (une dizaine d'étincelles qui s'écartent en s'effaçant, moins d'une seconde), posé
+// au-dessus de la page sans gêner le toucher. Rien avec prefers-reduced-motion (réglage du système).
+export function eclatEtoiles(x, y) {
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const eclat = h('div', { classe: 'eclat', 'aria-hidden': 'true', style: `left:${x}px;top:${y}px` });
+  const nombre = 10;
+  for (let i = 0; i < nombre; i += 1) {
+    const angle = (i / nombre) * 2 * Math.PI + (i % 2) * 0.3;
+    const distance = 36 + (i % 3) * 14;
+    const brin = etincelle('eclat-brin');
+    eclat.append(brin);
+    brin.animate([
+      { transform: 'translate(-50%, -50%) scale(.6)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(.2)`, opacity: 0 },
+    ], { duration: 700 + (i % 3) * 100, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
+  }
+  document.body.append(eclat);
+  setTimeout(() => eclat.remove(), 1000);
+}
+
 // Vue des autres personnes pendant un tour (écran un peu terni : ce n'est pas leur tour). Phase 7 : « Au tour de
 // [prénom] » ; tant que la carte n'est pas choisie, l'emblème en grand dessous ; ensuite, l'emblème après le prénom
 // et la carte tirée, sans boutons. En bas : effets en cours, puis `pied` (phase 6, bloc d'absence de blocAbsence()).
@@ -545,7 +620,7 @@ export function vueAttente(donnees, { tour, carte: c = null, actif, effets = [],
   return h('section', { classe: `ecran ecran-attente${c ? '' : ' attente-sans-carte'}` },
     compteurEl(donnees, tour),
     // Une seule ligne (phase 7) : la taille du titre suit sa longueur (--lettres, voir style.css).
-    h('h2', { classe: 'titre-tour', style: `--lettres:${T.tour.auTourDe.length + 1 + String(actif.prenom).length}` },
+    h('h2', { classe: 'titre-tour', style: `--lettres:${largeurTitre(actif.prenom)}` },
       `${T.tour.auTourDe} `, h('span', { classe: 'nom-actif' }, actif.prenom, c ? emblemeEl(actif.embleme) : null)),
     c ? carteEl(c, 'autre') : emblemeEl(actif.embleme, 'embleme-grand embleme-attente'),
     piedTour(panneauEffets(donnees, effets, signaler), pied));
@@ -579,7 +654,6 @@ export function transition({ donnees, params, naviguer }) {
     bouclier: params.get('bouclier') === '1',
     passe: params.get('passe') === '1',
     prenom: majuscules(params.get('prenom') || acteur.prenom),
-    embleme: emblemeParId(donnees, params.get('embleme') || acteur.embleme),
   });
   let minuteur = null;
   if (params.get('auto') === '1') {
@@ -598,15 +672,15 @@ function texteTransition({ bouclierInvoque, passe, prenom }) {
   return bouclierInvoque ? T.tour.transitionBouclier(prenom) : T.tour.transitionJete(prenom);
 }
 
-export function vueTransition(donnees, { tour, bouclier: bouclierInvoque, passe = false, prenom, embleme: emb }) {
+export function vueTransition(donnees, { tour, bouclier: bouclierInvoque, passe = false, prenom }) {
   const bouclier = bouclierInvoque || passe;
   return h('section', { classe: `ecran ecran-transition${bouclier ? ' transition-bouclier' : ''}` },
     compteurEl(donnees, tour),
     cielLibre('orion'),
     h('div', { classe: 'transition-corps', role: 'status' },
       h('div', { classe: 'transition-icone' }, icone(bouclier ? 'bouclier' : 'etoile', 'icone-presence')),
-      h('p', { classe: 'transition-texte' }, texteTransition({ bouclierInvoque, passe, prenom })),
-      emblemeEl(emb, 'embleme-grand')),
+      // Phase 7 : plus d'emblème ici, l'étoile ou le bouclier suffit (remarque 33).
+      h('p', { classe: 'transition-texte' }, texteTransition({ bouclierInvoque, passe, prenom }))),
     cielLibre('croix', 2.4));
 }
 
