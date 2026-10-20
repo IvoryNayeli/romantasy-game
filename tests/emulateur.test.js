@@ -157,9 +157,9 @@ describe('émulateur : salle d\'attente en réseau', () => {
     await S.rejoindrePartie(autre.c.fb, { code: 'ELIXIR', id: autre.id });
 
     assert.equal((await S.confirmerPresence(hote.fb, { code: 'ELIXIR', id: idHote, prenom: 'Léa' })).issue, S.ISSUES.REFUSE, 'sans emblème');
-    await S.choisirEmbleme(hote.fb, { code: 'ELIXIR', id: idHote, embleme: 'dragon' });
+    await S.choisirEmbleme(hote.fb, { code: 'ELIXIR', id: idHote, embleme: 'demon' });
     await S.choisirEmbleme(hote.fb, { code: 'ELIXIR', id: idHote, embleme: 'fee' });
-    assert.equal((await S.choisirEmbleme(autre.c.fb, { code: 'ELIXIR', id: autre.id, embleme: 'dragon' })).issue, S.ISSUES.OK, 'dragon libéré');
+    assert.equal((await S.choisirEmbleme(autre.c.fb, { code: 'ELIXIR', id: autre.id, embleme: 'demon' })).issue, S.ISSUES.OK, 'démon libéré');
     assert.equal((await S.choisirEmbleme(autre.c.fb, { code: 'ELIXIR', id: autre.id, embleme: 'fee' })).issue, S.ISSUES.PRIS);
 
     assert.equal((await S.confirmerPresence(hote.fb, { code: 'ELIXIR', id: idHote, prenom: '   ' })).issue, S.ISSUES.REFUSE, 'prénom vide');
@@ -302,7 +302,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
 
     it('taille : prénom borné, places bornées par max, pas plus de places que d\'emblèmes', async () => {
       const avecPrenom = (prenom) => base({
-        joueurs: { [idA]: { rang: 0, pret: true, prenom, embleme: 'dragon' } }, emblemes: { dragon: idA },
+        joueurs: { [idA]: { rang: 0, pret: true, prenom, embleme: 'demon' } }, emblemes: { demon: idA },
       });
       await refuse('parties/RUNE', avecPrenom('x'.repeat(25)), 'prénom de 25 caractères');
       await refuse('parties/RUNE', avecPrenom(''), 'prénom vide');
@@ -329,15 +329,15 @@ describe('émulateur : salle d\'attente en réseau', () => {
       await accepte('parties/RUNE', { nb: 2, actif: ts, [`joueurs/${idB}`]: { rang: 1, pret: false } }, 'arrivée au bon rang', 'PATCH');
       await refuse('parties/RUNE', { nb: 3, actif: ts, [`joueurs/${'c'.repeat(32)}`]: { rang: 1, pret: false } }, 'arrivée avec un rang déjà pris', 'PATCH');
       await E.viderBase();
-      await accepte('parties/RUNE', base({ joueurs: { [idA]: { rang: 0, pret: false, embleme: 'dragon' } }, emblemes: { dragon: idA } }), 'base');
-      await refuse('parties/RUNE/joueurs/' + idB, { rang: 1, pret: false, embleme: 'dragon' }, 'même emblème qu\'une autre personne');
-      await refuse('parties/RUNE/emblemes/dragon', idB, 'emblème réattribué sans changer la fiche');
+      await accepte('parties/RUNE', base({ joueurs: { [idA]: { rang: 0, pret: false, embleme: 'demon' } }, emblemes: { demon: idA } }), 'base');
+      await refuse('parties/RUNE/joueurs/' + idB, { rang: 1, pret: false, embleme: 'demon' }, 'même emblème qu\'une autre personne');
+      await refuse('parties/RUNE/emblemes/demon', idB, 'emblème réattribué sans changer la fiche');
       await refuse('parties/RUNE/emblemes/griffon', idA, 'emblème inconnu');
       await refuse('parties/RUNE/joueurs/' + idA + '/rang', 3, 'rang modifié');
       await refuse('parties/RUNE/nb', 3, 'nb qui saute une arrivée');
       await refuse('parties/RUNE/hote', idB, 'hôte remplacé');
       await refuse('parties/RUNE', base({ hote: idB, joueurs: { [idB]: { rang: 0, pret: false } } }), 'code en cours repris par une autre partie');
-      await accepte('parties/RUNE/joueurs/' + idA, { rang: 0, pret: true, prenom: 'Léa', embleme: 'dragon' }, 'présence confirmée');
+      await accepte('parties/RUNE/joueurs/' + idA, { rang: 0, pret: true, prenom: 'Léa', embleme: 'demon' }, 'présence confirmée');
       await refuse('parties/RUNE/joueurs/' + idA + '/pret', false, 'présence retirée');
       await refuse('parties/RUNE/joueurs/' + idA + '/prenom', 'Tom', 'prénom changé après « Je suis là »');
       await refuse('parties/RUNE/statut', 'partie', 'départ sans l\'ordre des présences');
@@ -355,7 +355,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
       await refuse('parties/RUNE/ordre', [idB, idA], 'ordre réécrit');
       await refuse('parties/RUNE', { nb: 3, actif: ts, [`joueurs/${'c'.repeat(32)}`]: { rang: 2, pret: false } }, 'arrivée après le départ', 'PATCH');
       await refuse(`parties/RUNE/joueurs/${idA}`, undefined, 'personne prête retirée', 'DELETE');
-      await refuse('parties/RUNE/emblemes/dragon', undefined, 'emblème libéré alors que la personne le porte', 'DELETE');
+      await refuse('parties/RUNE/emblemes/demon', undefined, 'emblème libéré alors que la personne le porte', 'DELETE');
 
       // Partie expirée : une simple écriture ne la fait pas revivre (seule une nouvelle création la remplace).
       const vieux = Date.now() - S.EXPIRATION_SALLE_MS - 60000;
@@ -370,7 +370,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
       await refuse('parties/ONYX/max', config.joueursMax, 'max réécrit');
       await refuse(`parties/ONYX/joueurs/${idA}/pret`, false, 'fiche réécrite');
       await refuse(`parties/ONYX/joueurs/${idA}`, undefined, 'personne retirée', 'DELETE');
-      await refuse('parties/ONYX/emblemes', { dragon: idA }, 'emblèmes réécrits');
+      await refuse('parties/ONYX/emblemes', { demon: idA }, 'emblèmes réécrits');
       await refuse('parties/ONYX/intrus', 1, 'champ inconnu');
       await accepte('parties/ONYX', undefined, 'suppression de la partie expirée', 'DELETE');
       await accepte('parties/ONYX', base({ hote: idB, joueurs: { [idB]: { rang: 0, pret: false } } }), 'nouvelle partie sur l\'emplacement libéré');

@@ -530,8 +530,10 @@ test('images : chaque emblème a son image, les images référencées existent, 
   }
   const presentes = listerFichiers(path.join(PUBLIC, 'img'), /\.\w+$/).map((f) => path.relative(PUBLIC, f).split(path.sep).join('/'));
   assert.deepEqual(presentes.sort(), [...references].sort(), 'images de public/img/ = images référencées');
-  const racine = fs.readdirSync(RACINE).filter((n) => /\.(png|jpe?g|webp)$/i.test(n));
-  assert.deepEqual(racine, [], 'plus d\'image déposée à la racine du projet');
+  // Images déposées par la propriétaire à la racine (remarque 1 de la phase 7) : déplacées, il n'en reste aucune.
+  const deposees = ['logo.png', 'épée.png', 'étoile.png', 'Gemini_Generated_Image_ntcqu3ntcqu3ntcq(8).png',
+    ...Array.from({ length: 7 }, (_, i) => `avatar_${i + 1}.png`)];
+  assert.deepEqual(deposees.filter((n) => fs.existsSync(path.join(RACINE, n))), [], 'images de la remarque encore à la racine');
 });
 
 test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf bouclier et sort jeté) ; un seul calque de grain par écran', () => {

@@ -390,7 +390,7 @@ h2 {
 .liste-types { margin: 0 0 16px; padding: 0; list-style: none; }
 .liste-types li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
 .liste-types .texte { margin: 0; }
-.type-puce { width: 1.75rem; height: 1.75rem; margin-top: 2px; }
+.type-puce { width: 2.25rem; height: 2.25rem; margin-top: 2px; }
 .type-epreuve .type-puce { color: var(--c-braise); }
 .type-revelation .type-puce { color: var(--c-lune); }
 
@@ -469,6 +469,7 @@ h2 {
 .carte .coin { color: var(--rarete); }
 .dos-logo { width: 52cqw; height: 52cqw; }
 .dos-symbole { width: max(9cqw, 1.25rem); height: max(9cqw, 1.25rem); }
+.dos-symbole.icone-image { width: max(16cqw, 2rem); height: max(16cqw, 2rem); }  /* image détaillée : plus grande que le trait fin */
 .dos-nom {
   font: 500 max(4.3cqw, .75rem)/1.2 var(--f-texte);
   letter-spacing: .25em;
@@ -538,6 +539,7 @@ h2 {
   text-transform: uppercase;
 }
 .carte-entete .icone { width: max(7cqw, 1.25rem); height: max(7cqw, 1.25rem); }
+.carte-entete .icone-image { width: max(11cqw, 2rem); height: max(11cqw, 2rem); }
 .carte-filigrane { width: 48cqw; height: auto; aspect-ratio: 150 / 12; flex: none; color: var(--c-ambre); }
 .carte-texte {
   margin: 0;

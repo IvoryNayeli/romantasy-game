@@ -91,11 +91,11 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     assert.match(await lignes(invite).nth(0).textContent(), /hôte/);
     assert.match(await lignes(invite).nth(1).textContent(), /toi/);
 
-    // L'invité prend le dragon : grisé chez l'hôte.
-    await invite.locator('.embleme-choix', { hasText: 'Dragon' }).click();
-    await hote.waitForSelector('.embleme-choix.embleme-pris:has-text("Dragon")', { timeout: 8000 });
-    assert.ok(await hote.locator('.embleme-choix', { hasText: 'Dragon' }).isDisabled());
-    await invite.waitForSelector('.embleme-choix[aria-checked="true"]:has-text("Dragon")');
+    // L'invité prend le démon : grisé chez l'hôte.
+    await invite.locator('.embleme-choix', { hasText: 'Démon' }).click();
+    await hote.waitForSelector('.embleme-choix.embleme-pris:has-text("Démon")', { timeout: 8000 });
+    assert.ok(await hote.locator('.embleme-choix', { hasText: 'Démon' }).isDisabled());
+    await invite.waitForSelector('.embleme-choix[aria-checked="true"]:has-text("Démon")');
 
     await hote.fill('#champ-prenom', 'Léa');
     await hote.locator('.embleme-choix', { hasText: 'Fée' }).click();
@@ -209,7 +209,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
       await page.waitForSelector('button[aria-pressed="true"]', { timeout: DELAI });
     };
     await presence(hote, 'Léa', 'Fée');
-    await presence(invite, 'Tom', 'Dragon');
+    await presence(invite, 'Tom', 'Démon');
     await sansPresence.fill('#champ-prenom', 'Noa');
     await sansPresence.locator('.embleme-choix', { hasText: 'Sirène' }).click();
     await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
@@ -331,7 +331,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await invite.locator('.ecran-rejoindre button[type=submit]').click();
     await invite.waitForSelector('.ecran-salle .code-valeur', { timeout: DELAI });
     await attendreLignes(hote, 2);
-    for (const [page, prenom, embleme] of [[hote, 'Léa', 'Fée'], [invite, 'Tom', 'Dragon']]) {
+    for (const [page, prenom, embleme] of [[hote, 'Léa', 'Fée'], [invite, 'Tom', 'Démon']]) {
       await page.fill('#champ-prenom', prenom);
       await page.locator('.embleme-choix', { hasText: embleme }).click();
       await page.waitForSelector(`.embleme-choix[aria-checked="true"]:has-text("${embleme}")`, { timeout: DELAI });

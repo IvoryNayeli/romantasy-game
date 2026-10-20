@@ -670,11 +670,11 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     it(`§6 cartes à ${largeur} px : 2:3, cqw (6cqw de marge, double filet à 2,2cqw, quatre étincelles à 3,5cqw), bordure et lueur par type, lettrine, type en légende, filigrane, sans coût ni nom ni image`, async () => {
       const defauts = [];
       for (const [nom, url, couleur, symbole, mot, lueur] of [
-        ['épreuve', 'index.html?ecran=carte&type=epreuve', 'rgb(217, 105, 58)', '#i-epee', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
-        ['révélation', 'index.html?ecran=carte&type=revelation', 'rgb(201, 216, 238)', '#i-etoile', 'Révélation', /rgba\(201, 216, 238, 0\.267\) 0px 0px 14px/],
+        ['épreuve', 'index.html?ecran=carte&type=epreuve', 'rgb(217, 105, 58)', 'img/epee.webp', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
+        ['révélation', 'index.html?ecran=carte&type=revelation', 'rgb(201, 216, 238)', 'img/etoile.webp', 'Révélation', /rgba\(201, 216, 238, 0\.267\) 0px 0px 14px/],
         ['durable', `index.html?ecran=carte&carte=${durable.id}&tour=2`, null, null, null, null],
         ['plus longue', `index.html?ecran=carte&carte=${A.plusLongue.id}`, null, null, null, null],
-        ['attente', 'index.html?ecran=attente&type=epreuve&tour=2', 'rgb(217, 105, 58)', '#i-epee', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
+        ['attente', 'index.html?ecran=attente&type=epreuve&tour=2', 'rgb(217, 105, 58)', 'img/epee.webp', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
       ]) {
         const page = await ouvrir(url, { largeur, hauteur: 800, reduit: true, dpr: 2 });
         const m = await page.evaluate(() => {
@@ -692,8 +692,8 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
             fond: sf.backgroundImage, filetInset: parseFloat(filet.top) / w, filetBordure: filet.borderTopWidth, filetCouleur: filet.borderTopColor,
             coins, texteCouleur: st.color, textePx: parseFloat(st.fontSize), texteFamille: st.fontFamily, texteInterligne: st.lineHeight,
             lettrine: { flottant: sl.float, famille: sl.fontFamily, graisse: sl.fontWeight, couleur: sl.color, px: parseFloat(sl.fontSize) },
-            enteteCouleur: se.color, enteteTexte: entete.textContent.trim(), enteteSymbole: entete.querySelector('use')?.getAttribute('href'), enteteCasse: se.textTransform,
-            ordre, interdits: document.querySelectorAll('.cout, .nom, .fenetre, .illustration, .carte img:not(.dos-logo), .carte picture, .carte canvas').length,
+            enteteCouleur: se.color, enteteTexte: entete.textContent.trim(), enteteSymbole: entete.querySelector('img.icone-image')?.getAttribute('src'), enteteCasse: se.textTransform,
+            ordre, interdits: document.querySelectorAll('.cout, .nom, .fenetre, .illustration, .carte img:not(.dos-logo):not(.icone-image), .carte picture, .carte canvas').length,
             filigrane: Boolean(face.querySelector('.carte-filigrane')),
           };
         });
@@ -747,7 +747,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
           return {
             w: r.width, h: r.height, bordure: sc.borderTopWidth, couleur: sc.borderTopColor, rayon: sc.borderTopLeftRadius, fond: sc.backgroundImage,
             avant: [avant.borderTopColor, avant.borderTopWidth, parseFloat(avant.top) / r.width], apres: [apres.borderTopColor, apres.borderTopWidth, parseFloat(apres.top) / r.width],
-            coins: corps.querySelectorAll('.coin').length, logo: logo.width / r.width, symbole: corps.querySelector('.dos-symbole use')?.getAttribute('href'), nom: corps.querySelector('.dos-nom').textContent.trim(),
+            coins: corps.querySelectorAll('.coin').length, logo: logo.width / r.width, symbole: corps.querySelector('img.dos-symbole')?.getAttribute('src'), nom: corps.querySelector('.dos-nom').textContent.trim(),
             nomPx: parseFloat(getComputedStyle(corps.querySelector('.dos-nom')).fontSize),
           };
         }, sel);
@@ -766,7 +766,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     });
   }
 
-  it('§5 logo : image du disque central, version complète (96 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
+  it('§5 logo : image de la propriétaire, version complète (96 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
     const accueil = await ouvrir('index.html?ecran=accueil', { reduit: true });
     const a = await accueil.evaluate(() => {
       const complet = document.querySelector('.logo-complet'); const image = document.querySelector('img.logo-grand'); const g = image.getBoundingClientRect();
@@ -787,10 +787,13 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     const acc = await page.evaluate(() => ({
       svgExposes: [...document.querySelectorAll('svg')].filter((s) => s.getAttribute('aria-hidden') !== 'true' && s.getAttribute('role') !== 'img').length,
       imagesSansNom: [...document.querySelectorAll('[role=img]')].filter((e) => !e.getAttribute('aria-label')).length,
+      imgSansAlt: [...document.querySelectorAll('img')].filter((e) => !e.hasAttribute('alt')).length,
+      imgNonChargees: [...document.querySelectorAll('img')].filter((e) => !(e.complete && e.naturalWidth > 0)).map((e) => e.getAttribute('src')),
+      emblemesNommes: [...document.querySelectorAll('.joueur-ligne img.embleme')].every((e) => e.alt.length > 0),
       champsSansEtiquette: [...document.querySelectorAll('input:not(.code-radio), select, textarea')].filter((e) => !(e.labels && e.labels.length) && !e.getAttribute('aria-label')).length,
       langue: document.documentElement.lang, titreDoc: document.title,
     }));
-    assert.deepEqual(acc, { svgExposes: 0, imagesSansNom: 0, champsSansEtiquette: 0, langue: 'fr', titreDoc: 'Romantasy' });
+    assert.deepEqual(acc, { svgExposes: 0, imagesSansNom: 0, imgSansAlt: 0, imgNonChargees: [], emblemesNommes: true, champsSansEtiquette: 0, langue: 'fr', titreDoc: 'Romantasy' });
     await fermer(page);
   });
 

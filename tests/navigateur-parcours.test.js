@@ -303,8 +303,8 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await page.locator('#champ-prenom').fill('Robin');
     assert.ok(await pret.isDisabled(), 'prêt(e) inactif sans emblème');
     assert.equal(await page.locator('.embleme-choix:disabled').count(), 1, 'l\'emblème pris est grisé');
-    await page.getByRole('radio', { name: /Dragon/i }).click();
-    assert.equal(await page.getByRole('radio', { name: /Dragon/i }).getAttribute('aria-checked'), 'true');
+    await page.getByRole('radio', { name: /Démon/i }).click();
+    assert.equal(await page.getByRole('radio', { name: /Démon/i }).getAttribute('aria-checked'), 'true');
     assert.ok(await pret.isEnabled());
     await pret.click();
     assert.ok(await page.getByRole('button', { name: /Commencer la quête/i }).isEnabled(), 'hôte prêt(e) + 1 autre : commencer actif');
@@ -325,7 +325,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
   it('salle : après « Je suis là », « C\'est bon » est définitif (bouton inactif, clic sans effet, prénom et emblèmes verrouillés)', async () => {
     const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1&code=RUNE');
     await page.locator('#champ-prenom').fill('Robin');
-    await page.getByRole('radio', { name: /Dragon/i }).click();
+    await page.getByRole('radio', { name: /Démon/i }).click();
     await page.getByRole('button', { name: /Je suis là/i }).click();
     const bouton = page.getByRole('button', { name: /C'est bon/i });
     assert.ok(await bouton.isDisabled(), 'le bouton est inactif une fois validé');
@@ -334,7 +334,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.equal(await page.getByRole('button', { name: /Je suis là/i }).count(), 0);
     assert.ok(await page.locator('#champ-prenom').isDisabled(), 'prénom verrouillé');
     assert.equal(await page.locator('.embleme-choix:not(:disabled)').count(), 0, 'emblèmes verrouillés');
-    assert.equal(await page.getByRole('radio', { name: /Dragon/i }).getAttribute('aria-checked'), 'true');
+    assert.equal(await page.getByRole('radio', { name: /Démon/i }).getAttribute('aria-checked'), 'true');
     assert.ok(await page.getByRole('button', { name: /Commencer la quête/i }).isEnabled(), 'l\'hôte peut commencer');
     await fermer(page);
   });
@@ -411,7 +411,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.ok(await bouton.isDisabled());
     assert.ok(await commencer.isDisabled());
     await page.locator('#champ-prenom').fill('Robin');
-    await page.getByRole('radio', { name: /Dragon/i }).click();
+    await page.getByRole('radio', { name: /Démon/i }).click();
     await bouton.click();
     assert.ok(await commencer.isEnabled(), 'hôte prêt(e) + 1 autre : commencer doit être actif');
     await ctx.capture(page, 'parcours-salle-360', { fullPage: true });

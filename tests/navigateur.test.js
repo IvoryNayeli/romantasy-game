@@ -418,11 +418,11 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     await fermer(bo);
     const carte = await ouvrir('index.html?ecran=carte&type=revelation');
     assert.match(await carte.locator('.carte-entete').textContent(), /Révélation/);
-    assert.equal(await carte.locator('.carte-entete svg use').getAttribute('href'), '#i-etoile');
+    assert.equal(await carte.locator('.carte-entete img.icone').getAttribute('src'), 'img/etoile.webp');
     await fermer(carte);
     const ep = await ouvrir('index.html?ecran=carte&type=epreuve');
     assert.match(await ep.locator('.carte-entete').textContent(), /Épreuve/);
-    assert.equal(await ep.locator('.carte-entete svg use').getAttribute('href'), '#i-epee');
+    assert.equal(await ep.locator('.carte-entete img.icone').getAttribute('src'), 'img/epee.webp');
     await fermer(ep);
   });
 
