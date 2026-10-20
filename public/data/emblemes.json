@@ -1,12 +1,10 @@
 [
-  { "id": "dragon", "nom": "Dragon", "emoji": "🐉" },
-  { "id": "sorciere", "nom": "Sorcière", "emoji": "🧙" },
-  { "id": "vampire", "nom": "Vampire", "emoji": "🧛" },
-  { "id": "fee", "nom": "Fée", "emoji": "🧚" },
-  { "id": "elfe", "nom": "Elfe", "emoji": "🧝" },
-  { "id": "loup-garou", "nom": "Loup-garou", "emoji": "🐺" },
-  { "id": "sirene", "nom": "Sirène", "emoji": "🧜" },
-  { "id": "phenix", "nom": "Phénix", "emoji": "🔥" },
-  { "id": "licorne", "nom": "Licorne", "emoji": "🦄" },
-  { "id": "chevalier", "nom": "Chevalier", "emoji": "🛡️" }
+  { "id": "sorciere", "nom": "Sorcière", "image": "img/emblemes/sorciere.webp" },
+  { "id": "vampire", "nom": "Vampire", "image": "img/emblemes/vampire.webp" },
+  { "id": "fee", "nom": "Fée", "image": "img/emblemes/fee.webp" },
+  { "id": "elfe", "nom": "Elfe", "image": "img/emblemes/elfe.webp" },
+  { "id": "loup-garou", "nom": "Loup-garou", "image": "img/emblemes/loup-garou.webp" },
+  { "id": "sirene", "nom": "Sirène", "image": "img/emblemes/sirene.webp" },
+  { "id": "chevalier", "nom": "Chevalier", "image": "img/emblemes/chevalier.webp" },
+  { "id": "demon", "nom": "Démon", "image": "img/emblemes/demon.webp" }
 ]

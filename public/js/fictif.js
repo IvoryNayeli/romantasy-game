@@ -2,8 +2,8 @@
 // Tout ce qui dépend d'un nombre (personnes, tours) est calculé à partir de config.json.
 
 const PRENOMS = [
-  ['Léa', 'fee'], ['Tom', 'dragon'], ['Inès', 'licorne'], ['Noa', 'loup-garou'], ['Sacha', 'sirene'],
-  ['Camille', 'elfe'], ['Louis', 'vampire'], ['Maëlle', 'sorciere'], ['Yanis', 'phenix'], ['Alix', 'chevalier'],
+  ['Léa', 'fee'], ['Tom', 'demon'], ['Inès', 'chevalier'], ['Noa', 'loup-garou'], ['Sacha', 'sirene'],
+  ['Camille', 'elfe'], ['Louis', 'vampire'], ['Maëlle', 'sorciere'],
 ];
 
 // Profils fictifs déjà présents dans le salon (l'ordre est l'ordre d'arrivée).

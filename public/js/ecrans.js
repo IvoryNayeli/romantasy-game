@@ -4,7 +4,7 @@
 // sont dans ecrans-reseau.js, qui réutilise les vues des écrans de tour (vueChoix, vueCarte, vueAttente,
 // vueTransition, vueFin) : même rendu, alimenté par la partie réelle.
 
-import { h, icone, lienBouton, coins, filigrane, logo, etoile } from './dom.js';
+import { h, icone, imageEmbleme, lienBouton, coins, filigrane, logo, etoile } from './dom.js';
 import { constellation } from './ciel.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
@@ -22,8 +22,9 @@ const ETOILES_ACCUEIL = [['g', 8], ['d', 14], ['g', 31], ['d', 42], ['g', 58], [
 
 /* ---------- Éléments réutilisables ---------- */
 
+// Emblème d'une personne : image de emblemes.json, avec le nom de l'emblème en texte alternatif.
 export function emblemeEl(emb, classe = '') {
-  return h('span', { classe: `embleme ${classe}`.trim(), role: 'img', 'aria-label': emb.nom }, emb.emoji);
+  return imageEmbleme(emb, `embleme ${classe}`.trim());
 }
 
 function compteurEl(donnees, n) {
@@ -363,7 +364,7 @@ export function salle({ donnees, params, naviguer }) {
       classe: `embleme-choix${prisParAutre ? ' embleme-pris' : ''}`, type: 'button', role: 'radio',
       'aria-checked': 'false', disabled: prisParAutre,
       onclick: () => { moi.embleme = emb.id; moi.pret = false; maj(); },
-    }, h('span', { classe: 'embleme-emoji', 'aria-hidden': 'true' }, emb.emoji), h('span', { classe: 'embleme-nom' }, emb.nom));
+    }, imageEmbleme(emb, 'embleme-image', ''), h('span', { classe: 'embleme-nom' }, emb.nom));
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }

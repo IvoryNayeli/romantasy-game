@@ -219,7 +219,7 @@ function collecterTextes() {
   while ((noeud = marcheur.nextNode())) {
     const t = noeud.textContent.trim();
     const parent = noeud.parentElement;
-    if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-emoji')) continue;
+    if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-image')) continue;
     const s = getComputedStyle(parent);
     const r0 = parent.getBoundingClientRect();
     if (s.visibility === 'hidden' || s.display === 'none' || r0.width === 0) continue;

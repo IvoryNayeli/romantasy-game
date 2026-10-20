@@ -149,4 +149,4 @@ Une session par phase ou par itération suffit : toute la mémoire du projet est
 
 ## Licence et crédits
 
-À compléter en phase 8 (icônes game-icons.net, licence CC BY 3.0, à créditer).
+À compléter en phase 8. Le logo, les emblèmes, l'épée et l'étoile sont des images fournies par la propriétaire du projet (phase 7) : les icônes game-icons.net ne sont plus prévues.

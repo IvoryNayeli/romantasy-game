@@ -475,8 +475,13 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.equal(textes.types.epreuve.nom, 'Épreuve');
   assert.equal(textes.types.revelation.nom, 'Révélation');
   const html = lirePublic('index.html');
-  for (const symbole of ['epee', 'etoile', 'bouclier', 'bouclier-grand', 'sort-jete', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane']) {
+  for (const symbole of ['bouclier', 'bouclier-grand', 'sort-jete', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane']) {
     assert.match(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole ${symbole}`);
+  }
+  // Phase 7 : l'épée et l'étoile sont les images de la propriétaire (plus de symbole SVG).
+  for (const symbole of ['epee', 'etoile']) {
+    assert.doesNotMatch(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole SVG ${symbole} retiré`);
+    assert.match(lirePublic('js', 'dom.js'), new RegExp(`${symbole}: 'img/${symbole}\\.webp'`), `image ${symbole} posée par icone()`);
   }
   assert.ok(propriete('.carte', '--rarete').includes('var(--c-braise)'), 'Épreuve = braise');
   assert.ok(propriete('.carte-revelation', '--rarete').includes('var(--c-lune)'), 'Révélation = lune');
@@ -492,7 +497,7 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.match(ecrans, /icone\(T\.types\[type\]\.symbole, 'dos-symbole'\)/, 'symbole sur les dos de carte');
 });
 
-test('logo : image du disque central (fond transparent), version complète et compacte', () => {
+test('logo : image de la propriétaire (fond transparent), version complète et compacte', () => {
   const html = lirePublic('index.html');
   assert.doesNotMatch(html, /i-logo/, 'plus de symbole SVG provisoire');
   assert.match(lirePublic('js', 'dom.js'), /export function logo\(classe = ''\) \{\s*return h\('img', \{ classe, src: 'img\/logo\.webp', alt: '', 'aria-hidden': 'true' \}\);/, 'logo décoratif en image');
@@ -510,9 +515,28 @@ test('logo : image du disque central (fond transparent), version complète et co
   assert.doesNotMatch(accueilSource, /<h[1-6]|h\('h[1-6]'|Romantasy/, 'aucun titre sur l\'accueil');
 });
 
+// Phase 7 : images de la propriétaire (logo, emblèmes, épée, étoile), légères, présentes, toutes utilisées.
+test('images : chaque emblème a son image, les images référencées existent, aucune image orpheline ni à la racine', () => {
+  const emblemes = JSON.parse(lirePublic('data', 'emblemes.json'));
+  const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', ...emblemes.map((e) => e.image)]);
+  const code = [lirePublic('index.html'), lirePublic('demo.html'), ...listerFichiers(path.join(PUBLIC, 'js'), /\.js$/).map((f) => fs.readFileSync(f, 'utf8'))].join('\n');
+  for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
+  for (const chemin of references) {
+    const fichier = path.join(PUBLIC, chemin);
+    assert.ok(fs.existsSync(fichier), `${chemin} absente`);
+    const brut = fs.readFileSync(fichier);
+    assert.equal(brut.toString('latin1', 0, 4) + brut.toString('latin1', 8, 12), 'RIFFWEBP', `${chemin} : WebP`);
+    assert.ok(brut.length < (chemin === 'img/logo.webp' ? 100 : 40) * 1024, `${chemin} trop lourde`);
+  }
+  const presentes = listerFichiers(path.join(PUBLIC, 'img'), /\.\w+$/).map((f) => path.relative(PUBLIC, f).split(path.sep).join('/'));
+  assert.deepEqual(presentes.sort(), [...references].sort(), 'images de public/img/ = images référencées');
+  const racine = fs.readdirSync(RACINE).filter((n) => /\.(png|jpe?g|webp)$/i.test(n));
+  assert.deepEqual(racine, [], 'plus d\'image déposée à la racine du projet');
+});
+
 test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf bouclier et sort jeté) ; un seul calque de grain par écran', () => {
   const html = lirePublic('index.html');
-  for (const nom of ['epee', 'etoile', 'retour', 'coche', 'lueur']) {
+  for (const nom of ['retour', 'coche', 'lueur']) {
     const symbole = html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
     assert.match(symbole, /stroke="currentColor"/, `${nom} : trait currentColor`);
     assert.match(symbole, /stroke-width="1\.5"/, `${nom} : trait de 1,5 px`);

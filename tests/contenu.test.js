@@ -196,16 +196,16 @@ test('codes : mots du thème, sans accent, majuscules, uniques', () => {
   assert.equal(new Set(codes).size, codes.length, 'codes en double');
 });
 
-test('emblèmes : 10 emblèmes uniques, identifiants sans accent', () => {
+test('emblèmes : 8 emblèmes uniques, identifiants sans accent, une image chacun', () => {
   assert.ok(Array.isArray(emblemes));
-  assert.equal(emblemes.length, 10);
+  assert.equal(emblemes.length, 8);
   for (const e of emblemes) {
-    assert.deepEqual(Object.keys(e).sort(), ['emoji', 'id', 'nom']);
+    assert.deepEqual(Object.keys(e).sort(), ['id', 'image', 'nom']);
     assert.match(e.id, /^[a-z]+(-[a-z]+)*$/, `identifiant invalide : ${e.id}`);
     assert.ok(e.nom.length > 0);
-    assert.ok(e.emoji.length > 0);
+    assert.equal(e.image, `img/emblemes/${e.id}.webp`, `image nommée d'après l'identifiant : ${e.id}`);
   }
-  for (const champ of ['id', 'nom', 'emoji']) {
+  for (const champ of ['id', 'nom', 'image']) {
     const valeurs = emblemes.map((e) => e[champ]);
     assert.equal(new Set(valeurs).size, valeurs.length, `${champ} en double`);
   }

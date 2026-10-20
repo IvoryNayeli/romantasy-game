@@ -8,7 +8,7 @@
 // (reseau.signalerPresence) ; une personne sans connexion est affichée « hors ligne », et si c'est son tour,
 // les autres peuvent le passer après le délai de config.json (delaiAbsenceSecondes).
 
-import { h, icone, coins } from './dom.js';
+import { h, icone, imageEmbleme, coins } from './dom.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
@@ -79,7 +79,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
     const bouton = h('button', {
       classe: 'embleme-choix', type: 'button', role: 'radio', 'aria-checked': 'false',
       onclick: () => agir(() => reseau.choisirEmbleme(code, emb.id)),
-    }, h('span', { classe: 'embleme-emoji', 'aria-hidden': 'true' }, emb.emoji), h('span', { classe: 'embleme-nom' }, emb.nom));
+    }, imageEmbleme(emb, 'embleme-image', ''), h('span', { classe: 'embleme-nom' }, emb.nom));
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }

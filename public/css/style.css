@@ -249,6 +249,8 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Icônes (au trait fin, jamais pleines : charte, section 7) ---------- */
 .icone { width: 1.5rem; height: 1.5rem; flex: none; }
+/* Épée et étoile : images de la propriétaire (phase 7), à la place des symboles SVG. */
+.icone-image { display: block; object-fit: contain; }
 .icone-etincelle { width: 10px; height: 10px; }
 
 /* Ornements : étincelle à 4 branches, séparateur filigrane */
@@ -411,11 +413,12 @@ h2 {
 .ecran-attente .titre-tour { margin: 16px 0 8px; font-size: 2rem; }
 .nom-actif { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
 
-.embleme { font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 1.75rem; line-height: 1; flex: none; }
-.embleme-grand { font-size: 3.5rem; }
+/* Emblèmes : images de la propriétaire (fond transparent), carrées. */
+.embleme { display: block; width: 2rem; height: 2rem; flex: none; object-fit: contain; }
+.embleme-grand { width: 4.5rem; height: 4.5rem; }
 .embleme-vide {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   border: var(--filet) dashed var(--c-lune-douce);
   border-radius: var(--r-bouton);
 }
@@ -619,7 +622,7 @@ h2 {
 .effets-item { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-top: var(--filet) solid #3C5A8C99; }
 .effets-item:first-child { padding-top: 0; border-top: 0; }
 .effets-joueur { display: flex; align-items: center; gap: 8px; color: var(--c-lune); font: 500 1rem/1.3 var(--f-texte); }
-.effets-joueur .embleme { font-size: 1.25rem; }
+.effets-joueur .embleme { width: 1.5rem; height: 1.5rem; }
 .effets-texte { color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: break-word; }
 /* Phase 5 : bouton discret de chaque effet en cours (partie en réseau), pour dire qu'il a provoqué un échange de butins.
    Même famille que le bouton secondaire, en plus petit ; cible tactile de 48 px. */
@@ -834,7 +837,7 @@ h2 {
   transition: transform 150ms var(--ease);
 }
 .embleme-choix:active { transform: scale(.97); }
-.embleme-emoji { font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 1.75rem; line-height: 1.1; }
+.embleme-image { display: block; width: 2.5rem; height: 2.5rem; object-fit: contain; }
 .embleme-nom { max-width: 100%; font: 400 .9375rem/1.1 var(--f-texte); overflow-wrap: anywhere; text-align: center; }
 .embleme-choix[aria-checked="true"] {
   border: var(--bordure) solid var(--c-ambre);

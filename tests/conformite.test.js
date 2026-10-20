@@ -68,16 +68,13 @@ test('conformité : texte des cartes sur une seule ligne, sans tabulation ni dou
   }
 });
 
-test('conformité : emblèmes identiques à la liste de docs/PROJET.md (noms, emojis, ordre)', () => {
+test('conformité : emblèmes identiques à la liste de docs/PROJET.md (noms, ordre)', () => {
   const section = lire('docs', 'PROJET.md').split('## Emblèmes')[1].split('## Codes')[0];
-  const ligne = section.split('\n').find((l) => l.startsWith('Dragon'));
+  const ligne = section.split('\n').find((l) => l.startsWith('Sorcière'));
   assert.ok(ligne, 'liste des emblèmes introuvable dans PROJET.md');
-  const attendus = ligne.replace(/\.$/, '').split(', ').map((x) => {
-    const i = x.lastIndexOf(' ');
-    return { nom: x.slice(0, i), emoji: x.slice(i + 1) };
-  });
-  assert.equal(attendus.length, 10);
-  assert.deepEqual(emblemes.map((e) => ({ nom: e.nom, emoji: e.emoji })), attendus);
+  const attendus = ligne.replace(/\.$/, '').split(', ');
+  assert.equal(attendus.length, 8);
+  assert.deepEqual(emblemes.map((e) => e.nom), attendus);
 });
 
 test('conformité : codes identiques à la liste de docs/PROJET.md (mots, ordre)', () => {
