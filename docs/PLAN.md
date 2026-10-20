@@ -12,7 +12,7 @@ Règles valables pour toutes les phases :
 |---|---|
 | 1 | **Node.js** (non installé à la fin de la phase 0) |
 | 4 | **Java** (déjà présent : OpenJDK 21), deux projets Firebase gratuits `romantasy-dev` et `romantasy-prod` (région européenne), Firebase CLI |
-| 7 | Activer GitHub Pages dans les paramètres du dépôt (publication depuis `main`) |
+| 8 | Activer GitHub Pages dans les paramètres du dépôt (publication depuis `main`) |
 
 ## Phase 0 : fondations
 
@@ -53,7 +53,13 @@ Règles valables pour toutes les phases :
 - Wake Lock, reconnexion automatique, personne « absente » (libellé neutre à choisir), passage de tour d'une personne absente.
 - **Tests** : coupure réseau simulée, rechargement en pleine partie, absence prolongée.
 
-## Phase 7 : finition et mise en ligne
+## Phase 7 : ajustements visuels
+
+- Ajustements du rendu visuel demandés par la propriétaire, transmis au fil de la phase par « Phase 7, remarques : … » (une itération par message de remarques, comme en phase 2). Pas de nouvelle fonctionnalité ni de changement des règles du jeu.
+- **Tests** : suite complète, captures et tests de charte de la phase 2 adaptés si le rendu change.
+- **Validation humaine** : ouverture des écrans sur son téléphone, avis sur le rendu.
+
+## Phase 8 : finition et mise en ligne
 
 - Icônes game-icons.net et crédits (emblèmes seulement : le logo est l'image de la propriétaire, déjà en place), GitHub Pages, accessibilité, lien définitif, contrôle des quotas Firebase.
 - **Validation humaine** : partie réelle sur plusieurs téléphones, avec une check-list fournie.

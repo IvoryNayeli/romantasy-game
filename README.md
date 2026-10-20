@@ -4,7 +4,7 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaqu
 
 ## Lancer le jeu
 
-**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je suis là », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. Depuis la phase 6, l'écran reste allumé pendant la salle et la partie (si le navigateur le permet), une personne dont la connexion est perdue est affichée « hors ligne » sans être retirée et retrouve la partie automatiquement quand le réseau revient ou après un rechargement de la page ; si c'est son tour, les autres peuvent le passer après quelques secondes. La mise en ligne arrive en phase 7.
+**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je suis là », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. Depuis la phase 6, l'écran reste allumé pendant la salle et la partie (si le navigateur le permet), une personne dont la connexion est perdue est affichée « hors ligne » sans être retirée et retrouve la partie automatiquement quand le réseau revient ou après un rechargement de la page ; si c'est son tour, les autres peuvent le passer après quelques secondes. Les ajustements visuels arrivent en phase 7, la mise en ligne en phase 8.
 
 ### Ce qu'il faut sur l'ordinateur
 
@@ -44,7 +44,7 @@ Pour arrêter : `Ctrl+C` dans chacun des deux terminaux. Les parties de l'émula
 
 Si la page ne s'ouvre pas, ou si « Connexion impossible » s'affiche, vérifier que le pare-feu de l'ordinateur autorise les ports **8000** (la page) et **9000** (l'émulateur), et que le Wi-Fi n'isole pas les appareils entre eux (c'est parfois le cas des réseaux d'invité). L'émulateur accepte les appareils du réseau local : ne le lancer que sur un réseau de confiance (celui de la maison).
 
-Sur le réseau local, la page est ouverte en `http://` : les navigateurs n'y autorisent pas le maintien de l'écran allumé (Wake Lock, réservé aux pages `https://`). Le jeu fonctionne normalement, mais le téléphone peut se mettre en veille ; allonger le délai de mise en veille pendant l'essai si besoin. Une fois le jeu en ligne (phase 7, `https://`), l'écran restera allumé.
+Sur le réseau local, la page est ouverte en `http://` : les navigateurs n'y autorisent pas le maintien de l'écran allumé (Wake Lock, réservé aux pages `https://`). Le jeu fonctionne normalement, mais le téléphone peut se mettre en veille ; allonger le délai de mise en veille pendant l'essai si besoin. Une fois le jeu en ligne (phase 8, `https://`), l'écran restera allumé.
 
 ### Utiliser la vraie base de développement (`romantasy-dev`)
 
@@ -83,7 +83,7 @@ Le nombre de tours, de places maximum et le délai avant de pouvoir passer le to
 
 | À partir de | Ce qui sera documenté ici |
 |---|---|
-| Phase 7 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec son groupe. |
+| Phase 8 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec son groupe. |
 
 ## Développement du projet avec des agents (Copilot ou Claude Code)
 
@@ -127,7 +127,7 @@ Le projet est construit phase par phase, avec trois agents définis dans [.githu
 |---|---|
 | `romantasy-chef-de-phase` | Seul agent à lancer. Coordonne la phase, rédige le rapport, fusionne après validation. |
 | `romantasy-developpeur` | Implémente la phase (appelé par le chef de phase). |
-| `romantasy-testeur` | Vérifie la phase et liste les défauts (appelé par le chef de phase pour les phases 4 à 7, ou quand des tests de navigateur sont à adapter). |
+| `romantasy-testeur` | Vérifie la phase et liste les défauts (appelé par le chef de phase pour les phases 4, 5, 6 et 8, ou quand des tests de navigateur sont à adapter). |
 
 ### Piloter les agents de développement
 
@@ -149,4 +149,4 @@ Une session par phase ou par itération suffit : toute la mémoire du projet est
 
 ## Licence et crédits
 
-À compléter en phase 7 (icônes game-icons.net, licence CC BY 3.0, à créditer).
+À compléter en phase 8 (icônes game-icons.net, licence CC BY 3.0, à créditer).

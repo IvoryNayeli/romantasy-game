@@ -9,7 +9,7 @@ Source de vérité de l'avancement. À lire **en premier** à chaque session. Mi
 | Statut | Qui peut agir |
 |---|---|
 | `à faire`, `en cours` | Développeur |
-| `en test` | Testeur (phases 4 à 7, ou tests de navigateur à adapter) ; sinon chef de phase (suite de tests complète) |
+| `en test` | Testeur (phases 4, 5, 6 et 8, ou tests de navigateur à adapter) ; sinon chef de phase (suite de tests complète) |
 | `prête pour relecture` | Personne : attente de la propriétaire |
 | `validée` | Personne : phase suivante possible |
 
@@ -26,11 +26,12 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
-| 7 | Finition et mise en ligne | à faire | 0 | |
+| 7 | Ajustements visuels | à faire | 0 | |
+| 8 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 6 validée le 2026-10-20. Phase 7 possible, sur demande de la propriétaire (« Lance la phase 7 »), après activation de GitHub Pages (prérequis de `docs/PLAN.md`).
+Phase 6 validée le 2026-10-20. Phase 7 (ajustements visuels, insérée le 2026-10-20) possible, sur demande de la propriétaire (« Lance la phase 7 »), puis ajustements par « Phase 7, remarques : … ». GitHub Pages n'est requis qu'avant la phase 8.
 
 ## Journal
 
@@ -46,10 +47,11 @@ Aucune.
 
 ## Risques reportés
 
-- Phase 7 : `demo.html` et le paramètre `?ecran=` (outils de validation de la phase 2) à retirer ou masquer ; icônes SVG faites pour le projet (épée, étoile, bouclier) à remplacer ou garder selon le choix des icônes game-icons.net.
-- Phase 7 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
+- Phase 8 : `demo.html` et le paramètre `?ecran=` (outils de validation de la phase 2) à retirer ou masquer ; icônes SVG faites pour le projet (épée, étoile, bouclier) à remplacer ou garder selon le choix des icônes game-icons.net.
+- Phase 8 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
 - Risque accepté (phases 4 à 6) : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`), et depuis la phase 6 fausser la présence. L'authentification anonyme reste possible si la propriétaire le demande.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
+- Phase 7 insérée le 2026-10-20 (ancienne phase 7 devenue phase 8) : les commentaires de `public/js/firebase-config.js` (ligne 32) et de `tests/reseau.test.js` (test « jamais la prod avant la phase 7 ») désignent encore la mise en ligne par « phase 7 ». À corriger en « phase 8 » par le développeur en phase 7.
 
 ## Décisions confirmées
 

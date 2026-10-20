@@ -48,7 +48,7 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 
 Dragon 🐉, Sorcière 🧙, Vampire 🧛, Fée 🧚, Elfe 🧝, Loup-garou 🐺, Sirène 🧜, Phénix 🔥, Licorne 🦄, Chevalier 🛡️.
 
-Emojis pour le prototype. Remplacement par les icônes de game-icons.net (licence CC BY 3.0, auteurs à créditer) en phase 7. L'image de banque de données ne concerne que les emblèmes : le logo est l'image fournie par la propriétaire (voir « Logo » plus bas).
+Emojis pour le prototype. Remplacement par les icônes de game-icons.net (licence CC BY 3.0, auteurs à créditer) en phase 8. L'image de banque de données ne concerne que les emblèmes : le logo est l'image fournie par la propriétaire (voir « Logo » plus bas).
 
 ## Codes de partie
 
