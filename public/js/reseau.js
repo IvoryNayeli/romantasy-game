@@ -102,7 +102,10 @@ export function arreterPresence() {
   presence = null;
 }
 
-export function signalerPresence(code) {
+// `siDejaSignalee` : ne fait que garder la présence déjà signalée pour cette partie (renvoie null sinon), sans rien
+// écrire ; sert à l'écran de la partie, construit juste après la salle, avant d'avoir reçu la partie.
+export function signalerPresence(code, { siDejaSignalee = false } = {}) {
+  if (siDejaSignalee && !(presence && presence.code === code)) return null;
   if (presence && presence.code === code) {
     clearTimeout(presence.minuteur);
     presence.minuteur = null;

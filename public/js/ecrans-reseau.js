@@ -209,6 +209,8 @@ export function jeu({ donnees, params, naviguer, reseau, vue }) {
     return { noeud: h('section', { classe: 'ecran' }) };
   }
   libererEcran = garderEcranAllume();
+  // Arrivée depuis la salle : la présence déjà signalée est gardée sans interruption (sinon, elle l'est à la réception).
+  libererPresence = reseau.signalerPresence(code, { siDejaSignalee: true });
 
   const personne = (id) => {
     const fiche = partie.joueurs?.[id] || {};
