@@ -26,12 +26,12 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
-| 7 | Ajustements visuels | prête pour relecture | 1 | [phase-7-iteration-1](rapports/phase-7-iteration-1.md) |
+| 7 | Ajustements visuels | en cours | 2 | [phase-7-iteration-1](rapports/phase-7-iteration-1.md) |
 | 8 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 7, itération 1 : prête pour relecture. Attente de la propriétaire (« Phase 7 validée » ou « Phase 7, remarques : … »).
+Phase 7, itération 2 : en cours (12 remarques de la propriétaire sur l'itération 1).
 
 ## Journal
 
@@ -40,6 +40,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-20, phase 7 : lancement de l'itération 1 (branche `phase-7`), sans remarque pour l'instant.
 - 2026-10-20, phase 7 : remarques reçues ([remarques/phase-7](remarques/phase-7.md)), traitées dans l'itération 1 (pas encore de rapport) ; questions posées à la propriétaire sur la correspondance des avatars.
 - 2026-10-20, phase 7 : remarque 1 faite (logo, 8 emblèmes, épée et étoile en images), suite complète 217 réussis ; prête pour relecture ([rapport](rapports/phase-7-iteration-1.md)).
+- 2026-10-20, phase 7 : 12 remarques reçues sur l'itération 1 ([remarques/phase-7](remarques/phase-7.md)), lancement de l'itération 2.
 
 ## Défauts ouverts
 
