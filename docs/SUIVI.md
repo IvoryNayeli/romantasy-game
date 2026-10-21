@@ -31,7 +31,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 7, itération 2 : remarques 47 à 52 traitées (`4e81ff8`) ; 8 choix soumis à la propriétaire (dont la police du code de la partie) ; suite complète `npm test` à lancer une fois les ports 9000 et 8000 libérés, puis rapport de l'itération 2.
+Phase 7, itération 2 : remarques 47 à 52 et réponses de la propriétaire traitées (`547a1f8`) ; suite complète `npm test` à lancer une fois les ports 9000 et 8000 libérés, puis rapport de l'itération 2.
 
 ## Journal
 
@@ -46,6 +46,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-20, phase 7 : remarques 13 à 34 traitées (`2e4f181`), `test:rapide` 86 réussis, navigateur hors réseau 62 réussis ; 13 remarques complémentaires reçues dont 2 coupées (questions posées).
 - 2026-10-21, phase 7 : 11 remarques complémentaires reçues avant le rapport (numérotées 36 à 46), traitées dans l'itération 2.
 - 2026-10-21, phase 7 : remarques 47 à 52 faites (`4e81ff8`), `test:rapide` 87 réussis, navigateur hors réseau 67 réussis ; `npm test` non lancé (ports 9000 et 8000 pris) ; choix soumis à la propriétaire.
+- 2026-10-21, phase 7 : réponses de la propriétaire consignées ; emblèmes de la salle réduits, plus aucun défilement de 360x640 à 412x915 (`547a1f8`), `test:rapide` 87 réussis, navigateur hors réseau 68 réussis ; `npm test` toujours bloqué par les ports.
 
 ## Défauts ouverts
 
