@@ -809,3 +809,20 @@ test('itération 4 : aucun surlignage violet (sélection, marque, surbrillance) 
   }
   assert.doesNotMatch(css, /améthyste|amethyste/i, 'nom de couleur « améthyste » dans le CSS');
 });
+
+test('phase 7, remarques 53, 55 et 56 : étoiles jusqu\'aux bords réels de l\'écran, salle d\'attente centrée, emblèmes jamais ternis', () => {
+  const corps = (selecteur) => regles().filter((r) => r.selecteur.split(',').map((s) => s.trim()).includes(selecteur)).map((r) => r.corps).join(';');
+  // 53 : les calques d'étoiles débordent de la page sur les zones de sécurité du téléphone (sinon, bande de fond nu).
+  for (const calque of ['.page::before', '.page::after', '.ecran-zone::before']) {
+    assert.match(corps(calque), /top:\s*calc\(-1 \* var\(--haut\)\)/, `${calque} : doit couvrir la zone de sécurité du haut`);
+    assert.match(corps(calque), /bottom:\s*calc\(-1 \* var\(--bas\)\)/, `${calque} : doit couvrir la zone de sécurité du bas`);
+  }
+  // 55 : la salle d'attente est centrée verticalement.
+  assert.match(corps('.salle-corps .salle-attente'), /margin:\s*auto 0/, 'salle d\'attente centrée verticalement');
+  // 56 : aucun filtre (gris, terne) sur un emblème de l'écran d'attente, ni sur un bloc qui en contient un.
+  for (const r of regles().filter((x) => /filter\s*:/.test(x.corps) && /ecran-attente/.test(x.selecteur))) {
+    for (const s of r.selecteur.split(',')) {
+      assert.doesNotMatch(s, /embleme|\.titre-tour\s*$|nom-actif\s*$/, `${s.trim()} : un emblème de l'écran d'attente ne doit jamais être terni`);
+    }
+  }
+});

@@ -759,7 +759,9 @@ export function vueAttente(donnees, { tour, carte: c = null, actif, effets = [],
     compteurEl(donnees, tour),
     // Une seule ligne (phase 7) : la taille du titre suit sa longueur (--lettres, voir style.css).
     h('h2', { classe: 'titre-tour', style: `--lettres:${largeurTitre(actif.prenom)}` },
-      `${T.tour.auTourDe} `, h('span', { classe: 'nom-actif' }, actif.prenom, c ? emblemeEl(actif.embleme) : null)),
+      // Remarque 56 : seuls les mots sont ternis (classe titre-mots), jamais l'emblème.
+      h('span', { classe: 'titre-mots' }, `${T.tour.auTourDe} `),
+      h('span', { classe: 'nom-actif' }, h('span', { classe: 'titre-mots' }, actif.prenom), c ? emblemeEl(actif.embleme) : null)),
     c ? carteEl(c, 'autre') : emblemeEl(actif.embleme, 'embleme-grand embleme-attente'),
     piedTour(panneauEffets(donnees, effets, signaler), pied));
 }

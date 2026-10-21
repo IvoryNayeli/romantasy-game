@@ -96,6 +96,7 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
+  min-height: 100vh;
   min-height: 100dvh;
   padding: var(--haut) var(--marge) var(--bas);
   box-sizing: border-box;
@@ -213,11 +214,14 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 /* Étoiles des marges : motif répété sur toute la hauteur de la page, dans les marges latérales seulement (x à moins de
    12 px du bord, le texte commence à 16 px), en pixels et non en pourcentage de la hauteur : jamais derrière le texte,
    quelle que soit la longueur de l'écran. Derrière le contenu (z-index -1), non interactif. */
+/* Phase 7 (remarque 53) : les calques d'étoiles débordent de la page jusqu'aux bords réels de l'écran, zones de sécurité
+   du téléphone comprises (--haut, --bas : encoche, barre de navigation, indicateur d'accueil), sans quoi une bande de
+   fond nu restait visible en haut ou en bas. */
 .page::before, .page::after {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: calc(-1 * var(--haut));
+  bottom: calc(-1 * var(--bas));
   left: calc(-1 * var(--marge));
   right: calc(-1 * var(--marge));
   z-index: -1;
@@ -248,8 +252,8 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 .ecran-zone::before {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: calc(-1 * var(--haut));     /* remarque 53 : jusqu'aux bords réels de l'écran (voir .page::before) */
+  bottom: calc(-1 * var(--bas));
   left: 0;
   right: 0;
   z-index: -1;
@@ -756,9 +760,11 @@ h2 {
 .ecran-attente .titre-tour { margin: auto 0 16px; }
 .ecran-attente .carte { margin: 0 auto auto; }
 .embleme-attente { align-self: center; width: min(17rem, 75vw); height: min(17rem, 75vw); margin: 8px auto auto; }
-/* Phase 7 : ce n'est pas votre tour. Le titre, l'emblème et la carte sont un peu ternis (moins saturés, moins
-   lumineux) ; le texte reste très contrasté sur le fond nuit. Le pied (effets, absence) garde son éclat. */
-.ecran-attente > .compteur, .ecran-attente > .titre-tour, .ecran-attente > .carte, .ecran-attente > .embleme-attente {
+/* Phase 7 : ce n'est pas votre tour. Le compteur et la carte sont un peu ternis (moins saturés, moins lumineux) ; le
+   texte reste très contrasté sur le fond nuit. Le pied (effets, absence) garde son éclat.
+   Remarque 56 : les emblèmes ne sont jamais ternis, ni l'emblème en grand ni celui du titre « Au tour de… » : le filtre
+   du titre ne porte plus que sur ses mots (.titre-mots), pas sur l'emblème qui suit le prénom. */
+.ecran-attente > .compteur, .ecran-attente > .carte, .ecran-attente > .titre-tour .titre-mots {
   filter: saturate(.5) brightness(.82);
 }
 .ecran-attente > .titre-tour { color: var(--c-lune); }
@@ -1095,6 +1101,8 @@ h2 {
 /* Phase 7 (remarque 47) : salle d'attente resserrée pour que la liste de cinq personnes tienne à l'écran avec le bouton. */
 .titre-liste { margin: 12px 0 8px; }  /* réponse 2 : 12 px au lieu de 16 px */
 .salle-attente > .texte:last-child { margin-bottom: 0; }
+/* Remarque 55 : la salle d'attente (titre, liste, texte) est centrée verticalement entre le code et le bas de l'écran. */
+.salle-corps .salle-attente { margin: auto 0; }
 
 .liste-joueurs { display: flex; flex-direction: column; gap: 4px; margin: 0 0 8px; padding: 0; list-style: none; }
 .joueur-ligne {
@@ -1159,7 +1167,8 @@ h2 {
 .grille-emblemes > .embleme-choix:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 4px); }  /* le neuvième, centré */
 .embleme-image { display: block; width: 100%; max-width: 12rem; height: auto; aspect-ratio: 1; object-fit: contain; }
 .embleme-choix[aria-checked="true"] {
-  background: radial-gradient(circle closest-side, #F0A35E77, #F0A35E33 55%, transparent 100%);
+  /* Remarque 54 : halo un peu plus intense (#F0A35E77 et #F0A35E33 auparavant). */
+  background: radial-gradient(circle closest-side, #F0A35E99, #F0A35E4D 55%, transparent 100%);
 }
 /* Verrouillé après « Je rejoins l'aventure » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
 .embleme-choix:disabled:not(.embleme-pris) { cursor: default; }
