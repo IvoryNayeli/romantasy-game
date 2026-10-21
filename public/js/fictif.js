@@ -3,7 +3,7 @@
 // Tout ce qui dépend d'un nombre (personnes, tours) est calculé à partir de config.json.
 
 const PRENOMS = [
-  ['LÉA', 'fee'], ['TOM', 'demon'], ['INÈS', 'chevalier'], ['NOA', 'loup-garou'], ['SACHA', 'sirene'],
+  ['LÉA', 'fee'], ['TOM', 'demon'], ['INÈS', 'dragon'], ['NOA', 'loup-garou'], ['SACHA', 'sirene'],
   ['CAMILLE', 'elfe'], ['LOUIS', 'vampire'], ['MAËLLE', 'sorciere'],
 ];
 

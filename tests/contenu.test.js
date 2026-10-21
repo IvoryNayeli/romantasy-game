@@ -196,9 +196,9 @@ test('codes : mots du thème, sans accent, majuscules, uniques', () => {
   assert.equal(new Set(codes).size, codes.length, 'codes en double');
 });
 
-test('emblèmes : 8 emblèmes uniques, identifiants sans accent, une image chacun', () => {
+test('emblèmes : 9 emblèmes uniques, identifiants sans accent, une image chacun', () => {
   assert.ok(Array.isArray(emblemes));
-  assert.equal(emblemes.length, 8);
+  assert.equal(emblemes.length, 9);
   for (const e of emblemes) {
     assert.deepEqual(Object.keys(e).sort(), ['id', 'image', 'nom']);
     assert.match(e.id, /^[a-z]+(-[a-z]+)*$/, `identifiant invalide : ${e.id}`);

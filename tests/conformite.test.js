@@ -70,10 +70,10 @@ test('conformité : texte des cartes sur une seule ligne, sans tabulation ni dou
 
 test('conformité : emblèmes identiques à la liste de docs/PROJET.md (noms, ordre)', () => {
   const section = lire('docs', 'PROJET.md').split('## Emblèmes')[1].split('## Codes')[0];
-  const ligne = section.split('\n').find((l) => l.startsWith('Sorcière'));
+  const ligne = section.split('\n').slice(1).find((l) => l.trim());
   assert.ok(ligne, 'liste des emblèmes introuvable dans PROJET.md');
   const attendus = ligne.replace(/\.$/, '').split(', ');
-  assert.equal(attendus.length, 8);
+  assert.equal(attendus.length, 9);
   assert.deepEqual(emblemes.map((e) => e.nom), attendus);
 });
 

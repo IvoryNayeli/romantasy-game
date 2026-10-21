@@ -44,11 +44,11 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 {"id":"epr-06","type":"epreuve","duree":"fin_partie","effet":"Vouvoie tout le monde","texte":"…"}
 ```
 
-## Emblèmes (8, sans marque)
+## Emblèmes (9, sans marque)
 
-Sorcière, Vampire, Fée, Elfe, Loup-garou, Sirène, Chevalier, Démon.
+Sirène, Démon, Elfe, Sorcière, Dragon, Méduse, Fée, Vampire, Loup-garou.
 
-Depuis la phase 7, chaque emblème est une image fournie par la propriétaire (fond transparent) : `public/img/emblemes/<identifiant>.webp`, déclarée dans le champ `image` de `public/data/emblemes.json`, avec le nom de l'emblème en texte alternatif. La liste suit les images (Démon ajouté ; Dragon, Phénix et Licorne retirés). Les emojis du prototype et le projet d'icônes game-icons.net sont abandonnés. Les originaux sont gardés dans `docs/images-source/`, hors du site servi.
+Depuis la phase 7, chaque emblème est une image fournie par la propriétaire (fond transparent) : `public/img/emblemes/<identifiant>.webp`, déclarée dans le champ `image` de `public/data/emblemes.json`, avec le nom de l'emblème en texte alternatif. La liste suit les images (Démon ajouté ; Dragon, Phénix et Licorne retirés ; puis, à l'itération 2 de la phase 7, nouvelles images de la propriétaire : Chevalier retiré, Dragon et Méduse ajoutés, 512 x 512 px en WebP). Les emojis du prototype et le projet d'icônes game-icons.net sont abandonnés. Les originaux sont gardés dans `docs/images-source/`, hors du site servi.
 
 ## Codes de partie
 

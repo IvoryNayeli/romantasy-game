@@ -534,7 +534,7 @@ test('logo : image de la propriétaire (fond transparent), version complète et 
 // Phase 7 : images de la propriétaire (logo, emblèmes, épée, étoile), légères, présentes, toutes utilisées.
 test('images : chaque emblème a son image, les images référencées existent, aucune image orpheline ni à la racine', () => {
   const emblemes = JSON.parse(lirePublic('data', 'emblemes.json'));
-  const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', ...emblemes.map((e) => e.image)]);
+  const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp', ...emblemes.map((e) => e.image)]);
   // Phase 7 (remarque 42) : bandes d'étoiles à 4 branches du fond, référencées par la feuille de style.
   for (const cote of ['gauche', 'droite']) {
     assert.ok(css.includes(`url('../img/etoiles-${cote}.svg')`), `étoiles-${cote}.svg utilisée par style.css`);
@@ -542,20 +542,20 @@ test('images : chaque emblème a son image, les images référencées existent, 
   }
   const fonds = ['img/etoiles-gauche.svg', 'img/etoiles-droite.svg'];
   const code = [lirePublic('index.html'), lirePublic('demo.html'), ...listerFichiers(path.join(PUBLIC, 'js'), /\.js$/).map((f) => fs.readFileSync(f, 'utf8'))].join('\n');
-  for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
+  for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
   for (const chemin of references) {
     const fichier = path.join(PUBLIC, chemin);
     assert.ok(fs.existsSync(fichier), `${chemin} absente`);
     const brut = fs.readFileSync(fichier);
     assert.equal(brut.toString('latin1', 0, 4) + brut.toString('latin1', 8, 12), 'RIFFWEBP', `${chemin} : WebP`);
-    // Logo, étoile et bouclier (aussi en grand sur la transition) : 384 px ; emblèmes et épée : 192 px.
-    const limite = ['img/logo.webp', 'img/etoile.webp', 'img/bouclier.webp'].includes(chemin) ? 100 : 40;
+    // Logo, étoile et bouclier (aussi en grand sur la transition) : 384 px ; emblèmes : 512 px (itération 2 : nets sur téléphone) ; épée : 192 px.
+    const limite = ['img/logo.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp'].includes(chemin) || chemin.startsWith('img/emblemes/') ? 100 : 40;
     assert.ok(brut.length < limite * 1024, `${chemin} trop lourde`);
   }
   const presentes = listerFichiers(path.join(PUBLIC, 'img'), /\.\w+$/).map((f) => path.relative(PUBLIC, f).split(path.sep).join('/'));
   assert.deepEqual(presentes.sort(), [...references, ...fonds].sort(), 'images de public/img/ = images référencées');
   // Images déposées par la propriétaire à la racine (remarque 1 de la phase 7) : déplacées, il n'en reste aucune.
-  const deposees = ['logo.png', 'épée.png', 'étoile.png', 'bouclier.png', 'Gemini_Generated_Image_ntcqu3ntcqu3ntcq(8).png',
+  const deposees = ['logo.png', 'butin.png', 'épée.png', 'étoile.png', 'bouclier.png', 'Gemini_Generated_Image_ntcqu3ntcqu3ntcq(8).png',
     ...Array.from({ length: 7 }, (_, i) => `avatar_${i + 1}.png`)];
   assert.deepEqual(deposees.filter((n) => fs.existsSync(path.join(RACINE, n))), [], 'images de la remarque encore à la racine');
 });

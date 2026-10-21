@@ -456,6 +456,9 @@ h2 {
 }
 .ornement { margin: 16px 0 20px; color: var(--c-ambre); }
 .accueil-corps .texte, .fin-corps .texte { font-weight: 300; }
+/* Phase 7 (remarque 50) : image du butin sur l'écran de fin, au-dessus du titre ; plus petite sur les écrans bas pour
+   que tout tienne sans défilement. */
+.fin-butin { display: block; width: auto; height: min(200px, 24dvh); margin: 0 auto 16px; object-fit: contain; }
 /* Étincelles de l'accueil : dans les marges latérales (16 px), jamais derrière le texte. */
 .ciel-accueil { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--marge)); right: calc(-1 * var(--marge)); pointer-events: none; overflow: hidden; }
 .ciel-accueil .etoile { position: absolute; width: 10px; height: 10px; color: var(--c-etoile); }

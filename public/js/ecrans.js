@@ -727,6 +727,8 @@ export function vueFin({ nouvelleQuete = null } = {}) {
   return h('section', { classe: 'ecran ecran-fin' },
     cielLibre('lyre', 2.4),
     h('div', { classe: 'fin-corps' },
+      // Phase 7 (remarque 50) : le butin, image de la propriétaire (décorative), au-dessus du titre.
+      h('img', { classe: 'fin-butin', src: 'img/butin.webp', alt: '', 'aria-hidden': 'true' }),
       h('p', { classe: 'accueil-salut' }, T.fin.titre),
       h('div', { classe: 'ornement', 'aria-hidden': 'true' }, filigrane()),
       h('p', { classe: 'texte' }, T.fin.texte)),
