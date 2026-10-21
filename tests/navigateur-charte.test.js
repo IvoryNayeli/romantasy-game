@@ -133,7 +133,8 @@ function inventaireMouvement() {
   for (const el of document.querySelectorAll('html, body, body *')) {
     const s = getComputedStyle(el);
     const durees = s.transitionDuration.split(',').map((x) => parseFloat(x));
-    s.transitionProperty.split(',').forEach((p, i) => { if ((durees[i % durees.length] || 0) > 0) transitions.add(p.trim()); });
+    // Phase 7 (remarque 51) : seul écart voulu, le cartouche du prénom s'élargit en douceur (transition de largeur).
+    s.transitionProperty.split(',').forEach((p, i) => { if ((durees[i % durees.length] || 0) > 0) transitions.add(el.matches('.cartouche') && p.trim() === 'width' ? 'width (cartouche)' : p.trim()); });
     s.animationName.split(',').forEach((n) => { if (n.trim() !== 'none') animations.add(n.trim()); });
     s.backgroundAttachment.split(',').forEach((x) => attachements.add(x.trim()));
   }
@@ -328,7 +329,8 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         if ((r === 255 && g === 255 && b === 255) || (r === 0 && g === 0 && b === 0)) interdits.set(cle, 'blanc ou noir pur / ombre noire');
         else if (s > 0.2 && h >= 255 && h <= 345) interdits.set(cle, 'violet ou rose');
         else if (s > 0.5 && h >= 70 && h <= 170) interdits.set(cle, 'vert vif');
-        const parchemin = nom === 'regles' && /parchemin|fermoir|^svg/.test(c.ou) && BLEUS_PARCHEMIN_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2));
+        // Bleus du logo : parchemin des règles et, depuis la remarque 51, cartouche du prénom (salle d'attente).
+        const parchemin = ((nom === 'regles' && /parchemin|fermoir|^svg/.test(c.ou)) || (nom.startsWith('salle') && /cartouche/.test(c.ou))) && BLEUS_PARCHEMIN_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2));
         if (!parchemin && !PALETTE_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2))) horsPalette.set(cle, 'hors palette');
       }
       await fermer(page);
@@ -478,9 +480,14 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       await salle.waitForTimeout(80); // sous prefers-reduced-motion toute transition dure 1 ms : on laisse finir
       const f = await salle.evaluate(() => {
         const e = document.activeElement; const s = getComputedStyle(e);
-        return { nom: `${e.tagName.toLowerCase()}.${e.className}`, style: s.outlineStyle, largeur: s.outlineWidth, couleur: s.outlineColor, decalage: s.outlineOffset, clavier: e.matches(':focus-visible') };
+        const cartouche = e.closest('.cartouche');
+        return { nom: `${e.tagName.toLowerCase()}.${e.className}`, style: s.outlineStyle, largeur: s.outlineWidth, couleur: s.outlineColor, decalage: s.outlineOffset, clavier: e.matches(':focus-visible'),
+          prenom: e.id === 'champ-prenom', halo: cartouche ? getComputedStyle(cartouche, '::after').opacity : null };
       });
       if (f.nom.startsWith('body')) continue;
+      // Phase 7 (remarque 51, maquette) : le champ du prénom n'a pas de contour ; le halo ambre du cartouche, plus fort,
+      // signale qu'il est actif.
+      if (f.prenom) { if (f.halo !== '1') defauts.push(`champ du prénom : halo du cartouche absent (${f.halo})`); continue; }
       if (!f.clavier || f.style !== 'solid' || f.largeur !== '2px' || f.couleur !== 'rgb(244, 241, 232)' || f.decalage !== '3px') defauts.push(`${JSON.stringify(f)}`);
     }
     assert.deepEqual(defauts, []);
@@ -616,7 +623,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         vues.add(cle);
         for (const p of props) if (!['opacity', 'transform', 'offset'].includes(p)) defauts.push(`@keyframes ${cle} anime « ${p} »`);
       }
-      for (const t of m.transitions) if (!['opacity', 'transform'].includes(t)) defauts.push(`[${nom}] transition sur « ${t} »`);
+      for (const t of m.transitions) if (!['opacity', 'transform', 'width (cartouche)'].includes(t)) defauts.push(`[${nom}] transition sur « ${t} »`);
       for (const n of m.animations) if (!(n in m.keyframes)) defauts.push(`[${nom}] animation « ${n} » sans @keyframes`);
       await fermer(page);
     }

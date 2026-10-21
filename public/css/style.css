@@ -486,13 +486,15 @@ h2 {
    lune, bordure ambre et double filet comme les cartes, étincelles aux coins, fermoirs au milieu des bords haut et bas,
    poussière d'étoiles entre les deux filets. Le grain de papier de la maquette n'est pas repris : l'écran a déjà son
    unique calque de grain (charte, section 8). Ombres en nuit, jamais en noir. */
-.parchemin {
-  /* Phase 7 (remarque 39) : bleus du logo de la propriétaire (mesurés sur docs/images-source/logo.png), variables
-     locales au parchemin ; les variables de la charte ne changent pas. */
+/* Phase 7 (remarque 39) : bleus du logo de la propriétaire (mesurés sur docs/images-source/logo.png), variables
+   locales au parchemin des règles et au cartouche du prénom (remarque 51) ; les variables de la charte ne changent pas. */
+.parchemin, .cartouche {
   --parchemin-haut: #0F253E;
   --parchemin-bas: #08162A;
   --parchemin-halo: #45627D55;
   --parchemin-ombre: #08162ACC;
+}
+.parchemin {
   position: relative;
   /* Phase 7 (remarque 49) : plus d'espace autour du parchemin, sur les côtés (36 px du bord de l'écran au lieu de
      24 px), en haut (40 px au lieu de 24 px) et en bas (40 px au lieu de 28 px). */
@@ -1000,6 +1002,82 @@ h2 {
 .salle-corps { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
 /* Phase 7 : premier écran, le prénom (libellé et champ) centré verticalement ; deuxième écran, les emblèmes. */
 .salle-corps .salle-prenom { margin: auto 0; padding-bottom: 48px; }
+
+/* ---------- Écran du prénom (phase 7, remarque 51, maquette de la propriétaire demo-prenom.html) ---------- */
+/* Contexte d'empilement propre : le ciel des lettres passe sous le contenu de l'écran, au-dessus des étoiles du fond. */
+.ecran-salle { isolation: isolate; }
+.salle-corps .salle-prenom { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.prenom-question { margin: 0 0 30px; color: var(--c-etoile); font: italic 500 1.75rem/1.2 var(--f-titre); text-wrap: balance; }
+/* Cartouche : bordure ambre et double filet, fond dégradé des bleus du logo, étincelles aux coins et au milieu des bords
+   gauche et droit, étiquette posée sur le bord du haut, halo ambre plus fort quand le champ est actif (calque ::after,
+   on n'anime que son opacité). Largeur posée par ecrans.js (240 px vide, puis suit le prénom sans dépasser les marges). */
+.cartouche {
+  position: relative;
+  width: 240px;
+  max-width: 100%;
+  padding: 28px 24px 22px;
+  border: var(--bordure) solid var(--c-ambre);
+  border-radius: var(--r-carte);
+  background:
+    radial-gradient(ellipse at 50% 40%, var(--parchemin-halo), transparent 70%),
+    linear-gradient(180deg, var(--parchemin-haut), var(--parchemin-bas));
+  box-shadow: inset 0 0 30px var(--parchemin-ombre), var(--lueur-ambre);
+  /* Seul écart à la charte (section 9, on n'anime que l'opacité et la transformation) : le cartouche « s'élargit en
+     douceur » avec le prénom, demande explicite de la propriétaire (remarque 51, maquette). */
+  transition: width 250ms var(--ease);
+}
+.cartouche::before { content: ''; position: absolute; inset: 6px; pointer-events: none; border: var(--filet) solid #F0A35E55; border-radius: 4px; }
+.cartouche::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  box-shadow: 0 0 30px #F0A35E77; opacity: 0;
+}
+.cartouche:focus-within::after { opacity: 1; animation: fondu 400ms var(--ease) both; }
+.cartouche > .coin { width: 10px; height: 10px; color: var(--c-ambre); }
+.cartouche > .coin-hg { top: 10px; left: 10px; }
+.cartouche > .coin-hd { top: 10px; right: 10px; }
+.cartouche > .coin-bg { bottom: 10px; left: 10px; }
+.cartouche > .coin-bd { bottom: 10px; right: 10px; }
+.cartouche-fermoir {
+  position: absolute; top: 50%; width: 14px; height: 14px; margin-top: -7px; color: var(--c-ambre); pointer-events: none;
+  filter: drop-shadow(0 0 3px #060B1E) drop-shadow(0 0 2px #060B1E);
+}
+.cartouche-fermoir-g { left: -8px; }
+.cartouche-fermoir-d { right: -8px; }
+.cartouche-etiquette {
+  position: absolute; top: 0; left: 50%; z-index: 1; transform: translate(-50%, -55%); margin: 0; padding: 0 10px;
+  background: var(--c-nuit); white-space: nowrap;
+  color: var(--c-ambre); font: 500 .75rem/1.2 var(--f-texte); letter-spacing: .2em; text-transform: uppercase;
+}
+/* Prénom : Cormorant Garamond en capitales espacées, sans halo ; taille réduite par ecrans.js (16 px au moins). */
+.cartouche .champ, .cartouche-mesure { font: 600 1.75rem/1.2 var(--f-titre); letter-spacing: .12em; text-transform: uppercase; }
+.cartouche .champ {
+  display: block; width: 100%; min-height: var(--cible); padding: 4px 0;
+  border: 0; border-radius: 0; background: transparent;
+  color: var(--c-etoile); caret-color: var(--c-ambre); text-align: center;
+}
+/* Le halo ambre du cartouche signale le champ actif (maquette), à la place du contour. */
+.cartouche .champ:focus, .cartouche .champ:focus-visible { border: 0; outline: 0; }
+.cartouche .champ::placeholder { color: #8FA6C866; }
+.cartouche-filet { height: var(--filet); margin: 2px 8px 0; background: linear-gradient(90deg, transparent, #F0A35E66 20%, #F0A35E66 80%, transparent); }
+.cartouche-mesure { position: absolute; top: 0; left: 0; visibility: hidden; white-space: pre; pointer-events: none; }
+/* Ciel des lettres : toute la largeur de l'écran, sous le contenu ; constellations dessinées par ciel.js. */
+.ciel-lettres { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--marge)); right: calc(-1 * var(--marge)); z-index: -1; pointer-events: none; }
+.ciel-lettres svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lettre-trait {
+  stroke: var(--c-lune); stroke-opacity: .28; stroke-width: .8;
+  transform-box: fill-box; transform-origin: left center;
+  animation: trace-trait 900ms var(--ease) backwards;
+}
+.lettre-astre {
+  fill: var(--c-etoile); opacity: .9;
+  transform-box: fill-box; transform-origin: center;
+  animation: naissance-astre 500ms var(--ease) backwards;
+}
+.lettre-astre-vive { fill: var(--c-ambre); filter: drop-shadow(0 0 3px #F0A35E); }
+.lettre-eteinte { animation: extinction 400ms var(--ease) forwards; }
+@keyframes trace-trait { from { transform: scaleX(0); } }
+@keyframes naissance-astre { from { opacity: 0; transform: scale(.2); } 60% { opacity: 1; transform: scale(1.6); } }
+@keyframes extinction { to { opacity: 0; } }
 .salle-corps .salle-emblemes { margin-top: 4px; }
 .code-partie {
   display: flex;

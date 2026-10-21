@@ -5,7 +5,7 @@
 // vueTransition, vueFin) : même rendu, alimenté par la partie réelle.
 
 import { h, icone, imageEmbleme, lienBouton, coins, filigrane, logo, etoile, etincelle } from './dom.js';
-import { constellation } from './ciel.js';
+import { constellation, FORMES_LETTRES, melanger, constellationLettre } from './ciel.js';
 import { trouverCode } from './codes.js';
 import * as T from './textes.js';
 import {
@@ -436,16 +436,121 @@ export function salle({ donnees, params, naviguer }) {
 // Champ du prénom (salle fictive et en réseau) : affiché et converti en majuscules.
 export function champPrenom(valeur = '', maxlength = null) {
   return h('input', {
-    classe: 'champ', id: 'champ-prenom', type: 'text', value: valeur, autocomplete: 'off',
+    classe: 'champ', id: 'champ-prenom', type: 'text', value: valeur, autocomplete: 'off', placeholder: '…',
     autocapitalize: 'characters', spellcheck: 'false', enterkeyhint: 'next', maxlength: maxlength ? String(maxlength) : null,
   });
 }
 
-// Premier écran : le prénom, centré verticalement.
+// Cartouche du prénom (phase 7, remarque 51, maquette de la propriétaire) : 240 px vide, il s'élargit avec le prénom
+// sans dépasser les marges ; au-delà, le texte rétrécit, jamais sous 16 px (au-dessous, l'iPhone zoome sur le champ).
+const PRENOM_TAILLE = 28;
+const PRENOM_TAILLE_MIN = 16;
+const CARTOUCHE_LARGEUR_MIN = 240;
+const CARTOUCHE_RESERVE = 56;   // coins, fermoirs et marges intérieures du cartouche
+const CASE_CONSTELLATION = 74;  // côté d'une case du ciel où naît une constellation
+
+function mouvementReduit() {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Premier écran : le prénom, centré verticalement. Phase 7 (remarque 51) : la phrase « Quel nom les étoiles
+// murmureront-elles ce soir ? », puis le cartouche ornementé (comme le parchemin des règles) qui porte l'étiquette
+// « Ton prénom » sur son bord du haut. Chaque lettre tapée allume une constellation dans le fond de l'écran (ciel.js),
+// dans une case libre : jamais derrière l'en-tête, la phrase, le cartouche ou le bouton ; une lettre effacée l'éteint.
 export function etapeSaisiePrenom(champ) {
-  return h('div', { classe: 'salle-etape salle-prenom formulaire' },
-    h('label', { classe: 'etiquette-champ', for: 'champ-prenom' }, T.salle.prenomLibelle),
-    champ);
+  const mesure = h('span', { classe: 'cartouche-mesure', 'aria-hidden': 'true' });
+  const cartouche = h('div', { classe: 'cartouche' },
+    coins(),
+    etincelle('cartouche-fermoir cartouche-fermoir-g'), etincelle('cartouche-fermoir cartouche-fermoir-d'),
+    h('label', { classe: 'cartouche-etiquette', for: 'champ-prenom' }, T.salle.prenomLibelle),
+    champ,
+    h('div', { classe: 'cartouche-filet', 'aria-hidden': 'true' }),
+    mesure);
+  const question = h('p', { classe: 'prenom-question' }, T.salle.prenomQuestion);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('focusable', 'false');
+  const ciel = h('div', { classe: 'ciel-lettres', 'aria-hidden': 'true' }, svg);
+  const etape = h('div', { classe: 'salle-etape salle-prenom formulaire' }, ciel, question, cartouche);
+
+  // Ordre des formes tiré à chaque ouverture de l'écran (décor, sans lien avec le jeu) : la n-ième lettre a une forme
+  // jamais vue avant.
+  const ordre = melanger(FORMES_LETTRES, 1 + (globalThis.crypto.getRandomValues(new Uint32Array(1))[0] % 100000));
+  const allumees = [];
+
+  function ajuster() {
+    const dispo = etape.clientWidth;
+    if (!dispo) return;
+    let taille = PRENOM_TAILLE;
+    mesure.textContent = champ.value;
+    mesure.style.fontSize = `${taille}px`;
+    while (mesure.offsetWidth + CARTOUCHE_RESERVE > dispo && taille > PRENOM_TAILLE_MIN) {
+      taille -= 1;
+      mesure.style.fontSize = `${taille}px`;
+    }
+    champ.style.fontSize = `${taille}px`;
+    cartouche.style.width = `${Math.min(dispo, Math.max(CARTOUCHE_LARGEUR_MIN, mesure.offsetWidth + CARTOUCHE_RESERVE + 24))}px`;
+    mesure.textContent = ''; // la mesure faite, plus rien ne dépasse du cartouche
+  }
+
+  // Cases libres du ciel : celles qui ne touchent ni le code de la partie, ni la phrase et le cartouche, ni le bouton
+  // (ni un message d'erreur), ordre mélangé une fois pour toutes (même graine : mêmes cases au même endroit).
+  function emplacements() {
+    const zone = ciel.getBoundingClientRect();
+    if (!zone.width || !zone.height) return [];
+    const ecran = etape.closest('.ecran') || document;
+    const bloque = [];
+    const bande = (el, marge) => {
+      const r = el ? el.getBoundingClientRect() : null;
+      if (r && r.height) bloque.push({ h: r.top - zone.top - marge, b: r.bottom - zone.top + marge });
+    };
+    bande(ecran.querySelector('.code-partie'), 8);
+    bloque.push({ h: question.getBoundingClientRect().top - zone.top - 16, b: cartouche.getBoundingClientRect().bottom - zone.top + 16 });
+    bande(ecran.querySelector('.barre-bas:not([hidden])'), 8);
+    for (const erreur of ecran.querySelectorAll('.erreur-champ')) if (erreur.textContent) bande(erreur, 8);
+    // Bandes libres entre les zones bloquées, remplies de rangées de cases (centrées dans chaque bande).
+    const cote = CASE_CONSTELLATION;
+    const colonnes = Math.floor(zone.width / cote);
+    const dx = (zone.width - colonnes * cote) / 2;
+    const cases = [];
+    let haut = 0;
+    for (const z of [...bloque.sort((a, b) => a.h - b.h), { h: zone.height, b: zone.height }]) {
+      const libre = z.h - haut;
+      const lignes = Math.floor(libre / cote);
+      const dy = haut + (libre - lignes * cote) / 2;
+      for (let l = 0; l < lignes; l += 1) {
+        for (let k = 0; k < colonnes; k += 1) cases.push({ x: dx + k * cote, y: dy + l * cote, cote });
+      }
+      haut = Math.max(haut, z.b);
+    }
+    return melanger(cases, 7);
+  }
+
+  function allumer() {
+    const n = [...champ.value].length;
+    while (allumees.length > n) {
+      const g = allumees.pop();
+      if (mouvementReduit()) g.remove();
+      else {
+        g.classList.add('lettre-eteinte');
+        setTimeout(() => g.remove(), 450);
+      }
+    }
+    if (allumees.length >= n) return;
+    const cases = emplacements();
+    if (!cases.length) return; // écran pas encore affiché : l'observateur ci-dessous rappellera allumer()
+    while (allumees.length < n) {
+      const rang = allumees.length;
+      const g = constellationLettre(ordre[rang % ordre.length], cases[rang % cases.length], rang);
+      svg.append(g);
+      allumees.push(g);
+    }
+  }
+
+  champ.addEventListener('input', () => { ajuster(); allumer(); });
+  // À l'affichage de l'écran, au redimensionnement et une fois les polices chargées (prénom déjà saisi compris).
+  if (typeof ResizeObserver === 'function') new ResizeObserver(() => { ajuster(); allumer(); }).observe(etape);
+  if (document.fonts) document.fonts.ready.then(ajuster);
+  return etape;
 }
 
 // Deuxième écran : l'emblème, deux par ligne, aussi grands que la colonne (l'écran défile, remarque 52).

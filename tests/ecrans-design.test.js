@@ -667,7 +667,10 @@ test('animations : retournement 3D, fondu de 300 ms, étoiles, opacity et transf
       }
     }
   }
-  for (const m of css.matchAll(/(?:^|[;\s{])transition\s*:\s*([^;]+);/g)) {
+  // Seul écart voulu (phase 7, remarque 51) : le cartouche du prénom s'élargit en douceur (transition sur width).
+  assert.equal([...css.matchAll(/transition:\s*width\b/g)].length, 1, 'une seule transition de largeur');
+  assert.match(css, /\.cartouche \{[^}]*transition: width 250ms var\(--ease\);/, 'transition de largeur réservée au cartouche du prénom');
+  for (const m of css.replace(/(\.cartouche \{[^}]*)transition: width 250ms var\(--ease\);/, '$1').matchAll(/(?:^|[;\s{])transition\s*:\s*([^;]+);/g)) {
     assert.match(m[1], /^transform\b/, `transition sur autre chose que transform : ${m[1]}`);
   }
   assert.doesNotMatch(css, /transition-property|will-change/);
