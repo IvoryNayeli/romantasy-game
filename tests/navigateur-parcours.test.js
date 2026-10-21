@@ -53,6 +53,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
       tops: [haut(code), haut(formulaire), haut(titre), haut(liste)],
       contientPrenom: Boolean(formulaire.querySelector('#champ-prenom')),
       contientEmblemes: document.querySelectorAll('.salle-emblemes .embleme-choix').length,
+      emblemesOrdre: [...document.querySelectorAll('.salle-emblemes .embleme-choix img')].map((i) => i.alt),
       emblemesMasques: Boolean(q('.salle-emblemes').closest('[hidden]')),
       titreTexte: titre.textContent.trim(),
       enfants: [...q('.salle-corps').children].map((e) => e.className || e.tagName.toLowerCase()),
@@ -69,6 +70,8 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.ok(b.listeMasquee, `${contexteTexte} : la liste du groupe ne doit apparaître qu'après « Je rejoins la compagnie »`);
     assert.ok(b.emblemesMasques, `${contexteTexte} : les emblèmes viennent sur le deuxième écran`);
     assert.ok(b.contientPrenom && b.contientEmblemes === A.emblemes.length, `${contexteTexte} : le menu doit contenir le prénom et les ${A.emblemes.length} emblèmes`);
+    // Remarque 59 : emblèmes dans l'ordre de emblemes.json (fichiers embleme_1 à embleme_9 de la propriétaire).
+    assert.deepEqual(b.emblemesOrdre, A.emblemes.map((e) => e.nom), `${contexteTexte} : ordre des emblèmes`);
     assert.equal(b.titreTexte, 'Le cercle des initié(e)s :');
     // « Discret » : petit, couleur secondaire, pas un titre, plus petit que le texte du menu.
     assert.ok(b.codeTaille <= 18 && b.codeTaille < b.prenomTaille, `${contexteTexte} : code pas discret (${b.codeTaille}px)`);

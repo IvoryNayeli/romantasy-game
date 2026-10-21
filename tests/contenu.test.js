@@ -218,3 +218,10 @@ test('docs/cartes-a-relire.md : à jour par rapport à cartes.json', () => {
     'relancer : node scripts/generer-cartes-a-relire.js'
   );
 });
+
+// Phase 7 (remarque 59) : les emblèmes sont présentés dans l'ordre des fichiers numérotés de la propriétaire
+// (embleme_1.png à embleme_9.png, correspondance retrouvée par empreinte des originaux de docs/images-source/).
+test('emblèmes : dans l\'ordre des fichiers de la propriétaire (embleme_1 à embleme_9)', () => {
+  assert.deepEqual(emblemes.map((e) => e.id),
+    ['sirene', 'demon', 'elfe', 'sorciere', 'dragon', 'meduse', 'fee', 'vampire', 'loup-garou']);
+});
