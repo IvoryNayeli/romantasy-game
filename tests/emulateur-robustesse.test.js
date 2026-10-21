@@ -132,6 +132,116 @@ describe('émulateur : robustesse (présence, coupure, absence, horloge)', () =>
     b.arreterPresence();
   });
 
+  // Phase 7 (remarque 60) : onglet fermé par inadvertance. La personne revient par « Rejoindre une partie » avec un
+  // nouvel onglet (nouvelle identité) et le même prénom : elle reprend sa place au lieu d'en créer une.
+  describe('reprise d\'une place avec le même prénom (onglet fermé)', () => {
+    it('code vérifié sans rien écrire : partie en cours trouvée, code sans partie introuvable', async () => {
+      const code = 'CRYPTE';
+      await partieCommencee(code, 2);
+      const avant = await lire(code);
+      const c = nouveauClient();
+      assert.equal((await S.verifierPartie(c.fb, { code })).issue, S.ISSUES.OK);
+      assert.equal((await S.verifierPartie(c.fb, { code: 'ELIXIR' })).issue, S.ISSUES.INTROUVABLE);
+      assert.deepEqual(c.espion.transactions, [], 'aucune écriture pour vérifier un code');
+      assert.equal((await lire(code)).nb, avant.nb);
+      assert.equal(await lire('ELIXIR'), null);
+    });
+
+    it('partie commencée : même prénom (casse et espaces ignorés) repris, même encore vu connecté ; la place joue ensuite', async () => {
+      const code = 'GRIMOIRE';
+      const { membres: [a, b] } = await partieCommencee(code, 2);
+      const avant = await lire(code);
+      // B ferme son onglet ; son ancienne connexion n'est pas encore vue coupée. Nouvel onglet, nouvelle identité.
+      const nouvelOnglet = nouveauClient();
+      const r = await S.rejoindrePartie(nouvelOnglet.fb, { code, id: S.nouvelIdentifiant(), prenom: `  ${b.prenom.toLowerCase()} ` });
+      assert.equal(r.issue, S.ISSUES.REPRIS);
+      assert.equal(r.id, b.id, 'la place de B est reprise');
+      const apres = await lire(code);
+      assert.deepEqual(apres.joueurs, avant.joueurs, 'aucune place créée ni modifiée');
+      assert.equal(apres.nb, avant.nb);
+      // Le nouvel onglet joue avec l'identité reprise (tour de A d'abord, puis le sien).
+      assert.equal(courant(apres), a.id);
+      assert.equal((await S.jouer(a.c.fb, { code, id: a.id, action: S.ACTIONS.CHOISIR, type: 'epreuve' })).issue, S.ISSUES.OK);
+      assert.equal((await S.jouer(a.c.fb, { code, id: a.id, action: S.ACTIONS.SORT })).issue, S.ISSUES.OK);
+      assert.equal((await S.jouer(nouvelOnglet.fb, { code, id: r.id, action: S.ACTIONS.CHOISIR, type: 'revelation' })).issue, S.ISSUES.OK);
+      const arreter = S.signalerPresence(nouvelOnglet.fb, code, r.id);
+      await attendrePartie(code, (p) => Object.keys(p.presents?.[b.id] || {}).length === 2, 'présence du nouvel onglet acceptée');
+      arreter();
+    });
+
+    it('partie commencée : prénom inconnu refusé comme avant (« La quête a déjà commencé »), sans rien écrire', async () => {
+      const code = 'TALISMAN';
+      await partieCommencee(code, 2);
+      const avant = await lire(code);
+      const c = nouveauClient();
+      for (const prenom of ['Inconnu', '', '   ', null]) {
+        assert.equal((await S.rejoindrePartie(c.fb, { code, id: S.nouvelIdentifiant(), prenom })).issue, S.ISSUES.COMMENCEE, String(prenom));
+      }
+      assert.deepEqual((await lire(code)).joueurs, avant.joueurs);
+    });
+
+    it('salle d\'attente : la place confirmée d\'une personne partie est reprise, sans doublon ; présente, elle est gardée (homonyme)', async () => {
+      const code = 'SORTILEGE';
+      const hote = { c: nouveauClient(), id: S.nouvelIdentifiant() };
+      assert.equal((await S.creerPartie(hote.c.fb, { code, id: hote.id, config })).issue, S.ISSUES.OK);
+      const lea = { c: nouveauClient(), id: S.nouvelIdentifiant() };
+      assert.equal((await S.rejoindrePartie(lea.c.fb, { code, id: lea.id, prenom: 'LÉA' })).issue, S.ISSUES.OK);
+      await S.choisirEmbleme(lea.c.fb, { code, id: lea.id, embleme: emblemes[1] });
+      assert.equal((await S.confirmerPresence(lea.c.fb, { code, id: lea.id, prenom: 'LÉA' })).issue, S.ISSUES.OK);
+      // Présence signalée après les transactions du client (une écriture de présence pendant une transaction du même
+      // client l'interromprait, comportement du SDK).
+      const arreterLea = S.signalerPresence(lea.c.fb, code, lea.id);
+      await attendrePartie(code, (p) => !S.estAbsent(p, lea.id), 'LÉA présente');
+
+      // Une autre personne du même prénom, alors que LÉA est toujours là : elle a sa propre place.
+      const homonyme = { c: nouveauClient(), id: S.nouvelIdentifiant() };
+      assert.equal((await S.rejoindrePartie(homonyme.c.fb, { code, id: homonyme.id, prenom: 'léa' })).issue, S.ISSUES.OK);
+      assert.ok((await lire(code)).joueurs[homonyme.id], 'homonyme présente : nouvelle place');
+
+      // LÉA ferme son onglet (connexion coupée) puis revient : elle reprend sa place, sans en créer une autre.
+      lea.c.couper();
+      await attendrePartie(code, (p) => S.estAbsent(p, lea.id), 'LÉA absente après la fermeture');
+      const avant = await lire(code);
+      const retour = nouveauClient();
+      const r = await S.rejoindrePartie(retour.fb, { code, id: S.nouvelIdentifiant(), prenom: 'Léa' });
+      assert.equal(r.issue, S.ISSUES.REPRIS);
+      assert.equal(r.id, lea.id);
+      const apres = await lire(code);
+      assert.equal(Object.keys(apres.joueurs).length, Object.keys(avant.joueurs).length, 'aucun doublon');
+      assert.equal(apres.nb, avant.nb);
+      assert.equal(apres.joueurs[lea.id].pret, true, 'présence déjà confirmée : salle d\'attente directement');
+      arreterLea();
+      lea.c.retablir();
+    });
+
+    it('salle complète : reprise possible pour la place absente, prénom inconnu refusé (« La partie est complète »)', async () => {
+      const code = 'OBSIDIENNE';
+      const membres = [];
+      for (let i = 0; i < config.joueursMax; i += 1) {
+        const m = { c: nouveauClient(), id: S.nouvelIdentifiant(), prenom: `P${i}` };
+        if (i === 0) await S.creerPartie(m.c.fb, { code, id: m.id, config });
+        else assert.equal((await S.rejoindrePartie(m.c.fb, { code, id: m.id, prenom: m.prenom })).issue, S.ISSUES.OK);
+        await S.choisirEmbleme(m.c.fb, { code, id: m.id, embleme: emblemes[i] });
+        await S.confirmerPresence(m.c.fb, { code, id: m.id, prenom: m.prenom });
+        membres.push(m);
+      }
+      for (const m of membres) m.arreter = S.signalerPresence(m.c.fb, code, m.id);
+      let partie = await attendrePartie(code, (p) => membres.every((m) => !S.estAbsent(p, m.id)), 'tout le monde présent');
+      assert.equal(S.placePossible(partie), false, 'salle complète, personne à reprendre : avis d\'emblée');
+      const c = nouveauClient();
+      assert.equal((await S.rejoindrePartie(c.fb, { code, id: S.nouvelIdentifiant(), prenom: 'P2' })).issue, S.ISSUES.COMPLETE, 'P2 encore là');
+      membres[2].c.couper();
+      partie = await attendrePartie(code, (p) => S.estAbsent(p, membres[2].id), 'P2 absente');
+      assert.equal(S.placePossible(partie), true);
+      assert.equal((await S.rejoindrePartie(c.fb, { code, id: S.nouvelIdentifiant(), prenom: 'Inconnu' })).issue, S.ISSUES.COMPLETE);
+      const r = await S.rejoindrePartie(c.fb, { code, id: S.nouvelIdentifiant(), prenom: 'p2' });
+      assert.equal(r.issue, S.ISSUES.REPRIS);
+      assert.equal(r.id, membres[2].id);
+      for (const m of membres) m.arreter();
+      membres[2].c.retablir();
+    });
+  });
+
   it('absence prolongée : le tour d\'une personne absente est passé par une autre, tour après tour, jusqu\'à la fin', async () => {
     const code = 'CRYPTE';
     const { membres } = await partieCommencee(code, 3);

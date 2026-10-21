@@ -35,7 +35,8 @@ export function salle({ donnees, params, naviguer, reseau }) {
   let noeud = null;
   let etape = 'prenom'; // phase 7 : 'prenom' puis 'embleme' ; la salle d'attente une fois la présence confirmée
   let libererPresence = null;
-  const moi = code ? reseau.identiteConnue(code) : null;
+  let refus = null; // phase 7 (remarque 60) : « complète » ou « commencée », réponse à « Je suis là ! » sans place
+  let moi = code ? reseau.identiteConnue(code) : null; // change après « Je suis là ! » (place prise ou reprise)
 
   // Navigation différée : jamais pendant la construction de l'écran.
   function aller(cible) {
@@ -65,14 +66,18 @@ export function salle({ donnees, params, naviguer, reseau }) {
     liste,
     h('p', { classe: 'texte texte-centre' }, S.accompagnement));
 
-  // Action réseau de la personne : une seule à la fois, erreur affichée sous le formulaire.
-  function agir(action) {
+  // Action réseau de la personne : une seule à la fois, erreur affichée sous le formulaire. `apres(issue)` : suite
+  // propre à l'action, une fois la réponse reçue.
+  function agir(action, apres = null) {
     if (enCours) return;
     enCours = true;
     messageErreur.textContent = '';
     maj();
     action()
-      .then((issue) => { if (issue === reseau.ISSUES.INTROUVABLE) aller({ ecran: 'rejoindre', code, erreur: 'inconnu' }); })
+      .then((issue) => {
+        if (issue === reseau.ISSUES.INTROUVABLE) { aller({ ecran: 'rejoindre', code, erreur: 'inconnu' }); return; }
+        if (apres && actif) apres(issue);
+      })
       .catch(() => { if (actif) messageErreur.textContent = T.reseau.indisponible; })
       .finally(() => { enCours = false; if (actif) maj(); });
   }
@@ -87,7 +92,21 @@ export function salle({ donnees, params, naviguer, reseau }) {
   }
   // « Je suis là ! » passe au choix de l'emblème (le prénom reste sur ce téléphone) ; « Je rejoins la compagnie »
   // envoie le prénom et confirme la présence, comme avant (aucun changement côté base).
-  const suivant = () => { if (prenomSaisi.trim()) { etape = 'embleme'; maj(); window.scrollTo(0, 0); } };
+  // Phase 7 (remarque 60) : sans place dans la partie (arrivée par « Rejoindre une partie »), « Je suis là ! » prend
+  // la place, ou reprend celle d'une personne du même prénom qui a fermé son onglet (salon.placeAReprendre) : l'onglet
+  // retrouve alors la partie où elle en est (salle d'attente ou partie, emblème, cartes et tour), sans transition.
+  const versEmbleme = () => { etape = 'embleme'; maj(); window.scrollTo(0, 0); };
+  const suivant = () => {
+    if (!prenomSaisi.trim() || enCours) return;
+    if (partie?.joueurs?.[moi]) { versEmbleme(); return; }
+    agir(() => reseau.rejoindre(code, prenomSaisi), (issue) => {
+      moi = reseau.identiteConnue(code);
+      if (issue === reseau.ISSUES.OK) etape = 'embleme';
+      else if (issue === reseau.ISSUES.COMPLETE || issue === reseau.ISSUES.COMMENCEE) refus = issue;
+      if (partie) recevoir(partie);
+      if (issue === reseau.ISSUES.OK) window.scrollTo(0, 0);
+    });
+  };
   champ.addEventListener('input', () => { prenomSaisi = majuscules(champ.value); maj(); });
   champ.addEventListener('keydown', (e) => { if (e.key === 'Enter') suivant(); });
   boutonSuivant.addEventListener('click', suivant);
@@ -110,8 +129,12 @@ export function salle({ donnees, params, naviguer, reseau }) {
     liste.replaceChildren(...lignes);
 
     // Personne absente de la liste (partie complète ou déjà commencée), ou inscrite sans « Je rejoins la compagnie » quand la
-    // quête commence : formulaire remplacé par l'avis.
-    const exclu = Boolean(partie) && (!fiche || (partie.statut === reseau.STATUTS.PARTIE && !joue(partie, moi)));
+    // quête commence : formulaire remplacé par l'avis. Phase 7 (remarque 60) : sans place, la personne saisit d'abord
+    // son prénom (elle peut reprendre sa place) ; l'avis vient si « Je suis là ! » est refusé, ou d'emblée pour une
+    // salle complète où aucune place n'est à reprendre.
+    const sansPlace = Boolean(partie) && !fiche;
+    const exclu = Boolean(partie) && ((sansPlace && (refus || !reseau.placePossible(partie)))
+      || (!sansPlace && partie.statut === reseau.STATUTS.PARTIE && !joue(partie, moi)));
     avis.hidden = !exclu;
     // Phase 7 : trois écrans successifs. Prénom (« Je suis là ! »), emblème (« Je rejoins la compagnie »), puis la
     // salle d'attente et sa liste, aussi au rechargement d'une présence déjà confirmée. L'hôte y a « Commencer ».
@@ -126,11 +149,11 @@ export function salle({ donnees, params, naviguer, reseau }) {
     if (exclu) avis.replaceChildren(...coins(), partie.statut === reseau.STATUTS.SALLE ? S.complete : T.reseau.commencee);
 
     const valide = Boolean(prenomSaisi.trim() && fiche?.embleme);
-    boutonSuivant.disabled = !prenomSaisi.trim();
+    boutonSuivant.disabled = !prenomSaisi.trim() || enCours;
     boutonPret.disabled = !fiche || pret || !valide || enCours;
     boutonCommencer.hidden = !estHote || ecranCourant !== 'salle';
     boutonCommencer.disabled = !reseau.peutCommencer(partie) || enCours;
-    champ.disabled = !fiche || pret;
+    champ.disabled = pret || exclu || enCours;
     if (pret && champ.value !== fiche.prenom) champ.value = fiche.prenom;
     for (const [id, bouton] of boutonsEmbleme) {
       const titulaire = partie?.emblemes?.[id];
@@ -149,8 +172,6 @@ export function salle({ donnees, params, naviguer, reseau }) {
     // Présence signalée dès que la personne figure dans la partie (jamais avant : la base refuserait l'écriture).
     if (fiche && !libererPresence) libererPresence = reseau.signalerPresence(code);
     if (partie.statut === reseau.STATUTS.PARTIE && joue(partie, moi)) { aller({ ecran: 'jeu', code }); return; }
-    const places = Object.keys(partie.joueurs || {}).length < partie.max;
-    if (!fiche && partie.statut === reseau.STATUTS.SALLE && places) { aller({ ecran: 'rejoindre', code }); return; }
     maj();
   }
 

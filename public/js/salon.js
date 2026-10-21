@@ -57,6 +57,7 @@ export const ISSUES = Object.freeze({
   COMPLETE: 'complete',
   COMMENCEE: 'commencee',
   REFUSE: 'refuse', // action hors de son moment (pas l'hôte, présence déjà confirmée, pas assez de monde…)
+  REPRIS: 'repris', // (phase 7, remarque 60) place existante reprise par son prénom, après la fermeture d'un onglet
 });
 
 export class ErreurReseau extends Error {
@@ -177,15 +178,57 @@ export async function creerPartie(fb, { code, id, config, maintenant = horloge(f
   return suite.issue === EXPIREE ? { issue: ISSUES.PRIS, partie: suite.partie } : suite;
 }
 
+// Prénoms comparés sans tenir compte des espaces autour ni de la casse (phase 7, remarque 60).
+export function memePrenom(a, b) {
+  const n = (p) => String(p ?? '').trim().toLocaleUpperCase('fr');
+  return n(a) !== '' && n(a) === n(b);
+}
+
+// Place qu'une personne peut reprendre avec son prénom après avoir fermé son onglet (phase 7, remarque 60) :
+// une place dont la présence est confirmée (« Je rejoins la compagnie » : seul moment où le prénom est enregistré),
+// avec le même prénom. Partie commencée : la place doit jouer (ordre des tours), qu'elle soit encore vue connectée
+// ou non (l'ancien onglet peut ne pas encore être détecté comme fermé). Salle d'attente : la place doit être
+// absente (plus aucune connexion), pour que deux personnes réelles du même prénom gardent chacune leur place.
+// Renvoie l'identifiant de la place, ou null.
+export function placeAReprendre(partie, prenom) {
+  if (!partie || !String(prenom ?? '').trim()) return null;
+  const commencee = partie.statut === STATUTS.PARTIE;
+  const place = joueursOrdonnes(partie).find((j) => j.pret === true && memePrenom(j.prenom, prenom)
+    && (commencee ? (partie.ordre || []).includes(j.id) : estAbsent(partie, j.id)));
+  return place ? place.id : null;
+}
+
+// Une place peut-elle encore être prise ou reprise ? Faux seulement pour une salle complète dont aucune place
+// confirmée n'est absente : la personne de trop voit « La partie est complète » sans saisir son prénom.
+export function placePossible(partie) {
+  if (!partie) return false;
+  if (partie.statut !== STATUTS.SALLE) return true;
+  const plein = Object.keys(partie.joueurs || {}).length >= partie.max || partie.nb >= partie.max;
+  return !plein || joueursOrdonnes(partie).some((j) => j.pret === true && estAbsent(partie, j.id));
+}
+
+// Code saisi sur « Rejoindre une partie » (phase 7, remarque 60) : la partie existe-t-elle encore ? Lecture seule
+// (la place n'est prise qu'à « Je suis là ! », avec le prénom, voir rejoindrePartie). Une partie expirée est supprimée.
+export async function verifierPartie(fb, { code, maintenant = horloge(fb) }) {
+  const pris = await codesPris(fb, [code], { maintenant });
+  return { issue: pris.has(code) ? ISSUES.OK : ISSUES.INTROUVABLE };
+}
+
 // Jonction : refusée si le code ne correspond à aucune partie en cours, si la partie est complète
 // ou déjà commencée. Une personne déjà inscrite (même identifiant) est simplement acceptée.
-export async function rejoindrePartie(fb, { code, id, maintenant = horloge(fb) }) {
+// Phase 7 (remarque 60) : avec `prenom`, une place confirmée du même prénom (voir placeAReprendre) est reprise au lieu
+// d'en créer une nouvelle : rien n'est écrit, l'issue est « repris » et `id` est l'identifiant de cette place.
+export async function rejoindrePartie(fb, { code, id, prenom = null, maintenant = horloge(fb) }) {
   let expiree = false;
+  let reprise = null;
   const r = await transaction(fb, code, (partie) => {
     expiree = false;
+    reprise = null;
     if (!partie) return null;
     if (estExpiree(partie, maintenant())) { expiree = true; return { refus: ISSUES.INTROUVABLE }; }
     if (partie.joueurs?.[id]) return partie;
+    reprise = placeAReprendre(partie, prenom);
+    if (reprise) return { refus: ISSUES.REPRIS };
     if (partie.statut !== STATUTS.SALLE) return { refus: ISSUES.COMMENCEE };
     if (Object.keys(partie.joueurs || {}).length >= partie.max || partie.nb >= partie.max) return { refus: ISSUES.COMPLETE };
     const suite = copie(partie);
@@ -195,7 +238,7 @@ export async function rejoindrePartie(fb, { code, id, maintenant = horloge(fb) }
     return suite;
   });
   if (expiree) await supprimerPartie(fb, code).catch(() => {});
-  return r;
+  return r.issue === ISSUES.REPRIS ? { ...r, id: reprise } : r;
 }
 
 // Choix (ou changement) d'emblème, tant que la présence n'est pas confirmée.

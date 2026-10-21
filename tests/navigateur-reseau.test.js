@@ -80,21 +80,23 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     const hote = await creer('RUNE');
     assert.equal(await hote.locator('.code-valeur').textContent(), 'RUNE');
     assert.equal(new URL(hote.url()).searchParams.get('demo'), null, 'parcours réel, hors démonstration');
-    assert.ok(await hote.locator('button', { hasText: 'Commencer la quête' }).isVisible(), 'l\'hôte voit « Commencer la quête »');
-    assert.ok(await hote.locator('button', { hasText: 'Commencer la quête' }).isDisabled());
+    // Phase 7 : premier écran, le prénom ; « Commencer la quête » n'apparaît que sur la salle d'attente (troisième écran).
+    assert.equal(await hote.locator('button', { hasText: 'Commencer la quête' }).isVisible(), false, 'pas encore « Commencer la quête »');
 
     const invite = await rejoindre('rune');
     await invite.waitForSelector('.ecran-salle .code-valeur', { timeout: 8000 });
-    await attendreLignes(invite, 2);
-    await attendreLignes(hote, 2);
+    // Phase 7 (remarque 60) : la place n'est prise qu'à « Je suis là ! » (avec le prénom, pour pouvoir la reprendre).
+    await attendreLignes(invite, 1);
     assert.equal(await invite.locator('button', { hasText: 'Commencer la quête' }).isVisible(), false, 'seul l\'hôte voit le bouton');
-    assert.match(await lignes(invite).nth(0).textContent(), /hôte/);
-    assert.match(await lignes(invite).nth(1).textContent(), /toi/);
 
-    // Phase 7 : inscription en deux écrans. Prénom puis « Je suis là ! » (rien n'est encore envoyé), puis l'emblème.
-    // L'invité prend le démon : grisé chez l'hôte.
+    // Phase 7 : inscription en deux écrans. Prénom puis « Je suis là ! » (la place est prise, le prénom n'est pas
+    // encore envoyé), puis l'emblème. L'invité prend le démon : grisé chez l'hôte.
     await invite.fill('#champ-prenom', 'tom');
     await invite.locator('button', { hasText: 'Je suis là !' }).click();
+    await attendreLignes(invite, 2);
+    await attendreLignes(hote, 2);
+    assert.match(await lignes(invite).nth(0).textContent(), /hôte/);
+    assert.match(await lignes(invite).nth(1).textContent(), /toi/);
     await invite.locator(`.embleme-choix:has(img[alt="Démon"])`).click();
     await hote.fill('#champ-prenom', 'léa');
     await hote.locator('button', { hasText: 'Je suis là !' }).click();
@@ -106,6 +108,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await hote.waitForSelector('.embleme-choix[aria-checked="true"]:has(img[alt="Fée"])');
     await hote.locator('button', { hasText: 'Je rejoins la compagnie' }).click();
     await invite.waitForFunction(() => /LÉA/.test(document.querySelector('.liste-joueurs').textContent), null, { timeout: 8000 });
+    assert.ok(await hote.locator('button', { hasText: 'Commencer la quête' }).isVisible(), 'l\'hôte voit « Commencer la quête »');
     assert.ok(await hote.locator('button', { hasText: 'Commencer la quête' }).isDisabled(), 'une seule présence confirmée');
 
     await invite.locator('button', { hasText: 'Je rejoins la compagnie' }).click();
@@ -161,7 +164,8 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     const page = await rejoindre('crypte');
     await page.waitForSelector('.avis-complete:not([hidden])', { timeout: 8000 });
     assert.equal((await page.locator('.avis-complete').textContent()).trim(), T.complete);
-    assert.equal(await page.locator('.formulaire').isVisible(), false);
+    assert.equal(await page.locator('.salle-prenom').isVisible(), false, 'pas de saisie du prénom');
+    assert.equal(await page.locator('.salle-emblemes').isVisible(), false);
     assert.equal(await page.locator('.barre-bas').isVisible(), false);
     await attendreLignes(page, config.joueursMax);
     await ctx.capture(page, 'reseau-salle-complete-360', { fullPage: true });
@@ -207,7 +211,6 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     };
     const invite = await rejoindre();
     const sansPresence = await rejoindre();
-    await attendreLignes(hote, 3);
 
     const presence = async (page, prenom, embleme) => {
       await page.fill('#champ-prenom', prenom);
@@ -221,6 +224,7 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await presence(invite, 'TOM', 'Démon');
     await sansPresence.fill('#champ-prenom', 'NOA');
     await sansPresence.locator('button', { hasText: 'Je suis là !' }).click();
+    await attendreLignes(hote, 3);
     await sansPresence.locator(`.embleme-choix:has(img[alt="Sirène"])`).click();
     await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
     await hote.locator('button', { hasText: 'Commencer la quête' }).click();
@@ -342,7 +346,6 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await invite.fill('#champ-code', code.toLowerCase());
     await invite.locator('.ecran-rejoindre button[type=submit]').click();
     await invite.waitForSelector('.ecran-salle .code-valeur', { timeout: DELAI });
-    await attendreLignes(hote, 2);
     for (const [page, prenom, embleme] of [[hote, 'LÉA', 'Fée'], [invite, 'TOM', 'Démon']]) {
       await page.fill('#champ-prenom', prenom);
       await page.locator('button', { hasText: 'Je suis là !' }).click();
@@ -444,6 +447,77 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     const coupure = (p) => /net::ERR_INTERNET_DISCONNECTED/.test(p);
     assert.ok(pendant.some(coupure), 'la coupure a bien été simulée');
     ctx.problemes.push(...pendant.filter((p) => !coupure(p)));
+  });
+
+  // Phase 7 (remarque 60) : onglet fermé par inadvertance. La personne revient par « Rejoindre une partie », remet le
+  // même prénom et reprend sa place : sans doublon dans la salle d'attente, et en pleine partie là où elle en était.
+  it('phase 7 : onglet fermé puis « Rejoindre une partie » avec le même prénom : place reprise (salle et partie)', async () => {
+    const code = 'ELIXIR';
+    const hote = await creer(code);
+    const inscrire = async (page, prenom, embleme) => {
+      await page.fill('#champ-prenom', prenom);
+      await page.locator('button', { hasText: 'Je suis là !' }).click();
+      if (embleme) {
+        await page.locator(`.embleme-choix:has(img[alt="${embleme}"])`).click();
+        await page.waitForSelector(`.embleme-choix[aria-checked="true"]:has(img[alt="${embleme}"])`, { timeout: DELAI });
+        await page.locator('button', { hasText: 'Je rejoins la compagnie' }).click();
+      }
+      await page.waitForSelector('.salle-attente:not([hidden])', { timeout: DELAI });
+    };
+    await inscrire(hote, 'LÉA', 'Fée');
+    let invite = await rejoindre(code.toLowerCase());
+    await inscrire(invite, 'TOM', 'Démon');
+    await attendreLignes(hote, 2);
+
+    // Salle d'attente : TOM ferme son onglet, puis revient avec « tom » : même place, aucun doublon.
+    await fermer(invite);
+    await hote.waitForSelector('.liste-joueurs .joueur-ligne:has-text("TOM") .etiquette-absent', { timeout: DELAI });
+    invite = await rejoindre(code.toLowerCase());
+    await inscrire(invite, ' tom ', null);
+    assert.equal(await invite.locator('.salle-emblemes').isVisible(), false, 'pas de nouveau choix d\'emblème');
+    await hote.waitForSelector('.liste-joueurs .etiquette-absent', { state: 'detached', timeout: DELAI });
+    assert.equal(await lignes(hote).count(), 2, 'aucun doublon chez l\'hôte');
+    assert.match(await lignes(invite).nth(1).textContent(), /TOM[\s\S]*toi/);
+    let partie = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;
+    assert.equal(Object.keys(partie.joueurs).length, 2);
+    assert.equal(partie.joueurs[await invite.evaluate((c) => sessionStorage.getItem(`romantasy-joueur-${c}`), code)].prenom, 'TOM');
+
+    // Partie commencée : l'hôte joue sa carte ; TOM ferme son onglet et revient : il retrouve son tour, sans transition.
+    await hote.waitForSelector('button:has-text("Commencer la quête"):not([disabled])', { timeout: DELAI });
+    await hote.locator('button', { hasText: 'Commencer la quête' }).click();
+    await attendreEcran(hote, 'choix');
+    await attendreEcran(invite, 'attente');
+    await hote.locator('.dos-epreuve').click();
+    await attendreEcran(hote, 'carte');
+    await hote.getByRole('button', { name: /Le sort est jeté/i }).click();
+    await attendreEcran(invite, 'choix');
+    await fermer(invite);
+    invite = await rejoindre(code.toLowerCase());
+    await invite.fill('#champ-prenom', 'Tom');
+    await invite.evaluate(() => {
+      window.ecransVus = [];
+      new MutationObserver(() => window.ecransVus.push(document.body.dataset.ecran)).observe(document.body, { attributes: true, attributeFilter: ['data-ecran'] });
+    });
+    await invite.locator('button', { hasText: 'Je suis là !' }).click();
+    await attendreEcran(invite, 'choix');
+    assert.equal(await invite.locator('.titre-tour').textContent(), 'À toi de jouer !');
+    assert.ok(!(await invite.evaluate(() => window.ecransVus)).includes('transition'), 'aucune transition rejouée');
+    await invite.locator('.dos-revelation').click();
+    await attendreEcran(invite, 'carte');
+    await attendreEcran(hote, 'attente');
+
+    // Prénom inconnu : comme avant, « La quête a déjà commencé ».
+    const inconnu = await rejoindre(code.toLowerCase());
+    await inconnu.fill('#champ-prenom', 'NOA');
+    await inconnu.locator('button', { hasText: 'Je suis là !' }).click();
+    await inconnu.waitForSelector('.avis-complete:not([hidden])', { timeout: DELAI });
+    assert.equal((await inconnu.locator('.avis-complete').textContent()).trim(), 'La quête a déjà commencé');
+    partie = (await E.rest('GET', `parties/${code}`, undefined, { admin: true })).corps;
+    assert.equal(Object.keys(partie.joueurs).length, 2, 'aucune place créée');
+    for (const page of [hote, invite, inconnu]) {
+      for (const c of ecoutes(page)) assert.equal(c, `/parties/${code}`);
+      await fermer(page);
+    }
   });
 
   it('phase 6 : Wake Lock demandé sur la salle et la partie, redemandé au retour de la page, silencieux sans l\'API', async () => {

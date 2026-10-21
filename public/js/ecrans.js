@@ -250,7 +250,8 @@ export function creer({ donnees, params, naviguer, reseau = null }) {
 
 // « Rejoindre une partie » : on saisit le code. Il doit figurer dans codes.json ; en réseau, il doit en plus
 // correspondre à une partie en cours (sinon même message « code inconnu »). Partie complète ou déjà commencée :
-// la salle d'attente l'affiche.
+// la salle d'attente l'affiche. Phase 7 (remarque 60) : la place n'est prise qu'à « Je suis là ! », avec le prénom,
+// ce qui permet de reprendre sa place après avoir fermé son onglet (voir ecrans-reseau.js).
 export function rejoindre({ donnees, params, naviguer, reseau = null }) {
   const R = T.rejoindre;
   let actif = true;
@@ -291,7 +292,7 @@ export function rejoindre({ donnees, params, naviguer, reseau = null }) {
       if (enCours) return;
       enCours = true;
       boutonValider.disabled = true;
-      reseau.rejoindre(code)
+      reseau.verifier(code)
         .then((issue) => {
           if (!actif) return;
           if (issue === reseau.ISSUES.INTROUVABLE) { erreur(R.erreurInconnu); champ.focus(); return; }

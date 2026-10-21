@@ -214,3 +214,37 @@ test('Firebase CLI : projets dev (par défaut) et prod, règles de database.rule
   assert.match(lireRacine('scripts/avec-emulateur.js'), /'--project', 'demo-romantasy'/);
   assert.doesNotMatch(paquet.scripts['test:rapide'], /emulateur\.test|navigateur/);
 });
+
+// Phase 7 (remarque 60) : reprise d'une place par le prénom après la fermeture d'un onglet (règle de choix seule ;
+// le parcours complet est vérifié sur l'émulateur, tests/emulateur-robustesse.test.js).
+test('reprise par le prénom : place confirmée, même prénom (casse et espaces ignorés), absente en salle d\'attente', async () => {
+  const { salon: S } = await E.chargerModules();
+  assert.ok(S.memePrenom(' léa ', 'LÉA'));
+  assert.ok(!S.memePrenom('', ' '));
+  assert.ok(!S.memePrenom('LÉA', 'LEA'), 'les accents comptent');
+  const salle = {
+    statut: 'salle', max: 5, nb: 3,
+    joueurs: {
+      hote: { rang: 0, pret: true, prenom: 'NOA', embleme: 'sirene' },
+      lea: { rang: 1, pret: true, prenom: 'LÉA', embleme: 'demon' },
+      tom: { rang: 2, pret: false },
+    },
+    presents: { hote: { x: true }, lea: { y: true } },
+  };
+  assert.equal(S.placeAReprendre(salle, 'léa'), null, 'salle : LÉA encore connectée, place gardée (homonyme possible)');
+  const leaPartie = structuredClone(salle);
+  delete leaPartie.presents.lea;
+  assert.equal(S.placeAReprendre(leaPartie, ' Léa '), 'lea', 'salle : LÉA absente, place reprise');
+  assert.equal(S.placeAReprendre(leaPartie, 'Tom'), null, 'présence non confirmée : aucun prénom enregistré');
+  assert.equal(S.placeAReprendre(leaPartie, ''), null);
+  const commencee = { ...structuredClone(salle), statut: 'partie', ordre: ['hote', 'lea'] };
+  assert.equal(S.placeAReprendre(commencee, 'LÉA'), 'lea', 'partie commencée : reprise même si encore vue connectée');
+  assert.equal(S.placeAReprendre(commencee, 'Inconnu'), null);
+  // Salle complète : saisie du prénom proposée seulement si une place confirmée est à reprendre.
+  const complete = { ...structuredClone(salle), max: 3 };
+  assert.equal(S.placePossible(complete), false);
+  delete complete.presents.lea;
+  assert.equal(S.placePossible(complete), true);
+  assert.equal(S.placePossible(salle), true, 'places libres');
+  assert.equal(S.placePossible(commencee), true);
+});
