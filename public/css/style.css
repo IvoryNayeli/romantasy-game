@@ -1006,11 +1006,12 @@ h2 {
 /* ---------- Écran du prénom (phase 7, remarque 51, maquette de la propriétaire demo-prenom.html) ---------- */
 /* Contexte d'empilement propre : le ciel des lettres passe sous le contenu de l'écran, au-dessus des étoiles du fond. */
 .ecran-salle { isolation: isolate; }
-.salle-corps .salle-prenom { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.salle-corps .salle-prenom:not([hidden]) { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .prenom-question { margin: 0 0 30px; color: var(--c-etoile); font: italic 500 1.75rem/1.2 var(--f-titre); text-wrap: balance; }
 /* Cartouche : bordure ambre et double filet, fond dégradé des bleus du logo, étincelles aux coins et au milieu des bords
-   gauche et droit, étiquette posée sur le bord du haut, halo ambre plus fort quand le champ est actif (calque ::after,
-   on n'anime que son opacité). Largeur posée par ecrans.js (240 px vide, puis suit le prénom sans dépasser les marges). */
+   gauche et droit, étiquette posée sur le bord du haut, halo ambre plus fort quand le champ est actif (sans transition :
+   la charte n'anime pas les ombres). Largeur posée par ecrans.js (240 px vide, puis suit le prénom sans dépasser les
+   marges). */
 .cartouche {
   position: relative;
   width: 240px;
@@ -1027,11 +1028,7 @@ h2 {
   transition: width 250ms var(--ease);
 }
 .cartouche::before { content: ''; position: absolute; inset: 6px; pointer-events: none; border: var(--filet) solid #F0A35E55; border-radius: 4px; }
-.cartouche::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  box-shadow: 0 0 30px #F0A35E77; opacity: 0;
-}
-.cartouche:focus-within::after { opacity: 1; animation: fondu 400ms var(--ease) both; }
+.cartouche:focus-within { box-shadow: inset 0 0 30px var(--parchemin-ombre), 0 0 30px #F0A35E77; }
 .cartouche > .coin { width: 10px; height: 10px; color: var(--c-ambre); }
 .cartouche > .coin-hg { top: 10px; left: 10px; }
 .cartouche > .coin-hd { top: 10px; right: 10px; }
@@ -1039,7 +1036,6 @@ h2 {
 .cartouche > .coin-bd { bottom: 10px; right: 10px; }
 .cartouche-fermoir {
   position: absolute; top: 50%; width: 14px; height: 14px; margin-top: -7px; color: var(--c-ambre); pointer-events: none;
-  filter: drop-shadow(0 0 3px #060B1E) drop-shadow(0 0 2px #060B1E);
 }
 .cartouche-fermoir-g { left: -8px; }
 .cartouche-fermoir-d { right: -8px; }
@@ -1073,7 +1069,9 @@ h2 {
   transform-box: fill-box; transform-origin: center;
   animation: naissance-astre 500ms var(--ease) backwards;
 }
-.lettre-astre-vive { fill: var(--c-ambre); filter: drop-shadow(0 0 3px #F0A35E); }
+.lettre-astre-vive { fill: var(--c-ambre); }
+.lettre-halo { fill: var(--c-ambre); opacity: .3; }  /* lueur de l'étoile ambre (un disque pâle, sans filtre) */
+.ciel-lettres svg, .lettre-trait { fill: none; }
 .lettre-eteinte { animation: extinction 400ms var(--ease) forwards; }
 @keyframes trace-trait { from { transform: scaleX(0); } }
 @keyframes naissance-astre { from { opacity: 0; transform: scale(.2); } 60% { opacity: 1; transform: scale(1.6); } }

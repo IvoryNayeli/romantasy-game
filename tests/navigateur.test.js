@@ -429,7 +429,8 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
       const interface_ = await page.evaluate(() => {
         const copie = document.body.cloneNode(true);
         copie.querySelectorAll('.carte-texte, .demo-carte, script, style, noscript').forEach((e) => e.remove());
-        return copie.textContent;
+        // Exception voulue (phase 7, remarque 51) : dans « murmureront-elles », « elles » désigne les étoiles.
+        return copie.textContent.replace('les étoiles murmureront-elles', 'les étoiles murmureront');
       });
       for (const [re, lib] of FEMININ_INTERDIT) {
         if (re.test(interface_)) defauts.push(`[${nom}] forme non inclusive « ${lib} » : ${interface_.match(re)[0]}`);

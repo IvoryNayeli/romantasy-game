@@ -419,8 +419,12 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.match(regleCss('.carte-face'), /border:\s*var\(--bordure\) solid var\(--rarete\)/, 'bordure de carte : var(--bordure) (1,5 px)');
     assert.match(regleCss('.carte-face'), /border-radius:\s*var\(--r-carte\)/);
     await fermer(carte);
+    const rejoindre = await ouvrir('index.html?ecran=rejoindre', { reduit: true });
+    assert.equal(await rejoindre.evaluate(() => getComputedStyle(document.querySelector('.champ')).borderTopLeftRadius), '4px');
+    await fermer(rejoindre);
+    // Phase 7 (remarque 51) : le champ du prénom est dans un cartouche aux coins de carte (8 px), sans cadre propre.
     const salle = await ouvrir('index.html?ecran=salle&hote=1&autres=1', { reduit: true });
-    assert.equal(await salle.evaluate(() => getComputedStyle(document.querySelector('.champ')).borderTopLeftRadius), '4px');
+    assert.equal(await salle.evaluate(() => getComputedStyle(document.querySelector('.cartouche')).borderTopLeftRadius), '8px');
     await fermer(salle);
     const pop = await ouvrir('index.html?ecran=attente&type=epreuve&tour=2', { reduit: true, dpr: 2 });
     const panneau = await pop.evaluate(() => {
@@ -482,12 +486,12 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         const e = document.activeElement; const s = getComputedStyle(e);
         const cartouche = e.closest('.cartouche');
         return { nom: `${e.tagName.toLowerCase()}.${e.className}`, style: s.outlineStyle, largeur: s.outlineWidth, couleur: s.outlineColor, decalage: s.outlineOffset, clavier: e.matches(':focus-visible'),
-          prenom: e.id === 'champ-prenom', halo: cartouche ? getComputedStyle(cartouche, '::after').opacity : null };
+          prenom: e.id === 'champ-prenom', halo: cartouche ? getComputedStyle(cartouche).boxShadow : null };
       });
       if (f.nom.startsWith('body')) continue;
       // Phase 7 (remarque 51, maquette) : le champ du prénom n'a pas de contour ; le halo ambre du cartouche, plus fort,
       // signale qu'il est actif.
-      if (f.prenom) { if (f.halo !== '1') defauts.push(`champ du prénom : halo du cartouche absent (${f.halo})`); continue; }
+      if (f.prenom) { if (!/rgba\(240, 163, 94, 0\.467\) 0px 0px 30px/.test(f.halo)) defauts.push(`champ du prénom : halo du cartouche absent (${f.halo})`); continue; }
       if (!f.clavier || f.style !== 'solid' || f.largeur !== '2px' || f.couleur !== 'rgb(244, 241, 232)' || f.decalage !== '3px') defauts.push(`${JSON.stringify(f)}`);
     }
     assert.deepEqual(defauts, []);

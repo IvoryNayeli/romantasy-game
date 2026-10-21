@@ -162,6 +162,11 @@ export function constellationLettre(forme, place, rang) {
   });
   const vive = Math.floor(r() * pts.length); // une étoile ambre par constellation
   pts.forEach(([x, y], n) => {
+    if (n === vive) {
+      const halo = el('circle', { class: 'lettre-astre lettre-halo', cx: x.toFixed(1), cy: y.toFixed(1), r: 4.5 });
+      halo.setAttribute('style', `animation-delay:${n * 70}ms`);
+      g.append(halo);
+    }
     const astre = el('circle', {
       class: n === vive ? 'lettre-astre lettre-astre-vive' : 'lettre-astre',
       cx: x.toFixed(1), cy: y.toFixed(1), r: n === vive ? 2 : (1.3 + r() * 0.6).toFixed(2),

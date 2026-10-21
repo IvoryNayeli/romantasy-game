@@ -469,6 +469,7 @@ export function etapeSaisiePrenom(champ) {
   const question = h('p', { classe: 'prenom-question' }, T.salle.prenomQuestion);
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('focusable', 'false');
+  svg.setAttribute('aria-hidden', 'true');
   const ciel = h('div', { classe: 'ciel-lettres', 'aria-hidden': 'true' }, svg);
   const etape = h('div', { classe: 'salle-etape salle-prenom formulaire' }, ciel, question, cartouche);
 
