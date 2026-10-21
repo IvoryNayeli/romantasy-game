@@ -46,7 +46,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
           }
         }
         const pol = await page.evaluate(A.mesurerPolices);
-        for (const t of pol.carte) if (t < 20) defauts.push(`[${nom} ${largeur}] texte de carte ${t}px < 20px`);
+        for (const t of pol.carte) if (t < 15) defauts.push(`[${nom} ${largeur}] texte de carte ${t}px < 15px (phase 7 : carte entière à l'écran)`);
         for (const t of pol.corps) if (t < 20) defauts.push(`[${nom} ${largeur}] texte de lecture ${t}px < 20px`);
         // Charte, section 4 : légendes >= 12 px (capitales), texte courant >= 15 px.
         for (const p of pol.petits) {
@@ -78,7 +78,8 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
           for (const p of await page.evaluate(A.mesurerDebordements)) defauts.push(`[${c.id} ${ecran} ${largeur}] ${p}`);
           for (const p of await page.evaluate(A.mesurerCarte)) defauts.push(`[${c.id} ${ecran} ${largeur}] ${p}`);
           const pol = await page.evaluate(A.mesurerPolices);
-          if (!pol.carte.length || pol.carte.some((t) => t < 20)) defauts.push(`[${c.id} ${ecran}] texte de carte < 20px (${pol.carte})`);
+          // Phase 7 (remarque 44) : la carte tient entière à l'écran ; son texte peut descendre à 15 px (20 px sinon).
+          if (!pol.carte.length || pol.carte.some((t) => t < 15)) defauts.push(`[${c.id} ${ecran}] texte de carte < 15px (${pol.carte})`);
           for (const t of pol.corps) if (t < 20) defauts.push(`[${c.id} ${ecran} ${largeur}] texte de lecture ${t}px < 20px`);
           if (c.effet) {
             const bandeau = await page.locator('.bandeau-texte, .effets-texte').allTextContents();

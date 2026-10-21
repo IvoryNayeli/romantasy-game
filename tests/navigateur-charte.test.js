@@ -31,6 +31,9 @@ function variablesDuBloc(texte) {
 const VARIABLES_CHARTE = variablesDuBloc(charte);
 const PALETTE_HEX = ['060B1E', '0F1E4A', '3C5A8C', 'C9D8EE', '8FA6C8', 'F4F1E8', 'F0A35E', 'D9693A'];
 const PALETTE_RGB = PALETTE_HEX.map((h) => [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)));
+// Phase 7 (remarque 39) : bleus du logo, admis seulement sur le parchemin des règles (variables --parchemin-*).
+const BLEUS_PARCHEMIN_HEX = ['0F253E', '08162A', '45627D'];
+const BLEUS_PARCHEMIN_RGB = BLEUS_PARCHEMIN_HEX.map((h) => [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)));
 
 /* ---------- Mesures dans la page ---------- */
 
@@ -264,19 +267,22 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   it('§2 variables : le bloc :root de style.css est identique à celui de la charte (33 variables, aucune en plus, aucune en moins)', async () => {
     const miennes = variablesDuBloc(css);
     assert.deepEqual(Object.keys(miennes).sort(), Object.keys(VARIABLES_CHARTE).sort(), 'liste des variables');
-    for (const [nom, valeur] of Object.entries(VARIABLES_CHARTE)) assert.equal(miennes[nom], valeur, `${nom}`);
+    // Seul écart, demandé par la propriétaire (phase 7, remarque 46) : --marge à 24 px au lieu de 16 px.
+    for (const [nom, valeur] of Object.entries(VARIABLES_CHARTE)) assert.equal(miennes[nom], nom === '--marge' ? '24px' : valeur, `${nom}`);
     assert.ok(Object.keys(VARIABLES_CHARTE).length >= 25);
     // Valeurs calculées dans la page.
     const page = await ouvrir('index.html?ecran=accueil');
     const calc = await page.evaluate((noms) => Object.fromEntries(noms.map((n) => [n, getComputedStyle(document.documentElement).getPropertyValue(n).trim().replace(/\s+/g, ' ').toLowerCase()])), Object.keys(VARIABLES_CHARTE));
     // --haut et --bas valent env(safe-area-inset-…, 0px) : le navigateur les résout en 0px hors zone sûre.
-    const attendu = { ...VARIABLES_CHARTE, '--haut': '0px', '--bas': '0px' };
+    const attendu = { ...VARIABLES_CHARTE, '--haut': '0px', '--bas': '0px', '--marge': '24px' };
     assert.match(VARIABLES_CHARTE['--haut'], /^env\(safe-area-inset-top, 0px\)$/);
     assert.match(VARIABLES_CHARTE['--bas'], /^env\(safe-area-inset-bottom, 0px\)$/);
     assert.deepEqual(calc, attendu);
     // Aucune variable inventée dans les règles (--rarete et --lueur sont dans la charte, section 6).
     const mvt = await page.evaluate(inventaireMouvement);
-    const permises = new Set([...Object.keys(VARIABLES_CHARTE), '--rarete', '--lueur']);
+    // Phase 7 : variables de composant posées par ecrans.js (--lettres, --colonnes) et bleus locaux du parchemin.
+    const permises = new Set([...Object.keys(VARIABLES_CHARTE), '--rarete', '--lueur', '--lettres', '--colonnes',
+      '--parchemin-haut', '--parchemin-bas', '--parchemin-halo', '--parchemin-ombre']);
     assert.deepEqual([...new Set(mvt.variables)].filter((v) => !permises.has(v)), [], 'variables CSS non prévues par la charte');
     // Aucun import externe (écart volontaire : polices hébergées).
     assert.ok(!/@import|googleapis|gstatic/.test(css), 'aucun @import ni Google Fonts');
@@ -289,7 +295,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         ajust: getComputedStyle(document.documentElement).webkitTextSizeAdjust, hauteurFenetre: innerHeight,
       };
     });
-    assert.equal(base.marge, '0px'); assert.equal(base.padding, '16px'); assert.equal(base.boite, 'border-box');
+    assert.equal(base.marge, '0px'); assert.equal(base.padding, '24px', 'marge latérale de 24 px (phase 7)'); assert.equal(base.boite, 'border-box');
     assert.equal(base.tactile, 'manipulation');
     assert.equal(Math.round(parseFloat(base.minHauteur)), base.hauteurFenetre, 'min-height: 100dvh');
     assert.match(base.police, /^Jost/); assert.equal(base.taille, '15px'); assert.equal(base.interligne, '22.5px');
@@ -322,7 +328,8 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         if ((r === 255 && g === 255 && b === 255) || (r === 0 && g === 0 && b === 0)) interdits.set(cle, 'blanc ou noir pur / ombre noire');
         else if (s > 0.2 && h >= 255 && h <= 345) interdits.set(cle, 'violet ou rose');
         else if (s > 0.5 && h >= 70 && h <= 170) interdits.set(cle, 'vert vif');
-        if (!PALETTE_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2))) horsPalette.set(cle, 'hors palette');
+        const parchemin = nom === 'regles' && /parchemin|fermoir|^svg/.test(c.ou) && BLEUS_PARCHEMIN_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2));
+        if (!parchemin && !PALETTE_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2))) horsPalette.set(cle, 'hors palette');
       }
       await fermer(page);
     }
@@ -348,7 +355,10 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       ['ecrans.js', fs.readFileSync(path.join(A.PUBLIC, 'js', 'ecrans.js'), 'utf8')], ['dom.js', fs.readFileSync(path.join(A.PUBLIC, 'js', 'dom.js'), 'utf8')]]) {
       const t = sansCommentaires(texte);
       const hex = [...t.matchAll(/#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g)].map((m) => m[1]);
-      for (const h of hex) {
+      // Bleus du parchemin : seulement dans la déclaration de ses variables locales (style.css).
+      const parchemin = nom === 'style.css' ? [...t.matchAll(/--parchemin-[\w-]+:\s*#([0-9a-fA-F]{6,8});/g)].map((m) => m[1]) : [];
+      assert.deepEqual([...new Set(parchemin.map((h) => h.slice(0, 6).toUpperCase()))].sort(), nom === 'style.css' ? [...BLEUS_PARCHEMIN_HEX].sort() : []);
+      for (const h of hex.filter((x) => !parchemin.includes(x))) {
         const six = h.length <= 4 ? h.split('').slice(0, 3).map((c) => c + c).join('') : h.slice(0, 6);
         assert.ok(PALETTE_HEX.includes(six.toUpperCase()), `${nom} : couleur #${h} hors palette`);
       }
@@ -425,7 +435,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   });
 
   /* ============ §7 + §12 : boutons, états, aucun :hover ============ */
-  it('§7 boutons : principal (ambre, texte nuit, 14 px, capitales .2em, double filet, lueur) et secondaire (transparent, filet lune), >= 48 px', async () => {
+  it('§7 boutons : principal (ambre, texte nuit, 14 px, capitales .2em, double filet, lueur) et secondaire (fond nuit, filet lune), >= 48 px', async () => {
     const page = await ouvrir('index.html?ecran=regles', { reduit: true });
     const b = await page.evaluate(() => {
       const lire = (sel) => {
@@ -444,7 +454,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.equal(p.espacement, '2.8px', 'interlettrage .2em'); assert.equal(p.rayon, '4px'); assert.ok(p.hauteur >= 48 && p.largeur >= 140);
     assert.equal((p.ombre.match(/inset/g) || []).length, 2, 'double filet : deux ombres internes');
     assert.match(p.ombre, /rgba\(240, 163, 94, 0\.333\) 0px 0px 20px/, 'lueur 0 0 20px #F0A35E55');
-    assert.equal(s.fond, 'rgba(0, 0, 0, 0)'); assert.equal(s.couleur, 'rgb(201, 216, 238)'); assert.equal(s.bordure, '1px solid rgb(201, 216, 238)');
+    assert.equal(s.fond, 'rgb(6, 11, 30)', 'phase 7 : fond nuit opaque, le bouton flotte au-dessus du contenu'); assert.equal(s.couleur, 'rgb(201, 216, 238)'); assert.equal(s.bordure, '1px solid rgb(201, 216, 238)');
     assert.equal((s.ombre.match(/inset/g) || []).length, 2); assert.equal(s.taille, '14px'); assert.equal(s.casse, 'uppercase');
     assert.ok(s.hauteur >= 48);
     await ctx.capture(page, 'boutons-regles-360', { fullPage: false });

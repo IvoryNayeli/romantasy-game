@@ -589,12 +589,14 @@ export function ajusterCartes(racine = document) {
     const haut = (avant || ecran).getBoundingClientRect().bottom + window.scrollY + 16;
     const dispo = window.innerHeight - haut - (pied ? pied.offsetHeight : 0) - 20;
     if (dispo <= 0) continue;
+    // La face garde ses proportions 2:3 et ne s'allonge que si le texte l'exige : on réduit la largeur pour que
+    // la hauteur 2:3 tienne, puis le texte tant que la face dépasse la place disponible.
     const largeurMax = carte.getBoundingClientRect().width;
-    const largeur = Math.min(largeurMax, dispo / 1.5);
+    const largeur = Math.min(largeurMax, (dispo - 4) / 1.5);
     if (largeur < largeurMax) carte.style.width = `${Math.floor(largeur)}px`;
     let taille = parseFloat(getComputedStyle(texte).fontSize);
     while (face.offsetHeight > dispo && taille > 15) {
-      taille -= 1;
+      taille = Math.max(15, taille - 1);
       texte.style.fontSize = `${taille}px`;
     }
   }

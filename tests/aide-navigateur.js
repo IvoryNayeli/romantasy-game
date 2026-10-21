@@ -201,7 +201,8 @@ function mesurerPolices() {
   return {
     carte: taille('.carte-texte'),
     // Texte de lecture (règles, cartes, bandeaux, attente) : au moins 20 px (décision du projet).
-    corps: taille('.texte, .accueil-salut, .carte-texte, .bandeau-texte, .effets-texte, .attente-message, .transition-texte, .joueur-prenom'),
+    // Le texte des cartes est mesuré à part (carte) : depuis la phase 7, il peut descendre à 15 px pour que la carte tienne à l'écran.
+    corps: taille('.texte, .accueil-salut, .bandeau-texte, .effets-texte, .attente-message, .transition-texte, .joueur-prenom'),
     petits,
   };
 }
@@ -222,6 +223,8 @@ function collecterTextes() {
     if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-image')) continue;
     // Bandeau replié (details fermé, phase 7) : son détail n'est pas affiché.
     if (parent.closest('details:not([open]) > :not(summary)')) continue;
+    // Verso d'une carte révélée (face cachée, backface-visibility: hidden) : il n'est pas affiché.
+    if (parent.closest('.carte .carte-dos')) continue;
     const s = getComputedStyle(parent);
     const r0 = parent.getBoundingClientRect();
     if (s.visibility === 'hidden' || s.display === 'none' || r0.width === 0) continue;
