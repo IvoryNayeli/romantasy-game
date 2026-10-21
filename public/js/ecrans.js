@@ -333,7 +333,7 @@ export function enteteSalle(code) {
 }
 
 // Salle d'attente fictive (phase 7) : trois écrans successifs. 1. le prénom (« Je suis là ! ») ; 2. l'emblème
-// (« Je rejoins l'aventure », qui confirme la présence) ; 3. la salle d'attente et sa liste (l'hôte y a
+// (« Je rejoins la compagnie », qui confirme la présence) ; 3. la salle d'attente et sa liste (l'hôte y a
 // « Commencer la quête »). ?etape=embleme ouvre directement le deuxième écran (avec ?prenom=…).
 export function salle({ donnees, params, naviguer }) {
   const S = T.salle;

@@ -591,7 +591,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     await page.goBack(); await page.getByRole('link', { name: /Retour aux règles/i }).click();
     await page.getByRole('link', { name: /Rejoindre une partie/i }).click(); await verifier(page, 'rejoindre');
     await page.locator('#champ-code').fill('rune'); await page.keyboard.press('Enter'); await verifier(page, 'salle 2');
-    await page.getByRole('button', { name: /Je rejoins l.aventure/i }).count();
+    await page.getByRole('button', { name: /Je rejoins la compagnie/i }).count();
     await page.goto(new URL('index.html?ecran=choix', `${ctx.base}/`).toString()); await verifier(page, 'choix');
     await page.locator('.dos-epreuve').click(); await verifier(page, 'carte');
     await page.getByRole('link', { name: /Le sort est jeté/i }).click(); await verifier(page, 'transition');

@@ -86,10 +86,11 @@ export const salle = {
   prenomLibelle: 'Ton prénom',
   // Phase 7 (remarque 51) : phrase au-dessus du cartouche du prénom (docs/regles.md, salle d'attente).
   prenomQuestion: 'Quel nom les étoiles murmureront-elles ce soir ?',
-  embleme: 'Ton emblème',
+  // Phase 7 (remarque 58) : question au-dessus des emblèmes et bouton qui confirme la présence (docs/regles.md).
+  embleme: 'Quelle puissance veille sur toi ?',
   pret: 'A rejoint la compagnie',
   suivant: 'Je suis là !',
-  pretBouton: "Je rejoins l'aventure",
+  pretBouton: 'Je rejoins la compagnie',
   commencer: 'Commencer la quête',
   complete: 'La partie est complète',
   groupe: 'Le cercle des initié(e)s :',

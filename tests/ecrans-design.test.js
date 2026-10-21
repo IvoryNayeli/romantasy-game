@@ -742,7 +742,7 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   const textes = lirePublic('js', 'textes.js');
   // Seule exception voulue par la propriétaire (itération 4) : la salutation « Bienvenue, voyageur(se). ».
   assert.doesNotMatch(textes.replace('voyageur(se)', 'voyageur'), /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
-  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je rejoins l\'aventure', 'A rejoint la compagnie']) {
+  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je rejoins la compagnie', 'A rejoint la compagnie']) {
     assert.ok(textes.includes(forme), `formulation neutre « ${forme} » absente`);
   }
   assert.match(textes, /butin/);

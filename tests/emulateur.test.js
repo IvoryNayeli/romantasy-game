@@ -151,7 +151,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
     }
   });
 
-  it('emblème : en changer libère l\'ancien ; « Je rejoins l\'aventure » exige prénom et emblème, puis devient définitif', async () => {
+  it('emblème : en changer libère l\'ancien ; « Je rejoins la compagnie » exige prénom et emblème, puis devient définitif', async () => {
     const { hote, idHote } = await partieCreee('ELIXIR');
     const autre = { c: nouveauClient(), id: id() };
     await S.rejoindrePartie(autre.c.fb, { code: 'ELIXIR', id: autre.id });
@@ -339,7 +339,7 @@ describe('émulateur : salle d\'attente en réseau', () => {
       await refuse('parties/RUNE', base({ hote: idB, joueurs: { [idB]: { rang: 0, pret: false } } }), 'code en cours repris par une autre partie');
       await accepte('parties/RUNE/joueurs/' + idA, { rang: 0, pret: true, prenom: 'Léa', embleme: 'demon' }, 'présence confirmée');
       await refuse('parties/RUNE/joueurs/' + idA + '/pret', false, 'présence retirée');
-      await refuse('parties/RUNE/joueurs/' + idA + '/prenom', 'Tom', 'prénom changé après « Je rejoins l\'aventure »');
+      await refuse('parties/RUNE/joueurs/' + idA + '/prenom', 'Tom', 'prénom changé après « Je rejoins la compagnie »');
       await refuse('parties/RUNE/statut', 'partie', 'départ sans l\'ordre des présences');
       await refuse('parties/RUNE', { statut: 'partie', ordre: [idA, idA] }, 'départ avec une seule personne (en double)', 'PATCH');
       await refuse('parties/RUNE', { statut: 'partie', ordre: [idA, idB] }, 'départ avec une personne absente', 'PATCH');

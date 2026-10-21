@@ -1,7 +1,7 @@
 // Écrans en réseau, alimentés par l'écoute de la partie en cours (parties/<CODE>) et non par des données fictives :
 // - salle d'attente (phase 4) : même écran que la salle fictive de ecrans.js (mêmes blocs, mêmes classes) ;
 // - partie (phase 5) : les écrans de tour et de fin de ecrans.js (mêmes vues), selon l'état du jeu dans la base.
-// L'écoute ne fait qu'afficher : seules les actions de la personne (emblème, « Je rejoins l'aventure », « Commencer la quête »,
+// L'écoute ne fait qu'afficher : seules les actions de la personne (emblème, « Je rejoins la compagnie », « Commencer la quête »,
 // choix de carte, « Le sort est jeté », « Invoquer un bouclier », fin d'un effet, tour passé) écrivent dans la base,
 // une transaction chacune.
 // Phase 6 : sur ces deux écrans, l'écran reste allumé (wakelock.js) et la présence de la personne est signalée
@@ -85,7 +85,7 @@ export function salle({ donnees, params, naviguer, reseau }) {
     boutonsEmbleme.set(emb.id, bouton);
     grille.append(bouton);
   }
-  // « Je suis là ! » passe au choix de l'emblème (le prénom reste sur ce téléphone) ; « Je rejoins l'aventure »
+  // « Je suis là ! » passe au choix de l'emblème (le prénom reste sur ce téléphone) ; « Je rejoins la compagnie »
   // envoie le prénom et confirme la présence, comme avant (aucun changement côté base).
   const suivant = () => { if (prenomSaisi.trim()) { etape = 'embleme'; maj(); window.scrollTo(0, 0); } };
   champ.addEventListener('input', () => { prenomSaisi = majuscules(champ.value); maj(); });
@@ -109,11 +109,11 @@ export function salle({ donnees, params, naviguer, reseau }) {
     for (let i = joueurs.length; i < max; i += 1) lignes.push(h('li', { classe: 'joueur-ligne joueur-libre', 'aria-hidden': 'true' }));
     liste.replaceChildren(...lignes);
 
-    // Personne absente de la liste (partie complète ou déjà commencée), ou inscrite sans « Je rejoins l'aventure » quand la
+    // Personne absente de la liste (partie complète ou déjà commencée), ou inscrite sans « Je rejoins la compagnie » quand la
     // quête commence : formulaire remplacé par l'avis.
     const exclu = Boolean(partie) && (!fiche || (partie.statut === reseau.STATUTS.PARTIE && !joue(partie, moi)));
     avis.hidden = !exclu;
-    // Phase 7 : trois écrans successifs. Prénom (« Je suis là ! »), emblème (« Je rejoins l'aventure »), puis la
+    // Phase 7 : trois écrans successifs. Prénom (« Je suis là ! »), emblème (« Je rejoins la compagnie »), puis la
     // salle d'attente et sa liste, aussi au rechargement d'une présence déjà confirmée. L'hôte y a « Commencer ».
     const ecranCourant = exclu || pret ? 'salle' : etape;
     etapePrenom.hidden = ecranCourant !== 'prenom';

@@ -1,5 +1,5 @@
 // Salle d'attente en réseau (phase 4) : création et jonction d'une partie par code, emblème, présence
-// (« Je rejoins l'aventure »), signal de départ (« Commencer la quête ») et nettoyage des parties.
+// (« Je rejoins la compagnie »), signal de départ (« Commencer la quête ») et nettoyage des parties.
 //
 // Ce module ne touche ni au DOM ni au SDK Firebase : les fonctions du SDK lui sont fournies dans un objet `fb`
 // ({ db, ref, get, remove, runTransaction, onValue, serverTimestamp }, voir firebase.js). Le même code tourne
@@ -218,7 +218,7 @@ export function choisirEmbleme(fb, { code, id, embleme }) {
   });
 }
 
-// « Je rejoins l'aventure » : prénom (non vide, borné) et emblème obligatoires ; définitif ensuite.
+// « Je rejoins la compagnie » : prénom (non vide, borné) et emblème obligatoires ; définitif ensuite.
 export function confirmerPresence(fb, { code, id, prenom }) {
   const propre = String(prenom ?? '').trim();
   if (!propre || propre.length > PRENOM_MAX) return Promise.resolve({ issue: ISSUES.REFUSE, partie: null });
@@ -247,7 +247,7 @@ export function commencerPartie(fb, { code, id, cartes, config, aleatoire = alea
     suite.statut = STATUTS.PARTIE;
     // Ordre des tours : les personnes qui ont confirmé leur présence, dans l'ordre d'arrivée. Les règles exigent
     // cette liste (au moins deux personnes présentes et distinctes) pour accepter le départ. Les personnes inscrites
-    // sans « Je rejoins l'aventure » n'y figurent pas : elles ne jouent pas (la salle leur affiche « La quête a déjà commencé »).
+    // sans « Je rejoins la compagnie » n'y figurent pas : elles ne jouent pas (la salle leur affiche « La quête a déjà commencé »).
     suite.ordre = joueursOrdonnes(partie).filter((j) => j.pret === true).map((j) => j.id);
     try {
       suite.jeu = creerJeu({ joueurs: suite.ordre, cartes, config, aleatoire });

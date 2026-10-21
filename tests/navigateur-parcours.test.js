@@ -32,7 +32,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await page.getByRole('button', { name: /Je suis là/i }).click();
     if (embleme instanceof RegExp) await page.getByRole('radio', { name: embleme }).click();
     else await page.locator('.embleme-choix:not(:disabled)').first().click();
-    await page.getByRole('button', { name: /Je rejoins l.aventure/i }).click();
+    await page.getByRole('button', { name: /Je rejoins la compagnie/i }).click();
   };
 
   // Position verticale et ordre dans le DOM des quatre blocs de la salle d'attente.
@@ -46,7 +46,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     const suivant = (a, b) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
     const vp = getComputedStyle(code.querySelector('.code-valeur'));
     return {
-      // Phase 7 : deux écrans successifs ; avant « Je rejoins l'aventure », la liste est masquée.
+      // Phase 7 : deux écrans successifs ; avant « Je rejoins la compagnie », la liste est masquée.
       listeMasquee: Boolean(titre.closest('[hidden]')) && Boolean(liste.closest('[hidden]')),
       presents: Boolean(code && formulaire && titre && liste),
       ordreDom: suivant(code, formulaire) && suivant(formulaire, titre) && suivant(titre, liste),
@@ -66,7 +66,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.ok(b.presents, `${contexteTexte} : bloc manquant`);
     assert.ok(b.ordreDom, `${contexteTexte} : ordre du DOM incorrect (code, menu, liste)`);
     assert.ok(b.tops[0] < b.tops[1], `${contexteTexte} : ordre visuel incorrect ${b.tops}`);
-    assert.ok(b.listeMasquee, `${contexteTexte} : la liste du groupe ne doit apparaître qu'après « Je rejoins l'aventure »`);
+    assert.ok(b.listeMasquee, `${contexteTexte} : la liste du groupe ne doit apparaître qu'après « Je rejoins la compagnie »`);
     assert.ok(b.emblemesMasques, `${contexteTexte} : les emblèmes viennent sur le deuxième écran`);
     assert.ok(b.contientPrenom && b.contientEmblemes === A.emblemes.length, `${contexteTexte} : le menu doit contenir le prénom et les ${A.emblemes.length} emblèmes`);
     assert.equal(b.titreTexte, 'Le cercle des initié(e)s :');
@@ -179,7 +179,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     assert.equal(await page.locator('.joueur-ligne:not(.joueur-libre)').count(), 2, 'l\'hôte + une personne déjà là');
     assert.match(await page.locator('.joueur-ligne.joueur-soi').first().textContent(), /hôte/i);
     assert.equal(await page.locator('.joueur-ligne.joueur-soi').count(), 1);
-    const pret = page.getByRole('button', { name: /Je rejoins l.aventure/i });
+    const pret = page.getByRole('button', { name: /Je rejoins la compagnie/i });
     assert.ok(await page.getByRole('button', { name: /Je suis là/i }).isDisabled(), '« Je suis là ! » inactif sans prénom');
     assert.equal(await page.getByRole('button', { name: /Commencer la quête/i }).count(), 0, 'premier écran : pas encore « Commencer »');
     assert.equal(await pret.count(), 0, 'premier écran : le prénom seulement');
@@ -319,7 +319,7 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
   it('salle : « prêt(e) » exige un prénom ET un emblème, un emblème déjà pris est grisé, cinq places au plus, partie complète', async () => {
     const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1&code=RUNE');
     const suivant = page.getByRole('button', { name: /Je suis là/i });
-    const pret = page.getByRole('button', { name: /Je rejoins l.aventure/i });
+    const pret = page.getByRole('button', { name: /Je rejoins la compagnie/i });
     assert.ok(await suivant.isDisabled(), '« Je suis là ! » inactif sans prénom');
     await page.locator('#champ-prenom').fill('Robin');
     assert.ok(await suivant.isEnabled());
@@ -343,13 +343,13 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     await fermer(seule);
   });
 
-  it('salle : après « Je rejoins l\'aventure », « C\'est bon » est définitif (salle d\'attente, prénom et emblèmes verrouillés)', async () => {
+  it('salle : après « Je rejoins la compagnie », « C\'est bon » est définitif (salle d\'attente, prénom et emblèmes verrouillés)', async () => {
     const page = await ouvrir('index.html?ecran=salle&hote=1&autres=1&code=RUNE');
     await inscrire(page, 'Robin', /Démon/i);
     // Phase 7 : on passe à la salle d'attente ; le formulaire (prénom, emblèmes) est masqué et verrouillé.
     assert.match(await page.locator('.joueur-soi').textContent(), /A rejoint la compagnie/i);
     assert.match(await page.locator('.joueur-soi').textContent(), /ROBIN/, 'prénom en majuscules');
-    assert.equal(await page.getByRole('button', { name: /Je rejoins l.aventure/i }).count(), 0);
+    assert.equal(await page.getByRole('button', { name: /Je rejoins la compagnie/i }).count(), 0);
     assert.ok(await page.locator('.salle-prenom').isHidden() && await page.locator('.salle-emblemes').isHidden(), 'formulaire masqué');
     assert.ok(await page.locator('#champ-prenom').isDisabled(), 'prénom verrouillé');
     assert.equal(await page.locator('.embleme-choix:not(:disabled)').count(), 0, 'emblèmes verrouillés');

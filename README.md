@@ -4,7 +4,7 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaqu
 
 ## Lancer le jeu
 
-**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je rejoins l'aventure », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. Depuis la phase 6, l'écran reste allumé pendant la salle et la partie (si le navigateur le permet), une personne dont la connexion est perdue est affichée « hors ligne » sans être retirée et retrouve la partie automatiquement quand le réseau revient ou après un rechargement de la page ; si c'est son tour, les autres peuvent le passer après quelques secondes. Les ajustements visuels arrivent en phase 7, la mise en ligne en phase 8.
+**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je rejoins la compagnie », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. Depuis la phase 6, l'écran reste allumé pendant la salle et la partie (si le navigateur le permet), une personne dont la connexion est perdue est affichée « hors ligne » sans être retirée et retrouve la partie automatiquement quand le réseau revient ou après un rechargement de la page ; si c'est son tour, les autres peuvent le passer après quelques secondes. Les ajustements visuels arrivent en phase 7, la mise en ligne en phase 8.
 
 ### Ce qu'il faut sur l'ordinateur
 
@@ -31,7 +31,7 @@ Depuis le dossier du projet, ouvrir **deux terminaux**.
 
 3. Ouvrir `http://localhost:8000/` dans le navigateur, puis « Comment ça marche ? », « Créer une partie » et choisir un code. Les codes déjà pris par une partie en cours sont grisés.
 4. Pour les autres personnes : « Rejoindre une partie » et saisir le même code (majuscules, minuscules et accents n'ont pas d'importance). Sur un seul ordinateur, chaque **onglet** compte pour une personne différente : on peut donc essayer à plusieurs avec plusieurs onglets.
-5. Une fois au moins deux présences confirmées, l'hôte touche « Commencer la quête ». Chaque personne joue à son tour, dans l'ordre d'arrivée ; seule la personne dont c'est le tour voit les cartes à choisir et les boutons. Les personnes inscrites sans avoir touché « Je rejoins l'aventure » ne jouent pas. À l'écran de fin, « Nouvelle quête » ramène à l'accueil et efface la partie terminée.
+5. Une fois au moins deux présences confirmées, l'hôte touche « Commencer la quête ». Chaque personne joue à son tour, dans l'ordre d'arrivée ; seule la personne dont c'est le tour voit les cartes à choisir et les boutons. Les personnes inscrites sans avoir touché « Je rejoins la compagnie » ne jouent pas. À l'écran de fin, « Nouvelle quête » ramène à l'accueil et efface la partie terminée.
 
 Pour arrêter : `Ctrl+C` dans chacun des deux terminaux. Les parties de l'émulateur sont effacées à son arrêt.
 
