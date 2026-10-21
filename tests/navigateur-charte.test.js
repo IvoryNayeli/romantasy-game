@@ -454,7 +454,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.equal(p.espacement, '2.8px', 'interlettrage .2em'); assert.equal(p.rayon, '4px'); assert.ok(p.hauteur >= 48 && p.largeur >= 140);
     assert.equal((p.ombre.match(/inset/g) || []).length, 2, 'double filet : deux ombres internes');
     assert.match(p.ombre, /rgba\(240, 163, 94, 0\.333\) 0px 0px 20px/, 'lueur 0 0 20px #F0A35E55');
-    assert.equal(s.fond, 'rgb(6, 11, 30)', 'phase 7 : fond nuit opaque, le bouton flotte au-dessus du contenu'); assert.equal(s.couleur, 'rgb(201, 216, 238)'); assert.equal(s.bordure, '1px solid rgb(201, 216, 238)');
+    assert.equal(s.fond, 'rgba(0, 0, 0, 0)', 'phase 7 (remarque 47) : fond transparent, le bouton ne passe plus au-dessus du contenu'); assert.equal(s.couleur, 'rgb(201, 216, 238)'); assert.equal(s.bordure, '1px solid rgb(201, 216, 238)');
     assert.equal((s.ombre.match(/inset/g) || []).length, 2); assert.equal(s.taille, '14px'); assert.equal(s.casse, 'uppercase');
     assert.ok(s.hauteur >= 48);
     await ctx.capture(page, 'boutons-regles-360', { fullPage: false });
@@ -489,6 +489,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     const page = await ouvrir('index.html?ecran=regles', { reduit: false });
     await finAnimations(page);
     const cible = page.locator('.barre-bas .bouton-principal');
+    await cible.scrollIntoViewIfNeeded(); // phase 7 (remarque 47) : boutons des règles à la fin du contenu
     const avant = await cible.evaluate((e) => ({ t: getComputedStyle(e).transform, o: getComputedStyle(e).boxShadow }));
     const r = await cible.boundingBox();
     await page.mouse.move(r.x + r.width / 2, r.y + r.height / 2);
@@ -809,18 +810,33 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   });
 
   /* ============ §7 : barre d'actions, panneaux ============ */
-  // Phase 7 (remarque 38) : boutons « flottants », sans bande ni fond derrière eux, toujours collés en bas.
-  it('§7 boutons du bas flottants : sans fond ni filet, collés en bas (pouce) pendant le défilement, marge de sécurité', async () => {
-    const page = await ouvrir('index.html?ecran=regles', { hauteur: 640, reduit: true });
-    const m = await page.evaluate(() => { const s = getComputedStyle(document.querySelector('.barre-bas')); return { fond: s.backgroundColor, filet: `${s.borderTopWidth} ${s.borderTopStyle} ${s.borderTopColor}`, position: s.position, bas: s.bottom, padding: s.paddingBottom, ecart: s.rowGap }; });
-    assert.equal(m.fond, 'rgba(0, 0, 0, 0)'); assert.match(m.filet, /^0px none/); assert.equal(m.position, 'sticky'); assert.equal(m.bas, '0px');
-    // Position stable : les boutons restent au même endroit de l'écran au début et au milieu du défilement.
+  // Phase 7 (remarque 47, qui remplace la remarque 38) : boutons fixes en bas de la page, sans bande ni fond. Les
+  // écrans fixes tiennent dans la hauteur, boutons en bas ; les règles défilent et leurs boutons viennent à la fin.
+  it('§7 boutons du bas fixes : sans fond ni filet, en bas de l\'écran fixe, à la fin des règles, marge de sécurité', async () => {
+    let page = await ouvrir('index.html?ecran=rejoindre', { largeur: 390, hauteur: 700, reduit: true });
+    const fixe = await page.evaluate(() => {
+      const barre = document.querySelector('.barre-bas'); const s = getComputedStyle(barre);
+      const b = barre.querySelector('.bouton').getBoundingClientRect();
+      return { fond: s.backgroundColor, filet: `${s.borderTopWidth} ${s.borderTopStyle} ${s.borderTopColor}`, position: s.position, defile: document.documentElement.scrollHeight - innerHeight, ecartBas: innerHeight - b.bottom };
+    });
+    assert.equal(fixe.fond, 'rgba(0, 0, 0, 0)'); assert.match(fixe.filet, /^0px none/); assert.equal(fixe.position, 'static');
+    assert.ok(fixe.defile <= 0, `écran fixe : défilement de ${fixe.defile} px`);
+    assert.ok(Math.abs(fixe.ecartBas - 12) <= 1, `bouton en bas de l'écran (${fixe.ecartBas} px du bas)`);
+    await fermer(page);
+    page = await ouvrir('index.html?ecran=regles', { largeur: 390, hauteur: 700, reduit: true });
     const y = async () => page.evaluate(() => Math.round(document.querySelector('.barre-bas .bouton').getBoundingClientRect().top));
-    const debut = await y();
-    await page.evaluate(() => window.scrollTo(0, 300));
-    assert.equal(await y(), debut, 'bouton immobile pendant le défilement');
-    assert.ok(parseFloat(m.ecart) >= 8, 'au moins 8 px entre les deux boutons');
+    assert.ok(await y() > 700, 'règles : les boutons ne sont pas visibles avant le défilement (à la fin du contenu)');
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const fin = await page.evaluate(() => {
+      const barre = document.querySelector('.barre-bas');
+      const b = [...barre.querySelectorAll('.bouton')].map((x) => x.getBoundingClientRect());
+      return { parchemin: document.querySelector('.parchemin').getBoundingClientRect().bottom, haut: barre.getBoundingClientRect().top, b: b.map((x) => [x.top, x.bottom]), ecart: getComputedStyle(barre).rowGap };
+    });
+    assert.ok(fin.haut >= fin.parchemin, 'règles : boutons après le parchemin');
+    assert.ok(fin.b.every(([t, bt]) => t >= 0 && bt <= 700), 'règles : boutons visibles en fin de défilement');
+    assert.ok(parseFloat(fin.ecart) >= 8, 'au moins 8 px entre les deux boutons');
     assert.match(css, /padding:\s*12px 0 calc\(12px \+ var\(--bas\)\)/, 'marge de sécurité --bas');
+    assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /position:\s*sticky/, 'plus de bouton ni de pied collé pendant le défilement');
     await fermer(page);
   });
 

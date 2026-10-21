@@ -84,6 +84,8 @@ export const salle = {
   hote: 'hôte',
   vous: 'toi',
   prenomLibelle: 'Ton prénom',
+  // Phase 7 (remarque 51) : phrase au-dessus du cartouche du prénom (docs/regles.md, salle d'attente).
+  prenomQuestion: 'Quel nom les étoiles murmureront-elles ce soir ?',
   embleme: 'Ton emblème',
   pret: 'A rejoint la compagnie',
   suivant: 'Je suis là !',

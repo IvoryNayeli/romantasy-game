@@ -536,11 +536,11 @@ test('images : chaque emblème a son image, les images référencées existent, 
   const emblemes = JSON.parse(lirePublic('data', 'emblemes.json'));
   const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp', ...emblemes.map((e) => e.image)]);
   // Phase 7 (remarque 42) : bandes d'étoiles à 4 branches du fond, référencées par la feuille de style.
-  for (const cote of ['gauche', 'droite']) {
+  for (const cote of ['gauche', 'droite', 'haut', 'bas']) {
     assert.ok(css.includes(`url('../img/etoiles-${cote}.svg')`), `étoiles-${cote}.svg utilisée par style.css`);
     assert.ok(fs.existsSync(path.join(PUBLIC, 'img', `etoiles-${cote}.svg`)));
   }
-  const fonds = ['img/etoiles-gauche.svg', 'img/etoiles-droite.svg'];
+  const fonds = ['img/etoiles-gauche.svg', 'img/etoiles-droite.svg', 'img/etoiles-haut.svg', 'img/etoiles-bas.svg'];
   const code = [lirePublic('index.html'), lirePublic('demo.html'), ...listerFichiers(path.join(PUBLIC, 'js'), /\.js$/).map((f) => fs.readFileSync(f, 'utf8'))].join('\n');
   for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
   for (const chemin of references) {
@@ -704,7 +704,7 @@ test('textes : l\'interface reprend les textes validés de docs/regles.md', asyn
     T.tour.transitionJete('[prénom]').replace('[prénom]', '[prénom]'),
     T.tour.transitionBouclier('[prénom]'),
     T.fin.titre, T.fin.texte, T.fin.bouton,
-    T.salle.accompagnement, T.salle.complete, T.salle.commencer,
+    T.salle.accompagnement, T.salle.complete, T.salle.commencer, T.salle.prenomQuestion,
   ];
   for (const texte of attendus) assert.ok(md.includes(norm(texte)), `absent de docs/regles.md : « ${texte} »`);
   assert.equal(T.tour.compteur(1, config.tours), `Tour 1 / ${config.tours}`);
@@ -729,7 +729,8 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   const fichiers = listerFichiers(PUBLIC, /\.(html|js|css)$/).filter((f) => !f.includes(`${path.sep}data${path.sep}`));
   assert.ok(fichiers.length >= 10);
   for (const f of fichiers) {
-    const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f);
+    // Exception voulue (phase 7, remarque 51) : « murmureront-elles », où « elles » désigne les étoiles, pas une personne.
+    const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f).replace('les étoiles murmureront-elles', 'les étoiles murmureront');
     for (const [nom, motif] of Object.entries(interdits)) {
       assert.doesNotMatch(code, motif, `${path.relative(RACINE, f)} : forme interdite « ${nom} »`);
     }

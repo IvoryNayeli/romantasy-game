@@ -317,7 +317,7 @@ export function majuscules(texte) {
   return String(texte).toLocaleUpperCase('fr');
 }
 
-// Grille du choix de l'emblème (phase 7) : deux emblèmes par ligne (huit emblèmes : quatre lignes).
+// Grille du choix de l'emblème (phase 7) : deux emblèmes par ligne (neuf emblèmes : cinq lignes, l'écran défile).
 export function grilleEmblemes(donnees) {
   return h('div', {
     classe: 'grille-emblemes', role: 'radiogroup', 'aria-label': T.salle.embleme,
@@ -448,7 +448,7 @@ export function etapeSaisiePrenom(champ) {
     champ);
 }
 
-// Deuxième écran : l'emblème, deux par ligne, aussi grands que possible.
+// Deuxième écran : l'emblème, deux par ligne, aussi grands que la colonne (l'écran défile, remarque 52).
 export function etapeChoixEmbleme(grille) {
   return h('div', { classe: 'salle-etape salle-emblemes formulaire' },
     h('p', { classe: 'etiquette-champ' }, T.salle.embleme),

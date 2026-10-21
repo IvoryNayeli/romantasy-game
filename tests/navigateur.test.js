@@ -188,6 +188,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
   // « Échange de butins fait » reste atteignable, sans masquer les boutons d'action.
   it('bandeau des effets en cours : replié par défaut, déroulé lisible (contrastes), boutons d\'action toujours visibles', async () => {
     const defauts = [];
+    let mesures = 0;
     for (const largeur of LARGEURS) {
       for (const chemin of ['?ecran=attente&type=epreuve&tour=2', '?ecran=carte&type=epreuve&tour=2&effets=1', '?ecran=choix&tour=2&effets=1']) {
         const page = await ouvrir(`index.html${chemin}`, { largeur, hauteur: 640, reduit: true });
@@ -203,8 +204,12 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
         if (geo.piedBas > geo.H + 0.5) defauts.push(`[${chemin} ${largeur}] pied hors de l'écran`);
         if (geo.piedHaut < 0) defauts.push(`[${chemin} ${largeur}] bandeau déroulé plus haut que l'écran`);
         if (geo.boutons.some(([h, b]) => h < 0 || b > geo.H + 0.5)) defauts.push(`[${chemin} ${largeur}] bouton d'action masqué`);
+        // Phase 7 (remarque 47) : déroulé, le détail s'ouvre vers le haut par-dessus le contenu de l'écran (qui ne
+        // défile plus) : on mesure la lisibilité du bandeau lui-même, pas celle des textes qu'il recouvre.
+        const texteBandeau = await page.locator('.effets-en-cours').innerText();
         for (const r of await ctx.contrastes(page)) {
-          if (r.desactive || !Number.isFinite(r.ratio)) continue;
+          if (r.desactive || !Number.isFinite(r.ratio) || !texteBandeau.includes(r.texte)) continue;
+          mesures += 1;
           const seuil = r.taille >= 24 || (r.taille >= 18.66 && r.gras) ? 3 : 4.5;
           if (r.ratio < seuil) defauts.push(`[${chemin} ${largeur}] contraste ${r.ratio.toFixed(2)} : « ${r.texte} »`);
         }
@@ -212,6 +217,7 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
       }
     }
     assert.deepEqual(defauts, []);
+    assert.ok(mesures >= 6, `contrastes du bandeau déroulé mesurés (${mesures})`);
   });
 
   it('contrastes : textes de la fenêtre de confirmation du bouclier', async () => {
@@ -640,32 +646,33 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     }
   });
 
-  // Itération 1 : « aucun défilement sur 360 x 640 ». Avec le logo complet de la charte, l'accueil dépasse de quelques
-  // dizaines de pixels : l'exigence devient « bouton toujours visible, texte atteignable et jamais masqué par la barre,
-  // dépassement <= 100 px » (voir le rapport, remarque R2).
-  it('accueil et fin : sur 360 x 640 le bouton reste visible, tout le texte est atteignable sans être masqué par la barre, dépassement <= 100 px', async () => {
+  // Phase 7 (remarque 47) : écrans fixes, tout tient dans la hauteur, bouton compris. Sur le plus petit téléphone
+  // (360 x 640), l'accueil dépasse encore de quelques dizaines de pixels (texte à 20 px, logo, constellation) : il
+  // défile alors, bouton à la fin, sans rien masquer (tolérance de 48 px, à discuter avec la propriétaire).
+  it('accueil et fin : aucun défilement à 375 x 667, 390 x 664 et 412 x 915 ; à 360 x 640, dépassement <= 48 px, bouton en bas, rien de masqué', async () => {
     for (const ecran of ['accueil', 'fin']) {
-      const page = await ouvrir(`index.html?ecran=${ecran}`, { largeur: 360, hauteur: 640 });
-      await finAnimations(page);
-      const m = await page.evaluate(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-        const barre = document.querySelector('.barre-bas').getBoundingClientRect();
-        const textes = [...document.querySelectorAll('.accueil-corps .texte, .fin-corps .texte')];
-        const dernier = textes[textes.length - 1].getBoundingClientRect();
-        const bouton = document.querySelector('.bouton').getBoundingClientRect();
-        return { depassement: document.documentElement.scrollHeight - innerHeight, barreHaut: barre.top, dernierBas: dernier.bottom, boutonBas: bouton.bottom, boutonHaut: bouton.top, h: innerHeight };
-      });
-      console.log(`# ${ecran} 360x640 : dépassement ${m.depassement} px`);
-      assert.ok(m.depassement <= 100, `${ecran} : défile de ${m.depassement} px`);
-      assert.ok(m.boutonHaut >= 0 && m.boutonBas <= m.h, `${ecran} : bouton hors de la fenêtre`);
-      assert.ok(m.dernierBas <= m.barreHaut + 1, `${ecran} : dernier paragraphe masqué par la barre (${m.dernierBas} > ${m.barreHaut})`);
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await ctx.capture(page, `${ecran}-360x640`);
-      await fermer(page);
+      for (const [largeur, hauteur, tolerance] of [[360, 640, ecran === 'accueil' ? 48 : 0], [375, 667, 0], [390, 664, 0], [412, 915, 0]]) {
+        const page = await ouvrir(`index.html?ecran=${ecran}`, { largeur, hauteur });
+        await finAnimations(page);
+        const m = await page.evaluate(() => {
+          window.scrollTo(0, document.body.scrollHeight);
+          const barre = document.querySelector('.barre-bas').getBoundingClientRect();
+          const textes = [...document.querySelectorAll('.accueil-corps .texte, .fin-corps .texte')];
+          const dernier = textes[textes.length - 1].getBoundingClientRect();
+          const bouton = document.querySelector('.bouton').getBoundingClientRect();
+          return { depassement: document.documentElement.scrollHeight - innerHeight, barreHaut: barre.top, dernierBas: dernier.bottom, boutonBas: bouton.bottom, boutonHaut: bouton.top, h: innerHeight };
+        });
+        assert.ok(m.depassement <= tolerance, `${ecran} ${largeur} x ${hauteur} : défile de ${m.depassement} px`);
+        assert.ok(m.boutonHaut >= 0 && m.boutonBas <= m.h, `${ecran} : bouton hors de la fenêtre`);
+        assert.ok(m.dernierBas <= m.barreHaut + 1, `${ecran} : dernier paragraphe masqué par la barre (${m.dernierBas} > ${m.barreHaut})`);
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await ctx.capture(page, `${ecran}-${largeur}x${hauteur}`);
+        await fermer(page);
+      }
     }
   });
 
-  it('règles : le dernier paragraphe n\'est jamais masqué par la barre de boutons fixée en bas, boutons toujours visibles', async () => {
+  it('règles : boutons à la fin du contenu, visibles en fin de défilement, le dernier paragraphe jamais masqué', async () => {
     for (const largeur of LARGEURS) {
       const page = await ouvrir('index.html?ecran=regles', { largeur, hauteur: 640 });
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -678,8 +685,9 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
       assert.ok(m.dernier <= m.barre + 1, `${largeur} : dernier paragraphe masqué (${m.dernier} > ${m.barre})`);
       assert.ok(m.b.every(([t, bt]) => t >= 0 && bt <= m.H), `${largeur} : boutons hors fenêtre`);
       await page.evaluate(() => window.scrollTo(0, 0));
-      const haut = await page.evaluate(() => document.querySelector('.barre-bas .bouton').getBoundingClientRect().bottom);
-      assert.ok(haut <= 640, `${largeur} : boutons non fixés en bas au début`);
+      // Phase 7 (remarque 47) : les boutons des règles sont à la fin du contenu, plus collés en bas pendant le défilement.
+      const haut = await page.evaluate(() => document.querySelector('.barre-bas .bouton').getBoundingClientRect().top);
+      assert.ok(haut > 640, `${largeur} : boutons visibles avant la fin des règles`);
       await ctx.capture(page, `regles-bas-${largeur}x640`);
       await fermer(page);
     }
