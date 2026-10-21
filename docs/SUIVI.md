@@ -31,7 +31,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 7, itération 2 : 10 remarques complémentaires reçues avant le rapport, en cours de traitement ; testeur et suite complète ensuite (port 9000 de l'émulateur à libérer).
+Phase 7, itération 2 : remarques 13 à 34 traitées (`2e4f181`) ; 11 nouvelles remarques (36 à 46) en cours ; questions ouvertes sur la remarque 25 (centrage vertical) ; testeur et suite complète ensuite (ports 9000 et 8000 à libérer).
 
 ## Journal
 
@@ -43,6 +43,8 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-20, phase 7 : 12 remarques reçues sur l'itération 1 ([remarques/phase-7](remarques/phase-7.md)), lancement de l'itération 2.
 - 2026-10-20, phase 7 : itération 2 développée (`ca035ab`), `test:rapide` 86 réussis ; `npm test` non lancé, port 9000 pris par l'émulateur de la propriétaire.
 - 2026-10-20, phase 7 : 10 remarques complémentaires reçues avant le rapport de l'itération 2 ([remarques/phase-7](remarques/phase-7.md)), traitées dans la même itération.
+- 2026-10-20, phase 7 : remarques 13 à 34 traitées (`2e4f181`), `test:rapide` 86 réussis, navigateur hors réseau 62 réussis ; 13 remarques complémentaires reçues dont 2 coupées (questions posées).
+- 2026-10-21, phase 7 : 11 remarques complémentaires reçues avant le rapport (numérotées 36 à 46), traitées dans l'itération 2.
 
 ## Défauts ouverts
 

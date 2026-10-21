@@ -63,3 +63,25 @@ Reproduites mot pour mot.
 > - Quand on affiche "Le sort est jeté pour" ou "a invoqué un bouclier" on met déjà l'image de bouclier ou d'étoile, alors ne met pas l'emblème en plus, ça surcharge
 > - Quand on clique sur "échange de buton fait" et que le bandeau de sorts en cours disparaît, fais un petit effet d'étoiles qui se dispersent en explosion, discret
 > - À l'exception de la page d'acceuil, le logo doit avoir exactement la même taille sur toutes les pages. Cale tout sur la taille qui est sur la page
+
+## Troisièmes remarques complémentaires (reçues le 2026-10-21, pendant l'itération 2, avant son rapport), traitées en itération 2
+
+Reproduites mot pour mot.
+
+> Phase 7, remarques :
+> 1. Sur la page d'accueil : sur téléphone, la constellation au-dessus du logo n'apparaît pas
+> 2. Sur la page d'accueil : diminue légèrement la taille du logo
+> 3. Sur toutes les pages : l'affichage des boutons en bas de page doit être "flottant", et pas dans une section qu'on voit apparaître par-dessus l'écran en cours. La position du bouton doit rester stable, même quand la page en cours défile vers le haut ou vers le bas.
+> 4. Sur la page des règles du jeu : changer seulement les bleus du parchemin pour ceux du logo (mesurés sur docs/images-source/logo.png) :
+> - dégradé du fond : de #0F253E (en haut) vers #08162A (en bas), au lieu de --c-minuit vers --c-nuit ;
+> - halo du fond : #45627D à 33 % d'opacité (#45627D55), au lieu de #3C5A8C55 ;
+> - ombre intérieure : #08162ACC, au lieu de #060B1ECC ;
+> - fond des fermoirs : #08162A, au lieu de --c-nuit.
+> Ces trois bleus sont déclarés comme variables locales au parchemin, sans modifier les variables de la charte. Bordure, filets, étincelles, texte et police des titres inchangés.
+> 5. Sur la page des règles du jeu : les titres de section doivent être en Cinzel decorative
+> 6. Sur toutes les pages : sur téléphone, les emblèmes apparaissent dans une qalité très dégradée, très pixellisée. Il faut corriger ça.
+> 7. Sur toutes les pages : les étoiles du fond apparaîssent comme des points, je voudrais qu'elles aient plutôt des formes d'étoiles à 4 branches
+> 8. Sur toutes les pages : augmente légèrement la taille du logo en haut des pages
+> 9. Sur les pages de carte révélée : la carte doit apparaître entièrement à l'écran, sans besoin de scroller vers le bas
+> 10 Sur tous les écrans : si un deuxième effet apparaît, le premier est supprimé de la liste même si personne n'a cliqué sur "échange de butins fait"
+> 11. Sur toutes les pages : Augmente les marges sur les bords pour qu'il y ait plus d'espace entre les côté de l'écran et les éléments présents sur l'écran (sauf les étoiles)
