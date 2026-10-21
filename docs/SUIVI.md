@@ -31,7 +31,7 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 
 ## Prochaine action
 
-Phase 7, itération 2 : remarques 47 à 52 et réponses de la propriétaire traitées (`547a1f8`) ; suite complète `npm test` à lancer une fois les ports 9000 et 8000 libérés, puis rapport de l'itération 2.
+Phase 7, itération 2 : remarques 53 à 60 traitées (`c26afe2`) ; attendre les réponses de la propriétaire sur la reprise de place (remarque 60), puis lancer `npm test` une fois les ports 9000 et 8000 libérés, et écrire le rapport de l'itération 2.
 
 ## Journal
 
@@ -47,6 +47,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-21, phase 7 : 11 remarques complémentaires reçues avant le rapport (numérotées 36 à 46), traitées dans l'itération 2.
 - 2026-10-21, phase 7 : remarques 47 à 52 faites (`4e81ff8`), `test:rapide` 87 réussis, navigateur hors réseau 67 réussis ; `npm test` non lancé (ports 9000 et 8000 pris) ; choix soumis à la propriétaire.
 - 2026-10-21, phase 7 : réponses de la propriétaire consignées ; emblèmes de la salle réduits, plus aucun défilement de 360x640 à 412x915 (`547a1f8`), `test:rapide` 87 réussis, navigateur hors réseau 68 réussis ; `npm test` toujours bloqué par les ports.
+- 2026-10-21, phase 7 : 8 remarques complémentaires reçues (numérotées 53 à 60), faites (`c26afe2`), dont la reprise de sa place après fermeture de l'onglet (60) ; `test:rapide` 90 réussis ; émulateur 63 réussis ; `npm test` lancé par le développeur sur une copie avec un émulateur séparé (231 réussis, 1 échec propre à la copie), pas encore dans le dépôt ; deux choix sur la 60 soumis à la propriétaire.
 
 ## Défauts ouverts
 
@@ -54,7 +55,7 @@ Aucun.
 
 ## Décisions à confirmer
 
-Phase 7 (détail en section 7 de [phase-7-iteration-1](rapports/phase-7-iteration-1.md)) : correspondance des avatars (`avatar_4` Chevalier, `avatar_7` Démon, fichier Gemini Sorcière) ; grande étoile de la transition « Le sort est jeté » non remplacée ; épée, étoile et emblèmes agrandis ; originaux gardés dans `docs/images-source/` ; icônes game-icons.net des emblèmes à retirer du plan de la phase 8 ; personnes fictives portant Démon et Chevalier.
+Phase 7 (détail en section 7 de [phase-7-iteration-1](rapports/phase-7-iteration-1.md)) : correspondance des avatars (`avatar_4` Chevalier, `avatar_7` Démon, fichier Gemini Sorcière) ; grande étoile de la transition « Le sort est jeté » non remplacée ; épée, étoile et emblèmes agrandis ; originaux gardés dans `docs/images-source/` ; icônes game-icons.net des emblèmes à retirer du plan de la phase 8 ; personnes fictives portant Démon et Chevalier. Remarque 60 : en salle d'attente, place reprise seulement si elle est hors ligne (homonyme présent : nouvelle place) ; ordre d'arrivée compté à « Je suis là ! » et non plus à la saisie du code ; place non confirmée perdue si l'onglet est fermé avant « Je rejoins la compagnie ».
 
 ## Risques reportés
 
