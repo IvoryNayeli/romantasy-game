@@ -97,3 +97,15 @@ Reproduites mot pour mot.
 > 4. Utilise l'image butin.png sur la page finale, celle qui dit que la quête d'achève
 > 5. Sur la page où l'on entre son prénom : reprendre la maquette ~/Bureau/demo-prenom.html (elle fait référence pour le rendu, les couleurs, les tailles et les animations). Au-dessus du champ, ajouter la phrase « Quel nom les étoiles murmureront-elles ce soir ? » en Cormorant Garamond italique, couleur étoile, centrée (à ajouter dans docs/regles.md). Le champ du prénom devient un cartouche ornementé, comme le parchemin des règles : bordure ambre avec double filet, fond dégradé avec les bleus du logo, étincelles à 4 branches aux quatre coins et au milieu des bords gauche et droit, l'étiquette « TON PRÉNOM » posée sur le bord du haut, un filet ambre discret sous le texte, et un halo ambre plus fort quand le champ est actif. Le cartouche ne prend pas toute la largeur de l'écran : 240 px quand il est vide, puis il s'élargit en douceur avec la longueur du prénom, sans dépasser les marges. Au-delà, le texte rétrécit, sans jamais descendre sous 16 px. Le prénom s'écrit en Cormorant Garamond en capitales espacées (la même police que le code de la partie), sans halo. On garde le passage automatique en majuscules et la limite de 24 caractères. Chaque lettre tapée fait apparaître une constellation dans le fond de l'écran : les étoiles naissent une à une, les traits se dessinent, et une étoile de chaque constellation est ambre. Toutes les constellations ont une forme différente (24 formes, une par lettre possible, ordre tiré au hasard sans répétition). Effacer une lettre éteint sa constellation. Elles ne passent jamais derrière l'en-tête, la phrase, le cartouche ou le bouton. Sans animation si le téléphone demande moins de mouvement. Les étoiles scintillantes du fond habituel restent visibles sur cette page, sous les constellations.
 > 6. Remplace les emblèmes existants par les nouveaux emblèmes emblème_*.png que je t'ai fourni. Il y en a 9, ils doivent être présentés 2 par ligne. L'écran de sélection d'emblème peut être scrollé.
+
+## Réponses aux questions sur les remarques 47 à 52 (reçues le 2026-10-21, pendant l'itération 2, avant son rapport)
+
+Réponses reproduites mot pour mot ; entre crochets, la question posée par le chef de phase.
+
+> 1. Prénom comme il est actuellement [police du code de la partie : le code reste en Jost, le prénom en Cormorant Garamond]
+> 2. Réduire les emblèmes [écrans qui dépassent en hauteur : accueil en 360x640, salle d'attente à cinq personnes]
+> 3. Oui [bouton « Je rejoins l'aventure » à la fin de la liste des emblèmes]
+> 4. Oui [détail des effets en cours ouvert vers le haut, par-dessus l'écran]
+> 5. Oui [marges du parchemin comprises comme extérieures]
+> 6. Oui [écarts à la maquette du prénom : pas d'ombre sur les fermoirs, halo sans transition, seule la largeur du cartouche est animée]
+> 7. Oui [neuvième emblème centré]
