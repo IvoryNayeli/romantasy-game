@@ -462,6 +462,9 @@ h2 {
 .ciel-accueil + .ciel-libre { flex: 1 0 48px; }
 /* Phase 7 (remarque 47) : l'accueil tient dans l'écran, bouton compris, sans défilement (espacements resserrés). */
 .ecran-accueil .accueil-corps { padding: 4px 0 8px; }
+/* Réponse 2 : sur les téléphones de 360 px de large, la salutation (36 px) passait sur deux lignes pour 4 px ; elle
+   descend à 35 px environ (9,75vw) et tient sur une ligne. Le texte de 20 px et le logo ne changent pas. */
+.ecran-accueil .accueil-salut { font-size: min(2.25rem, 9.75vw); }
 .ecran-accueil .ornement { margin: 12px 0 14px; }
 .ecran-accueil .accueil-corps .texte:last-child { margin-bottom: 0; }
 .accueil-salut {
@@ -1090,10 +1093,10 @@ h2 {
 .code-libelle { font: 400 .75rem/1.4 var(--f-texte); letter-spacing: .25em; text-transform: uppercase; }
 .code-valeur { font: 500 1rem/1.4 var(--f-texte); letter-spacing: .25em; text-transform: uppercase; overflow-wrap: anywhere; }
 /* Phase 7 (remarque 47) : salle d'attente resserrée pour que la liste de cinq personnes tienne à l'écran avec le bouton. */
-.titre-liste { margin: 16px 0 8px; }
+.titre-liste { margin: 12px 0 8px; }  /* réponse 2 : 12 px au lieu de 16 px */
 .salle-attente > .texte:last-child { margin-bottom: 0; }
 
-.liste-joueurs { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+.liste-joueurs { display: flex; flex-direction: column; gap: 4px; margin: 0 0 8px; padding: 0; list-style: none; }
 .joueur-ligne {
   display: flex;
   flex-wrap: wrap;
@@ -1105,6 +1108,9 @@ h2 {
   border-radius: var(--r-bouton);
   background: #0F1E4A99;
 }
+/* Réponse 2 de la propriétaire (remarque 47) : emblèmes réduits dans la liste (1,75 rem au lieu de 2,75 rem), pour que
+   la salle d'attente à cinq personnes tienne à l'écran avec son bouton. */
+.joueur-ligne .embleme, .joueur-ligne .embleme-vide { width: 1.75rem; height: 1.75rem; }
 .joueur-soi { border-color: var(--c-lune); }
 .joueur-libre { border-style: dashed; background: transparent; }
 .joueur-prenom { flex: 0 1 auto; min-width: 0; color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: anywhere; }
@@ -1166,7 +1172,8 @@ h2 {
 
 .avis-complete {
   --rarete: var(--c-braise);
-  margin: 24px 0;
+  margin: 12px 0 4px;   /* réponse 2 : 24 px avant et après auparavant */
+  padding: 14px 20px;
   border-color: var(--c-braise);
   color: var(--c-braise);
   font: 600 1.5rem/1.25 var(--f-titre);

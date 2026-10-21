@@ -647,12 +647,11 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     }
   });
 
-  // Phase 7 (remarque 47) : écrans fixes, tout tient dans la hauteur, bouton compris. Sur le plus petit téléphone
-  // (360 x 640), l'accueil dépasse encore de quelques dizaines de pixels (texte à 20 px, logo, constellation) : il
-  // défile alors, bouton à la fin, sans rien masquer (tolérance de 48 px, à discuter avec la propriétaire).
-  it('accueil et fin : aucun défilement à 375 x 667, 390 x 664 et 412 x 915 ; à 360 x 640, dépassement <= 48 px, bouton en bas, rien de masqué', async () => {
+  // Phase 7 (remarque 47 et réponse 2 de la propriétaire) : écrans fixes, tout tient dans la hauteur, bouton compris,
+  // du plus petit téléphone (360 x 640) au plus grand.
+  it('accueil et fin : aucun défilement de 360 x 640 à 412 x 915, bouton en bas, rien de masqué', async () => {
     for (const ecran of ['accueil', 'fin']) {
-      for (const [largeur, hauteur, tolerance] of [[360, 640, ecran === 'accueil' ? 48 : 0], [375, 667, 0], [390, 664, 0], [412, 915, 0]]) {
+      for (const [largeur, hauteur, tolerance] of [[360, 640, 0], [375, 667, 0], [390, 664, 0], [390, 700, 0], [412, 915, 0]]) {
         const page = await ouvrir(`index.html?ecran=${ecran}`, { largeur, hauteur });
         await finAnimations(page);
         const m = await page.evaluate(() => {
@@ -671,6 +670,22 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
         await fermer(page);
       }
     }
+  });
+
+  it('salle d\'attente à cinq personnes (hôte, autre personne, partie complète) : aucun défilement de 360 x 640 à 412 x 915', async () => {
+    const max = A.config.joueursMax;
+    const salles = [`?ecran=salle&hote=1&autres=${max - 1}&prenom=Noa&embleme=sirene&pret=1`, `?ecran=salle&autres=${max - 1}&prenom=Noa&embleme=sirene&pret=1`, '?ecran=salle&complete=1'];
+    const defauts = [];
+    for (const [largeur, hauteur] of [[360, 640], [375, 667], [390, 664], [390, 700], [412, 915]]) {
+      for (const chemin of salles) {
+        const page = await ouvrir(`index.html${chemin}`, { largeur, hauteur, reduit: true });
+        await finAnimations(page);
+        const d = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+        if (d > 0) defauts.push(`${chemin} ${largeur} x ${hauteur} : défile de ${d} px`);
+        await fermer(page);
+      }
+    }
+    assert.deepEqual(defauts, []);
   });
 
   it('règles : boutons à la fin du contenu, visibles en fin de défilement, le dernier paragraphe jamais masqué', async () => {
