@@ -281,12 +281,12 @@ test('textes : plus de « participant(e)s » ni de « participantes » (formulat
   }
 });
 
-test('design : polices Cormorant Garamond (500, 600, 500 italique), Jost (300, 400, 500) et IM Fell English SC (titres de section, phase 7) hébergées, licences OFL, plus de Cinzel', () => {
+test('design : polices Cormorant Garamond (500, 600, 500 italique), Jost (300, 400, 500) et Cinzel Decorative 700 (titres de section des règles, phase 7) hébergées, licences OFL', () => {
   const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
   const declarees = faces.map((f) => `${f.match(/font-family:\s*'([^']+)'/)[1]}|${f.match(/font-weight:\s*(\d+)/)[1]}|${f.match(/font-style:\s*(\w+)/)[1]}`).sort();
   assert.deepEqual(declarees, [
-    'Cormorant Garamond|500|italic', 'Cormorant Garamond|500|normal', 'Cormorant Garamond|600|normal',
-    'IM Fell English SC|400|normal', 'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal',
+    'Cinzel Decorative|700|normal', 'Cormorant Garamond|500|italic', 'Cormorant Garamond|500|normal', 'Cormorant Garamond|600|normal',
+    'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal',
   ]);
   for (const face of faces) {
     const src = face.match(/url\('([^']+)'\)\s*format\('woff2'\)/);
@@ -295,22 +295,27 @@ test('design : polices Cormorant Garamond (500, 600, 500 italique), Jost (300, 4
     assert.ok(fs.existsSync(fichier), `police manquante : ${src[1]}`);
     assert.equal(fs.readFileSync(fichier).subarray(0, 4).toString('latin1'), 'wOF2', `${src[1]} n'est pas un woff2`);
   }
-  for (const licence of ['LICENSE-Jost-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt', 'LICENSE-IMFellEnglishSC-OFL.txt']) {
+  for (const licence of ['LICENSE-Jost-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt', 'LICENSE-CinzelDecorative-OFL.txt']) {
     assert.ok(existe('fonts', licence), `${licence} manquante`);
     assert.match(lirePublic('fonts', licence), /SIL Open Font License/);
   }
-  // Cinzel n'est plus utilisée : ni fichier, ni licence, ni référence.
-  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /cinzel/i.test(f)), []);
-  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /700/.test(f)), [], 'graisse 700 non prévue par la charte');
-  for (const f of listerFichiers(PUBLIC, /\.(html|css|js)$/)) {
-    assert.doesNotMatch(fs.readFileSync(f, 'utf8'), /cinzel/i, `${path.relative(RACINE, f)} : référence à Cinzel`);
+  // Phase 7 (remarque 40) : Cinzel Decorative, choisie par la propriétaire, sert seulement aux titres de section des
+  // règles, en graisse 700 (seul fichier 700 admis) ; IM Fell English SC n'est plus utilisée.
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /cinzel/i.test(f)).sort(), ['CinzelDecorative-700.woff2', 'LICENSE-CinzelDecorative-OFL.txt']);
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /700/.test(f)), ['CinzelDecorative-700.woff2']);
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /fell/i.test(f)), [], 'IM Fell English SC retirée');
+  const sansFaces = css.replace(/@font-face\s*\{[^}]*\}/g, '');
+  assert.deepEqual([...sansFaces.matchAll(/[^\n]*Cinzel[^\n]*/g)].map((m) => m[0].trim().split(' ')[0]), ['font:'], 'Cinzel seulement dans la règle des titres de section');
+  assert.match(sansFaces, /\.titre-section h2 \{[^}]*font: 700 1\.5rem\/1\.2 'Cinzel Decorative'/);
+  for (const f of listerFichiers(PUBLIC, /\.(html|js)$/)) {
+    assert.doesNotMatch(fs.readFileSync(f, 'utf8'), /cinzel|IM Fell/i, `${path.relative(RACINE, f)} : référence à une police de titre hors du CSS`);
   }
   // Les familles de la charte sont bien celles des variables, et aucune graisse non chargée n'est demandée.
   const v = variables();
   assert.match(v['--f-titre'], /^'Cormorant Garamond'/);
   assert.match(v['--f-texte'], /^'Jost'/);
-  assert.doesNotMatch(css, /font-weight:\s*(?:700|800|900|bold)\b/);
-  assert.doesNotMatch(css, /\bfont:\s*(?:italic\s+)?(?:700|800|900|bold)\b/);
+  assert.doesNotMatch(css.replace(/@font-face\s*\{[^}]*\}/g, ''), /font-weight:\s*(?:700|800|900|bold)\b/);
+  assert.doesNotMatch(css.replace(/font: 700 1\.5rem\/1\.2 'Cinzel Decorative'/, ''), /\bfont:\s*(?:italic\s+)?(?:700|800|900|bold)\b/);
 });
 
 // Phase 4 : seules exceptions, les deux modules Firebase (SDK du CDN officiel gstatic, adresses des bases),
@@ -337,7 +342,9 @@ test('design : variables de la charte (docs/charte-graphique.md, section 2) repr
   const v = variables();
   const charte = variablesCharte();
   assert.ok(Object.keys(charte).length >= 25, 'bloc :root de la charte introuvable');
-  assert.deepEqual(v, charte, 'le bloc :root doit être identique à celui de la charte (mêmes variables, mêmes valeurs)');
+  // Seul écart, demandé par la propriétaire (phase 7, remarque 46) : marge latérale de 24 px au lieu de 16 px.
+  assert.equal(v['--marge'], '24px', 'marge latérale de la phase 7');
+  assert.deepEqual({ ...v, '--marge': charte['--marge'] }, charte, 'le bloc :root doit être identique à celui de la charte (mêmes variables, mêmes valeurs), hors --marge');
   const attendu = {
     '--c-nuit': '#060B1E', '--c-minuit': '#0F1E4A', '--c-brume': '#3C5A8C', '--c-lune': '#C9D8EE',
     '--c-lune-douce': '#8FA6C8', '--c-etoile': '#F4F1E8', '--c-ambre': '#F0A35E', '--c-braise': '#D9693A',
@@ -346,7 +353,8 @@ test('design : variables de la charte (docs/charte-graphique.md, section 2) repr
   // Toute variable utilisée dans le CSS existe : dans :root, ou propre à un composant (--rarete, --lueur de la charte ;
   // phase 7 : --lettres et --colonnes, posées par ecrans.js sur le titre d'attente et la grille des emblèmes).
   const utilisees = new Set([...css.matchAll(/var\((--[\w-]+)/g)].map((m) => m[1]));
-  for (const nom of utilisees) assert.ok(nom in v || ['--rarete', '--lueur', '--lettres', '--colonnes'].includes(nom), `variable inventée : ${nom}`);
+  // Phase 7 (remarque 39) : bleus du logo, variables locales au parchemin des règles (--parchemin-*).
+  for (const nom of utilisees) assert.ok(nom in v || ['--rarete', '--lueur', '--lettres', '--colonnes'].includes(nom) || /^--parchemin-(haut|bas|halo|ombre)$/.test(nom), `variable inventée : ${nom}`);
   assert.doesNotMatch(css, /@import/);
   // docs/PROJET.md, section « Design » : nouvelle palette et nouvelles polices, renvoi à la charte, plus d'ancienne palette.
   const projet = lire('docs', 'PROJET.md');
@@ -513,7 +521,7 @@ test('logo : image de la propriétaire (fond transparent), version complète et 
   assert.ok(fs.existsSync(fichier), 'public/img/logo.webp présent');
   assert.ok(fs.statSync(fichier).size < 100 * 1024, 'logo léger (moins de 100 Ko)');
   assert.ok(!fs.existsSync(path.join(PUBLIC, 'data', 'logo.jpeg')), 'la source JPEG n\'est pas servie par le site');
-  assert.match(html, /<img class="logo-compact" src="img\/logo\.webp" alt="Romantasy" width="40" height="40">/, 'version compacte de 40 px dans la barre');
+  assert.match(html, /<img class="logo-compact" src="img\/logo\.webp" alt="Romantasy" width="52" height="52">/, 'version compacte de 52 px dans la barre (phase 7)');
   assert.match(lirePublic('js', 'ecrans.js'), /classe: 'logo-complet', role: 'img', 'aria-label': T\.logoNom/, 'version complète sur l\'accueil, nom accessible neutre');
   assert.equal(lirePublic('js', 'textes.js').match(/logoNom = '([^']*)'/)[1], 'Logo du jeu', 'nom accessible neutre (pas de nom écrit)');
   // Remarque de la propriétaire (itération 2) : aucun titre sur l'accueil, donc plus de nom écrit sous le logo.
@@ -527,6 +535,12 @@ test('logo : image de la propriétaire (fond transparent), version complète et 
 test('images : chaque emblème a son image, les images référencées existent, aucune image orpheline ni à la racine', () => {
   const emblemes = JSON.parse(lirePublic('data', 'emblemes.json'));
   const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', ...emblemes.map((e) => e.image)]);
+  // Phase 7 (remarque 42) : bandes d'étoiles à 4 branches du fond, référencées par la feuille de style.
+  for (const cote of ['gauche', 'droite']) {
+    assert.ok(css.includes(`url('../img/etoiles-${cote}.svg')`), `étoiles-${cote}.svg utilisée par style.css`);
+    assert.ok(fs.existsSync(path.join(PUBLIC, 'img', `etoiles-${cote}.svg`)));
+  }
+  const fonds = ['img/etoiles-gauche.svg', 'img/etoiles-droite.svg'];
   const code = [lirePublic('index.html'), lirePublic('demo.html'), ...listerFichiers(path.join(PUBLIC, 'js'), /\.js$/).map((f) => fs.readFileSync(f, 'utf8'))].join('\n');
   for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
   for (const chemin of references) {
@@ -539,7 +553,7 @@ test('images : chaque emblème a son image, les images référencées existent, 
     assert.ok(brut.length < limite * 1024, `${chemin} trop lourde`);
   }
   const presentes = listerFichiers(path.join(PUBLIC, 'img'), /\.\w+$/).map((f) => path.relative(PUBLIC, f).split(path.sep).join('/'));
-  assert.deepEqual(presentes.sort(), [...references].sort(), 'images de public/img/ = images référencées');
+  assert.deepEqual(presentes.sort(), [...references, ...fonds].sort(), 'images de public/img/ = images référencées');
   // Images déposées par la propriétaire à la racine (remarque 1 de la phase 7) : déplacées, il n'en reste aucune.
   const deposees = ['logo.png', 'épée.png', 'étoile.png', 'bouclier.png', 'Gemini_Generated_Image_ntcqu3ntcqu3ntcq(8).png',
     ...Array.from({ length: 7 }, (_, i) => `avatar_${i + 1}.png`)];
@@ -615,7 +629,8 @@ test('ciel : constellations (étoiles reliées par des filets très fins, sans t
   // La page des règles : titres de section bien plus grands que le texte, filigrane ambre sous le titre, pleine largeur.
   assert.match(ecrans, /function titreSection\(texte\)[\s\S]*h\('h2', null, texte\),\s*h\('div', \{ classe: 'titre-section-ornement'[\s\S]*filigrane\(\)/);
   const titre = plancherEnPixels(propriete('.titre-section h2', 'font')[0].match(/(?:^|\s)([\d.]+rem)(?:\/)/)[1], variables());
-  assert.ok(titre >= 28 && titre <= 40, `titre de section de ${titre} px : bien visible mais sous les titres d'écran`);
+  // Phase 7 (remarque 40) : Cinzel Decorative, très large, à 24 px comme dans la maquette de la propriétaire.
+  assert.ok(titre >= 24 && titre <= 40, `titre de section de ${titre} px : bien visible mais sous les titres d'écran`);
   assert.ok(propriete('.titre-section h2', 'color').includes('var(--c-etoile)'));
   assert.ok(propriete('.titre-section-ornement', 'color').includes('var(--c-ambre)'));
   assert.ok(enPixels(propriete('.titre-section', 'margin')[0].split(/\s+/)[0], variables()) >= 40, 'grande marge supérieure');

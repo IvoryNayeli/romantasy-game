@@ -66,7 +66,13 @@ function montrer(nom, noeud) {
   const paire = CIEL_ENTETE[nom];
   cielEntete.replaceChildren(...(paire ? [constellation(paire[0], { classe: 'c-gauche' }), constellation(paire[1], { classe: 'c-droite' })] : []));
   zone.replaceChildren(noeud);
+  ecrans.ajusterCartes(zone);
 }
+
+// Phase 7 (remarque 44) : la carte révélée tient à l'écran ; on la réajuste si la fenêtre change de taille (barre
+// d'adresse du téléphone, rotation) et une fois les polices chargées.
+window.addEventListener('resize', () => ecrans.ajusterCartes(zone));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ecrans.ajusterCartes(zone));
 
 function afficher(premiere = false) {
   if (nettoyer) nettoyer();

@@ -767,19 +767,19 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     });
   }
 
-  it('§5 logo : image de la propriétaire, version complète (230 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
+  it('§5 logo : image de la propriétaire, version complète (200 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
     const accueil = await ouvrir('index.html?ecran=accueil', { reduit: true });
     const a = await accueil.evaluate(() => {
       const complet = document.querySelector('.logo-complet'); const image = document.querySelector('img.logo-grand'); const g = image.getBoundingClientRect();
       const compact = document.querySelector('.logo-compact');
       return { role: complet.getAttribute('role'), nom: complet.getAttribute('aria-label'), w: g.width, h: g.height, compactVisible: getComputedStyle(compact).visibility, src: image.getAttribute('src'), charge: image.naturalWidth > 0, masquee: image.getAttribute('aria-hidden') };
     });
-    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 230, h: 230, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
+    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 200, h: 200, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
     await fermer(accueil);
     for (const [nom, c] of ECRANS.filter(([n]) => n !== 'accueil').slice(0, 12)) {
       const page = await ouvrir(`index.html${c}`, { reduit: true });
       const b = await page.evaluate(() => { const l = document.querySelector('.logo-compact'); const r = l.getBoundingClientRect(); return { w: r.width, h: r.height, balise: l.tagName, nom: l.getAttribute('alt'), charge: l.naturalWidth > 0, vis: getComputedStyle(l).visibility }; });
-      assert.deepEqual(b, { w: 40, h: 40, balise: 'IMG', nom: 'Romantasy', charge: true, vis: 'visible' }, `logo compact sur ${nom}`);
+      assert.deepEqual(b, { w: 52, h: 52, balise: 'IMG', nom: 'Romantasy', charge: true, vis: 'visible' }, `logo compact sur ${nom}`);
       await fermer(page);
     }
     assert.doesNotMatch(html, /i-logo/, 'plus de symbole SVG provisoire');
@@ -799,12 +799,18 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   });
 
   /* ============ §7 : barre d'actions, panneaux ============ */
-  it('§7 barre d\'actions en bas : fond nuit à 90 %, filet supérieur 1 px brume, collée en bas (pouce), marge de sécurité', async () => {
+  // Phase 7 (remarque 38) : boutons « flottants », sans bande ni fond derrière eux, toujours collés en bas.
+  it('§7 boutons du bas flottants : sans fond ni filet, collés en bas (pouce) pendant le défilement, marge de sécurité', async () => {
     const page = await ouvrir('index.html?ecran=regles', { hauteur: 640, reduit: true });
     const m = await page.evaluate(() => { const s = getComputedStyle(document.querySelector('.barre-bas')); return { fond: s.backgroundColor, filet: `${s.borderTopWidth} ${s.borderTopStyle} ${s.borderTopColor}`, position: s.position, bas: s.bottom, padding: s.paddingBottom, ecart: s.rowGap }; });
-    assert.equal(m.fond, 'rgba(6, 11, 30, 0.9)'); assert.equal(m.filet, '1px solid rgb(60, 90, 140)'); assert.equal(m.position, 'sticky'); assert.equal(m.bas, '0px');
+    assert.equal(m.fond, 'rgba(0, 0, 0, 0)'); assert.match(m.filet, /^0px none/); assert.equal(m.position, 'sticky'); assert.equal(m.bas, '0px');
+    // Position stable : les boutons restent au même endroit de l'écran au début et au milieu du défilement.
+    const y = async () => page.evaluate(() => Math.round(document.querySelector('.barre-bas .bouton').getBoundingClientRect().top));
+    const debut = await y();
+    await page.evaluate(() => window.scrollTo(0, 300));
+    assert.equal(await y(), debut, 'bouton immobile pendant le défilement');
     assert.ok(parseFloat(m.ecart) >= 8, 'au moins 8 px entre les deux boutons');
-    assert.match(css, /padding:\s*12px var\(--marge\) calc\(12px \+ var\(--bas\)\)/, 'marge de sécurité --bas');
+    assert.match(css, /padding:\s*12px 0 calc\(12px \+ var\(--bas\)\)/, 'marge de sécurité --bas');
     await fermer(page);
   });
 

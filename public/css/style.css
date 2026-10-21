@@ -4,11 +4,11 @@
 
 /* ---------- Polices hébergées avec le site (licence OFL, voir public/fonts/) ---------- */
 @font-face {
-  font-family: 'IM Fell English SC';
-  font-weight: 400;
+  font-family: 'Cinzel Decorative';
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: url('../fonts/IMFellEnglishSC-400.woff2') format('woff2');
+  src: url('../fonts/CinzelDecorative-700.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Cormorant Garamond';
@@ -88,7 +88,7 @@
 
   /* Espacements et zones tactiles */
   --cible: 48px;            /* hauteur minimale de tout élément cliquable */
-  --marge: 16px;           /* marge latérale d'écran */
+  --marge: 24px;           /* marge latérale d'écran ; phase 7 : 24 px au lieu des 16 px de la charte (demande de la propriétaire) */
   --haut: env(safe-area-inset-top, 0px);
   --bas: env(safe-area-inset-bottom, 0px);
 }
@@ -168,7 +168,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .entete > :not(.ciel-entete) { position: relative; z-index: 1; }
 .entete::after { content: ''; width: var(--cible); flex: none; }
 .entete-gauche { display: flex; align-items: center; width: var(--cible); flex: none; }
-.logo-compact { width: 40px; height: 40px; flex: none; }
+.logo-compact { width: 52px; height: 52px; flex: none; }  /* phase 7 : 52 px (40 px avant) */
 body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Constellations (décor : quelques étoiles reliées par des filets très fins, sans texte) ----------
@@ -206,7 +206,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   pointer-events: none;
 }
 .ciel-libre .constellation { margin: 8px 0; max-height: calc(100% - 16px); }
-@container (max-height: 80px) { .ciel-libre .constellation { display: none; } }
+@container (max-height: 40px) { .ciel-libre .constellation { display: none; } }
 
 .ecran-zone { flex: 1; display: flex; flex-direction: column; outline: none; }
 
@@ -279,30 +279,34 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 }
 /* Deuxième calque du dégradé de densité (voir .ecran-zone::before). */
 .page::after {
-  background-image:
-    radial-gradient(circle at 67.5% 258px, #C9D8EE99 0 0.7px, transparent 1.5px),
-    radial-gradient(circle at 25.7% 412px, #C9D8EE99 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 80.1% 269px, var(--c-lune) 0 0.8px, transparent 1.6px),
-    radial-gradient(circle at 17.3% 391px, var(--c-lune) 0 0.5px, transparent 1.3px),
-    radial-gradient(circle at 83.5% 352px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 61.8% 187px, #C9D8EE99 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 7.2% 98px, var(--c-lune) 0 1.5px, transparent 2.3px),
-    radial-gradient(circle at 10.0% 154px, var(--c-etoile) 0 0.9px, transparent 1.7px),
-    radial-gradient(circle at 94.5% 217px, var(--c-etoile) 0 1.1px, transparent 1.9px),
-    radial-gradient(circle at 96.0% 174px, var(--c-lune) 0 1.3px, transparent 2.1px),
-    radial-gradient(circle at 83.2% 349px, var(--c-lune) 0 0.5px, transparent 1.3px),
-    radial-gradient(circle at 99.1% 80px, var(--c-lune) 0 1.6px, transparent 2.4px),
-    radial-gradient(circle at 3.9% 319px, var(--c-lune) 0 0.7px, transparent 1.5px),
-    radial-gradient(circle at 78.1% 398px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 13.0% 224px, var(--c-lune) 0 0.6px, transparent 1.4px),
-    radial-gradient(circle at 28.2% 336px, #C9D8EE99 0 0.8px, transparent 1.6px),
-    radial-gradient(circle at 88.0% 66px, var(--c-lune) 0 1.1px, transparent 1.9px),
-    radial-gradient(circle at 6.0% 362px, var(--c-etoile) 0 0.7px, transparent 1.5px),
-    radial-gradient(circle at 5.0% 227px, var(--c-lune) 0 0.7px, transparent 1.5px),
-    radial-gradient(circle at 92.2% 474px, var(--c-lune) 0 1.5px, transparent 2.3px),
-    radial-gradient(circle at 5.6% 158px, var(--c-lune) 0 1.2px, transparent 2.0px),
-    radial-gradient(circle at 11.8% 292px, var(--c-lune) 0 1.3px, transparent 2.1px);
-  background-size: 100% 500px;
+  /* Phase 7 (remarque 42) : les plus grandes étoiles ont la forme d'étincelle à 4 branches (comme le symbole
+     i-etincelle), dans deux bandes de 150 px collées aux bords (img/etoiles-gauche.svg et etoiles-droite.svg, plus
+     denses et plus grandes près du bord) ; les toutes petites restent des points (une forme n'y serait pas lisible). */
+  background:
+    url('../img/etoiles-gauche.svg') left top / 150px 500px repeat-y,
+    url('../img/etoiles-droite.svg') right top / 150px 500px repeat-y,
+    radial-gradient(circle at 67.5% 258px, #C9D8EE99 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 25.7% 412px, #C9D8EE99 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 80.1% 269px, var(--c-lune) 0 0.8px, transparent 1.6px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 17.3% 391px, var(--c-lune) 0 0.5px, transparent 1.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 83.5% 352px, var(--c-lune) 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 61.8% 187px, #C9D8EE99 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 7.2% 98px, var(--c-lune) 0 1.5px, transparent 2.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 10.0% 154px, var(--c-etoile) 0 0.9px, transparent 1.7px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 94.5% 217px, var(--c-etoile) 0 1.1px, transparent 1.9px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 96.0% 174px, var(--c-lune) 0 1.3px, transparent 2.1px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 83.2% 349px, var(--c-lune) 0 0.5px, transparent 1.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 99.1% 80px, var(--c-lune) 0 1.6px, transparent 2.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 3.9% 319px, var(--c-lune) 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 78.1% 398px, var(--c-lune) 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 13.0% 224px, var(--c-lune) 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 28.2% 336px, #C9D8EE99 0 0.8px, transparent 1.6px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 88.0% 66px, var(--c-lune) 0 1.1px, transparent 1.9px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 6.0% 362px, var(--c-etoile) 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 5.0% 227px, var(--c-lune) 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 92.2% 474px, var(--c-lune) 0 1.5px, transparent 2.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 5.6% 158px, var(--c-lune) 0 1.2px, transparent 2.0px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 11.8% 292px, var(--c-lune) 0 1.3px, transparent 2.1px) 0 0 / 100% 500px repeat-y;
   animation: scintille 6s var(--ease) -3s infinite;
 }
 
@@ -343,7 +347,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Logo (image du disque central, fond transparent : elle se fond dans --c-nuit) ---------- */
 .logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.logo-grand { width: 230px; height: 230px; }
+.logo-grand { width: min(200px, 25dvh); height: min(200px, 25dvh); }  /* phase 7 : 200 px, un peu moins sur les écrans bas */
 .logo-grand, .logo-compact, .dos-logo { display: block; object-fit: contain; }
 
 /* ---------- Boutons (charte, section 7) ---------- */
@@ -406,6 +410,9 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 .bouton-retour:active { transform: scale(.97); }
 
 /* Barre d'actions en bas de l'écran, à portée du pouce (charte : fond nuit à 90 %, filet supérieur brume) */
+/* Phase 7 (remarque 38) : boutons « flottants ». Plus de bande ni de fond derrière eux : ils restent collés en bas de
+   l'écran pendant le défilement (position sticky, au-dessus de la zone de sécurité du téléphone) et le contenu passe
+   dessous ; en fin de défilement, ils se posent après le contenu, qui n'est donc jamais masqué. */
 .barre-bas {
   position: sticky;
   bottom: 0;
@@ -413,11 +420,11 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: auto calc(-1 * var(--marge)) 0;
-  padding: 12px var(--marge) calc(12px + var(--bas));
-  border-top: var(--filet) solid var(--c-brume);
-  background: #060B1EE6;
+  margin: auto 0 0;
+  padding: 12px 0 calc(12px + var(--bas));
+  background: transparent;
 }
+.barre-bas .bouton-secondaire { background-color: var(--c-nuit); }  /* opaque : le texte qui défile ne transparaît pas */
 
 /* ---------- Textes ---------- */
 .texte { margin: 0 0 16px; font: 400 1.25rem/1.5 var(--f-texte); overflow-wrap: break-word; }
@@ -437,7 +444,11 @@ h2 {
 
 /* ---------- Accueil et fin ---------- */
 .accueil-corps, .fin-corps { margin: auto 0; padding: 24px 0; text-align: center; }
-.accueil-corps .logo-complet { margin-bottom: 28px; }
+.accueil-corps .logo-complet { margin-bottom: 20px; }
+/* Phase 7 (remarque 36) : la constellation au-dessus du logo garde toujours un peu de place sur l'accueil (elle était
+   masquée sur les téléphones de 360 px de large, faute d'espace libre). */
+.ciel-accueil + .ciel-libre { flex: 1 0 48px; }
+.ecran-accueil .accueil-corps { padding: 8px 0 16px; }
 .accueil-salut {
   margin: 0;
   color: var(--c-etoile);
@@ -458,15 +469,21 @@ h2 {
    poussière d'étoiles entre les deux filets. Le grain de papier de la maquette n'est pas repris : l'écran a déjà son
    unique calque de grain (charte, section 8). Ombres en nuit, jamais en noir. */
 .parchemin {
+  /* Phase 7 (remarque 39) : bleus du logo de la propriétaire (mesurés sur docs/images-source/logo.png), variables
+     locales au parchemin ; les variables de la charte ne changent pas. */
+  --parchemin-haut: #0F253E;
+  --parchemin-bas: #08162A;
+  --parchemin-halo: #45627D55;
+  --parchemin-ombre: #08162ACC;
   position: relative;
   margin: 24px 0 28px;
   padding: 36px 24px 40px;
   border: var(--bordure) solid var(--c-ambre);
   border-radius: var(--r-carte);
   background:
-    radial-gradient(ellipse at 50% 30%, #3C5A8C55, transparent 70%),
-    linear-gradient(180deg, var(--c-minuit), var(--c-nuit));
-  box-shadow: inset 0 0 40px #060B1ECC, var(--lueur-ambre);
+    radial-gradient(ellipse at 50% 30%, var(--parchemin-halo), transparent 70%),
+    linear-gradient(180deg, var(--parchemin-haut), var(--parchemin-bas));
+  box-shadow: inset 0 0 40px var(--parchemin-ombre), var(--lueur-ambre);
 }
 .parchemin::before {                    /* double filet ambre, comme les cartes */
   content: ''; position: absolute; inset: 7px; pointer-events: none;
@@ -484,7 +501,7 @@ h2 {
 .fermoir {
   position: absolute; left: 50%; width: 24px; height: 24px; margin-left: -12px; padding: 4px;
   border: var(--filet) solid var(--c-ambre); border-radius: 50%;
-  background: var(--c-nuit); color: var(--c-ambre); pointer-events: none;
+  background: var(--parchemin-bas); color: var(--c-ambre); pointer-events: none;
 }
 .fermoir-h { top: -12px; }
 .fermoir-b { bottom: -12px; }
@@ -501,7 +518,7 @@ h2 {
 .titre-section h2 {
   margin: 0;
   color: var(--c-etoile);
-  font: 400 1.75rem/1.15 'IM Fell English SC', var(--f-titre);   /* phase 7 : petites capitales, maquette de la propriétaire */
+  font: 700 1.5rem/1.2 'Cinzel Decorative', var(--f-titre);   /* phase 7 : choix de la propriétaire (maquette du parchemin) */
   letter-spacing: .02em;
   overflow-wrap: break-word;
 }
@@ -753,15 +770,15 @@ h2 {
   z-index: 2;
   display: flex;
   flex-direction: column;
-  margin: auto calc(-1 * var(--marge)) 0;
+  margin: auto 0 0;
 }
 .pied-tour .barre-bas { position: static; margin: 0; }
 .pied-tour:not(:has(.barre-bas:not([hidden]))) { padding-bottom: calc(8px + var(--bas)); }
-.pied-tour .absence-message { margin: 0; padding: 12px var(--marge); background: #060B1EE6; }
+.pied-tour .absence-message { margin: 0; padding: 12px var(--marge); }
 
 /* Bandeau « Effets en cours » : replié par défaut (une ligne), déroulé d'un toucher ; le détail défile s'il est long,
    pour ne jamais pousser les boutons hors de l'écran. */
-.effets-en-cours { margin: 0 var(--marge) 8px; padding: 0 16px; box-shadow: 0 -8px 24px #060B1ECC; }
+.effets-en-cours { margin: 0 0 8px; padding: 0 16px; box-shadow: 0 -8px 24px #060B1ECC; }
 .effets-titre {
   display: flex;
   align-items: center;

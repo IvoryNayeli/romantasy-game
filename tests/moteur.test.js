@@ -191,6 +191,25 @@ test('moteur : effets cumulés sur une même personne, et fin d\'un seul effet p
   assert.deepEqual(M.effetsEnCours(etat), [], '« prochain tour » fini au tour suivant de a');
 });
 
+// Phase 7 (remarque 45) : « si un deuxième effet apparaît, le premier est supprimé ». Deux effets successifs de deux
+// personnes se cumulent ; seul un effet « jusqu'à son prochain tour » prend fin, au début du tour suivant de la
+// personne qui l'a tiré (à deux, ce début de tour suit aussitôt le « sort jeté » de l'autre personne).
+test('moteur : deux effets successifs (deux personnes) restent tous les deux ; « prochain tour » finit au tour suivant de sa personne', async () => {
+  const M = await chargement;
+  let etat = partie(M, ['a', 'b', 'c'], { liste: cartesDansLOrdre('epr-06', 'epr-07') });
+  etat = jouer(M, etat, 'epreuve'); // a : epr-06 (fin de partie)
+  etat = jouer(M, etat, 'epreuve'); // b : epr-07 (fin de partie)
+  assert.deepEqual(M.effetsEnCours(etat).map((e) => `${e.joueur}:${e.carte}`), ['a:epr-06', 'b:epr-07'], 'les deux effets restent');
+  etat = jouer(M, etat);
+  assert.equal(M.effetsEnCours(etat).length, 2, 'toujours deux au tour suivant');
+  // À deux personnes : a tire un effet « prochain tour », b tire un effet « fin de partie ».
+  let duo = partie(M, ['a', 'b'], { liste: cartesDansLOrdre('epr-08', 'epr-06') });
+  duo = jouer(M, duo, 'epreuve'); // a : epr-08 (prochain tour)
+  assert.deepEqual(M.effetsEnCours(duo).map((e) => e.carte), ['epr-08'], 'actif pendant le tour de b');
+  duo = jouer(M, duo, 'epreuve'); // b : epr-06, puis début du tour de a : epr-08 prend fin (durée de la carte)
+  assert.deepEqual(M.effetsEnCours(duo).map((e) => `${e.joueur}:${e.carte}`), ['b:epr-06']);
+});
+
 test('moteur : état relu sans tableaux vides (comme Firebase, qui ne les stocke pas)', async () => {
   const M = await chargement;
   const etat = JSON.parse(JSON.stringify(partie(M, ['a', 'b'])));

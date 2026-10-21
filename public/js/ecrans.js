@@ -570,6 +570,36 @@ function largeurTitre(prenom) {
   return (T.tour.auTourDe.length + 1) * 0.45 + String(prenom).length * 0.7;
 }
 
+// Phase 7 (remarque 44) : la carte révélée tient entière à l'écran, sans défilement, entre le haut (compteur ou
+// « Au tour de… ») et le pied (bandeau des effets replié et boutons). La carte se réduit d'abord (proportions 2:3) ;
+// si son texte est encore trop long, la taille du texte baisse par pas d'un pixel, jusqu'à 15 px au plus bas.
+// Appelée par app.js à chaque écran posé, au redimensionnement et quand les polices sont chargées.
+export function ajusterCartes(racine = document) {
+  for (const carte of racine.querySelectorAll('.ecran-carte .carte, .ecran-attente .carte')) {
+    const ecran = carte.closest('.ecran');
+    const texte = carte.querySelector('.carte-texte');
+    const face = carte.querySelector('.carte-face');
+    if (!ecran || !texte || !face) continue;
+    carte.style.width = '';
+    texte.style.fontSize = '';
+    // Haut de la carte : sous l'élément qui la précède (compteur ou titre), en coordonnées de la page ; bas : au-dessus
+    // du pied, collé en bas de l'écran (marges de la carte comprises).
+    const avant = carte.previousElementSibling;
+    const pied = ecran.querySelector('.pied-tour');
+    const haut = (avant || ecran).getBoundingClientRect().bottom + window.scrollY + 16;
+    const dispo = window.innerHeight - haut - (pied ? pied.offsetHeight : 0) - 20;
+    if (dispo <= 0) continue;
+    const largeurMax = carte.getBoundingClientRect().width;
+    const largeur = Math.min(largeurMax, dispo / 1.5);
+    if (largeur < largeurMax) carte.style.width = `${Math.floor(largeur)}px`;
+    let taille = parseFloat(getComputedStyle(texte).fontSize);
+    while (face.offsetHeight > dispo && taille > 15) {
+      taille -= 1;
+      texte.style.fontSize = `${taille}px`;
+    }
+  }
+}
+
 // Remplace sur place le bandeau des effets d'un écran (fin d'un effet par échange de butins), sans reconstruire
 // l'écran. Phase 7 (remarque 34) : quand un effet disparaît, petit éclat d'étoiles qui se dispersent depuis le bandeau.
 // Renvoie false si l'écran n'avait pas de bandeau alors qu'il en faut un (l'appelant reconstruit l'écran).

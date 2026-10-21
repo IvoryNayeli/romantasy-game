@@ -140,6 +140,49 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     assert.deepEqual(defauts, []);
   });
 
+  // Phase 7 (remarque 44) : la carte révélée tient entière à l'écran, sans défilement, avec les boutons flottants et
+  // le bandeau des effets replié, pour la personne qui joue et pour les autres, même la carte la plus longue.
+  it('carte révélée entière à l\'écran sans défilement (jouer et attente, carte la plus longue, 360 x 640 à 412 x 915)', async () => {
+    const defauts = [];
+    for (const [largeur, hauteur] of [[360, 640], [360, 740], [390, 844], [412, 915]]) {
+      for (const ecran of ['carte', 'attente']) {
+        for (const id of [plusLongue.id, 'rev-01']) {
+          const page = await ouvrir(`index.html?ecran=${ecran}&carte=${id}&tour=2&effets=1`, { largeur, hauteur, reduit: true });
+          await page.evaluate(() => document.fonts.ready);
+          const m = await page.evaluate(() => {
+            const f = document.querySelector('.carte-face').getBoundingClientRect();
+            const pied = document.querySelector('.pied-tour').getBoundingClientRect();
+            return { haut: f.top, bas: f.bottom, pied: pied.top, H: innerHeight, defile: document.documentElement.scrollHeight - innerHeight,
+              texte: parseFloat(getComputedStyle(document.querySelector('.carte-texte')).fontSize) };
+          });
+          const nom = `[${ecran} ${id} ${largeur}x${hauteur}]`;
+          if (m.haut < 0 || m.bas > m.pied + 1) defauts.push(`${nom} carte hors de la place (${Math.round(m.haut)}..${Math.round(m.bas)}, pied à ${Math.round(m.pied)})`);
+          if (m.defile > 1) defauts.push(`${nom} défilement de ${m.defile} px`);
+          if (m.texte < 15) defauts.push(`${nom} texte de ${m.texte} px`);
+          for (const p of await page.evaluate(A.mesurerDebordements)) defauts.push(`${nom} ${p}`);
+          await fermer(page);
+        }
+      }
+    }
+    assert.deepEqual(defauts, []);
+  });
+
+  // Phase 7 (remarque 45) : deux effets en cours restent affichés ensemble ; la fin d'un effet (« Échange de butins
+  // fait ») ne retire que celui-là.
+  it('effets en cours : deux effets restent affichés ; l\'échange n\'en retire qu\'un', async () => {
+    const page = await ouvrir('index.html?ecran=attente&type=epreuve&tour=2&echange=1', { reduit: true });
+    assert.equal(await page.locator('.effets-item').count(), 2);
+    assert.equal(await page.locator('.effets-nombre').textContent(), '2');
+    await page.locator('.effets-titre').click();
+    await page.locator('.bouton-echange').first().click();
+    assert.equal(await page.locator('.effets-item').count(), 1, 'un seul effet retiré');
+    assert.equal(await page.locator('.effets-nombre').textContent(), '1');
+    assert.equal(await page.locator('.effets-en-cours').evaluate((d) => d.open), true, 'le bandeau reste déroulé');
+    await page.locator('.bouton-echange').first().click();
+    assert.equal(await page.locator('.effets-en-cours').count(), 0, 'plus d\'effet : plus de bandeau');
+    await fermer(page);
+  });
+
   // Phase 7 : bandeau « Effets en cours » replié par défaut ; une fois déroulé, son détail reste lisible et le bouton
   // « Échange de butins fait » reste atteignable, sans masquer les boutons d'action.
   it('bandeau des effets en cours : replié par défaut, déroulé lisible (contrastes), boutons d\'action toujours visibles', async () => {
@@ -228,10 +271,10 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
     for (const f of await facesChargees(accueil)) chargees.add(f);
     await fermer(accueil);
     const regles = await ouvrir('index.html?ecran=regles');
-    // Phase 7 : titres de section des règles en IM Fell English SC (hébergée), maquette de la propriétaire.
+    // Phase 7 (remarque 40) : titres de section des règles en Cinzel Decorative (hébergée).
     const h2 = await policesDe(regles, ['.titre-section h2']);
-    const fell = /^IM FELL English SC.*\(hébergée\)|^IM Fell English SC.*\(hébergée\)/i;
-    assert.ok(h2['.titre-section h2'].length && h2['.titre-section h2'].every((x) => fell.test(x)), `titres de section : ${h2['.titre-section h2']}`);
+    const cinzel = /^Cinzel Decorative.*\(hébergée\)/i;
+    assert.ok(h2['.titre-section h2'].length && h2['.titre-section h2'].every((x) => cinzel.test(x)), `titres de section : ${h2['.titre-section h2']}`);
     for (const f of await facesChargees(regles)) chargees.add(f);
     await fermer(regles);
     for (const url of ['index.html?ecran=regles', 'index.html?ecran=creer', 'index.html?ecran=rejoindre', 'index.html?ecran=salle&autres=2',
@@ -241,11 +284,11 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
       await fermer(p);
     }
     // Chaque graisse réellement utilisée par un écran est bien chargée (italique des titres, lettrine en 600, Jost 300/400/500).
-    for (const attendue of ['Cormorant Garamond|600|normal', 'Cormorant Garamond|500|italic', 'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal', 'IM Fell English SC|400|normal']) {
+    for (const attendue of ['Cormorant Garamond|600|normal', 'Cormorant Garamond|500|italic', 'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal', 'Cinzel Decorative|700|normal']) {
       assert.ok(chargees.has(attendue), `police ${attendue} jamais chargée : ${[...chargees]}`);
     }
     const demandes = [...ctx.polices];
-    assert.ok(demandes.length >= 5 && demandes.every((p) => /^(CormorantGaramond|Jost|IMFellEnglishSC)-/.test(p)), `fichiers de police demandés : ${demandes}`);
+    assert.ok(demandes.length >= 5 && demandes.every((p) => /^(CormorantGaramond|Jost|CinzelDecorative)-/.test(p)), `fichiers de police demandés : ${demandes}`);
     assert.deepEqual(ctx.requetesExternes, [], 'requêtes vers des adresses non locales');
   });
 
