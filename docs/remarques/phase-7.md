@@ -109,3 +109,17 @@ Réponses reproduites mot pour mot ; entre crochets, la question posée par le c
 > 5. Oui [marges du parchemin comprises comme extérieures]
 > 6. Oui [écarts à la maquette du prénom : pas d'ombre sur les fermoirs, halo sans transition, seule la largeur du cartouche est animée]
 > 7. Oui [neuvième emblème centré]
+
+## Cinquièmes remarques complémentaires (reçues le 2026-10-21, pendant l'itération 2, avant son rapport), traitées en itération 2 (numérotées 53 à 60)
+
+Reproduites mot pour mot.
+
+> Phase 7, remarques :
+> 1. Sur certains écrans (comme l'acceuil ou la fin), il y a un bandeau en bas sans étoile, avec juste le fond. Il faut bien aller jusqu'en bas de l'écran
+> 2. Sur l'écran des emblèmes, le halo de sélection doit être légèrement plus intense.
+> 3. Dans la salle d'attente, les éléments sont alignés en haut de l'écran au lieu d'être au centre.
+> 4. Même sur l'écran de celui qui ne joue pas, ne grise jamais les emblèmes.
+> 5. Sur l'écran où on renseigne le code de la partie, reprend le design de l'écran où on renseigne son prénom (mais sans l'animation avec les constellations.
+> 6. Sur la page de sélection d'emblème, remplace "Ton emblème" par "Quelle puissance veille sur toi ?" et "Je rejoins l'aventure" par "Je rejoins la compagnie"
+> 7. Affiche les emblèmes dans l'ordre de leur nom (1, 2, 3, etc)
+> 8. Il faut gérer le cas où quelqu'un ferme l'onglet par inadvertance. Dans ce cas, il recommence avec "Rejoindre une partie", remet le même prénom, et peut reprendre la partie en cours.
