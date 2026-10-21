@@ -329,8 +329,9 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         if ((r === 255 && g === 255 && b === 255) || (r === 0 && g === 0 && b === 0)) interdits.set(cle, 'blanc ou noir pur / ombre noire');
         else if (s > 0.2 && h >= 255 && h <= 345) interdits.set(cle, 'violet ou rose');
         else if (s > 0.5 && h >= 70 && h <= 170) interdits.set(cle, 'vert vif');
-        // Bleus du logo : parchemin des règles et, depuis la remarque 51, cartouche du prénom (salle d'attente).
-        const parchemin = ((nom === 'regles' && /parchemin|fermoir|^svg/.test(c.ou)) || (nom.startsWith('salle') && /cartouche/.test(c.ou))) && BLEUS_PARCHEMIN_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2));
+        // Bleus du logo : parchemin des règles et, depuis la remarque 51, cartouche du prénom (salle d'attente) ; depuis
+        // la remarque 57, cartouche du code (« Rejoindre une partie »).
+        const parchemin = ((nom === 'regles' && /parchemin|fermoir|^svg/.test(c.ou)) || ((nom.startsWith('salle') || nom.startsWith('rejoindre')) && /cartouche/.test(c.ou))) && BLEUS_PARCHEMIN_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2));
         if (!parchemin && !PALETTE_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2))) horsPalette.set(cle, 'hors palette');
       }
       await fermer(page);
@@ -419,8 +420,10 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.match(regleCss('.carte-face'), /border:\s*var\(--bordure\) solid var\(--rarete\)/, 'bordure de carte : var(--bordure) (1,5 px)');
     assert.match(regleCss('.carte-face'), /border-radius:\s*var\(--r-carte\)/);
     await fermer(carte);
+    // Phase 7 (remarque 57) : le champ du code est lui aussi dans un cartouche aux coins de carte (8 px), sans cadre propre.
     const rejoindre = await ouvrir('index.html?ecran=rejoindre', { reduit: true });
-    assert.equal(await rejoindre.evaluate(() => getComputedStyle(document.querySelector('.champ')).borderTopLeftRadius), '4px');
+    assert.equal(await rejoindre.evaluate(() => getComputedStyle(document.querySelector('.cartouche')).borderTopLeftRadius), '8px');
+    assert.equal(await rejoindre.evaluate(() => getComputedStyle(document.querySelector('.champ')).borderTopWidth), '0px');
     await fermer(rejoindre);
     // Phase 7 (remarque 51) : le champ du prénom est dans un cartouche aux coins de carte (8 px), sans cadre propre.
     const salle = await ouvrir('index.html?ecran=salle&hote=1&autres=1', { reduit: true });
@@ -654,7 +657,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   it('§4 typographie : titres 32–40 px en Cormorant Garamond, texte en Jost, pas de texte justifié, lignes de 60 caractères au plus, capitales des légendes et boutons', async () => {
     const titres = [
       ['accueil', '?ecran=accueil', '.accueil-salut'], ['fin', '?ecran=fin', '.accueil-salut'], ['creer', '?ecran=creer', '.titre-ecran'],
-      ['rejoindre', '?ecran=rejoindre', '.titre-ecran'], ['choix', '?ecran=choix', '.titre-tour'], ['attente', '?ecran=attente&type=epreuve', '.titre-tour'],
+      ['choix', '?ecran=choix', '.titre-tour'], ['attente', '?ecran=attente&type=epreuve', '.titre-tour'],
       ['transition', '?ecran=transition', '.transition-texte'],
     ];
     const defauts = [];
@@ -664,6 +667,14 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       if (t.px < 32 || t.px > 40) defauts.push(`[${nom}] titre ${t.px}px hors de 32–40 px`);
       if (!/^"?Cormorant Garamond/.test(t.famille)) defauts.push(`[${nom}] titre en ${t.famille}`);
       if (!['500', '600'].includes(t.graisse)) defauts.push(`[${nom}] graisse ${t.graisse}`);
+      await fermer(page);
+    }
+    // Phase 7 (remarque 57) : la consigne de l'écran du code reprend la phrase de l'écran du prénom (Cormorant Garamond
+    // italique, 28 px, étoile), comme sa maquette.
+    for (const [nom, c, sel] of [['rejoindre', '?ecran=rejoindre', '.titre-ecran'], ['prénom', '?ecran=salle&hote=1&autres=1', '.prenom-question']]) {
+      const page = await ouvrir(`index.html${c}`, { reduit: true });
+      const t = await page.evaluate((s) => { const st = getComputedStyle(document.querySelector(s)); return { px: parseFloat(st.fontSize), famille: st.fontFamily, style: st.fontStyle, couleur: st.color }; }, sel);
+      if (t.px !== 28 || !/^"?Cormorant Garamond/.test(t.famille) || t.style !== 'italic' || t.couleur !== 'rgb(244, 241, 232)') defauts.push(`[${nom}] consigne ${JSON.stringify(t)}`);
       await fermer(page);
     }
     assert.deepEqual(defauts, []);

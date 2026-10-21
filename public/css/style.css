@@ -1049,7 +1049,7 @@ h2 {
 .cartouche-fermoir-g { left: -8px; }
 .cartouche-fermoir-d { right: -8px; }
 .cartouche-etiquette {
-  position: absolute; top: 0; left: 50%; z-index: 1; transform: translate(-50%, -55%); margin: 0; padding: 0 10px;
+  position: absolute; top: 0; left: 50%; z-index: 1; transform: translate(-50%, -55%); margin: 0; padding: 2px 10px;  /* 2 px en haut et en bas : le fond nuit couvre tout le texte, posé sur la bordure */
   background: var(--c-nuit); white-space: nowrap;
   color: var(--c-ambre); font: 500 .75rem/1.2 var(--f-texte); letter-spacing: .2em; text-transform: uppercase;
 }
@@ -1065,6 +1065,13 @@ h2 {
 .cartouche .champ::placeholder { color: #8FA6C866; }
 .cartouche-filet { height: var(--filet); margin: 2px 8px 0; background: linear-gradient(90deg, transparent, #F0A35E66 20%, #F0A35E66 80%, transparent); }
 .cartouche-mesure { position: absolute; top: 0; left: 0; visibility: hidden; white-space: pre; pointer-events: none; }
+/* Phase 7 (remarque 57) : l'écran du code reprend celui du prénom, sans constellations : consigne en italique, cartouche
+   ornementé centré verticalement, aide et message d'erreur centrés dessous. Le code garde sa police (Jost, capitales
+   espacées, réponse 1 de la propriétaire), à la taille du prénom (28 px, réduite par ecrans.js, jamais sous 16 px). */
+.saisie-code { align-items: center; text-align: center; padding-bottom: 48px; }
+.saisie-code .titre-ecran { margin: 0 0 30px; color: var(--c-etoile); font: italic 500 1.75rem/1.2 var(--f-titre); text-wrap: balance; }
+.cartouche-code .champ, .cartouche-code .cartouche-mesure { font: 400 1.75rem/1.2 var(--f-texte); letter-spacing: .15em; text-transform: uppercase; }
+.saisie-code .aide-champ { margin-top: 16px; }
 /* Ciel des lettres : toute la largeur de l'écran, sous le contenu ; constellations dessinées par ciel.js. */
 .ciel-lettres { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--marge)); right: calc(-1 * var(--marge)); z-index: -1; pointer-events: none; }
 .ciel-lettres svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }

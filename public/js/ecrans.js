@@ -258,9 +258,12 @@ export function rejoindre({ donnees, params, naviguer, reseau = null }) {
   const messageErreur = h('p', { classe: 'erreur-champ', id: 'erreur-code', role: 'alert' });
   const champ = h('input', {
     classe: 'champ champ-code', id: 'champ-code', type: 'text', value: params.get('code') || '', autocomplete: 'off',
-    autocapitalize: 'characters', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'go',
+    autocapitalize: 'characters', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'go', placeholder: '…',
     'aria-describedby': 'aide-code',
   });
+  // Phase 7 (remarque 57) : même présentation que l'écran du prénom (consigne en italique, cartouche ornementé qui
+  // porte l'étiquette « Code de la partie » sur son bord du haut), sans les constellations. Le code reste en Jost.
+  const { cartouche, ajuster } = cartoucheChamp(champ, R.libelle, 'cartouche-code');
   function erreur(texte) {
     messageErreur.textContent = texte || '';
     if (texte) {
@@ -298,13 +301,17 @@ export function rejoindre({ donnees, params, naviguer, reseau = null }) {
         .finally(() => { enCours = false; boutonValider.disabled = false; });
     },
   },
-  h('div', { classe: 'formulaire-code-corps' },
+  h('div', { classe: 'formulaire-code-corps saisie-code' },
     h('h2', { classe: 'titre-ecran' }, R.titre),
-    h('label', { classe: 'etiquette-champ', for: 'champ-code' }, R.libelle),
-    champ,
+    cartouche,
     h('p', { classe: 'aide-champ', id: 'aide-code' }, R.aide),
     messageErreur),
   barreBas(boutonValider));
+  const corps = formulaire.querySelector('.saisie-code');
+  const ajusterCode = () => ajuster(corps.clientWidth);
+  champ.addEventListener('input', ajusterCode);
+  if (typeof ResizeObserver === 'function') new ResizeObserver(ajusterCode).observe(corps);
+  if (document.fonts) document.fonts.ready.then(ajusterCode);
   return {
     noeud: h('section', { classe: 'ecran ecran-rejoindre' }, formulaire),
     retour: flecheRetour('regles', R.retour),
@@ -453,33 +460,20 @@ function mouvementReduit() {
   return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// Premier écran : le prénom, centré verticalement. Phase 7 (remarque 51) : la phrase « Quel nom les étoiles
-// murmureront-elles ce soir ? », puis le cartouche ornementé (comme le parchemin des règles) qui porte l'étiquette
-// « Ton prénom » sur son bord du haut. Chaque lettre tapée allume une constellation dans le fond de l'écran (ciel.js),
-// dans une case libre : jamais derrière l'en-tête, la phrase, le cartouche ou le bouton ; une lettre effacée l'éteint.
-export function etapeSaisiePrenom(champ) {
+// Cartouche ornementé autour d'un champ (phase 7) : prénom (remarque 51) et code de la partie (remarque 57). Bordure
+// ambre et double filet, bleus du logo, étincelles aux coins et au milieu des bords gauche et droit, étiquette posée
+// sur le bord du haut, filet sous le texte. `ajuster(dispo)` règle la largeur (240 px vide, puis suit le texte sans
+// dépasser `dispo`) et, au-delà, la taille du texte (jamais sous 16 px).
+export function cartoucheChamp(champ, libelle, classe = '') {
   const mesure = h('span', { classe: 'cartouche-mesure', 'aria-hidden': 'true' });
-  const cartouche = h('div', { classe: 'cartouche' },
+  const cartouche = h('div', { classe: `cartouche ${classe}`.trim() },
     coins(),
     etincelle('cartouche-fermoir cartouche-fermoir-g'), etincelle('cartouche-fermoir cartouche-fermoir-d'),
-    h('label', { classe: 'cartouche-etiquette', for: 'champ-prenom' }, T.salle.prenomLibelle),
+    h('label', { classe: 'cartouche-etiquette', for: champ.id }, libelle),
     champ,
     h('div', { classe: 'cartouche-filet', 'aria-hidden': 'true' }),
     mesure);
-  const question = h('p', { classe: 'prenom-question' }, T.salle.prenomQuestion);
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('focusable', 'false');
-  svg.setAttribute('aria-hidden', 'true');
-  const ciel = h('div', { classe: 'ciel-lettres', 'aria-hidden': 'true' }, svg);
-  const etape = h('div', { classe: 'salle-etape salle-prenom formulaire' }, ciel, question, cartouche);
-
-  // Ordre des formes tiré à chaque ouverture de l'écran (décor, sans lien avec le jeu) : la n-ième lettre a une forme
-  // jamais vue avant.
-  const ordre = melanger(FORMES_LETTRES, 1 + (globalThis.crypto.getRandomValues(new Uint32Array(1))[0] % 100000));
-  const allumees = [];
-
-  function ajuster() {
-    const dispo = etape.clientWidth;
+  function ajuster(dispo) {
     if (!dispo) return;
     let taille = PRENOM_TAILLE;
     mesure.textContent = champ.value;
@@ -492,6 +486,28 @@ export function etapeSaisiePrenom(champ) {
     cartouche.style.width = `${Math.min(dispo, Math.max(CARTOUCHE_LARGEUR_MIN, mesure.offsetWidth + CARTOUCHE_RESERVE + 24))}px`;
     mesure.textContent = ''; // la mesure faite, plus rien ne dépasse du cartouche
   }
+  return { cartouche, ajuster };
+}
+
+// Premier écran : le prénom, centré verticalement. Phase 7 (remarque 51) : la phrase « Quel nom les étoiles
+// murmureront-elles ce soir ? », puis le cartouche ornementé (comme le parchemin des règles) qui porte l'étiquette
+// « Ton prénom » sur son bord du haut. Chaque lettre tapée allume une constellation dans le fond de l'écran (ciel.js),
+// dans une case libre : jamais derrière l'en-tête, la phrase, le cartouche ou le bouton ; une lettre effacée l'éteint.
+export function etapeSaisiePrenom(champ) {
+  const { cartouche, ajuster: ajusterCartouche } = cartoucheChamp(champ, T.salle.prenomLibelle);
+  const question = h('p', { classe: 'prenom-question' }, T.salle.prenomQuestion);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('focusable', 'false');
+  svg.setAttribute('aria-hidden', 'true');
+  const ciel = h('div', { classe: 'ciel-lettres', 'aria-hidden': 'true' }, svg);
+  const etape = h('div', { classe: 'salle-etape salle-prenom formulaire' }, ciel, question, cartouche);
+
+  // Ordre des formes tiré à chaque ouverture de l'écran (décor, sans lien avec le jeu) : la n-ième lettre a une forme
+  // jamais vue avant.
+  const ordre = melanger(FORMES_LETTRES, 1 + (globalThis.crypto.getRandomValues(new Uint32Array(1))[0] % 100000));
+  const allumees = [];
+
+  const ajuster = () => ajusterCartouche(etape.clientWidth);
 
   // Cases libres du ciel : celles qui ne touchent ni le code de la partie, ni la phrase et le cartouche, ni le bouton
   // (ni un message d'erreur), ordre mélangé une fois pour toutes (même graine : mêmes cases au même endroit).
