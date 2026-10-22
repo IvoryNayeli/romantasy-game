@@ -205,6 +205,35 @@ test('choix de la base : émulateur pour une page locale ou du réseau local, pr
   assert.doesNotMatch(sansCommentaires(lireJs('firebase-config.js')), /apiKey|AIza|secret|token|password/i, 'aucune clé ni jeton');
 });
 
+test('outils de démonstration : utilisables en local, ignorés sur la page en ligne (phase 8)', async () => {
+  const { navigation, config } = await E.chargerModules();
+  const p = (q = '') => new URLSearchParams(q);
+  const local = config.estAdresseLocale('localhost');
+  const enLigne = config.estAdresseLocale('ivorynayeli.github.io');
+  assert.equal(local, true);
+  assert.equal(enLigne, false);
+  // En local : écrans fictifs, ?demo=1 et salle fictive comme avant.
+  assert.deepEqual(navigation.ecranAffiche(p('ecran=carte&type=epreuve'), local), { nom: 'carte', demo: false });
+  assert.deepEqual(navigation.ecranAffiche(p('demo=1&ecran=creer'), local), { nom: 'creer', demo: true });
+  assert.deepEqual(navigation.ecranAffiche(p('ecran=salle&hote=1&autres=1'), local), { nom: 'salle', demo: true });
+  assert.deepEqual(navigation.ecranAffiche(p('demo=1&ecran=jeu&code=ONYX'), local), { nom: 'accueil', demo: true });
+  // En ligne : aucun écran fictif, jamais de démonstration.
+  for (const nom of navigation.ECRANS_DEMONSTRATION) {
+    assert.deepEqual(navigation.ecranAffiche(p(`ecran=${nom}`), enLigne), { nom: 'accueil', demo: false }, nom);
+  }
+  assert.deepEqual(navigation.ecranAffiche(p('demo=1&ecran=creer'), enLigne), { nom: 'creer', demo: false });
+  assert.deepEqual(navigation.ecranAffiche(p('ecran=salle&code=ONYX&hote=1&autres=1'), enLigne), { nom: 'salle', demo: false });
+  // Partie en réseau et parcours ordinaires : ouverts partout.
+  for (const l of [local, enLigne]) {
+    assert.deepEqual(navigation.ecranAffiche(p('ecran=jeu&code=ONYX'), l), { nom: 'jeu', demo: false });
+    assert.deepEqual(navigation.ecranAffiche(p('ecran=salle&code=ONYX'), l), { nom: 'salle', demo: false });
+    for (const nom of ['accueil', 'regles', 'creer', 'rejoindre']) {
+      assert.deepEqual(navigation.ecranAffiche(p(`ecran=${nom}`), l), { nom, demo: false }, nom);
+    }
+    assert.deepEqual(navigation.ecranAffiche(p('ecran=inconnu'), l), { nom: 'accueil', demo: false });
+  }
+});
+
 test('Firebase CLI : projets dev (par défaut) et prod, règles de database.rules.json, émulateur sans interface', () => {
   const rc = JSON.parse(lireRacine('.firebaserc'));
   assert.deepEqual(rc.projects, { default: 'romantasy-dev', dev: 'romantasy-dev', prod: 'romantasy-prod' });
@@ -251,4 +280,39 @@ test('reprise par le prénom : place confirmée, même prénom (casse et espaces
   assert.equal(S.placePossible(complete), true);
   assert.equal(S.placePossible(salle), true, 'places libres');
   assert.equal(S.placePossible(commencee), true);
+});
+
+test('mise en ligne (phase 8) : flux GitHub Pages qui ne publie que public/, sans outils de démonstration ni secret', () => {
+  const flux = lireRacine(path.join('.github', 'workflows', 'pages.yml'));
+  assert.match(flux, /on:\s*\n\s*push:\s*\n\s*branches: \[main\]\s*\n\s*workflow_dispatch:/, 'push sur main et à la demande');
+  for (const action of ['actions/checkout@v4', 'actions/configure-pages@v5', 'actions/upload-pages-artifact@v3', 'actions/deploy-pages@v4']) {
+    assert.ok(flux.includes(`uses: ${action}`), action);
+  }
+  assert.equal((flux.match(/uses:/g) || []).length, 4, 'actions officielles seulement');
+  assert.match(flux, /cp -r public\/\. _site\//, 'contenu de public/ seulement');
+  assert.match(flux, /rm -f _site\/demo\.html _site\/js\/demo\.js/, 'outils de démonstration retirés');
+  assert.match(flux, /touch _site\/\.nojekyll/);
+  assert.match(flux, /path: _site/);
+  assert.doesNotMatch(flux, /secrets\.|^\s*token:|github_token|apiKey|AIza/im, 'aucun secret ni jeton');
+});
+
+test('mise en ligne (phase 8) : chemins relatifs, la page fonctionne servie depuis un sous-chemin (/romantasy-game/)', () => {
+  const fichiers = [];
+  const parcourir = (dossier) => {
+    for (const f of fs.readdirSync(dossier, { withFileTypes: true })) {
+      const chemin = path.join(dossier, f.name);
+      if (f.isDirectory()) parcourir(chemin);
+      else if (/\.(html|css|js|json)$/.test(f.name)) fichiers.push(chemin);
+    }
+  };
+  parcourir(E.PUBLIC);
+  for (const f of fichiers) {
+    const texte = fs.readFileSync(f, 'utf8');
+    const nom = path.relative(E.RACINE, f);
+    assert.doesNotMatch(texte, /\b(?:src|href)\s*=\s*["']\/(?!\/)/, `${nom} : chemin absolu dans un attribut`);
+    assert.doesNotMatch(texte, /url\(\s*["']?\/(?!\/)/, `${nom} : chemin absolu dans url()`);
+    assert.doesNotMatch(texte, /fetch\(\s*[`'"]\//, `${nom} : chemin absolu dans fetch`);
+    assert.doesNotMatch(texte, /"image":\s*"\//, `${nom} : chemin absolu d'image`);
+    assert.doesNotMatch(texte, /\b(?:src|href):\s*[`'"]\/(?!\/)/, `${nom} : chemin absolu dans le JS`);
+  }
 });

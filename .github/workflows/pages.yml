@@ -1,0 +1,51 @@
+# Mise en ligne du jeu sur GitHub Pages (phase 8) : https://ivorynayeli.github.io/romantasy-game/
+# Publie uniquement le contenu de public/, sans les outils de démonstration (demo.html et js/demo.js), à chaque
+# push sur main (seules les phases validées y arrivent) ou à la demande (onglet Actions, « Run workflow »).
+# Gratuit pour un dépôt public. Aucun secret ni jeton à fournir : le jeton temporaire de GitHub suffit.
+# Réglage à faire une fois par la propriétaire : Settings > Pages > Build and deployment > Source : « GitHub Actions ».
+
+name: Mise en ligne (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule mise en ligne à la fois ; une mise en ligne en cours n'est pas interrompue.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Préparer le site (contenu de public/ seulement)
+        run: |
+          mkdir _site
+          cp -r public/. _site/
+          rm -f _site/demo.html _site/js/demo.js
+          touch _site/.nojekyll
+
+      - name: Configurer GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empaqueter le site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Publier
+        id: deploiement
+        uses: actions/deploy-pages@v4
