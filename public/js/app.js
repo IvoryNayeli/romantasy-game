@@ -55,6 +55,7 @@ const LOCAL = reseau.pageLocale();
 const zone = document.getElementById('ecran');
 const enteteGauche = document.getElementById('entete-gauche');
 const cielEntete = document.getElementById('ciel-entete');
+const annonce = document.getElementById('annonce');
 let donnees = null;
 let nettoyer = null;
 
@@ -65,6 +66,18 @@ function montrer(nom, noeud) {
   cielEntete.replaceChildren(...(paire ? [constellation(paire[0], { classe: 'c-gauche' }), constellation(paire[1], { classe: 'c-droite' })] : []));
   zone.replaceChildren(noeud);
   ecrans.ajusterCartes(zone);
+}
+
+// Phase 8 (accessibilité) : quand la partie en réseau change de vue sans geste de la personne (tour suivant, carte
+// révélée, transition, fin), le texte principal de la nouvelle vue est lu par les lecteurs d'écran. Aucun texte
+// nouveau : on reprend celui qui est affiché. Rien n'est relu si la vue est seulement mise à jour.
+const SELECTEURS_ANNONCE = ['.transition-texte', 'h2', '.carte-texte', '.accueil-salut'];
+
+function annoncer(noeud) {
+  if (!annonce) return;
+  const element = SELECTEURS_ANNONCE.map((s) => noeud.querySelector(s)).find(Boolean);
+  const texte = element ? element.textContent.trim() : '';
+  if (texte !== annonce.textContent) annonce.textContent = texte;
 }
 
 // Phase 7 (remarque 44) : la carte révélée tient à l'écran ; on la réajuste si la fenêtre change de taille (barre
@@ -84,12 +97,14 @@ function afficher(premiere = false) {
   const vue = (nomVue, noeud) => {
     if (!actuel) return;
     montrer(nomVue, noeud);
+    annoncer(noeud);
     window.scrollTo(0, 0);
   };
   const resultat = fonction({ donnees, params, naviguer, reseau: demo ? null : reseau, vue });
   nettoyer = () => { actuel = false; if (resultat.nettoyer) resultat.nettoyer(); };
   enteteGauche.replaceChildren(...(resultat.retour ? [resultat.retour] : []));
   montrer(nom, resultat.noeud);
+  if (annonce) annonce.textContent = '';
   window.scrollTo(0, 0);
   if (!premiere) zone.focus({ preventScroll: true });
 }

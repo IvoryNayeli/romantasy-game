@@ -148,6 +148,13 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
   outline-offset: 3px;
 }
 
+/* Phase 8 : zone lue par les lecteurs d'écran seulement (annonce des changements de vue), jamais visible.
+   Collée au coin haut gauche, texte replié mot à mot : aucun texte ne sort de l'écran, rien ne bouge la mise en page. */
+.annonce {
+  position: absolute; top: 0; left: 0; width: 1px; height: 1px; margin: 0; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); pointer-events: none;
+}
+
 .page {
   position: relative;
   display: flex;
