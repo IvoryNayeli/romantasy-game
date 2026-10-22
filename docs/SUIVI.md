@@ -26,12 +26,12 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
-| 7 | Ajustements visuels | en cours | 2 | [phase-7-iteration-1](rapports/phase-7-iteration-1.md) |
+| 7 | Ajustements visuels | prête pour relecture | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
 | 8 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 7, itération 2 : remarques 53 à 62 traitées (`016acb8`), remarque 63 non reproduite (`dcd0139`) ; attendre les réponses de la propriétaire sur la remarque 63 (test « Créer » en nouvel onglet, choix de correction) et les réponses de la propriétaire sur la reprise de place (remarque 60), puis lancer `npm test` une fois les ports 9000 et 8000 libérés, et écrire le rapport de l'itération 2.
+Phase 7, itération 2 : prête pour relecture. Attendre « Phase 7 validée » ou de nouvelles remarques (« Phase 7, remarques : … »).
 
 ## Journal
 
@@ -50,6 +50,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-21, phase 7 : 8 remarques complémentaires reçues (numérotées 53 à 60), faites (`c26afe2`), dont la reprise de sa place après fermeture de l'onglet (60) ; `test:rapide` 90 réussis ; émulateur 63 réussis ; `npm test` lancé par le développeur sur une copie avec un émulateur séparé (231 réussis, 1 échec propre à la copie), pas encore dans le dépôt ; deux choix sur la 60 soumis à la propriétaire.
 - 2026-10-22, phase 7 : 2 remarques complémentaires reçues (numérotées 61 et 62), faites (`016acb8`) : boutons du bas à 8 px du bas sur tous les écrans (zone de sécurité comptée une seule fois), titre de l'écran du code retiré ; `test:rapide` 90 réussis ; `npm test` non lancé (ports 9000 et 8000 pris).
 - 2026-10-22, phase 7 : remarque 63 reçue (boutons de l'accueil et du prénom toujours trop hauts sur le téléphone) ; écart non reproduit en émulation mobile (Pixel 7, iPhone 13 : bouton à 8 px du bas sur l'accueil, le prénom, créer et rejoindre), test ajouté (`dcd0139`), aucun changement du jeu ; capture reçue (Chrome Android), reproduite : la zone de sécurité du bas annoncée par Chrome (environ 100 px) laisse un vide sous le bouton ; test « Créer » en nouvel onglet et choix de correction soumis à la propriétaire.
+- 2026-10-22, phase 7 : réponses reçues (remarque 63 laissée telle quelle, choix de la remarque 60 confirmés) ; `npm test` 233 réussis, 0 échoué, 1 à faire ; prête pour relecture ([rapport](rapports/phase-7-iteration-2.md)).
 
 ## Défauts ouverts
 
@@ -57,7 +58,7 @@ Aucun.
 
 ## Décisions à confirmer
 
-Phase 7 (détail en section 7 de [phase-7-iteration-1](rapports/phase-7-iteration-1.md)) : correspondance des avatars (`avatar_4` Chevalier, `avatar_7` Démon, fichier Gemini Sorcière) ; grande étoile de la transition « Le sort est jeté » non remplacée ; épée, étoile et emblèmes agrandis ; originaux gardés dans `docs/images-source/` ; icônes game-icons.net des emblèmes à retirer du plan de la phase 8 ; personnes fictives portant Démon et Chevalier. Remarque 60 : en salle d'attente, place reprise seulement si elle est hors ligne (homonyme présent : nouvelle place) ; ordre d'arrivée compté à « Je suis là ! » et non plus à la saisie du code ; place non confirmée perdue si l'onglet est fermé avant « Je rejoins la compagnie ».
+Phase 7 (détail en section 7 de [phase-7-iteration-1](rapports/phase-7-iteration-1.md)) : correspondance des avatars (`avatar_4` Chevalier, `avatar_7` Démon, fichier Gemini Sorcière) ; grande étoile de la transition « Le sort est jeté » non remplacée ; épée, étoile et emblèmes agrandis ; originaux gardés dans `docs/images-source/` ; icônes game-icons.net des emblèmes à retirer du plan de la phase 8 ; personnes fictives portant Démon et Chevalier. Itération 2 (détail en section 7 de [phase-7-iteration-2](rapports/phase-7-iteration-2.md)) : place non confirmée perdue si l'onglet est fermé avant « Je rejoins la compagnie » ; boutons du bas à 8 px sur tous les écrans à boutons ; message d'erreur « Saisis le code de la partie. » gardé ; boutons de l'accueil et du prénom laissés tels quels sur Chrome Android (remarque 63). Confirmé le 2026-10-22 : reprise de place en salle d'attente seulement si hors ligne, ordre d'arrivée compté à « Je suis là ! ».
 
 ## Risques reportés
 
