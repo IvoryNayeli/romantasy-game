@@ -673,7 +673,10 @@ test('animations : retournement 3D, fondu de 300 ms, étoiles, opacity et transf
   for (const m of css.replace(/(\.cartouche \{[^}]*)transition: width 250ms var\(--ease\);/, '$1').matchAll(/(?:^|[;\s{])transition\s*:\s*([^;]+);/g)) {
     assert.match(m[1], /^transform\b/, `transition sur autre chose que transform : ${m[1]}`);
   }
-  assert.doesNotMatch(css, /transition-property|will-change/);
+  // Phase 8 (défaut D4) : seule exception, qui supprime les transitions (aucune n'en ajoute) : la carte révélée, mesurée
+  // par ajusterCartes, n'a aucune transition, même de 1 ms avec la réduction des animations.
+  assert.match(css, /\.carte, \.carte \* \{ transition-property: none; \}/, 'carte révélée sans transition');
+  assert.doesNotMatch(css.replace('.carte, .carte * { transition-property: none; }', ''), /transition-property|will-change/);
   assert.ok(propriete('.ecran', 'animation').some((a) => /^fondu var\(--t-rapide\)/.test(a)), 'fondu de 300 ms entre les écrans');
   assert.equal(variables()['--t-rapide'], '300ms');
   // Règle système de la charte (pas une option du jeu) : tout mouvement coupé si l'appareil le demande.

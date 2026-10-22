@@ -674,6 +674,12 @@ h2 {
   perspective: 1200px;
 }
 .carte-revelation { --rarete: var(--c-lune); --lueur: var(--lueur-lune); }
+/* Phase 8 (défaut D4) : la carte révélée est mise à la taille de l'écran par ajusterCartes (ecrans.js), qui lit sa
+   hauteur juste après avoir changé sa largeur et la taille du texte. Avec la réduction des animations, la règle
+   « transition-duration: 1ms » ci-dessus donnait à toutes les propriétés (largeur, tailles en cqw) une transition de
+   1 ms : la lecture renvoyait l'ancienne taille, la carte pouvait déborder de quelques pixels, et après un
+   redimensionnement elle restait trop grande. Rien n'est animé dans la carte hors du retournement (animation). */
+.carte, .carte * { transition-property: none; }
 
 .carte-3d {
   position: relative;

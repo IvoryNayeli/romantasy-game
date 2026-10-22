@@ -161,6 +161,10 @@ describe('navigateur : écrans, design et textes (Chrome local)', { skip: A.rais
           if (m.defile > 1) defauts.push(`${nom} défilement de ${m.defile} px`);
           if (m.texte < 15) defauts.push(`${nom} texte de ${m.texte} px`);
           for (const p of await page.evaluate(A.mesurerDebordements)) defauts.push(`${nom} ${p}`);
+          // Phase 8 (défaut D4) : après un redimensionnement (barre d'adresse du téléphone), la carte est réajustée
+          // aussitôt, même avec la réduction des animations (aucune transition ne retarde la mesure).
+          const apres = await page.evaluate(() => { window.dispatchEvent(new Event('resize')); return document.documentElement.scrollHeight - innerHeight; });
+          if (apres > 1) defauts.push(`${nom} défilement de ${apres} px après redimensionnement`);
           await fermer(page);
         }
       }
