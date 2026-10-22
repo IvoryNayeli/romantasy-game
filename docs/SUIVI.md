@@ -26,12 +26,12 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
-| 7 | Ajustements visuels | prête pour relecture | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
+| 7 | Ajustements visuels | validée le 2026-10-22 | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
 | 8 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 7, itération 2 : prête pour relecture. Attendre « Phase 7 validée » ou de nouvelles remarques (« Phase 7, remarques : … »).
+Phase 7 validée le 2026-10-22. Prochaine étape possible : « Lance la phase 8 » (finition et mise en ligne), sur demande de la propriétaire.
 
 ## Journal
 
@@ -51,6 +51,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-22, phase 7 : 2 remarques complémentaires reçues (numérotées 61 et 62), faites (`016acb8`) : boutons du bas à 8 px du bas sur tous les écrans (zone de sécurité comptée une seule fois), titre de l'écran du code retiré ; `test:rapide` 90 réussis ; `npm test` non lancé (ports 9000 et 8000 pris).
 - 2026-10-22, phase 7 : remarque 63 reçue (boutons de l'accueil et du prénom toujours trop hauts sur le téléphone) ; écart non reproduit en émulation mobile (Pixel 7, iPhone 13 : bouton à 8 px du bas sur l'accueil, le prénom, créer et rejoindre), test ajouté (`dcd0139`), aucun changement du jeu ; capture reçue (Chrome Android), reproduite : la zone de sécurité du bas annoncée par Chrome (environ 100 px) laisse un vide sous le bouton ; test « Créer » en nouvel onglet et choix de correction soumis à la propriétaire.
 - 2026-10-22, phase 7 : réponses reçues (remarque 63 laissée telle quelle, choix de la remarque 60 confirmés) ; `npm test` 233 réussis, 0 échoué, 1 à faire ; prête pour relecture ([rapport](rapports/phase-7-iteration-2.md)).
+- 2026-10-22, phase 7 : validée par la propriétaire, fusionnée dans `main`, tag `phase-7`.
 
 ## Défauts ouverts
 
