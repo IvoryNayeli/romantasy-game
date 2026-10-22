@@ -48,6 +48,7 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 - 2026-10-21, phase 7 : remarques 47 à 52 faites (`4e81ff8`), `test:rapide` 87 réussis, navigateur hors réseau 67 réussis ; `npm test` non lancé (ports 9000 et 8000 pris) ; choix soumis à la propriétaire.
 - 2026-10-21, phase 7 : réponses de la propriétaire consignées ; emblèmes de la salle réduits, plus aucun défilement de 360x640 à 412x915 (`547a1f8`), `test:rapide` 87 réussis, navigateur hors réseau 68 réussis ; `npm test` toujours bloqué par les ports.
 - 2026-10-21, phase 7 : 8 remarques complémentaires reçues (numérotées 53 à 60), faites (`c26afe2`), dont la reprise de sa place après fermeture de l'onglet (60) ; `test:rapide` 90 réussis ; émulateur 63 réussis ; `npm test` lancé par le développeur sur une copie avec un émulateur séparé (231 réussis, 1 échec propre à la copie), pas encore dans le dépôt ; deux choix sur la 60 soumis à la propriétaire.
+- 2026-10-22, phase 7 : 2 remarques complémentaires reçues (numérotées 61 et 62), traitées dans l'itération 2.
 
 ## Défauts ouverts
 

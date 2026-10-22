@@ -123,3 +123,11 @@ Reproduites mot pour mot.
 > 6. Sur la page de sélection d'emblème, remplace "Ton emblème" par "Quelle puissance veille sur toi ?" et "Je rejoins l'aventure" par "Je rejoins la compagnie"
 > 7. Affiche les emblèmes dans l'ordre de leur nom (1, 2, 3, etc)
 > 8. Il faut gérer le cas où quelqu'un ferme l'onglet par inadvertance. Dans ce cas, il recommence avec "Rejoindre une partie", remet le même prénom, et peut reprendre la partie en cours.
+
+## Sixièmes remarques complémentaires (reçues le 2026-10-22, pendant l'itération 2, avant son rapport), traitées en itération 2 (numérotées 61 et 62)
+
+Reproduites mot pour mot.
+
+> Phase 7, remarques :
+> 1. Sur la page d'acceuil, le bouton "Comment ça marche" n'est pas assez bas. Idem pour le bouton "Je suis là"
+> 2. Sur la page pour saisir le code de la partie, retire "Saisie le code de la partie"
