@@ -29,12 +29,13 @@ export function estAdresseLocale(hote) {
 // Choix de la base d'après l'adresse de la page :
 // - page servie depuis l'ordinateur ou le réseau local : émulateur, sur la même machine que la page ;
 //   `?base=dev` force la base romantasy-dev (essais sur la vraie base de développement) ;
-// - page servie ailleurs : romantasy-dev jusqu'à la mise en ligne (phase 8, qui basculera sur prod).
+// - page servie ailleurs (en ligne, GitHub Pages) : romantasy-prod, la base de production (phase 8) ;
+//   `?base=dev` y force aussi romantasy-dev.
 export function choisirBase(hote, params) {
   const demande = params?.get?.('base');
   if (demande === 'dev') return { nom: 'dev', ...BASES.dev };
   if (estAdresseLocale(hote) || demande === 'emulateur') {
     return { nom: 'emulateur', ...BASES.emulateur, emulateur: { hote: String(hote).replace(/^\[|\]$/g, ''), port: PORT_EMULATEUR } };
   }
-  return { nom: 'dev', ...BASES.dev };
+  return { nom: 'prod', ...BASES.prod };
 }
