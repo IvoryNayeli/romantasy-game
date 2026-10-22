@@ -1,13 +1,18 @@
 // Lien entre les écrans et la base (phase 4) : chargement à la demande du SDK Firebase, choix de la base
-// (émulateur local, romantasy-dev), identité de la personne sur ce téléphone.
+// (émulateur local, romantasy-dev, romantasy-prod en ligne), identité de la personne sur ce téléphone.
 // Les écrans de démonstration (?demo=1, demo.html) n'utilisent jamais ce module.
 
-import { choisirBase } from './firebase-config.js';
+import { choisirBase, estAdresseLocale } from './firebase-config.js';
 import * as salon from './salon.js';
 
 export { ISSUES } from './salon.js';
 
 let connexion = null;
+
+// Page servie depuis l'ordinateur ou le réseau local (phase 8 : seuls ces cas ouvrent les outils de démonstration).
+export function pageLocale() {
+  return estAdresseLocale(window.location.hostname);
+}
 
 // Base ouverte une seule fois par page. Si le SDK ne se charge pas (pas de réseau), on réessaiera plus tard.
 function base() {

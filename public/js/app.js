@@ -5,6 +5,7 @@
 // Phase 5 : la partie en réseau est l'écran ?ecran=jeu&code=… (ecrans-reseau.js), qui affiche tour à tour les vues
 // choix, carte, attente, transition et fin d'après la base. Les adresses ?ecran=choix, carte, attente, transition
 // et fin restent les écrans de démonstration, avec des données fictives.
+// Phase 8 : ces outils de démonstration ne fonctionnent qu'en local (navigation.js) ; en ligne, ils sont ignorés.
 
 import { chargerDonnees } from './donnees.js';
 import { adresse, h } from './dom.js';
@@ -13,6 +14,7 @@ import * as ecransReseau from './ecrans-reseau.js';
 import * as reseau from './reseau.js';
 import { erreurs } from './textes.js';
 import { constellation } from './ciel.js';
+import { ecranAffiche } from './navigation.js';
 
 // Constellations de la bande d'en-tête, de part et d'autre du logo : [petit motif à gauche, motif large à droite].
 // Pas d'en-tête étoilé sur l'accueil, la transition et la fin : ces écrans ont déjà de grandes constellations dans
@@ -44,15 +46,11 @@ const ECRANS = {
   fin: ecrans.fin,
 };
 
-// Paramètres de la salle fictive (voir ecrans.salle) : leur présence ouvre la salle de démonstration.
-const PARAMETRES_SALLE_FICTIVE = ['hote', 'autres', 'complete', 'prenom', 'embleme', 'pret'];
-
 // Paramètres gardés d'un écran à l'autre : mode démonstration et base choisie (?base=dev).
 const PARAMETRES_PERSISTANTS = ['demo', 'base'];
 
-function modeDemo(nom, params) {
-  return params.get('demo') === '1' || (nom === 'salle' && PARAMETRES_SALLE_FICTIVE.some((p) => params.has(p)));
-}
+// Page servie depuis l'ordinateur ou le réseau local : seuls ces cas ouvrent les outils de démonstration.
+const LOCAL = reseau.pageLocale();
 
 const zone = document.getElementById('ecran');
 const enteteGauche = document.getElementById('entete-gauche');
@@ -77,10 +75,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ecra
 function afficher(premiere = false) {
   if (nettoyer) nettoyer();
   const params = new URLSearchParams(window.location.search);
-  const demande = params.get('ecran');
-  let nom = Object.hasOwn(ECRANS, demande) || demande === 'jeu' ? demande : 'accueil';
-  const demo = modeDemo(nom, params);
-  if (nom === 'jeu' && demo) nom = 'accueil'; // pas de partie en réseau en démonstration
+  const { nom, demo } = ecranAffiche(params, LOCAL);
   let fonction = ECRANS[nom];
   if (nom === 'salle' && !demo) fonction = ecransReseau.salle;
   if (nom === 'jeu') fonction = ecransReseau.jeu;

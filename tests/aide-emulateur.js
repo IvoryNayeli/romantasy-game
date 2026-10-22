@@ -88,8 +88,8 @@ function chargerModules() {
       if (f.endsWith('.js')) fs.copyFileSync(path.join(PUBLIC, 'js', f), path.join(dossier, f));
     }
     const charger = (nom) => import(pathToFileURL(path.join(dossier, nom)).href);
-    modules = Promise.all([charger('salon.js'), charger('firebase-config.js'), charger('game.js')])
-      .then(([salon, config, jeu]) => ({ salon, config, jeu }));
+    modules = Promise.all([charger('salon.js'), charger('firebase-config.js'), charger('game.js'), charger('navigation.js')])
+      .then(([salon, config, jeu, navigation]) => ({ salon, config, jeu, navigation }));
   }
   return modules;
 }
