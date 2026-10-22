@@ -131,3 +131,9 @@ Reproduites mot pour mot.
 > Phase 7, remarques :
 > 1. Sur la page d'acceuil, le bouton "Comment ça marche" n'est pas assez bas. Idem pour le bouton "Je suis là"
 > 2. Sur la page pour saisir le code de la partie, retire "Saisie le code de la partie"
+
+## Septième remarque complémentaire (reçue le 2026-10-22, pendant l'itération 2, avant son rapport), traitée en itération 2 (numérotée 63)
+
+Reproduite mot pour mot ; elle fait suite à la remarque 61 (accueil et écran du prénom).
+
+> Les boutons sur ces deux pages restent haut, alors que sur toutes les autres pages ils sont collés en bas de l'écran
