@@ -13,7 +13,7 @@ Le jeu est en ligne à l'adresse suivante (à partager telle quelle) :
 Rien à installer : chaque personne ouvre ce lien dans le navigateur de son téléphone, avec une connexion internet.
 
 1. Une personne (l'hôte) ouvre le lien, touche « Créer une partie » et choisit un code. Les codes déjà pris par une partie en cours sont grisés.
-2. Elle donne le code au groupe, à voix haute par exemple. Les autres ouvrent le même lien, touchent « Rejoindre une partie » et saisissent le code (majuscules, minuscules et accents n'ont pas d'importance).
+2. L'hôte donne le code au groupe, à voix haute par exemple. Les autres ouvrent le même lien, touchent « Rejoindre une partie » et saisissent le code (majuscules, minuscules et accents n'ont pas d'importance).
 3. Chaque personne saisit son prénom, choisit son emblème et touche « Je rejoins la compagnie ».
 4. Quand au moins deux présences sont confirmées, l'hôte touche « Commencer la quête ». Chaque personne joue à son tour, dans l'ordre d'arrivée, jusqu'à l'écran de fin ; « Nouvelle quête » ramène à l'accueil.
 

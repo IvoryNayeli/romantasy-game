@@ -24,13 +24,13 @@ Cocher chaque étape et noter ce qui ne va pas (téléphone, navigateur, ce qui 
 | 4 | Téléphone B : « Rejoindre une partie », saisir le code (en minuscules, par exemple). | B arrive dans la salle. A et B se voient l'un l'autre. | [ ] |
 | 5 | A et B : prénom, emblème, « Je rejoins la compagnie ». | Les deux présences sont confirmées ; « Commencer la quête » devient actif chez A. Un emblème déjà pris ne peut pas être choisi par l'autre. | [ ] |
 | 6 | Avec d'autres téléphones (ou d'autres onglets), rejoindre jusqu'au nombre de places de `config.json` (5). | Chaque arrivée s'affiche chez tout le monde, dans l'ordre d'arrivée. | [ ] |
-| 7 | Une personne de plus (6e) essaie de rejoindre avec le même code. | Elle est refusée avec « La partie est complète ». | [ ] |
+| 7 | Une personne de plus (6e) essaie de rejoindre avec le même code. | Refus avec « La partie est complète ». | [ ] |
 | 8 | Téléphone A : « Commencer la quête ». | Tout le monde passe à la partie, compteur « Tour 1 / 4 ». Seule la personne dont c'est le tour voit les cartes à choisir et les boutons ; les autres voient « Au tour de… ». | [ ] |
 | 9 | Jouer les tours : choisir une carte, puis « Le sort est jeté ». | La carte s'affiche chez tout le monde ; la transition « Le sort est jeté pour… » apparaît chez tout le monde, puis le tour passe à la personne suivante. | [ ] |
 | 10 | À un tour, tirer une carte à effet durable et jeter le sort. | Le panneau « Effets en cours » apparaît chez tout le monde, avec l'effet et sa durée. | [ ] |
 | 11 | Sur n'importe quel téléphone, ouvrir « Effets en cours » et toucher « Échange de butins fait ». | L'effet disparaît chez tout le monde (éclat d'étoiles chez la personne qui a touché). | [ ] |
 | 12 | À un tour, toucher « Invoquer un bouclier » puis confirmer. | La transition du bouclier apparaît chez tout le monde ; aucun effet n'est ajouté. | [ ] |
-| 13 | Pendant la partie, couper le réseau d'un téléphone (mode avion) une trentaine de secondes, puis le rétablir. | Chez les autres, la personne est affichée « hors ligne » sans être retirée. Au retour du réseau, elle retrouve la partie là où elle en est, sans rien toucher. | [ ] |
+| 13 | Pendant la partie, couper le réseau d'un téléphone (mode avion) une trentaine de secondes, puis le rétablir. | Chez les autres, la personne est affichée « hors ligne » sans être retirée. Au retour du réseau, ce téléphone retrouve la partie là où elle en était, sans rien toucher. | [ ] |
 | 14 | Couper le réseau du téléphone dont c'est le tour, attendre une dizaine de secondes. | Chez les autres : « [prénom] est hors ligne. » puis « Passer son tour ». Le toucher affiche « Le tour de [prénom] est passé. » et la partie continue. | [ ] |
 | 15 | Fermer l'onglet du jeu sur un téléphone, rouvrir le lien, « Rejoindre une partie », même code, même prénom. | La personne reprend sa place dans la partie, avec son emblème. | [ ] |
 | 16 | Recharger la page sur un téléphone pendant la partie. | La partie revient telle quelle, sans rejouer la transition. | [ ] |
