@@ -18,7 +18,10 @@ export function ecranAffiche(params, local) {
   const demande = params.get('ecran');
   let nom = NOMS_ECRANS.includes(demande) ? demande : 'accueil';
   if (!local && ECRANS_DEMONSTRATION.includes(nom)) nom = 'accueil';
-  const demo = local && (params.get('demo') === '1' || (nom === 'salle' && PARAMETRES_SALLE_FICTIVE.some((p) => params.has(p))));
+  // Salle fictive (paramètres fictifs, sans code) ouverte en ligne : accueil, comme les autres écrans fictifs.
+  const salleFictive = PARAMETRES_SALLE_FICTIVE.some((p) => params.has(p));
+  if (!local && nom === 'salle' && !params.get('code') && salleFictive) nom = 'accueil';
+  const demo = local && (params.get('demo') === '1' || (nom === 'salle' && salleFictive));
   if (nom === 'jeu' && demo) nom = 'accueil'; // pas de partie en réseau en démonstration
   return { nom, demo };
 }

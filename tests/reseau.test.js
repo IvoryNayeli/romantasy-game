@@ -223,6 +223,11 @@ test('outils de démonstration : utilisables en local, ignorés sur la page en l
   }
   assert.deepEqual(navigation.ecranAffiche(p('demo=1&ecran=creer'), enLigne), { nom: 'creer', demo: false });
   assert.deepEqual(navigation.ecranAffiche(p('ecran=salle&code=ONYX&hote=1&autres=1'), enLigne), { nom: 'salle', demo: false });
+  // Salle fictive sans code (défaut D1 de la phase 8) : accueil en ligne, salle de démonstration en local.
+  for (const q of ['ecran=salle&hote=1&autres=1', 'ecran=salle&complete=1', 'ecran=salle&autres=2&demo=1']) {
+    assert.deepEqual(navigation.ecranAffiche(p(q), enLigne), { nom: 'accueil', demo: false }, q);
+    assert.deepEqual(navigation.ecranAffiche(p(q), local), { nom: 'salle', demo: true }, q);
+  }
   // Partie en réseau et parcours ordinaires : ouverts partout.
   for (const l of [local, enLigne]) {
     assert.deepEqual(navigation.ecranAffiche(p('ecran=jeu&code=ONYX'), l), { nom: 'jeu', demo: false });
