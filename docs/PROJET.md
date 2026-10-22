@@ -16,7 +16,7 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 
 - Page web simple : HTML, CSS, JavaScript, **sans framework ni étape de build**.
 - Synchronisation temps réel : **Firebase Realtime Database**, plan Spark.
-- Hébergement : GitHub Pages (publie la branche `main`).
+- Hébergement : GitHub Pages, lien définitif `https://ivorynayeli.github.io/romantasy-game/` (phase 8). Le flux GitHub Actions `.github/workflows/pages.yml` publie uniquement le contenu de `public/` à chaque push sur `main` (ou à la demande), sans `demo.html` ni `js/demo.js`. Tous les chemins de la page sont relatifs : elle fonctionne depuis le sous-chemin `/romantasy-game/`.
 - Les cartes sont chargées depuis le site (`public/data/cartes.json`), pas depuis la base. La base ne contient que l'état de la partie.
 - L'état de la partie (tour, carte, compteur, effets) vit dans Firebase, pas sur le téléphone de l'hôte.
 - Écran allumé : API Wake Lock. Reconnexion automatique : l'identité de chaque personne est mémorisée sur son téléphone. Une personne déconnectée est marquée « absente » sans être retirée de la partie (libellé neutre à choisir en phase 6). Si c'est son tour et qu'elle est absente, n'importe qui dans le groupe peut passer son tour après quelques secondes.
@@ -29,7 +29,8 @@ Ce fichier regroupe les choix techniques et de design validés. Les règles du j
 - Plan Spark : 100 connexions simultanées, 1 Go de stockage, 10 Go par mois de téléchargements de la base, 10 Go de transfert d'hébergement. Pas de Cloud Functions : toute la logique tourne dans les navigateurs.
 - Écoutes de la base uniquement sur le chemin de la partie en cours, jamais à la racine. Taille de l'état et nombre d'écritures par tour bornés.
 - Suppression de la partie à la fin, expiration des parties abandonnées.
-- Deux projets Firebase : `romantasy-dev` (essais) et `romantasy-prod` (lien partagé). Les tests automatiques visent **uniquement l'émulateur local** et refusent de tourner sur une adresse non locale.
+- Deux projets Firebase : `romantasy-dev` (essais) et `romantasy-prod` (lien partagé). Choix de la base d'après l'adresse de la page (`choisirBase`, `public/js/firebase-config.js`, phase 8) : émulateur local pour une page servie depuis l'ordinateur ou le réseau local, `romantasy-prod` pour la page en ligne, `?base=dev` pour forcer `romantasy-dev`. Les règles (`database.rules.json`) sont publiées sur chaque projet par la propriétaire (`firebase deploy --only database --project dev` ou `prod`).
+- Outils de démonstration (`demo.html`, écrans fictifs `?ecran=choix|carte|attente|transition|fin`, `?demo=1`, salle fictive) : réservés au local (phase 8, à confirmer). En ligne, `demo.html` n'est pas publié et ces paramètres sont ignorés (`public/js/navigation.js`) ; la partie en réseau (`?ecran=jeu&code=…`) et la salle (`?ecran=salle&code=…`) restent ouvertes. Les tests automatiques visent **uniquement l'émulateur local** et refusent de tourner sur une adresse non locale.
 - Outils de test : Node.js (lanceur de tests intégré), Playwright, émulateur Firebase (nécessite Java).
 
 ## Cartes

@@ -4,16 +4,58 @@ Jeu de soirée multijoueur sur téléphone, sur le thème de la romantasy. Chaqu
 
 ## Lancer le jeu
 
-**Le jeu est jouable en réseau** : à ce stade (phase 5), une partie se joue en entier sur plusieurs téléphones (ou onglets) : créer une partie, la rejoindre, choisir prénom et emblème, « Je rejoins la compagnie », « Commencer la quête », puis les tours (choix de la carte, carte visible par tout le monde, « Le sort est jeté » ou « Invoquer un bouclier », effets en cours) jusqu'à l'écran de fin. Depuis la phase 6, l'écran reste allumé pendant la salle et la partie (si le navigateur le permet), une personne dont la connexion est perdue est affichée « hors ligne » sans être retirée et retrouve la partie automatiquement quand le réseau revient ou après un rechargement de la page ; si c'est son tour, les autres peuvent le passer après quelques secondes. Depuis la phase 7, une personne qui a fermé son onglet par erreur refait « Rejoindre une partie », saisit le même code et le même prénom, et reprend sa place. Les ajustements visuels arrivent en phase 7, la mise en ligne en phase 8.
+### Jouer avec son groupe
 
-### Ce qu'il faut sur l'ordinateur
+Le jeu est en ligne à l'adresse suivante (à partager telle quelle) :
+
+**https://ivorynayeli.github.io/romantasy-game/**
+
+Rien à installer : chaque personne ouvre ce lien dans le navigateur de son téléphone, avec une connexion internet.
+
+1. Une personne (l'hôte) ouvre le lien, touche « Créer une partie » et choisit un code. Les codes déjà pris par une partie en cours sont grisés.
+2. Elle donne le code au groupe, à voix haute par exemple. Les autres ouvrent le même lien, touchent « Rejoindre une partie » et saisissent le code (majuscules, minuscules et accents n'ont pas d'importance).
+3. Chaque personne saisit son prénom, choisit son emblème et touche « Je rejoins la compagnie ».
+4. Quand au moins deux présences sont confirmées, l'hôte touche « Commencer la quête ». Chaque personne joue à son tour, dans l'ordre d'arrivée, jusqu'à l'écran de fin ; « Nouvelle quête » ramène à l'accueil.
+
+« Comment ça marche ? », sur l'accueil, rappelle les règles. Le nombre de tours et de places vient de `public/data/config.json`. Pendant la partie, l'écran reste allumé (si le navigateur le permet). Une personne dont la connexion est perdue est affichée « hors ligne » sans être retirée et retrouve la partie quand le réseau revient ou après un rechargement de la page ; si c'est son tour, les autres peuvent le passer après quelques secondes (« Passer son tour »). Une personne qui a fermé son onglet par erreur refait « Rejoindre une partie », saisit le même code et le même prénom, et reprend sa place.
+
+### Mise en ligne (à faire par la propriétaire du projet)
+
+La page en ligne est publiée par GitHub Pages et utilise la base de production `romantasy-prod`. Deux réglages, à faire une fois, connectée à son compte :
+
+1. **Source de GitHub Pages** : sur la page du dépôt GitHub, `Settings`, puis `Pages`, rubrique `Build and deployment`, choisir `GitHub Actions` comme `Source`. C'est gratuit pour un dépôt public ; aucun secret ni jeton à fournir.
+2. **Règles de la base de production** : depuis le dossier du projet, avec Firebase CLI (voir plus bas), publier les règles de sécurité (`database.rules.json`) sur `romantasy-prod`, puis à nouveau à chaque changement de ce fichier :
+
+   ```
+   firebase deploy --only database --project prod
+   ```
+
+   Cette commande publie seulement les règles de la base (rien d'autre, aucun service payant). Sans elle, la page en ligne ne peut ni créer ni rejoindre de partie (« Connexion impossible »).
+
+Ensuite, la page est republiée d'elle-même à chaque arrivée d'une phase validée sur `main` (flux « Mise en ligne (GitHub Pages) », `.github/workflows/pages.yml`, visible dans l'onglet `Actions` du dépôt ; bouton `Run workflow` pour la relancer à la main). Le flux publie seulement le contenu de `public/`, sans les écrans de démonstration.
+
+### Surveiller la consommation
+
+Le jeu reste dans le plan gratuit Spark de Firebase. Pour vérifier : console Firebase (https://console.firebase.google.com), projet `romantasy-prod`, `Realtime Database`, onglet `Utilisation`. Ce qui est normal :
+
+- **Connexions simultanées** : une par téléphone ouvert sur une partie (ou sur « Créer une partie »), au plus quelques dizaines même avec plusieurs groupes en même temps. Le plafond gratuit est de 100.
+- **Stockage** : quelques kilo-octets. Il ne peut y avoir qu'une partie par code, soit dix au plus (environ 5 Ko chacune), effacées à « Nouvelle quête » ou après expiration (30 minutes pour une salle d'attente, 3 heures pour une partie commencée). Le plafond gratuit est de 1 Go.
+- **Téléchargements** : de l'ordre de 1 à 2 Mo par partie complète au maximum de places, soit plusieurs milliers de parties par mois avant le plafond gratuit de 10 Go par mois.
+
+Si un de ces chiffres s'approche du plafond sans raison (par exemple des connexions alors que personne ne joue), le signaler : rien n'est facturé sur le plan Spark, la base cesse simplement de répondre jusqu'au mois suivant.
+
+### Jouer en local, sans la base en ligne
+
+Le jeu peut aussi tourner entièrement sur un ordinateur, avec une copie locale de la base (essais, développement, soirée sans internet).
+
+#### Ce qu'il faut sur l'ordinateur
 
 - **Python 3**, pour servir la page (présent sur la plupart des ordinateurs Linux et macOS).
 - Pour jouer à plusieurs : **Firebase CLI** et **Java** (version 11 ou plus récente), qui font tourner l'émulateur Firebase, une copie locale de la base de données. Firebase CLI s'installe avec `npm install -g firebase-tools` (Node.js nécessaire). Au premier lancement, l'émulateur se télécharge tout seul. Il n'a besoin d'aucun compte : il utilise un projet de démonstration (`demo-romantasy`) et ne touche jamais aux vraies bases.
 
 La page doit être servie par un petit serveur web : l'ouvrir directement depuis le dossier (adresse `file://`) ne fonctionne pas, le navigateur bloque le chargement des fichiers de données.
 
-### Jouer en local, sur un ou plusieurs appareils
+#### Sur un ou plusieurs appareils
 
 Depuis le dossier du projet, ouvrir **deux terminaux**.
 
@@ -35,7 +77,7 @@ Depuis le dossier du projet, ouvrir **deux terminaux**.
 
 Pour arrêter : `Ctrl+C` dans chacun des deux terminaux. Les parties de l'émulateur sont effacées à son arrêt.
 
-### Sur les téléphones (même Wi-Fi)
+#### Sur les téléphones (même Wi-Fi)
 
 1. Brancher l'ordinateur et les téléphones sur le **même réseau Wi-Fi**.
 2. Lancer l'émulateur et le serveur comme ci-dessus : tous deux écoutent sur toutes les adresses de l'ordinateur.
@@ -44,11 +86,11 @@ Pour arrêter : `Ctrl+C` dans chacun des deux terminaux. Les parties de l'émula
 
 Si la page ne s'ouvre pas, ou si « Connexion impossible » s'affiche, vérifier que le pare-feu de l'ordinateur autorise les ports **8000** (la page) et **9000** (l'émulateur), et que le Wi-Fi n'isole pas les appareils entre eux (c'est parfois le cas des réseaux d'invité). L'émulateur accepte les appareils du réseau local : ne le lancer que sur un réseau de confiance (celui de la maison).
 
-Sur le réseau local, la page est ouverte en `http://` : les navigateurs n'y autorisent pas le maintien de l'écran allumé (Wake Lock, réservé aux pages `https://`). Le jeu fonctionne normalement, mais le téléphone peut se mettre en veille ; allonger le délai de mise en veille pendant l'essai si besoin. Une fois le jeu en ligne (phase 8, `https://`), l'écran restera allumé.
+Sur le réseau local, la page est ouverte en `http://` : les navigateurs n'y autorisent pas le maintien de l'écran allumé (Wake Lock, réservé aux pages `https://`). Le jeu fonctionne normalement, mais le téléphone peut se mettre en veille ; allonger le délai de mise en veille pendant l'essai si besoin. Sur le lien en ligne (`https://`), l'écran reste allumé.
 
-### Utiliser la vraie base de développement (`romantasy-dev`)
+#### Utiliser la vraie base de développement (`romantasy-dev`)
 
-Ajouter `?base=dev` à l'adresse, par exemple `http://192.168.1.23:8000/?base=dev` : la page utilise alors la base `romantasy-dev` au lieu de l'émulateur (le paramètre est gardé d'un écran à l'autre). Les règles de sécurité (`database.rules.json`) doivent d'abord y être publiées, une fois puis à chaque changement, par la propriétaire du projet, connectée à son compte Firebase :
+Ajouter `?base=dev` à l'adresse, par exemple `http://192.168.1.23:8000/?base=dev` : la page utilise alors la base `romantasy-dev` au lieu de l'émulateur (ou, sur le lien en ligne, au lieu de `romantasy-prod`) (le paramètre est gardé d'un écran à l'autre). Les règles de sécurité (`database.rules.json`) doivent d'abord y être publiées, une fois puis à chaque changement, par la propriétaire du projet, connectée à son compte Firebase :
 
 ```
 firebase deploy --only database --project dev
@@ -56,9 +98,9 @@ firebase deploy --only database --project dev
 
 Cette commande publie seulement les règles de la base (rien d'autre, aucun service payant). Les parties abandonnées sont supprimées d'elles-mêmes après 30 minutes sans activité pour une salle d'attente (partie pas encore commencée), après 3 heures pour une partie commencée, dès qu'une personne ouvre « Créer une partie » ou tente de les rejoindre.
 
-### Écrans de démonstration
+#### Écrans de démonstration
 
-Les écrans restent consultables avec des données fictives, sans base ni émulateur (seul le serveur Python est nécessaire) :
+Les écrans restent consultables avec des données fictives, sans base ni émulateur (seul le serveur Python est nécessaire). Ces outils de validation ne fonctionnent qu'en local (page servie depuis l'ordinateur ou le réseau local) : sur le lien en ligne, `demo.html` n'est pas publié, et `?demo=1` comme les écrans fictifs (`?ecran=choix`, `carte`, `attente`, `transition`, `fin`, salle fictive) sont ignorés, la page s'ouvre alors sur l'accueil.
 
 - **Liste de tous les écrans** : `http://localhost:8000/demo.html`. Chaque écran y a son lien, avec des variantes (choix du code, saisie du code avec ses messages d'erreur, salle complète, carte à effet durable, carte la plus longue, etc.) et la liste des 40 cartes.
 - **Parcours complet de démonstration** : `http://localhost:8000/?demo=1` (accueil, règles, « Créer une partie » ou « Rejoindre une partie », salle d'attente fictive, tous les tours, fin). Pour rejoindre, saisir l'un des dix codes de `public/data/codes.json`.
@@ -80,12 +122,6 @@ Les écrans restent consultables avec des données fictives, sans base ni émula
 | `echange` | `1` | Attente : bouton « Échange de butins fait » de démonstration, qui retire l'effet et montre l'éclat d'étoiles |
 
 Le nombre de tours, de places maximum et le délai avant de pouvoir passer le tour d'une personne hors ligne (`delaiAbsenceSecondes`) viennent uniquement de `public/data/config.json`. Les animations se coupent d'elles-mêmes quand le téléphone ou l'ordinateur demande de réduire les animations (réglage du système, pas une option du jeu).
-
-### Plus tard
-
-| À partir de | Ce qui sera documenté ici |
-|---|---|
-| Phase 8 | Le lien définitif à partager (GitHub Pages) et comment créer une partie avec son groupe. |
 
 ## Développement du projet avec des agents (Copilot ou Claude Code)
 
@@ -151,4 +187,7 @@ Une session par phase ou par itération suffit : toute la mémoire du projet est
 
 ## Licence et crédits
 
-À compléter en phase 8. Le logo, les emblèmes, l'épée et l'étoile sont des images fournies par la propriétaire du projet (phase 7) : les icônes game-icons.net ne sont plus prévues.
+- **Images** : le logo, les neuf emblèmes, l'épée, l'étoile, le bouclier et le butin (`public/img/`, originaux dans `docs/images-source/`) sont des images de la propriétaire du projet. Les fonds d'étoiles (`public/img/etoiles-*.svg`), les constellations et les petits symboles au trait (retour, coche, lueur, étincelle, filigrane) ont été dessinés pour le projet.
+- **Polices** (hébergées dans `public/fonts/`, sous licence SIL Open Font License 1.1, texte de chaque licence à côté des fichiers) : Cormorant Garamond (The Cormorant Project Authors), Jost (The Jost Project Authors) et Cinzel Decorative (Natanael Gama).
+- **Firebase** : le SDK JavaScript de Firebase (Google), sous licence Apache 2.0, est chargé par la page depuis le CDN officiel ; il n'est pas copié dans le dépôt. Les outils de test (`firebase`, `playwright-core`) ne servent qu'au développement et ne sont pas publiés.
+- **Textes** : règles et cartes écrites pour le projet (`docs/regles.md`, `docs/cartes-source.md`).
