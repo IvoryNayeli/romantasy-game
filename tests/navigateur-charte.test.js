@@ -228,7 +228,7 @@ function etoilesSurTexte() {
   let n;
   while ((n = marcheur.nextNode())) {
     const p = n.parentElement;
-    if (!n.textContent.trim() || !p || p.closest('script, style, noscript, svg')) continue;
+    if (!n.textContent.trim() || !p || p.closest('script, style, noscript, svg, .annonce')) continue;
     if (p.getClientRects().length === 0 || getComputedStyle(p).visibility === 'hidden' || opaque(p)) continue;
     const plage = document.createRange();
     plage.selectNodeContents(n);

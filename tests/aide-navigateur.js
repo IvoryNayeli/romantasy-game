@@ -94,7 +94,8 @@ function mesurerDebordements() {
   while ((noeud = marcheur.nextNode())) {
     if (!noeud.textContent.trim()) continue;
     const parent = noeud.parentElement;
-    if (!parent || parent.closest('noscript, script, style') || !visible(parent)) continue;
+    // .annonce (phase 8) : zone lue par les lecteurs d'écran seulement, jamais affichée.
+    if (!parent || parent.closest('noscript, script, style, .annonce') || !visible(parent)) continue;
     const plage = document.createRange();
     plage.selectNodeContents(noeud);
     for (const r of plage.getClientRects()) {
@@ -115,7 +116,7 @@ function mesurerDebordements() {
     }
   }
   for (const el of document.querySelectorAll('body *')) {
-    if (!visible(el) || el.closest('svg, noscript, .ciel-accueil') || el.tagName === 'INPUT') continue;
+    if (!visible(el) || el.closest('svg, noscript, .ciel-accueil, .annonce') || el.tagName === 'INPUT') continue;
     const s = getComputedStyle(el);
     if (['hidden', 'clip'].includes(s.overflowX) && el.scrollWidth > el.clientWidth + 1) {
       problemes.push(`${nom(el)} : scrollWidth ${el.scrollWidth} > clientWidth ${el.clientWidth}`);
@@ -186,7 +187,7 @@ function mesurerPolices() {
   const taille = (sel) => [...document.querySelectorAll(sel)].map((e) => parseFloat(getComputedStyle(e).fontSize));
   const petits = [];
   for (const e of document.querySelectorAll('body *')) {
-    if (e.closest('noscript, svg')) continue;
+    if (e.closest('noscript, svg, .annonce')) continue;
     const direct = [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
     const s = getComputedStyle(e);
     if (!direct || s.display === 'none' || s.visibility === 'hidden' || e.getBoundingClientRect().width === 0) continue;
@@ -220,7 +221,7 @@ function collecterTextes() {
   while ((noeud = marcheur.nextNode())) {
     const t = noeud.textContent.trim();
     const parent = noeud.parentElement;
-    if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-image')) continue;
+    if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-image, .annonce')) continue;
     // Bandeau replié (details fermé, phase 7) : son détail n'est pas affiché.
     if (parent.closest('details:not([open]) > :not(summary)')) continue;
     // Verso d'une carte révélée (face cachée, backface-visibility: hidden) : il n'est pas affiché.
@@ -403,7 +404,7 @@ function contexte() {
     let n;
     while ((n = marcheur.nextNode())) {
       const p = n.parentElement;
-      if (!n.textContent.trim() || !p || p.closest('script, style, noscript, svg')) continue;
+      if (!n.textContent.trim() || !p || p.closest('script, style, noscript, svg, .annonce')) continue;
       if (p.getClientRects().length === 0 || getComputedStyle(p).visibility === 'hidden') continue;
       sorties.push(n.textContent.trim());
     }

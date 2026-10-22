@@ -148,6 +148,13 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
   outline-offset: 3px;
 }
 
+/* Phase 8 : zone lue par les lecteurs d'écran seulement (annonce des changements de vue), jamais visible.
+   Collée au coin haut gauche, texte replié mot à mot : aucun texte ne sort de l'écran, rien ne bouge la mise en page. */
+.annonce {
+  position: absolute; top: 0; left: 0; width: 1px; height: 1px; margin: 0; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); pointer-events: none;
+}
+
 .page {
   position: relative;
   display: flex;
@@ -667,6 +674,14 @@ h2 {
   perspective: 1200px;
 }
 .carte-revelation { --rarete: var(--c-lune); --lueur: var(--lueur-lune); }
+/* Phase 8 (défaut D4) : la carte révélée est mise à la taille de l'écran par ajusterCartes (ecrans.js), qui lit sa
+   hauteur juste après avoir changé sa largeur et la taille du texte. Avec la réduction des animations, la règle
+   « transition-duration: 1ms » ci-dessus donnait à toutes les propriétés (largeur, tailles en cqw) une transition de
+   1 ms : la lecture renvoyait l'ancienne taille, la carte pouvait déborder de quelques pixels, et après un
+   redimensionnement elle restait trop grande. Sans la réduction des animations, rien ne change. */
+@media (prefers-reduced-motion: reduce) {
+  .carte, .carte * { transition-property: none; }
+}
 
 .carte-3d {
   position: relative;

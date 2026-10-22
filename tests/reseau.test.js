@@ -183,7 +183,7 @@ test('écoutes : uniquement sur le chemin de la partie en cours, jamais sur la r
   assert.equal((salon.match(/fb\.ref\(/g) || []).length, 1, 'une seule fabrique de références');
 });
 
-test('choix de la base : émulateur pour une page locale ou du réseau local, jamais la prod avant la phase 8', async () => {
+test('choix de la base : émulateur pour une page locale ou du réseau local, prod pour la page en ligne', async () => {
   const { config } = await E.chargerModules();
   const p = (q = '') => new URLSearchParams(q);
   for (const hote of ['localhost', '127.0.0.1', '192.168.1.23', '10.0.0.5', '172.20.1.2', 'mon-ordi.local']) {
@@ -193,12 +193,50 @@ test('choix de la base : émulateur pour une page locale ou du réseau local, ja
     assert.deepEqual(b.emulateur, { hote, port: config.PORT_EMULATEUR });
   }
   assert.equal(config.choisirBase('192.168.1.23', p('base=dev')).nom, 'dev');
-  assert.equal(config.choisirBase('ivorynayeli.github.io', p()).nom, 'dev');
-  assert.equal(config.choisirBase('172.32.0.1', p()).nom, 'dev', '172.32 n\'est pas une adresse privée');
-  assert.equal(config.choisirBase('exemple.fr', p('base=prod')).nom, 'dev', 'prod non sélectionnable avant la phase 8');
+  const enLigne = config.choisirBase('ivorynayeli.github.io', p());
+  assert.equal(enLigne.nom, 'prod', 'page en ligne : base de production');
+  assert.equal(enLigne.projectId, 'romantasy-prod');
+  assert.equal(enLigne.emulateur, undefined, 'pas d\'émulateur pour la page en ligne');
+  assert.equal(config.choisirBase('ivorynayeli.github.io', p('base=dev')).nom, 'dev', '?base=dev force la base de développement');
+  assert.equal(config.choisirBase('172.32.0.1', p()).nom, 'prod', '172.32 n\'est pas une adresse privée');
+  assert.equal(config.choisirBase('localhost', p('base=prod')).nom, 'emulateur', 'prod jamais sélectionnable depuis une page locale');
   assert.match(config.BASES.dev.databaseURL, /^https:\/\/romantasy-dev-default-rtdb\.europe-west1\.firebasedatabase\.app$/);
   assert.match(config.BASES.prod.databaseURL, /^https:\/\/romantasy-prod-default-rtdb\.europe-west1\.firebasedatabase\.app$/);
   assert.doesNotMatch(sansCommentaires(lireJs('firebase-config.js')), /apiKey|AIza|secret|token|password/i, 'aucune clé ni jeton');
+});
+
+test('outils de démonstration : utilisables en local, ignorés sur la page en ligne (phase 8)', async () => {
+  const { navigation, config } = await E.chargerModules();
+  const p = (q = '') => new URLSearchParams(q);
+  const local = config.estAdresseLocale('localhost');
+  const enLigne = config.estAdresseLocale('ivorynayeli.github.io');
+  assert.equal(local, true);
+  assert.equal(enLigne, false);
+  // En local : écrans fictifs, ?demo=1 et salle fictive comme avant.
+  assert.deepEqual(navigation.ecranAffiche(p('ecran=carte&type=epreuve'), local), { nom: 'carte', demo: false });
+  assert.deepEqual(navigation.ecranAffiche(p('demo=1&ecran=creer'), local), { nom: 'creer', demo: true });
+  assert.deepEqual(navigation.ecranAffiche(p('ecran=salle&hote=1&autres=1'), local), { nom: 'salle', demo: true });
+  assert.deepEqual(navigation.ecranAffiche(p('demo=1&ecran=jeu&code=ONYX'), local), { nom: 'accueil', demo: true });
+  // En ligne : aucun écran fictif, jamais de démonstration.
+  for (const nom of navigation.ECRANS_DEMONSTRATION) {
+    assert.deepEqual(navigation.ecranAffiche(p(`ecran=${nom}`), enLigne), { nom: 'accueil', demo: false }, nom);
+  }
+  assert.deepEqual(navigation.ecranAffiche(p('demo=1&ecran=creer'), enLigne), { nom: 'creer', demo: false });
+  assert.deepEqual(navigation.ecranAffiche(p('ecran=salle&code=ONYX&hote=1&autres=1'), enLigne), { nom: 'salle', demo: false });
+  // Salle fictive sans code (défaut D1 de la phase 8) : accueil en ligne, salle de démonstration en local.
+  for (const q of ['ecran=salle&hote=1&autres=1', 'ecran=salle&complete=1', 'ecran=salle&autres=2&demo=1']) {
+    assert.deepEqual(navigation.ecranAffiche(p(q), enLigne), { nom: 'accueil', demo: false }, q);
+    assert.deepEqual(navigation.ecranAffiche(p(q), local), { nom: 'salle', demo: true }, q);
+  }
+  // Partie en réseau et parcours ordinaires : ouverts partout.
+  for (const l of [local, enLigne]) {
+    assert.deepEqual(navigation.ecranAffiche(p('ecran=jeu&code=ONYX'), l), { nom: 'jeu', demo: false });
+    assert.deepEqual(navigation.ecranAffiche(p('ecran=salle&code=ONYX'), l), { nom: 'salle', demo: false });
+    for (const nom of ['accueil', 'regles', 'creer', 'rejoindre']) {
+      assert.deepEqual(navigation.ecranAffiche(p(`ecran=${nom}`), l), { nom, demo: false }, nom);
+    }
+    assert.deepEqual(navigation.ecranAffiche(p('ecran=inconnu'), l), { nom: 'accueil', demo: false });
+  }
 });
 
 test('Firebase CLI : projets dev (par défaut) et prod, règles de database.rules.json, émulateur sans interface', () => {
@@ -247,4 +285,39 @@ test('reprise par le prénom : place confirmée, même prénom (casse et espaces
   assert.equal(S.placePossible(complete), true);
   assert.equal(S.placePossible(salle), true, 'places libres');
   assert.equal(S.placePossible(commencee), true);
+});
+
+test('mise en ligne (phase 8) : flux GitHub Pages qui ne publie que public/, sans outils de démonstration ni secret', () => {
+  const flux = lireRacine(path.join('.github', 'workflows', 'pages.yml'));
+  assert.match(flux, /on:\s*\n\s*push:\s*\n\s*branches: \[main\]\s*\n\s*workflow_dispatch:/, 'push sur main et à la demande');
+  for (const action of ['actions/checkout@v4', 'actions/configure-pages@v5', 'actions/upload-pages-artifact@v3', 'actions/deploy-pages@v4']) {
+    assert.ok(flux.includes(`uses: ${action}`), action);
+  }
+  assert.equal((flux.match(/uses:/g) || []).length, 4, 'actions officielles seulement');
+  assert.match(flux, /cp -r public\/\. _site\//, 'contenu de public/ seulement');
+  assert.match(flux, /rm -f _site\/demo\.html _site\/js\/demo\.js/, 'outils de démonstration retirés');
+  assert.match(flux, /touch _site\/\.nojekyll/);
+  assert.match(flux, /path: _site/);
+  assert.doesNotMatch(flux, /secrets\.|^\s*token:|github_token|apiKey|AIza/im, 'aucun secret ni jeton');
+});
+
+test('mise en ligne (phase 8) : chemins relatifs, la page fonctionne servie depuis un sous-chemin (/romantasy-game/)', () => {
+  const fichiers = [];
+  const parcourir = (dossier) => {
+    for (const f of fs.readdirSync(dossier, { withFileTypes: true })) {
+      const chemin = path.join(dossier, f.name);
+      if (f.isDirectory()) parcourir(chemin);
+      else if (/\.(html|css|js|json)$/.test(f.name)) fichiers.push(chemin);
+    }
+  };
+  parcourir(E.PUBLIC);
+  for (const f of fichiers) {
+    const texte = fs.readFileSync(f, 'utf8');
+    const nom = path.relative(E.RACINE, f);
+    assert.doesNotMatch(texte, /\b(?:src|href)\s*=\s*["']\/(?!\/)/, `${nom} : chemin absolu dans un attribut`);
+    assert.doesNotMatch(texte, /url\(\s*["']?\/(?!\/)/, `${nom} : chemin absolu dans url()`);
+    assert.doesNotMatch(texte, /fetch\(\s*[`'"]\//, `${nom} : chemin absolu dans fetch`);
+    assert.doesNotMatch(texte, /"image":\s*"\//, `${nom} : chemin absolu d'image`);
+    assert.doesNotMatch(texte, /\b(?:src|href):\s*[`'"]\/(?!\/)/, `${nom} : chemin absolu dans le JS`);
+  }
 });

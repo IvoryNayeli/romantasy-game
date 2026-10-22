@@ -239,6 +239,10 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
     await attendreEcran(hote, 'choix');
     await attendreEcran(invite, 'attente');
     assert.equal(new URL(hote.url()).searchParams.get('ecran'), 'jeu');
+    // Phase 8 : le début du tour est annoncé aux lecteurs d'écran, avec le titre affiché.
+    assert.equal(await hote.locator('#annonce').getAttribute('aria-live'), 'polite');
+    assert.equal(await hote.locator('#annonce').textContent(), await hote.locator('h2').first().textContent());
+    assert.equal(await invite.locator('#annonce').textContent(), await invite.locator('h2').first().textContent());
 
     const total = joueurs.length * config.tours;
     for (let n = 0; n < total; n += 1) {
@@ -285,6 +289,8 @@ describe('navigateur : salle d\'attente en réseau (émulateur local)', { skip: 
         await attendreEcran(j.page, 'transition');
         assert.equal(await j.page.locator('.transition-texte').textContent(), attendu);
         assert.equal(await j.page.locator('.compteur').textContent(), `Tour ${tour} / ${config.tours}`);
+        // Phase 8 : la transition est annoncée aux lecteurs d'écran (zone aria-live invisible).
+        assert.equal(await j.page.locator('#annonce').textContent(), attendu);
       }
 
       if (n === 0) {
