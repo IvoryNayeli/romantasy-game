@@ -27,11 +27,11 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
 | 7 | Ajustements visuels | validée le 2026-10-22 | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
-| 8 | Finition et mise en ligne | en test | 1 | |
+| 8 | Finition et mise en ligne | prête pour relecture | 1 | [phase-8-iteration-1](rapports/phase-8-iteration-1.md) |
 
 ## Prochaine action
 
-Phase 8, itération 1 en test : vérification par le testeur (obligatoire).
+Phase 8, itération 1 prête pour relecture : attente de la propriétaire (« Phase 8 validée » ou « Phase 8, remarques : … »). À trancher : partie réelle en ligne après fusion (A) ou avant (B), et D3.
 
 ## Journal
 
@@ -39,10 +39,11 @@ Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte :
 
 - 2026-10-22, phase 8, itération 1 : base prod en ligne, flux GitHub Pages, outils de démonstration réservés au local, annonce aux lecteurs d'écran, README (lien, mise en ligne, consommation, crédits), check-list `docs/checklist-phase-8.md`. Passée en test.
 - 2026-10-22, phase 8, itération 1, retour du testeur : D1 (salle fictive sans code en ligne), D2 (« elle » dans le README, la check-list et PROJET) et D4 (carte révélée : transitions de 1 ms de la réduction des animations, mesure de `ajusterCartes` faussée) corrigés ; D3 laissé à la propriétaire. Toujours en test.
+- 2026-10-22, phase 8, itération 1 : retest « tout passe » sur 07b8da9, rapport [phase-8-iteration-1](rapports/phase-8-iteration-1.md), prête pour relecture.
 
 ## Défauts ouverts
 
-Aucun.
+- Phase 8, D3 : « vrais sacs » à la ligne 3 du README (documentation, pas texte du jeu) : à trancher par la propriétaire.
 
 ## Décisions à confirmer
 
