@@ -200,7 +200,9 @@ describe('navigateur : parcours Créer, Rejoindre, salle d\'attente, réglage de
     const page = await ouvrir('index.html?ecran=regles');
     await page.getByRole('link', { name: /Rejoindre une partie/i }).click();
     await page.waitForSelector('.ecran-rejoindre');
-    assert.equal(await page.locator('.ecran-rejoindre .titre-ecran').textContent(), 'Saisis le code de la partie');
+    // Phase 7 (remarque 62) : plus de titre « Saisis le code de la partie » au-dessus du cartouche.
+    assert.equal(await page.locator('.ecran-rejoindre .titre-ecran').count(), 0, 'pas de titre sur l\'écran du code');
+    assert.ok(!(await page.locator('.ecran-rejoindre').textContent()).includes('Saisis le code de la partie'));
     const champ = page.locator('#champ-code');
     assert.ok(await champ.isVisible());
     assert.equal(await champ.inputValue(), '');

@@ -107,7 +107,6 @@ export const creer = {
 
 // Écran « Rejoindre une partie » : saisie du code.
 export const rejoindre = {
-  titre: 'Saisis le code de la partie',
   libelle: 'Code de la partie',
   aide: 'Majuscules, minuscules et accents n\'ont pas d\'importance.',
   valider: 'Valider',

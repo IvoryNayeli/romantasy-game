@@ -262,7 +262,7 @@ export function rejoindre({ donnees, params, naviguer, reseau = null }) {
     autocapitalize: 'characters', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'go', placeholder: '…',
     'aria-describedby': 'aide-code',
   });
-  // Phase 7 (remarque 57) : même présentation que l'écran du prénom (consigne en italique, cartouche ornementé qui
+  // Phase 7 (remarque 57) : même présentation que l'écran du prénom (cartouche ornementé qui
   // porte l'étiquette « Code de la partie » sur son bord du haut), sans les constellations. Le code reste en Jost.
   const { cartouche, ajuster } = cartoucheChamp(champ, R.libelle, 'cartouche-code');
   function erreur(texte) {
@@ -302,8 +302,9 @@ export function rejoindre({ donnees, params, naviguer, reseau = null }) {
         .finally(() => { enCours = false; boutonValider.disabled = false; });
     },
   },
+  // Remarque 62 : plus de titre « Saisis le code de la partie » ; le champ garde son nom accessible (étiquette
+  // « Code de la partie » du cartouche).
   h('div', { classe: 'formulaire-code-corps saisie-code' },
-    h('h2', { classe: 'titre-ecran' }, R.titre),
     cartouche,
     h('p', { classe: 'aide-champ', id: 'aide-code' }, R.aide),
     messageErreur),

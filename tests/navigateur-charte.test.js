@@ -669,9 +669,9 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       if (!['500', '600'].includes(t.graisse)) defauts.push(`[${nom}] graisse ${t.graisse}`);
       await fermer(page);
     }
-    // Phase 7 (remarque 57) : la consigne de l'écran du code reprend la phrase de l'écran du prénom (Cormorant Garamond
-    // italique, 28 px, étoile), comme sa maquette.
-    for (const [nom, c, sel] of [['rejoindre', '?ecran=rejoindre', '.titre-ecran'], ['prénom', '?ecran=salle&hote=1&autres=1', '.prenom-question']]) {
+    // Phase 7 : la phrase de l'écran du prénom (Cormorant Garamond italique, 28 px, étoile), comme sa maquette (la
+    // consigne de l'écran du code, qui la reprenait, est retirée par la remarque 62).
+    for (const [nom, c, sel] of [['prénom', '?ecran=salle&hote=1&autres=1', '.prenom-question']]) {
       const page = await ouvrir(`index.html${c}`, { reduit: true });
       const t = await page.evaluate((s) => { const st = getComputedStyle(document.querySelector(s)); return { px: parseFloat(st.fontSize), famille: st.fontFamily, style: st.fontStyle, couleur: st.color }; }, sel);
       if (t.px !== 28 || !/^"?Cormorant Garamond/.test(t.famille) || t.style !== 'italic' || t.couleur !== 'rgb(244, 241, 232)') defauts.push(`[${nom}] consigne ${JSON.stringify(t)}`);
@@ -843,8 +843,24 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     });
     assert.equal(fixe.fond, 'rgba(0, 0, 0, 0)'); assert.match(fixe.filet, /^0px none/); assert.equal(fixe.position, 'static');
     assert.ok(fixe.defile <= 0, `écran fixe : défilement de ${fixe.defile} px`);
-    assert.ok(Math.abs(fixe.ecartBas - 12) <= 1, `bouton en bas de l'écran (${fixe.ecartBas} px du bas)`);
+    // Remarque 61 : 8 px du bas de l'écran (12 px avant), la zone de sécurité du téléphone comptée une seule fois.
+    assert.ok(Math.abs(fixe.ecartBas - 8) <= 1, `bouton en bas de l'écran (${fixe.ecartBas} px du bas)`);
     await fermer(page);
+    // Sur l'accueil, l'écran du prénom et l'écran du code : bouton à 8 px du bas, sans défilement ; avec une zone de
+    // sécurité simulée (34 px, comme un iPhone récent), à 34 + 8 px du bas (zone comptée une seule fois).
+    for (const c of ['?ecran=accueil', '?ecran=salle&hote=1&autres=1', '?ecran=rejoindre']) {
+      for (const [largeur, hauteur, bas] of [[360, 640, 0], [390, 844, 34], [412, 915, 34]]) {
+        page = await ouvrir(`index.html${c}`, { largeur, hauteur, reduit: true });
+        await page.addStyleTag({ content: `:root { --bas: ${bas}px; }` });
+        const m = await page.evaluate(() => {
+          const b = document.querySelector('.barre-bas:not([hidden]) .bouton').getBoundingClientRect();
+          return { ecartBas: innerHeight - b.bottom, defile: document.documentElement.scrollHeight - innerHeight };
+        });
+        assert.ok(Math.abs(m.ecartBas - (bas + 8)) <= 1, `${c} ${largeur}x${hauteur} : bouton à ${m.ecartBas} px du bas (${bas + 8} attendus)`);
+        assert.ok(m.defile <= 0, `${c} ${largeur}x${hauteur} : défilement de ${m.defile} px`);
+        await fermer(page);
+      }
+    }
     page = await ouvrir('index.html?ecran=regles', { largeur: 390, hauteur: 700, reduit: true });
     const y = async () => page.evaluate(() => Math.round(document.querySelector('.barre-bas .bouton').getBoundingClientRect().top));
     assert.ok(await y() > 700, 'règles : les boutons ne sont pas visibles avant le défilement (à la fin du contenu)');
@@ -857,7 +873,8 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.ok(fin.haut >= fin.parchemin, 'règles : boutons après le parchemin');
     assert.ok(fin.b.every(([t, bt]) => t >= 0 && bt <= 700), 'règles : boutons visibles en fin de défilement');
     assert.ok(parseFloat(fin.ecart) >= 8, 'au moins 8 px entre les deux boutons');
-    assert.match(css, /padding:\s*12px 0 calc\(12px \+ var\(--bas\)\)/, 'marge de sécurité --bas');
+    assert.match(css, /padding:\s*12px 0 8px;/, 'marge basse des boutons (remarque 61)');
+    assert.match(css, /body\s*\{[^}]*padding:\s*var\(--haut\) var\(--marge\) var\(--bas\)/, 'marge de sécurité --bas (body)');
     assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /position:\s*sticky/, 'plus de bouton ni de pied collé pendant le défilement');
     await fermer(page);
   });

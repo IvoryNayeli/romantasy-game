@@ -431,14 +431,16 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 /* Phase 7 (remarque 47, qui remplace la remarque 38 des boutons « flottants ») : les boutons sont fixes en bas de la
    page, sans bande ni fond derrière eux. Tous les écrans tiennent dans la hauteur de l'écran, boutons compris (pas de
    défilement) ; seules les règles (et le choix de l'emblème, remarque 52) défilent, leurs boutons venant à la fin du
-   contenu. Au-dessus de la zone de sécurité du téléphone (--bas). */
+   contenu. Au-dessus de la zone de sécurité du téléphone (--bas), réservée une seule fois, par le body.
+   Phase 7 (remarque 61) : boutons plus bas, à 8 px du bas de la page au lieu de 12 px + --bas (la zone de sécurité
+   était comptée deux fois : par le body et par la barre). */
 .barre-bas {
   position: static;
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin: auto 0 0;
-  padding: 12px 0 calc(12px + var(--bas));
+  padding: 12px 0 8px;
   background: transparent;
 }
 
@@ -802,7 +804,7 @@ h2 {
   margin: auto 0 0;
 }
 .pied-tour .barre-bas { margin: 0; }
-.pied-tour:not(:has(.barre-bas:not([hidden]))) { padding-bottom: calc(8px + var(--bas)); }
+.pied-tour:not(:has(.barre-bas:not([hidden]))) { padding-bottom: 8px; } /* --bas : déjà réservé par le body */
 .pied-tour .absence-message { margin: 0; padding: 12px var(--marge); }
 
 /* Bandeau « Effets en cours » : replié par défaut (une ligne), déroulé d'un toucher ; le détail défile s'il est long,
@@ -1065,11 +1067,11 @@ h2 {
 .cartouche .champ::placeholder { color: #8FA6C866; }
 .cartouche-filet { height: var(--filet); margin: 2px 8px 0; background: linear-gradient(90deg, transparent, #F0A35E66 20%, #F0A35E66 80%, transparent); }
 .cartouche-mesure { position: absolute; top: 0; left: 0; visibility: hidden; white-space: pre; pointer-events: none; }
-/* Phase 7 (remarque 57) : l'écran du code reprend celui du prénom, sans constellations : consigne en italique, cartouche
-   ornementé centré verticalement, aide et message d'erreur centrés dessous. Le code garde sa police (Jost, capitales
-   espacées, réponse 1 de la propriétaire), à la taille du prénom (28 px, réduite par ecrans.js, jamais sous 16 px). */
+/* Phase 7 (remarque 57) : l'écran du code reprend celui du prénom, sans constellations : cartouche ornementé centré
+   verticalement (remarque 62 : plus de consigne au-dessus), aide et message d'erreur centrés dessous. Le code garde sa
+   police (Jost, capitales espacées, réponse 1 de la propriétaire), à la taille du prénom (28 px, réduite par ecrans.js,
+   jamais sous 16 px). */
 .saisie-code { align-items: center; text-align: center; padding-bottom: 48px; }
-.saisie-code .titre-ecran { margin: 0 0 30px; color: var(--c-etoile); font: italic 500 1.75rem/1.2 var(--f-titre); text-wrap: balance; }
 .cartouche-code .champ, .cartouche-code .cartouche-mesure { font: 400 1.75rem/1.2 var(--f-texte); letter-spacing: .15em; text-transform: uppercase; }
 .saisie-code .aide-champ { margin-top: 16px; }
 /* Ciel des lettres : toute la largeur de l'écran, sous le contenu ; constellations dessinées par ciel.js. */
