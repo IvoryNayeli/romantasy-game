@@ -341,11 +341,11 @@ function contexte() {
     return url;
   };
   // Ouvre une page avec relevé des problèmes. Refuse toute adresse non locale.
-  ctx.ouvrir = async function ouvrir(chemin, { largeur = 360, hauteur = 800, reduit = null, config: cfg = null, init = null, couleur = 'dark', dpr = 1, reseau = false } = {}) {
+  ctx.ouvrir = async function ouvrir(chemin, { largeur = 360, hauteur = 800, reduit = null, config: cfg = null, init = null, couleur = 'dark', dpr = 1, reseau = false, mobile = false } = {}) {
     const url = ctx.url(chemin, { reseau });
     assert.equal(url.hostname, '127.0.0.1', `adresse non locale refusée : ${url}`);
     const c = await navigateur.newContext({
-      viewport: { width: largeur, height: hauteur }, deviceScaleFactor: dpr, hasTouch: true, isMobile: false,
+      viewport: { width: largeur, height: hauteur }, deviceScaleFactor: dpr, hasTouch: true, isMobile: mobile,
       reducedMotion: reduit === true ? 'reduce' : 'no-preference', locale: 'fr-FR', colorScheme: couleur,
     });
     await c.route('**/*', (route) => {

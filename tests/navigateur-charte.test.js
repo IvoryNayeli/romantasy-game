@@ -851,7 +851,12 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     for (const c of ['?ecran=accueil', '?ecran=salle&hote=1&autres=1', '?ecran=rejoindre']) {
       for (const [largeur, hauteur, bas] of [[360, 640, 0], [390, 844, 34], [412, 915, 34]]) {
         page = await ouvrir(`index.html${c}`, { largeur, hauteur, reduit: true });
-        await page.addStyleTag({ content: `:root { --bas: ${bas}px; }` });
+        // Zone simulée sur le html, puis attente que le body en tienne compte : Chrome (sans écran) rend parfois une
+        // image avec l'ancien padding juste après le changement (mesure instable sinon).
+        await page.evaluate((v) => document.documentElement.style.setProperty('--bas', `${v}px`), bas);
+        await page.waitForFunction((v) => getComputedStyle(document.body).paddingBottom === `${v}px`
+          && Math.abs(innerHeight - document.querySelector('.barre-bas:not([hidden]) .bouton').getBoundingClientRect().bottom - v - 8) <= 1, bas, { timeout: 3000 })
+          .catch(() => {});
         const m = await page.evaluate(() => {
           const b = document.querySelector('.barre-bas:not([hidden]) .bouton').getBoundingClientRect();
           return { ecartBas: innerHeight - b.bottom, defile: document.documentElement.scrollHeight - innerHeight };
@@ -877,6 +882,31 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.match(css, /body\s*\{[^}]*padding:\s*var\(--haut\) var\(--marge\) var\(--bas\)/, 'marge de sécurité --bas (body)');
     assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /position:\s*sticky/, 'plus de bouton ni de pied collé pendant le défilement');
     await fermer(page);
+  });
+
+  // Remarque 63 : en émulation mobile (téléphone, écran tactile, densité de pixels), le bouton de l'accueil et celui de
+  // l'écran du prénom (salle fictive) sont à la même distance du bas de l'écran que ceux de « Créer » et « Rejoindre ».
+  it('remarque 63 : en émulation mobile, boutons de l\'accueil et du prénom au même écart du bas que sur les autres écrans', async () => {
+    const defauts = [];
+    for (const [appareil, largeur, hauteur, dpr] of [['360x640', 360, 640, 2], ['iPhone 13', 390, 664, 3], ['Pixel 7', 412, 839, 2.625], ['412x915', 412, 915, 2.625]]) {
+      const ecarts = {};
+      for (const [nom, c] of [['accueil', '?ecran=accueil'], ['prénom', '?ecran=salle&hote=1&autres=1'], ['créer', '?ecran=creer'], ['rejoindre', '?ecran=rejoindre']]) {
+        const page = await ouvrir(`index.html${c}`, { largeur, hauteur, dpr, mobile: true, reduit: true });
+        await page.evaluate(() => document.fonts.ready);
+        const m = await page.evaluate(() => {
+          const b = document.querySelector('.barre-bas:not([hidden]) .bouton').getBoundingClientRect();
+          return { ecart: Math.round(visualViewport.height - b.bottom), defile: document.documentElement.scrollHeight - innerHeight };
+        });
+        ecarts[nom] = m.ecart;
+        if (m.defile > 0) defauts.push(`[${appareil} ${nom}] défilement de ${m.defile} px`);
+        await fermer(page);
+      }
+      for (const nom of ['accueil', 'prénom', 'rejoindre']) {
+        if (Math.abs(ecarts[nom] - ecarts['créer']) > 1) defauts.push(`[${appareil}] ${nom} : bouton à ${ecarts[nom]} px du bas, « Créer » à ${ecarts['créer']} px`);
+      }
+      if (Math.abs(ecarts['créer'] - 8) > 1) defauts.push(`[${appareil}] « Créer » : bouton à ${ecarts['créer']} px du bas (8 attendus)`);
+    }
+    assert.deepEqual(defauts, []);
   });
 
   /* ============ Bilan ============ */
