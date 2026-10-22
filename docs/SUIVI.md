@@ -38,6 +38,7 @@ Phase 8, itération 1 en test : vérification par le testeur (obligatoire).
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
 - 2026-10-22, phase 8, itération 1 : base prod en ligne, flux GitHub Pages, outils de démonstration réservés au local, annonce aux lecteurs d'écran, README (lien, mise en ligne, consommation, crédits), check-list `docs/checklist-phase-8.md`. Passée en test.
+- 2026-10-22, phase 8, itération 1, retour du testeur : D1 (salle fictive sans code en ligne), D2 (« elle » dans le README, la check-list et PROJET) et D4 (carte révélée : transitions de 1 ms de la réduction des animations, mesure de `ajusterCartes` faussée) corrigés ; D3 laissé à la propriétaire. Toujours en test.
 
 ## Défauts ouverts
 
