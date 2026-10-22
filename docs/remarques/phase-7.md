@@ -137,3 +137,11 @@ Reproduites mot pour mot.
 Reproduite mot pour mot ; elle fait suite à la remarque 61 (accueil et écran du prénom).
 
 > Les boutons sur ces deux pages restent haut, alors que sur toutes les autres pages ils sont collés en bas de l'écran
+
+## Réponses sur les remarques 60 et 63 (reçues le 2026-10-22, pendant l'itération 2, avant son rapport)
+
+Réponses reproduites mot pour mot ; entre crochets, la question posée par le chef de phase.
+
+> 1. On laisse tel quel [remarque 63 : correction de la zone de sécurité du bas (A, B ou C) ou rien]
+> 2. Oui [remarque 60 : place reprise en salle d'attente seulement si elle est hors ligne, homonyme présent : nouvelle place ; ordre d'arrivée compté à « Je suis là ! »]
+> 3. Ils sont stoppés [ports 9000 et 8000 libérés pour `npm test`]
