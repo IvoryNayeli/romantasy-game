@@ -36,7 +36,7 @@ describe('émulateur : partie jouable en réseau', () => {
     await E.viderBase();
   });
 
-  // Salle de `nombre` personnes présentes (plus `sansPresence` inscrites sans « Je suis là »), puis départ.
+  // Salle de `nombre` personnes présentes (plus `sansPresence` inscrites sans « Je rejoins la compagnie »), puis départ.
   async function partieCommencee(code, nombre, { sansPresence = 0, jeuDeCartes = cartes } = {}) {
     const membres = [];
     for (let i = 0; i < nombre + sansPresence; i += 1) {
@@ -188,7 +188,7 @@ describe('émulateur : partie jouable en réseau', () => {
     arrets.forEach((a) => a());
   });
 
-  it('personnes inscrites sans « Je suis là » au départ : hors de l\'ordre des tours, aucune action possible', async () => {
+  it('personnes inscrites sans « Je rejoins la compagnie » au départ : hors de l\'ordre des tours, aucune action possible', async () => {
     const code = 'AURORE';
     const { membres, partie } = await partieCommencee(code, 2, { sansPresence: 1 });
     const absente = membres[2];

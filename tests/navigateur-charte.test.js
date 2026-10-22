@@ -31,6 +31,9 @@ function variablesDuBloc(texte) {
 const VARIABLES_CHARTE = variablesDuBloc(charte);
 const PALETTE_HEX = ['060B1E', '0F1E4A', '3C5A8C', 'C9D8EE', '8FA6C8', 'F4F1E8', 'F0A35E', 'D9693A'];
 const PALETTE_RGB = PALETTE_HEX.map((h) => [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)));
+// Phase 7 (remarque 39) : bleus du logo, admis seulement sur le parchemin des règles (variables --parchemin-*).
+const BLEUS_PARCHEMIN_HEX = ['0F253E', '08162A', '45627D'];
+const BLEUS_PARCHEMIN_RGB = BLEUS_PARCHEMIN_HEX.map((h) => [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)));
 
 /* ---------- Mesures dans la page ---------- */
 
@@ -130,7 +133,8 @@ function inventaireMouvement() {
   for (const el of document.querySelectorAll('html, body, body *')) {
     const s = getComputedStyle(el);
     const durees = s.transitionDuration.split(',').map((x) => parseFloat(x));
-    s.transitionProperty.split(',').forEach((p, i) => { if ((durees[i % durees.length] || 0) > 0) transitions.add(p.trim()); });
+    // Phase 7 (remarque 51) : seul écart voulu, le cartouche du prénom s'élargit en douceur (transition de largeur).
+    s.transitionProperty.split(',').forEach((p, i) => { if ((durees[i % durees.length] || 0) > 0) transitions.add(el.matches('.cartouche') && p.trim() === 'width' ? 'width (cartouche)' : p.trim()); });
     s.animationName.split(',').forEach((n) => { if (n.trim() !== 'none') animations.add(n.trim()); });
     s.backgroundAttachment.split(',').forEach((x) => attachements.add(x.trim()));
   }
@@ -264,19 +268,22 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   it('§2 variables : le bloc :root de style.css est identique à celui de la charte (33 variables, aucune en plus, aucune en moins)', async () => {
     const miennes = variablesDuBloc(css);
     assert.deepEqual(Object.keys(miennes).sort(), Object.keys(VARIABLES_CHARTE).sort(), 'liste des variables');
-    for (const [nom, valeur] of Object.entries(VARIABLES_CHARTE)) assert.equal(miennes[nom], valeur, `${nom}`);
+    // Seul écart, demandé par la propriétaire (phase 7, remarque 46) : --marge à 24 px au lieu de 16 px.
+    for (const [nom, valeur] of Object.entries(VARIABLES_CHARTE)) assert.equal(miennes[nom], nom === '--marge' ? '24px' : valeur, `${nom}`);
     assert.ok(Object.keys(VARIABLES_CHARTE).length >= 25);
     // Valeurs calculées dans la page.
     const page = await ouvrir('index.html?ecran=accueil');
     const calc = await page.evaluate((noms) => Object.fromEntries(noms.map((n) => [n, getComputedStyle(document.documentElement).getPropertyValue(n).trim().replace(/\s+/g, ' ').toLowerCase()])), Object.keys(VARIABLES_CHARTE));
     // --haut et --bas valent env(safe-area-inset-…, 0px) : le navigateur les résout en 0px hors zone sûre.
-    const attendu = { ...VARIABLES_CHARTE, '--haut': '0px', '--bas': '0px' };
+    const attendu = { ...VARIABLES_CHARTE, '--haut': '0px', '--bas': '0px', '--marge': '24px' };
     assert.match(VARIABLES_CHARTE['--haut'], /^env\(safe-area-inset-top, 0px\)$/);
     assert.match(VARIABLES_CHARTE['--bas'], /^env\(safe-area-inset-bottom, 0px\)$/);
     assert.deepEqual(calc, attendu);
     // Aucune variable inventée dans les règles (--rarete et --lueur sont dans la charte, section 6).
     const mvt = await page.evaluate(inventaireMouvement);
-    const permises = new Set([...Object.keys(VARIABLES_CHARTE), '--rarete', '--lueur']);
+    // Phase 7 : variables de composant posées par ecrans.js (--lettres, --colonnes) et bleus locaux du parchemin.
+    const permises = new Set([...Object.keys(VARIABLES_CHARTE), '--rarete', '--lueur', '--lettres', '--colonnes',
+      '--parchemin-haut', '--parchemin-bas', '--parchemin-halo', '--parchemin-ombre']);
     assert.deepEqual([...new Set(mvt.variables)].filter((v) => !permises.has(v)), [], 'variables CSS non prévues par la charte');
     // Aucun import externe (écart volontaire : polices hébergées).
     assert.ok(!/@import|googleapis|gstatic/.test(css), 'aucun @import ni Google Fonts');
@@ -289,7 +296,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         ajust: getComputedStyle(document.documentElement).webkitTextSizeAdjust, hauteurFenetre: innerHeight,
       };
     });
-    assert.equal(base.marge, '0px'); assert.equal(base.padding, '16px'); assert.equal(base.boite, 'border-box');
+    assert.equal(base.marge, '0px'); assert.equal(base.padding, '24px', 'marge latérale de 24 px (phase 7)'); assert.equal(base.boite, 'border-box');
     assert.equal(base.tactile, 'manipulation');
     assert.equal(Math.round(parseFloat(base.minHauteur)), base.hauteurFenetre, 'min-height: 100dvh');
     assert.match(base.police, /^Jost/); assert.equal(base.taille, '15px'); assert.equal(base.interligne, '22.5px');
@@ -322,7 +329,10 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         if ((r === 255 && g === 255 && b === 255) || (r === 0 && g === 0 && b === 0)) interdits.set(cle, 'blanc ou noir pur / ombre noire');
         else if (s > 0.2 && h >= 255 && h <= 345) interdits.set(cle, 'violet ou rose');
         else if (s > 0.5 && h >= 70 && h <= 170) interdits.set(cle, 'vert vif');
-        if (!PALETTE_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2))) horsPalette.set(cle, 'hors palette');
+        // Bleus du logo : parchemin des règles et, depuis la remarque 51, cartouche du prénom (salle d'attente) ; depuis
+        // la remarque 57, cartouche du code (« Rejoindre une partie »).
+        const parchemin = ((nom === 'regles' && /parchemin|fermoir|^svg/.test(c.ou)) || ((nom.startsWith('salle') || nom.startsWith('rejoindre')) && /cartouche/.test(c.ou))) && BLEUS_PARCHEMIN_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2));
+        if (!parchemin && !PALETTE_RGB.some((p) => p.every((v, i) => Math.abs(v - c.rgb[i]) <= 2))) horsPalette.set(cle, 'hors palette');
       }
       await fermer(page);
     }
@@ -334,7 +344,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
 
   it('§3 couleurs : chaque forme des symboles SVG fixe elle-même son remplissage (rien ne retombe sur le noir par défaut)', () => {
     const symboles = [...html.matchAll(/<symbol id="([^"]+)"[\s\S]*?<\/symbol>/g)];
-    assert.ok(symboles.length >= 8);
+    assert.ok(symboles.length >= 5);
     for (const [bloc, id] of symboles) {
       for (const forme of bloc.matchAll(/<(path|circle|rect|ellipse|polygon|line)\b[^>]*>/g)) {
         assert.ok(/\bfill\s*=|fill\s*:/.test(forme[0]), `${id} : forme sans fill explicite : ${forme[0].slice(0, 60)}`);
@@ -348,7 +358,10 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       ['ecrans.js', fs.readFileSync(path.join(A.PUBLIC, 'js', 'ecrans.js'), 'utf8')], ['dom.js', fs.readFileSync(path.join(A.PUBLIC, 'js', 'dom.js'), 'utf8')]]) {
       const t = sansCommentaires(texte);
       const hex = [...t.matchAll(/#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g)].map((m) => m[1]);
-      for (const h of hex) {
+      // Bleus du parchemin : seulement dans la déclaration de ses variables locales (style.css).
+      const parchemin = nom === 'style.css' ? [...t.matchAll(/--parchemin-[\w-]+:\s*#([0-9a-fA-F]{6,8});/g)].map((m) => m[1]) : [];
+      assert.deepEqual([...new Set(parchemin.map((h) => h.slice(0, 6).toUpperCase()))].sort(), nom === 'style.css' ? [...BLEUS_PARCHEMIN_HEX].sort() : []);
+      for (const h of hex.filter((x) => !parchemin.includes(x))) {
         const six = h.length <= 4 ? h.split('').slice(0, 3).map((c) => c + c).join('') : h.slice(0, 6);
         assert.ok(PALETTE_HEX.includes(six.toUpperCase()), `${nom} : couleur #${h} hors palette`);
       }
@@ -407,8 +420,14 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.match(regleCss('.carte-face'), /border:\s*var\(--bordure\) solid var\(--rarete\)/, 'bordure de carte : var(--bordure) (1,5 px)');
     assert.match(regleCss('.carte-face'), /border-radius:\s*var\(--r-carte\)/);
     await fermer(carte);
+    // Phase 7 (remarque 57) : le champ du code est lui aussi dans un cartouche aux coins de carte (8 px), sans cadre propre.
+    const rejoindre = await ouvrir('index.html?ecran=rejoindre', { reduit: true });
+    assert.equal(await rejoindre.evaluate(() => getComputedStyle(document.querySelector('.cartouche')).borderTopLeftRadius), '8px');
+    assert.equal(await rejoindre.evaluate(() => getComputedStyle(document.querySelector('.champ')).borderTopWidth), '0px');
+    await fermer(rejoindre);
+    // Phase 7 (remarque 51) : le champ du prénom est dans un cartouche aux coins de carte (8 px), sans cadre propre.
     const salle = await ouvrir('index.html?ecran=salle&hote=1&autres=1', { reduit: true });
-    assert.equal(await salle.evaluate(() => getComputedStyle(document.querySelector('.champ')).borderTopLeftRadius), '4px');
+    assert.equal(await salle.evaluate(() => getComputedStyle(document.querySelector('.cartouche')).borderTopLeftRadius), '8px');
     await fermer(salle);
     const pop = await ouvrir('index.html?ecran=attente&type=epreuve&tour=2', { reduit: true, dpr: 2 });
     const panneau = await pop.evaluate(() => {
@@ -425,7 +444,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   });
 
   /* ============ §7 + §12 : boutons, états, aucun :hover ============ */
-  it('§7 boutons : principal (ambre, texte nuit, 14 px, capitales .2em, double filet, lueur) et secondaire (transparent, filet lune), >= 48 px', async () => {
+  it('§7 boutons : principal (ambre, texte nuit, 14 px, capitales .2em, double filet, lueur) et secondaire (fond nuit, filet lune), >= 48 px', async () => {
     const page = await ouvrir('index.html?ecran=regles', { reduit: true });
     const b = await page.evaluate(() => {
       const lire = (sel) => {
@@ -444,7 +463,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.equal(p.espacement, '2.8px', 'interlettrage .2em'); assert.equal(p.rayon, '4px'); assert.ok(p.hauteur >= 48 && p.largeur >= 140);
     assert.equal((p.ombre.match(/inset/g) || []).length, 2, 'double filet : deux ombres internes');
     assert.match(p.ombre, /rgba\(240, 163, 94, 0\.333\) 0px 0px 20px/, 'lueur 0 0 20px #F0A35E55');
-    assert.equal(s.fond, 'rgba(0, 0, 0, 0)'); assert.equal(s.couleur, 'rgb(201, 216, 238)'); assert.equal(s.bordure, '1px solid rgb(201, 216, 238)');
+    assert.equal(s.fond, 'rgba(0, 0, 0, 0)', 'phase 7 (remarque 47) : fond transparent, le bouton ne passe plus au-dessus du contenu'); assert.equal(s.couleur, 'rgb(201, 216, 238)'); assert.equal(s.bordure, '1px solid rgb(201, 216, 238)');
     assert.equal((s.ombre.match(/inset/g) || []).length, 2); assert.equal(s.taille, '14px'); assert.equal(s.casse, 'uppercase');
     assert.ok(s.hauteur >= 48);
     await ctx.capture(page, 'boutons-regles-360', { fullPage: false });
@@ -468,9 +487,14 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       await salle.waitForTimeout(80); // sous prefers-reduced-motion toute transition dure 1 ms : on laisse finir
       const f = await salle.evaluate(() => {
         const e = document.activeElement; const s = getComputedStyle(e);
-        return { nom: `${e.tagName.toLowerCase()}.${e.className}`, style: s.outlineStyle, largeur: s.outlineWidth, couleur: s.outlineColor, decalage: s.outlineOffset, clavier: e.matches(':focus-visible') };
+        const cartouche = e.closest('.cartouche');
+        return { nom: `${e.tagName.toLowerCase()}.${e.className}`, style: s.outlineStyle, largeur: s.outlineWidth, couleur: s.outlineColor, decalage: s.outlineOffset, clavier: e.matches(':focus-visible'),
+          prenom: e.id === 'champ-prenom', halo: cartouche ? getComputedStyle(cartouche).boxShadow : null };
       });
       if (f.nom.startsWith('body')) continue;
+      // Phase 7 (remarque 51, maquette) : le champ du prénom n'a pas de contour ; le halo ambre du cartouche, plus fort,
+      // signale qu'il est actif.
+      if (f.prenom) { if (!/rgba\(240, 163, 94, 0\.467\) 0px 0px 30px/.test(f.halo)) defauts.push(`champ du prénom : halo du cartouche absent (${f.halo})`); continue; }
       if (!f.clavier || f.style !== 'solid' || f.largeur !== '2px' || f.couleur !== 'rgb(244, 241, 232)' || f.decalage !== '3px') defauts.push(`${JSON.stringify(f)}`);
     }
     assert.deepEqual(defauts, []);
@@ -479,6 +503,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     const page = await ouvrir('index.html?ecran=regles', { reduit: false });
     await finAnimations(page);
     const cible = page.locator('.barre-bas .bouton-principal');
+    await cible.scrollIntoViewIfNeeded(); // phase 7 (remarque 47) : boutons des règles à la fin du contenu
     const avant = await cible.evaluate((e) => ({ t: getComputedStyle(e).transform, o: getComputedStyle(e).boxShadow }));
     const r = await cible.boundingBox();
     await page.mouse.move(r.x + r.width / 2, r.y + r.height / 2);
@@ -500,7 +525,8 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     assert.ok(!/@media[^{]*hover/.test(css), 'style.css contient @media (hover…)');
     const cas = [
       ['index.html?ecran=regles', ['.barre-bas .bouton-principal', '.barre-bas .bouton-secondaire', '.bouton-retour']],
-      ['index.html?ecran=salle&hote=1&autres=1', ['.embleme-choix:not(:disabled)', '.champ']],
+      ['index.html?ecran=salle&hote=1&autres=1', ['.champ']],
+      ['index.html?ecran=salle&hote=1&autres=1&prenom=Noa&etape=embleme', ['.embleme-choix:not(:disabled)']],
       ['index.html?ecran=choix', ['.dos-epreuve', '.dos-revelation']],
       ['index.html?ecran=creer', ['.code-option-nom']],
       ['index.html?ecran=accueil', ['.bouton-principal']],
@@ -568,7 +594,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     await page.goBack(); await page.getByRole('link', { name: /Retour aux règles/i }).click();
     await page.getByRole('link', { name: /Rejoindre une partie/i }).click(); await verifier(page, 'rejoindre');
     await page.locator('#champ-code').fill('rune'); await page.keyboard.press('Enter'); await verifier(page, 'salle 2');
-    await page.getByRole('button', { name: /Je suis là/i }).count();
+    await page.getByRole('button', { name: /Je rejoins la compagnie/i }).count();
     await page.goto(new URL('index.html?ecran=choix', `${ctx.base}/`).toString()); await verifier(page, 'choix');
     await page.locator('.dos-epreuve').click(); await verifier(page, 'carte');
     await page.getByRole('link', { name: /Le sort est jeté/i }).click(); await verifier(page, 'transition');
@@ -604,7 +630,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
         vues.add(cle);
         for (const p of props) if (!['opacity', 'transform', 'offset'].includes(p)) defauts.push(`@keyframes ${cle} anime « ${p} »`);
       }
-      for (const t of m.transitions) if (!['opacity', 'transform'].includes(t)) defauts.push(`[${nom}] transition sur « ${t} »`);
+      for (const t of m.transitions) if (!['opacity', 'transform', 'width (cartouche)'].includes(t)) defauts.push(`[${nom}] transition sur « ${t} »`);
       for (const n of m.animations) if (!(n in m.keyframes)) defauts.push(`[${nom}] animation « ${n} » sans @keyframes`);
       await fermer(page);
     }
@@ -631,7 +657,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
   it('§4 typographie : titres 32–40 px en Cormorant Garamond, texte en Jost, pas de texte justifié, lignes de 60 caractères au plus, capitales des légendes et boutons', async () => {
     const titres = [
       ['accueil', '?ecran=accueil', '.accueil-salut'], ['fin', '?ecran=fin', '.accueil-salut'], ['creer', '?ecran=creer', '.titre-ecran'],
-      ['rejoindre', '?ecran=rejoindre', '.titre-ecran'], ['choix', '?ecran=choix', '.titre-tour'], ['attente', '?ecran=attente&type=epreuve', '.titre-tour'],
+      ['choix', '?ecran=choix', '.titre-tour'], ['attente', '?ecran=attente&type=epreuve', '.titre-tour'],
       ['transition', '?ecran=transition', '.transition-texte'],
     ];
     const defauts = [];
@@ -641,6 +667,14 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       if (t.px < 32 || t.px > 40) defauts.push(`[${nom}] titre ${t.px}px hors de 32–40 px`);
       if (!/^"?Cormorant Garamond/.test(t.famille)) defauts.push(`[${nom}] titre en ${t.famille}`);
       if (!['500', '600'].includes(t.graisse)) defauts.push(`[${nom}] graisse ${t.graisse}`);
+      await fermer(page);
+    }
+    // Phase 7 : la phrase de l'écran du prénom (Cormorant Garamond italique, 28 px, étoile), comme sa maquette (la
+    // consigne de l'écran du code, qui la reprenait, est retirée par la remarque 62).
+    for (const [nom, c, sel] of [['prénom', '?ecran=salle&hote=1&autres=1', '.prenom-question']]) {
+      const page = await ouvrir(`index.html${c}`, { reduit: true });
+      const t = await page.evaluate((s) => { const st = getComputedStyle(document.querySelector(s)); return { px: parseFloat(st.fontSize), famille: st.fontFamily, style: st.fontStyle, couleur: st.color }; }, sel);
+      if (t.px !== 28 || !/^"?Cormorant Garamond/.test(t.famille) || t.style !== 'italic' || t.couleur !== 'rgb(244, 241, 232)') defauts.push(`[${nom}] consigne ${JSON.stringify(t)}`);
       await fermer(page);
     }
     assert.deepEqual(defauts, []);
@@ -670,11 +704,11 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     it(`§6 cartes à ${largeur} px : 2:3, cqw (6cqw de marge, double filet à 2,2cqw, quatre étincelles à 3,5cqw), bordure et lueur par type, lettrine, type en légende, filigrane, sans coût ni nom ni image`, async () => {
       const defauts = [];
       for (const [nom, url, couleur, symbole, mot, lueur] of [
-        ['épreuve', 'index.html?ecran=carte&type=epreuve', 'rgb(217, 105, 58)', '#i-epee', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
-        ['révélation', 'index.html?ecran=carte&type=revelation', 'rgb(201, 216, 238)', '#i-etoile', 'Révélation', /rgba\(201, 216, 238, 0\.267\) 0px 0px 14px/],
+        ['épreuve', 'index.html?ecran=carte&type=epreuve', 'rgb(217, 105, 58)', 'img/epee.webp', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
+        ['révélation', 'index.html?ecran=carte&type=revelation', 'rgb(201, 216, 238)', 'img/etoile.webp', 'Révélation', /rgba\(201, 216, 238, 0\.267\) 0px 0px 14px/],
         ['durable', `index.html?ecran=carte&carte=${durable.id}&tour=2`, null, null, null, null],
         ['plus longue', `index.html?ecran=carte&carte=${A.plusLongue.id}`, null, null, null, null],
-        ['attente', 'index.html?ecran=attente&type=epreuve&tour=2', 'rgb(217, 105, 58)', '#i-epee', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
+        ['attente', 'index.html?ecran=attente&type=epreuve&tour=2', 'rgb(217, 105, 58)', 'img/epee.webp', 'Épreuve', /rgba\(217, 105, 58, 0\.267\) 0px 0px 14px/],
       ]) {
         const page = await ouvrir(url, { largeur, hauteur: 800, reduit: true, dpr: 2 });
         const m = await page.evaluate(() => {
@@ -692,8 +726,8 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
             fond: sf.backgroundImage, filetInset: parseFloat(filet.top) / w, filetBordure: filet.borderTopWidth, filetCouleur: filet.borderTopColor,
             coins, texteCouleur: st.color, textePx: parseFloat(st.fontSize), texteFamille: st.fontFamily, texteInterligne: st.lineHeight,
             lettrine: { flottant: sl.float, famille: sl.fontFamily, graisse: sl.fontWeight, couleur: sl.color, px: parseFloat(sl.fontSize) },
-            enteteCouleur: se.color, enteteTexte: entete.textContent.trim(), enteteSymbole: entete.querySelector('use')?.getAttribute('href'), enteteCasse: se.textTransform,
-            ordre, interdits: document.querySelectorAll('.cout, .nom, .fenetre, .illustration, .carte img:not(.dos-logo), .carte picture, .carte canvas').length,
+            enteteCouleur: se.color, enteteTexte: entete.textContent.trim(), enteteSymbole: entete.querySelector('img.icone-image')?.getAttribute('src'), enteteCasse: se.textTransform,
+            ordre, interdits: document.querySelectorAll('.cout, .nom, .fenetre, .illustration, .carte img:not(.dos-logo):not(.icone-image), .carte picture, .carte canvas').length,
             filigrane: Boolean(face.querySelector('.carte-filigrane')),
           };
         });
@@ -747,7 +781,7 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
           return {
             w: r.width, h: r.height, bordure: sc.borderTopWidth, couleur: sc.borderTopColor, rayon: sc.borderTopLeftRadius, fond: sc.backgroundImage,
             avant: [avant.borderTopColor, avant.borderTopWidth, parseFloat(avant.top) / r.width], apres: [apres.borderTopColor, apres.borderTopWidth, parseFloat(apres.top) / r.width],
-            coins: corps.querySelectorAll('.coin').length, logo: logo.width / r.width, symbole: corps.querySelector('.dos-symbole use')?.getAttribute('href'), nom: corps.querySelector('.dos-nom').textContent.trim(),
+            coins: corps.querySelectorAll('.coin').length, logo: logo.width / r.width, symbole: corps.querySelector('img.dos-symbole')?.getAttribute('src'), nom: corps.querySelector('.dos-nom').textContent.trim(),
             nomPx: parseFloat(getComputedStyle(corps.querySelector('.dos-nom')).fontSize),
           };
         }, sel);
@@ -766,19 +800,19 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     });
   }
 
-  it('§5 logo : image du disque central, version complète (96 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
+  it('§5 logo : image de la propriétaire, version complète (200 px) sur l\'accueil (nom accessible « Logo du jeu »), version compacte de 40 px dans les barres, ornements aria-hidden', async () => {
     const accueil = await ouvrir('index.html?ecran=accueil', { reduit: true });
     const a = await accueil.evaluate(() => {
       const complet = document.querySelector('.logo-complet'); const image = document.querySelector('img.logo-grand'); const g = image.getBoundingClientRect();
       const compact = document.querySelector('.logo-compact');
       return { role: complet.getAttribute('role'), nom: complet.getAttribute('aria-label'), w: g.width, h: g.height, compactVisible: getComputedStyle(compact).visibility, src: image.getAttribute('src'), charge: image.naturalWidth > 0, masquee: image.getAttribute('aria-hidden') };
     });
-    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 96, h: 96, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
+    assert.deepEqual(a, { role: 'img', nom: 'Logo du jeu', w: 200, h: 200, compactVisible: 'hidden', src: 'img/logo.webp', charge: true, masquee: 'true' });
     await fermer(accueil);
     for (const [nom, c] of ECRANS.filter(([n]) => n !== 'accueil').slice(0, 12)) {
       const page = await ouvrir(`index.html${c}`, { reduit: true });
       const b = await page.evaluate(() => { const l = document.querySelector('.logo-compact'); const r = l.getBoundingClientRect(); return { w: r.width, h: r.height, balise: l.tagName, nom: l.getAttribute('alt'), charge: l.naturalWidth > 0, vis: getComputedStyle(l).visibility }; });
-      assert.deepEqual(b, { w: 40, h: 40, balise: 'IMG', nom: 'Romantasy', charge: true, vis: 'visible' }, `logo compact sur ${nom}`);
+      assert.deepEqual(b, { w: 52, h: 52, balise: 'IMG', nom: 'Romantasy', charge: true, vis: 'visible' }, `logo compact sur ${nom}`);
       await fermer(page);
     }
     assert.doesNotMatch(html, /i-logo/, 'plus de symbole SVG provisoire');
@@ -787,21 +821,92 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
     const acc = await page.evaluate(() => ({
       svgExposes: [...document.querySelectorAll('svg')].filter((s) => s.getAttribute('aria-hidden') !== 'true' && s.getAttribute('role') !== 'img').length,
       imagesSansNom: [...document.querySelectorAll('[role=img]')].filter((e) => !e.getAttribute('aria-label')).length,
+      imgSansAlt: [...document.querySelectorAll('img')].filter((e) => !e.hasAttribute('alt')).length,
+      imgNonChargees: [...document.querySelectorAll('img')].filter((e) => !(e.complete && e.naturalWidth > 0)).map((e) => e.getAttribute('src')),
+      emblemesNommes: [...document.querySelectorAll('.joueur-ligne img.embleme')].every((e) => e.alt.length > 0),
       champsSansEtiquette: [...document.querySelectorAll('input:not(.code-radio), select, textarea')].filter((e) => !(e.labels && e.labels.length) && !e.getAttribute('aria-label')).length,
       langue: document.documentElement.lang, titreDoc: document.title,
     }));
-    assert.deepEqual(acc, { svgExposes: 0, imagesSansNom: 0, champsSansEtiquette: 0, langue: 'fr', titreDoc: 'Romantasy' });
+    assert.deepEqual(acc, { svgExposes: 0, imagesSansNom: 0, imgSansAlt: 0, imgNonChargees: [], emblemesNommes: true, champsSansEtiquette: 0, langue: 'fr', titreDoc: 'Romantasy' });
     await fermer(page);
   });
 
   /* ============ §7 : barre d'actions, panneaux ============ */
-  it('§7 barre d\'actions en bas : fond nuit à 90 %, filet supérieur 1 px brume, collée en bas (pouce), marge de sécurité', async () => {
-    const page = await ouvrir('index.html?ecran=regles', { hauteur: 640, reduit: true });
-    const m = await page.evaluate(() => { const s = getComputedStyle(document.querySelector('.barre-bas')); return { fond: s.backgroundColor, filet: `${s.borderTopWidth} ${s.borderTopStyle} ${s.borderTopColor}`, position: s.position, bas: s.bottom, padding: s.paddingBottom, ecart: s.rowGap }; });
-    assert.equal(m.fond, 'rgba(6, 11, 30, 0.9)'); assert.equal(m.filet, '1px solid rgb(60, 90, 140)'); assert.equal(m.position, 'sticky'); assert.equal(m.bas, '0px');
-    assert.ok(parseFloat(m.ecart) >= 8, 'au moins 8 px entre les deux boutons');
-    assert.match(css, /padding:\s*12px var\(--marge\) calc\(12px \+ var\(--bas\)\)/, 'marge de sécurité --bas');
+  // Phase 7 (remarque 47, qui remplace la remarque 38) : boutons fixes en bas de la page, sans bande ni fond. Les
+  // écrans fixes tiennent dans la hauteur, boutons en bas ; les règles défilent et leurs boutons viennent à la fin.
+  it('§7 boutons du bas fixes : sans fond ni filet, en bas de l\'écran fixe, à la fin des règles, marge de sécurité', async () => {
+    let page = await ouvrir('index.html?ecran=rejoindre', { largeur: 390, hauteur: 700, reduit: true });
+    const fixe = await page.evaluate(() => {
+      const barre = document.querySelector('.barre-bas'); const s = getComputedStyle(barre);
+      const b = barre.querySelector('.bouton').getBoundingClientRect();
+      return { fond: s.backgroundColor, filet: `${s.borderTopWidth} ${s.borderTopStyle} ${s.borderTopColor}`, position: s.position, defile: document.documentElement.scrollHeight - innerHeight, ecartBas: innerHeight - b.bottom };
+    });
+    assert.equal(fixe.fond, 'rgba(0, 0, 0, 0)'); assert.match(fixe.filet, /^0px none/); assert.equal(fixe.position, 'static');
+    assert.ok(fixe.defile <= 0, `écran fixe : défilement de ${fixe.defile} px`);
+    // Remarque 61 : 8 px du bas de l'écran (12 px avant), la zone de sécurité du téléphone comptée une seule fois.
+    assert.ok(Math.abs(fixe.ecartBas - 8) <= 1, `bouton en bas de l'écran (${fixe.ecartBas} px du bas)`);
     await fermer(page);
+    // Sur l'accueil, l'écran du prénom et l'écran du code : bouton à 8 px du bas, sans défilement ; avec une zone de
+    // sécurité simulée (34 px, comme un iPhone récent), à 34 + 8 px du bas (zone comptée une seule fois).
+    for (const c of ['?ecran=accueil', '?ecran=salle&hote=1&autres=1', '?ecran=rejoindre']) {
+      for (const [largeur, hauteur, bas] of [[360, 640, 0], [390, 844, 34], [412, 915, 34]]) {
+        page = await ouvrir(`index.html${c}`, { largeur, hauteur, reduit: true });
+        // Zone simulée sur le html, puis attente que le body en tienne compte : Chrome (sans écran) rend parfois une
+        // image avec l'ancien padding juste après le changement (mesure instable sinon).
+        await page.evaluate((v) => document.documentElement.style.setProperty('--bas', `${v}px`), bas);
+        await page.waitForFunction((v) => getComputedStyle(document.body).paddingBottom === `${v}px`
+          && Math.abs(innerHeight - document.querySelector('.barre-bas:not([hidden]) .bouton').getBoundingClientRect().bottom - v - 8) <= 1, bas, { timeout: 3000 })
+          .catch(() => {});
+        const m = await page.evaluate(() => {
+          const b = document.querySelector('.barre-bas:not([hidden]) .bouton').getBoundingClientRect();
+          return { ecartBas: innerHeight - b.bottom, defile: document.documentElement.scrollHeight - innerHeight };
+        });
+        assert.ok(Math.abs(m.ecartBas - (bas + 8)) <= 1, `${c} ${largeur}x${hauteur} : bouton à ${m.ecartBas} px du bas (${bas + 8} attendus)`);
+        assert.ok(m.defile <= 0, `${c} ${largeur}x${hauteur} : défilement de ${m.defile} px`);
+        await fermer(page);
+      }
+    }
+    page = await ouvrir('index.html?ecran=regles', { largeur: 390, hauteur: 700, reduit: true });
+    const y = async () => page.evaluate(() => Math.round(document.querySelector('.barre-bas .bouton').getBoundingClientRect().top));
+    assert.ok(await y() > 700, 'règles : les boutons ne sont pas visibles avant le défilement (à la fin du contenu)');
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const fin = await page.evaluate(() => {
+      const barre = document.querySelector('.barre-bas');
+      const b = [...barre.querySelectorAll('.bouton')].map((x) => x.getBoundingClientRect());
+      return { parchemin: document.querySelector('.parchemin').getBoundingClientRect().bottom, haut: barre.getBoundingClientRect().top, b: b.map((x) => [x.top, x.bottom]), ecart: getComputedStyle(barre).rowGap };
+    });
+    assert.ok(fin.haut >= fin.parchemin, 'règles : boutons après le parchemin');
+    assert.ok(fin.b.every(([t, bt]) => t >= 0 && bt <= 700), 'règles : boutons visibles en fin de défilement');
+    assert.ok(parseFloat(fin.ecart) >= 8, 'au moins 8 px entre les deux boutons');
+    assert.match(css, /padding:\s*12px 0 8px;/, 'marge basse des boutons (remarque 61)');
+    assert.match(css, /body\s*\{[^}]*padding:\s*var\(--haut\) var\(--marge\) var\(--bas\)/, 'marge de sécurité --bas (body)');
+    assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /position:\s*sticky/, 'plus de bouton ni de pied collé pendant le défilement');
+    await fermer(page);
+  });
+
+  // Remarque 63 : en émulation mobile (téléphone, écran tactile, densité de pixels), le bouton de l'accueil et celui de
+  // l'écran du prénom (salle fictive) sont à la même distance du bas de l'écran que ceux de « Créer » et « Rejoindre ».
+  it('remarque 63 : en émulation mobile, boutons de l\'accueil et du prénom au même écart du bas que sur les autres écrans', async () => {
+    const defauts = [];
+    for (const [appareil, largeur, hauteur, dpr] of [['360x640', 360, 640, 2], ['iPhone 13', 390, 664, 3], ['Pixel 7', 412, 839, 2.625], ['412x915', 412, 915, 2.625]]) {
+      const ecarts = {};
+      for (const [nom, c] of [['accueil', '?ecran=accueil'], ['prénom', '?ecran=salle&hote=1&autres=1'], ['créer', '?ecran=creer'], ['rejoindre', '?ecran=rejoindre']]) {
+        const page = await ouvrir(`index.html${c}`, { largeur, hauteur, dpr, mobile: true, reduit: true });
+        await page.evaluate(() => document.fonts.ready);
+        const m = await page.evaluate(() => {
+          const b = document.querySelector('.barre-bas:not([hidden]) .bouton').getBoundingClientRect();
+          return { ecart: Math.round(visualViewport.height - b.bottom), defile: document.documentElement.scrollHeight - innerHeight };
+        });
+        ecarts[nom] = m.ecart;
+        if (m.defile > 0) defauts.push(`[${appareil} ${nom}] défilement de ${m.defile} px`);
+        await fermer(page);
+      }
+      for (const nom of ['accueil', 'prénom', 'rejoindre']) {
+        if (Math.abs(ecarts[nom] - ecarts['créer']) > 1) defauts.push(`[${appareil}] ${nom} : bouton à ${ecarts[nom]} px du bas, « Créer » à ${ecarts['créer']} px`);
+      }
+      if (Math.abs(ecarts['créer'] - 8) > 1) defauts.push(`[${appareil}] « Créer » : bouton à ${ecarts['créer']} px du bas (8 attendus)`);
+    }
+    assert.deepEqual(defauts, []);
   });
 
   /* ============ Bilan ============ */

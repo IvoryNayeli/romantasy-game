@@ -26,16 +26,32 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 4 | Multijoueur et salle d'attente | validée le 2026-10-19 | 2 | [phase-4-iteration-2](rapports/phase-4-iteration-2.md) |
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
-| 7 | Ajustements visuels | à faire | 0 | |
+| 7 | Ajustements visuels | validée le 2026-10-22 | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
 | 8 | Finition et mise en ligne | à faire | 0 | |
 
 ## Prochaine action
 
-Phase 6 validée le 2026-10-20. Phase 7 (ajustements visuels, insérée le 2026-10-20) possible, sur demande de la propriétaire (« Lance la phase 7 »), puis ajustements par « Phase 7, remarques : … ». GitHub Pages n'est requis qu'avant la phase 8.
+Phase 7 validée le 2026-10-22. Prochaine étape possible : « Lance la phase 8 » (finition et mise en ligne), sur demande de la propriétaire.
 
 ## Journal
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
+
+- 2026-10-20, phase 7 : lancement de l'itération 1 (branche `phase-7`), sans remarque pour l'instant.
+- 2026-10-20, phase 7 : remarques reçues ([remarques/phase-7](remarques/phase-7.md)), traitées dans l'itération 1 (pas encore de rapport) ; questions posées à la propriétaire sur la correspondance des avatars.
+- 2026-10-20, phase 7 : remarque 1 faite (logo, 8 emblèmes, épée et étoile en images), suite complète 217 réussis ; prête pour relecture ([rapport](rapports/phase-7-iteration-1.md)).
+- 2026-10-20, phase 7 : 12 remarques reçues sur l'itération 1 ([remarques/phase-7](remarques/phase-7.md)), lancement de l'itération 2.
+- 2026-10-20, phase 7 : itération 2 développée (`ca035ab`), `test:rapide` 86 réussis ; `npm test` non lancé, port 9000 pris par l'émulateur de la propriétaire.
+- 2026-10-20, phase 7 : 10 remarques complémentaires reçues avant le rapport de l'itération 2 ([remarques/phase-7](remarques/phase-7.md)), traitées dans la même itération.
+- 2026-10-20, phase 7 : remarques 13 à 34 traitées (`2e4f181`), `test:rapide` 86 réussis, navigateur hors réseau 62 réussis ; 13 remarques complémentaires reçues dont 2 coupées (questions posées).
+- 2026-10-21, phase 7 : 11 remarques complémentaires reçues avant le rapport (numérotées 36 à 46), traitées dans l'itération 2.
+- 2026-10-21, phase 7 : remarques 47 à 52 faites (`4e81ff8`), `test:rapide` 87 réussis, navigateur hors réseau 67 réussis ; `npm test` non lancé (ports 9000 et 8000 pris) ; choix soumis à la propriétaire.
+- 2026-10-21, phase 7 : réponses de la propriétaire consignées ; emblèmes de la salle réduits, plus aucun défilement de 360x640 à 412x915 (`547a1f8`), `test:rapide` 87 réussis, navigateur hors réseau 68 réussis ; `npm test` toujours bloqué par les ports.
+- 2026-10-21, phase 7 : 8 remarques complémentaires reçues (numérotées 53 à 60), faites (`c26afe2`), dont la reprise de sa place après fermeture de l'onglet (60) ; `test:rapide` 90 réussis ; émulateur 63 réussis ; `npm test` lancé par le développeur sur une copie avec un émulateur séparé (231 réussis, 1 échec propre à la copie), pas encore dans le dépôt ; deux choix sur la 60 soumis à la propriétaire.
+- 2026-10-22, phase 7 : 2 remarques complémentaires reçues (numérotées 61 et 62), faites (`016acb8`) : boutons du bas à 8 px du bas sur tous les écrans (zone de sécurité comptée une seule fois), titre de l'écran du code retiré ; `test:rapide` 90 réussis ; `npm test` non lancé (ports 9000 et 8000 pris).
+- 2026-10-22, phase 7 : remarque 63 reçue (boutons de l'accueil et du prénom toujours trop hauts sur le téléphone) ; écart non reproduit en émulation mobile (Pixel 7, iPhone 13 : bouton à 8 px du bas sur l'accueil, le prénom, créer et rejoindre), test ajouté (`dcd0139`), aucun changement du jeu ; capture reçue (Chrome Android), reproduite : la zone de sécurité du bas annoncée par Chrome (environ 100 px) laisse un vide sous le bouton ; test « Créer » en nouvel onglet et choix de correction soumis à la propriétaire.
+- 2026-10-22, phase 7 : réponses reçues (remarque 63 laissée telle quelle, choix de la remarque 60 confirmés) ; `npm test` 233 réussis, 0 échoué, 1 à faire ; prête pour relecture ([rapport](rapports/phase-7-iteration-2.md)).
+- 2026-10-22, phase 7 : validée par la propriétaire, fusionnée dans `main`, tag `phase-7`.
 
 ## Défauts ouverts
 
@@ -43,7 +59,7 @@ Aucun.
 
 ## Décisions à confirmer
 
-Aucune.
+Phase 7 (détail en section 7 de [phase-7-iteration-1](rapports/phase-7-iteration-1.md)) : correspondance des avatars (`avatar_4` Chevalier, `avatar_7` Démon, fichier Gemini Sorcière) ; grande étoile de la transition « Le sort est jeté » non remplacée ; épée, étoile et emblèmes agrandis ; originaux gardés dans `docs/images-source/` ; icônes game-icons.net des emblèmes à retirer du plan de la phase 8 ; personnes fictives portant Démon et Chevalier. Itération 2 (détail en section 7 de [phase-7-iteration-2](rapports/phase-7-iteration-2.md)) : place non confirmée perdue si l'onglet est fermé avant « Je rejoins la compagnie » ; boutons du bas à 8 px sur tous les écrans à boutons ; message d'erreur « Saisis le code de la partie. » gardé ; boutons de l'accueil et du prénom laissés tels quels sur Chrome Android (remarque 63). Confirmé le 2026-10-22 : reprise de place en salle d'attente seulement si hors ligne, ordre d'arrivée compté à « Je suis là ! ».
 
 ## Risques reportés
 
@@ -51,7 +67,6 @@ Aucune.
 - Phase 8 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
 - Risque accepté (phases 4 à 6) : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`), et depuis la phase 6 fausser la présence. L'authentification anonyme reste possible si la propriétaire le demande.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
-- Phase 7 insérée le 2026-10-20 (ancienne phase 7 devenue phase 8) : les commentaires de `public/js/firebase-config.js` (ligne 32) et de `tests/reseau.test.js` (test « jamais la prod avant la phase 7 ») désignent encore la mise en ligne par « phase 7 ». À corriger en « phase 8 » par le développeur en phase 7.
 
 ## Décisions confirmées
 

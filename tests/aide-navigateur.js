@@ -201,7 +201,8 @@ function mesurerPolices() {
   return {
     carte: taille('.carte-texte'),
     // Texte de lecture (règles, cartes, bandeaux, attente) : au moins 20 px (décision du projet).
-    corps: taille('.texte, .accueil-salut, .carte-texte, .bandeau-texte, .effets-texte, .attente-message, .transition-texte, .joueur-prenom'),
+    // Le texte des cartes est mesuré à part (carte) : depuis la phase 7, il peut descendre à 15 px pour que la carte tienne à l'écran.
+    corps: taille('.texte, .accueil-salut, .bandeau-texte, .effets-texte, .attente-message, .transition-texte, .joueur-prenom'),
     petits,
   };
 }
@@ -219,7 +220,11 @@ function collecterTextes() {
   while ((noeud = marcheur.nextNode())) {
     const t = noeud.textContent.trim();
     const parent = noeud.parentElement;
-    if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-emoji')) continue;
+    if (!t || !parent || parent.closest('noscript, script, style, svg, .embleme, .embleme-image')) continue;
+    // Bandeau replié (details fermé, phase 7) : son détail n'est pas affiché.
+    if (parent.closest('details:not([open]) > :not(summary)')) continue;
+    // Verso d'une carte révélée (face cachée, backface-visibility: hidden) : il n'est pas affiché.
+    if (parent.closest('.carte .carte-dos')) continue;
     const s = getComputedStyle(parent);
     const r0 = parent.getBoundingClientRect();
     if (s.visibility === 'hidden' || s.display === 'none' || r0.width === 0) continue;
@@ -292,6 +297,9 @@ const STYLE_FOND_SANS_TEXTE = `
   input::placeholder { color: transparent !important; }
   .erreur-champ::before { border-color: transparent !important; }
   .grain, .etoile, .ciel-accueil { display: none !important; }
+  /* Phase 7 (remarques 17 et 24) : la propriétaire veut aussi des étoiles au milieu de l'écran ; ces calques de décor
+     (très petites étoiles, pâles vers le centre) sont neutralisés comme les autres étoiles pour mesurer le texte. */
+  .page::after, .ecran-zone::before { display: none !important; }
   body.ciel { background: radial-gradient(ellipse at 85% 0%, #3C5A8C55, transparent 50%), radial-gradient(ellipse at 50% 110%, #D9693A33, transparent 55%), #060B1E !important; }
 `;
 
@@ -333,11 +341,11 @@ function contexte() {
     return url;
   };
   // Ouvre une page avec relevé des problèmes. Refuse toute adresse non locale.
-  ctx.ouvrir = async function ouvrir(chemin, { largeur = 360, hauteur = 800, reduit = null, config: cfg = null, init = null, couleur = 'dark', dpr = 1, reseau = false } = {}) {
+  ctx.ouvrir = async function ouvrir(chemin, { largeur = 360, hauteur = 800, reduit = null, config: cfg = null, init = null, couleur = 'dark', dpr = 1, reseau = false, mobile = false } = {}) {
     const url = ctx.url(chemin, { reseau });
     assert.equal(url.hostname, '127.0.0.1', `adresse non locale refusée : ${url}`);
     const c = await navigateur.newContext({
-      viewport: { width: largeur, height: hauteur }, deviceScaleFactor: dpr, hasTouch: true, isMobile: false,
+      viewport: { width: largeur, height: hauteur }, deviceScaleFactor: dpr, hasTouch: true, isMobile: mobile,
       reducedMotion: reduit === true ? 'reduce' : 'no-preference', locale: 'fr-FR', colorScheme: couleur,
     });
     await c.route('**/*', (route) => {
@@ -447,6 +455,9 @@ const ECRANS = [
   ['attente-durable', `?ecran=attente&carte=${durable.id}&tour=2`],
   ['attente-sans-effets', '?ecran=attente&type=revelation&effets=0'],
   ['attente-prenom-long', `?ecran=attente&type=epreuve&prenom=${'M'.repeat(45)}`],
+  ['attente-sans-carte', '?ecran=attente&etape=choix&tour=2'],
+  ['choix-effets', '?ecran=choix&tour=2&effets=1'],
+  ['carte-effets', '?ecran=carte&type=epreuve&tour=2&effets=1'],
   ['transition-jete', '?ecran=transition'],
   ['attente-hors-ligne', `?ecran=attente&carte=${durable.id}&tour=2&absent=1`],
   ['attente-hors-ligne-prenom-long', `?ecran=attente&type=epreuve&absent=1&prenom=${'M'.repeat(45)}`],

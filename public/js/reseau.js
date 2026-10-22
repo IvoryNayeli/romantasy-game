@@ -26,6 +26,8 @@ function base() {
 // Identité de la personne pour une partie : tirée au hasard et gardée dans l'onglet (sessionStorage),
 // pour qu'un rechargement de la page ou un nouvel essai après un délai dépassé la retrouve.
 // Un onglet = une personne : on peut donc essayer à plusieurs sur un même ordinateur.
+// Phase 7 (remarque 60) : un onglet fermé par inadvertance perd cette identité ; la personne la retrouve en
+// rejoignant la partie avec le même prénom (salon.placeAReprendre), et l'onglet garde alors l'identité reprise.
 const memoire = new Map();
 const cle = (code) => `romantasy-joueur-${code}`;
 
@@ -35,6 +37,11 @@ export function identiteConnue(code) {
   } catch {
     return memoire.get(code) || null;
   }
+}
+
+function adopterIdentite(code, id) {
+  memoire.set(code, id);
+  try { window.sessionStorage.setItem(cle(code), id); } catch { /* stockage indisponible : mémoire de la page */ }
 }
 
 function identite(code) {
@@ -55,8 +62,16 @@ export async function creer(code, config) {
   return (await salon.creerPartie(await base(), { code, id: identite(code), config })).issue;
 }
 
-export async function rejoindre(code) {
-  return (await salon.rejoindrePartie(await base(), { code, id: identite(code) })).issue;
+// « Rejoindre une partie » (phase 7, remarque 60) : le code ne fait que vérifier que la partie existe ; la place est
+// prise (ou reprise, même prénom) à « Je suis là ! » par rejoindre(code, prenom).
+export async function verifier(code) {
+  return (await salon.verifierPartie(await base(), { code })).issue;
+}
+
+export async function rejoindre(code, prenom) {
+  const r = await salon.rejoindrePartie(await base(), { code, id: identite(code), prenom });
+  if (r.issue === salon.ISSUES.REPRIS && r.id) adopterIdentite(code, r.id);
+  return r.issue;
 }
 
 export async function choisirEmbleme(code, embleme) {
@@ -137,5 +152,5 @@ export function ecouter(code, rappel, enErreur) {
 }
 
 export const {
-  joueursOrdonnes, peutCommencer, estAbsent, PRENOM_MAX, STATUTS, ACTIONS,
+  joueursOrdonnes, peutCommencer, estAbsent, placePossible, PRENOM_MAX, STATUTS, ACTIONS,
 } = salon;

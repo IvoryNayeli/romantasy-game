@@ -32,11 +32,11 @@ const partieAvecDeux = ({ statut = 'salle', aPret = false } = {}) => ({
   statut,
   joueurs: {
     [A]: aPret
-      ? { rang: 0, pret: true, prenom: 'Lea', embleme: 'dragon' }
-      : { rang: 0, pret: false, embleme: 'dragon' },
+      ? { rang: 0, pret: true, prenom: 'Lea', embleme: 'demon' }
+      : { rang: 0, pret: false, embleme: 'demon' },
     [B]: { rang: 1, pret: false, embleme: 'fee' },
   },
-  emblemes: { dragon: A, fee: B },
+  emblemes: { demon: A, fee: B },
 });
 
 describe('règles : écritures directes (contournement du jeu)', () => {
@@ -56,8 +56,8 @@ describe('règles : écritures directes (contournement du jeu)', () => {
 
   it('D1 : deux personnes ne peuvent pas avoir le même emblème, même par écriture directe', async () => {
     await E.rest('PUT', 'parties/RUNE', partieAvecDeux(), { admin: true });
-    // B prend « dragon », déjà porté par A : la règle doit refuser (invariant « emblème unique »).
-    const r = await E.rest('PATCH', 'parties/RUNE', { [`joueurs/${B}/embleme`]: 'dragon', 'emblemes/dragon': B });
+    // B prend « demon », déjà porté par A : la règle doit refuser (invariant « emblème unique »).
+    const r = await E.rest('PATCH', 'parties/RUNE', { [`joueurs/${B}/embleme`]: 'demon', 'emblemes/demon': B });
     assert.equal(r.statut, 401, `emblème déjà pris accepté par la base : ${JSON.stringify(r.corps)}`);
   });
 
@@ -97,12 +97,12 @@ describe('règles : écritures directes (contournement du jeu)', () => {
   it('D1 (variantes) : un emblème déjà porté ne peut pas être pris par partie entière, par « emblemes/ » seul, ou par « joueurs/ » seul', async () => {
     await E.rest('PUT', 'parties/RUNE', partieAvecDeux(), { admin: true });
     const partieEntiere = partieAvecDeux();
-    partieEntiere.joueurs[B].embleme = 'dragon';
-    partieEntiere.emblemes = { dragon: B };
+    partieEntiere.joueurs[B].embleme = 'demon';
+    partieEntiere.emblemes = { demon: B };
     const essais = [
       ['PUT', 'parties/RUNE', partieEntiere],
-      ['PUT', 'parties/RUNE/emblemes/dragon', B],
-      ['PUT', `parties/RUNE/joueurs/${B}/embleme`, 'dragon'],
+      ['PUT', 'parties/RUNE/emblemes/demon', B],
+      ['PUT', `parties/RUNE/joueurs/${B}/embleme`, 'demon'],
     ];
     for (const [methode, chemin, valeur] of essais) {
       const r = await E.rest(methode, chemin, valeur);
@@ -224,7 +224,7 @@ describe('règles : écritures directes (contournement du jeu)', () => {
     actif: Date.now() - depuis,
     statut: 'partie',
     joueurs: {
-      [A]: { rang: 0, pret: true, prenom: 'Lea', embleme: 'dragon' },
+      [A]: { rang: 0, pret: true, prenom: 'Lea', embleme: 'demon' },
       [B]: { rang: 1, pret: true, prenom: 'Tom', embleme: 'fee' },
     },
     ordre: [A, B],

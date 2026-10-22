@@ -39,7 +39,6 @@ export const tour = {
   aToi: 'À toi de jouer !',
   compteur: (n, total) => `Tour ${n} / ${total}`,
   auTourDe: 'Au tour de',
-  enAttente: (prenom) => `En attente de ${prenom}…`,
   sortJete: 'Le sort est jeté',
   bouclier: 'Invoquer un bouclier',
   confirmation: 'Invoquer un bouclier ? Ton tour sera tout de même compté.',
@@ -80,17 +79,21 @@ export const erreurs = {
 };
 
 export const salle = {
-  codeLibelle: 'Code de la partie',
-  accompagnement: 'Rassemblez votre troupe. La quête commencera quand l\'hôte donnera le signal.',
+  codeLibelle: 'Partie\u00A0:',
+  accompagnement: 'La quête commencera quand l\'hôte donnera le signal.',
   hote: 'hôte',
   vous: 'toi',
   prenomLibelle: 'Ton prénom',
-  embleme: 'Ton emblème',
-  pret: 'C\'est bon',
-  pretBouton: 'Je suis là',
+  // Phase 7 (remarque 51) : phrase au-dessus du cartouche du prénom (docs/regles.md, salle d'attente).
+  prenomQuestion: 'Quel nom les étoiles murmureront-elles ce soir ?',
+  // Phase 7 (remarque 58) : question au-dessus des emblèmes et bouton qui confirme la présence (docs/regles.md).
+  embleme: 'Quelle puissance veille sur toi ?',
+  pret: 'A rejoint la compagnie',
+  suivant: 'Je suis là !',
+  pretBouton: 'Je rejoins la compagnie',
   commencer: 'Commencer la quête',
   complete: 'La partie est complète',
-  groupe: 'La compagnie',
+  groupe: 'Le cercle des initié(e)s :',
 };
 
 // Écran « Créer une partie » : choix du code dans la liste.
@@ -104,7 +107,6 @@ export const creer = {
 
 // Écran « Rejoindre une partie » : saisie du code.
 export const rejoindre = {
-  titre: 'Saisis le code de la partie',
   libelle: 'Code de la partie',
   aide: 'Majuscules, minuscules et accents n\'ont pas d\'importance.',
   valider: 'Valider',

@@ -251,14 +251,20 @@ test('codes : saisie insensible à la casse et aux accents, seuls les mots de co
   for (const faux of ['', '   ', 'DRAGON', 'ECLIPS', 'ECLIPSEE', 'RUN E', null]) assert.equal(trouverCode(faux, codes), null, `« ${faux} » ne doit pas être accepté`);
 });
 
-test('salle d\'attente : ordre code (discret), menu emblème + prénom, liste du groupe', () => {
+test('salle d\'attente : code (discret), puis deux écrans successifs (prénom + emblème, puis liste du groupe)', () => {
   const ecrans = lirePublic('js', 'ecrans.js');
   const salle = ecrans.slice(ecrans.indexOf('export function salle('), ecrans.indexOf('export function choix('));
-  const construction = salle.slice(salle.indexOf('const noeud = h('));
-  const positions = ['code-partie', 'formulaire,', 'titre-groupe', 'liste,'].map((m) => construction.indexOf(m));
-  assert.ok(positions.every((p) => p >= 0), 'élément manquant dans la salle d\'attente');
-  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'ordre attendu : code, menu emblème/prénom, liste du groupe');
-  assert.match(lirePublic('js', 'textes.js'), /groupe: 'La compagnie'/);
+  // Phase 7 (remarques 13 et 26) : trois écrans successifs, prénom, emblème, puis la salle d'attente et sa liste,
+  // dans la salle fictive comme en réseau ; le code de la partie reste en haut.
+  assert.match(salle, /enteteSalle\(code\), etapePrenom, etapeEmbleme, etapeSalle/);
+  assert.match(lirePublic('js', 'ecrans-reseau.js'), /enteteSalle\(code\), etapePrenom, etapeEmbleme, etapeSalle/);
+  for (const source of [salle, lirePublic('js', 'ecrans-reseau.js')]) {
+    assert.match(source, /etapePrenom\.hidden = ecranCourant !== 'prenom';\s*etapeEmbleme\.hidden = ecranCourant !== 'embleme';\s*etapeSalle\.hidden = ecranCourant !== 'salle';/);
+  }
+  assert.match(salle, /const ecranCourant = complete \|\| moi\.pret \? 'salle' : etape;/);
+  assert.match(lirePublic('js', 'ecrans-reseau.js'), /const ecranCourant = exclu \|\| pret \? 'salle' : etape;/, 'rechargement : présence confirmée, salle d\'attente');
+  assert.match(ecrans, /export function enteteSalle\(code\) \{\s*return h\('p', \{ classe: 'code-partie' \}/);
+  assert.match(lirePublic('js', 'textes.js'), /groupe: 'Le cercle des initié\(e\)s :'/);
   // Le code est discret : petit et en couleur secondaire (pas un grand encadré).
   for (const sel of ['.code-libelle', '.code-valeur']) {
     const tailles = taillesDeclarees(sel);
@@ -275,11 +281,11 @@ test('textes : plus de « participant(e)s » ni de « participantes » (formulat
   }
 });
 
-test('design : polices Cormorant Garamond (500, 600, 500 italique) et Jost (300, 400, 500) hébergées, licences OFL, plus de Cinzel', () => {
+test('design : polices Cormorant Garamond (500, 600, 500 italique), Jost (300, 400, 500) et Cinzel Decorative 700 (titres de section des règles, phase 7) hébergées, licences OFL', () => {
   const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
   const declarees = faces.map((f) => `${f.match(/font-family:\s*'([^']+)'/)[1]}|${f.match(/font-weight:\s*(\d+)/)[1]}|${f.match(/font-style:\s*(\w+)/)[1]}`).sort();
   assert.deepEqual(declarees, [
-    'Cormorant Garamond|500|italic', 'Cormorant Garamond|500|normal', 'Cormorant Garamond|600|normal',
+    'Cinzel Decorative|700|normal', 'Cormorant Garamond|500|italic', 'Cormorant Garamond|500|normal', 'Cormorant Garamond|600|normal',
     'Jost|300|normal', 'Jost|400|normal', 'Jost|500|normal',
   ]);
   for (const face of faces) {
@@ -289,22 +295,27 @@ test('design : polices Cormorant Garamond (500, 600, 500 italique) et Jost (300,
     assert.ok(fs.existsSync(fichier), `police manquante : ${src[1]}`);
     assert.equal(fs.readFileSync(fichier).subarray(0, 4).toString('latin1'), 'wOF2', `${src[1]} n'est pas un woff2`);
   }
-  for (const licence of ['LICENSE-Jost-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt']) {
+  for (const licence of ['LICENSE-Jost-OFL.txt', 'LICENSE-CormorantGaramond-OFL.txt', 'LICENSE-CinzelDecorative-OFL.txt']) {
     assert.ok(existe('fonts', licence), `${licence} manquante`);
     assert.match(lirePublic('fonts', licence), /SIL Open Font License/);
   }
-  // Cinzel n'est plus utilisée : ni fichier, ni licence, ni référence.
-  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /cinzel/i.test(f)), []);
-  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /700/.test(f)), [], 'graisse 700 non prévue par la charte');
-  for (const f of listerFichiers(PUBLIC, /\.(html|css|js)$/)) {
-    assert.doesNotMatch(fs.readFileSync(f, 'utf8'), /cinzel/i, `${path.relative(RACINE, f)} : référence à Cinzel`);
+  // Phase 7 (remarque 40) : Cinzel Decorative, choisie par la propriétaire, sert seulement aux titres de section des
+  // règles, en graisse 700 (seul fichier 700 admis) ; IM Fell English SC n'est plus utilisée.
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /cinzel/i.test(f)).sort(), ['CinzelDecorative-700.woff2', 'LICENSE-CinzelDecorative-OFL.txt']);
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /700/.test(f)), ['CinzelDecorative-700.woff2']);
+  assert.deepEqual(fs.readdirSync(path.join(PUBLIC, 'fonts')).filter((f) => /fell/i.test(f)), [], 'IM Fell English SC retirée');
+  const sansFaces = css.replace(/@font-face\s*\{[^}]*\}/g, '');
+  assert.deepEqual([...sansFaces.matchAll(/[^\n]*Cinzel[^\n]*/g)].map((m) => m[0].trim().split(' ')[0]), ['font:'], 'Cinzel seulement dans la règle des titres de section');
+  assert.match(sansFaces, /\.titre-section h2 \{[^}]*font: 700 1\.5rem\/1\.2 'Cinzel Decorative'/);
+  for (const f of listerFichiers(PUBLIC, /\.(html|js)$/)) {
+    assert.doesNotMatch(fs.readFileSync(f, 'utf8'), /cinzel|IM Fell/i, `${path.relative(RACINE, f)} : référence à une police de titre hors du CSS`);
   }
   // Les familles de la charte sont bien celles des variables, et aucune graisse non chargée n'est demandée.
   const v = variables();
   assert.match(v['--f-titre'], /^'Cormorant Garamond'/);
   assert.match(v['--f-texte'], /^'Jost'/);
-  assert.doesNotMatch(css, /font-weight:\s*(?:700|800|900|bold)\b/);
-  assert.doesNotMatch(css, /\bfont:\s*(?:italic\s+)?(?:700|800|900|bold)\b/);
+  assert.doesNotMatch(css.replace(/@font-face\s*\{[^}]*\}/g, ''), /font-weight:\s*(?:700|800|900|bold)\b/);
+  assert.doesNotMatch(css.replace(/font: 700 1\.5rem\/1\.2 'Cinzel Decorative'/, ''), /\bfont:\s*(?:italic\s+)?(?:700|800|900|bold)\b/);
 });
 
 // Phase 4 : seules exceptions, les deux modules Firebase (SDK du CDN officiel gstatic, adresses des bases),
@@ -331,15 +342,19 @@ test('design : variables de la charte (docs/charte-graphique.md, section 2) repr
   const v = variables();
   const charte = variablesCharte();
   assert.ok(Object.keys(charte).length >= 25, 'bloc :root de la charte introuvable');
-  assert.deepEqual(v, charte, 'le bloc :root doit être identique à celui de la charte (mêmes variables, mêmes valeurs)');
+  // Seul écart, demandé par la propriétaire (phase 7, remarque 46) : marge latérale de 24 px au lieu de 16 px.
+  assert.equal(v['--marge'], '24px', 'marge latérale de la phase 7');
+  assert.deepEqual({ ...v, '--marge': charte['--marge'] }, charte, 'le bloc :root doit être identique à celui de la charte (mêmes variables, mêmes valeurs), hors --marge');
   const attendu = {
     '--c-nuit': '#060B1E', '--c-minuit': '#0F1E4A', '--c-brume': '#3C5A8C', '--c-lune': '#C9D8EE',
     '--c-lune-douce': '#8FA6C8', '--c-etoile': '#F4F1E8', '--c-ambre': '#F0A35E', '--c-braise': '#D9693A',
   };
   for (const [nom, couleur] of Object.entries(attendu)) assert.equal((v[nom] || '').toUpperCase(), couleur, nom);
-  // Toute variable utilisée dans le CSS existe : dans :root, ou propre à un composant (--rarete, --lueur de la charte).
+  // Toute variable utilisée dans le CSS existe : dans :root, ou propre à un composant (--rarete, --lueur de la charte ;
+  // phase 7 : --lettres et --colonnes, posées par ecrans.js sur le titre d'attente et la grille des emblèmes).
   const utilisees = new Set([...css.matchAll(/var\((--[\w-]+)/g)].map((m) => m[1]));
-  for (const nom of utilisees) assert.ok(nom in v || ['--rarete', '--lueur'].includes(nom), `variable inventée : ${nom}`);
+  // Phase 7 (remarque 39) : bleus du logo, variables locales au parchemin des règles (--parchemin-*).
+  for (const nom of utilisees) assert.ok(nom in v || ['--rarete', '--lueur', '--lettres', '--colonnes'].includes(nom) || /^--parchemin-(haut|bas|halo|ombre)$/.test(nom), `variable inventée : ${nom}`);
   assert.doesNotMatch(css, /@import/);
   // docs/PROJET.md, section « Design » : nouvelle palette et nouvelles polices, renvoi à la charte, plus d'ancienne palette.
   const projet = lire('docs', 'PROJET.md');
@@ -363,11 +378,12 @@ test('design : interdits de la charte (violets, roses, blanc et noir purs, ombre
     const { t, s } = teinteSaturation(`#${hex}`);
     assert.ok(!(t >= 255 && t <= 345 && s > 0.12), `#${m[1]} : violet ou rose (teinte ${t.toFixed(0)})`);
   }
-  assert.doesNotMatch(css, /\b(?:white|black|purple|violet|pink|magenta|rgba?\(\s*(?:0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255))/i, 'couleur nommée ou noir/blanc pur');
+  assert.doesNotMatch(css, /\b(?:white(?!-space)|black|purple|violet|pink|magenta|rgba?\(\s*(?:0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255))/i, 'couleur nommée ou noir/blanc pur');
   assert.doesNotMatch(css, /box-shadow:[^;]*(?:rgba?\(\s*0\s*,\s*0\s*,\s*0|#000)/i, 'ombre portée noire');
   assert.doesNotMatch(css, /:hover/, 'aucun effet au survol');
   assert.doesNotMatch(css, /border-radius:\s*(?:999|9999)/, 'pilule');
-  assert.doesNotMatch(css, /border-radius:\s*50%/, 'le cercle est réservé au logo et au badge de coût (absent du jeu)');
+  // Seule exception, demandée par la propriétaire (phase 7, maquette du parchemin) : les fermoirs ronds des règles.
+  assert.doesNotMatch(css.replace(/\.fermoir \{[^}]*\}/, ''), /border-radius:\s*50%/, 'le cercle est réservé au logo, au badge de coût (absent du jeu) et aux fermoirs du parchemin');
   assert.doesNotMatch(sansRoot, /(?:^|[;{\s])color\s*:\s*var\(--c-brume\)/m, 'texte en --c-brume');
   assert.doesNotMatch(css, /\.etincelles\b/, 'ancien fond d\'étincelles');
   // Les violets et roses de l'ancienne palette ont disparu des textes de conception.
@@ -475,8 +491,13 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.equal(textes.types.epreuve.nom, 'Épreuve');
   assert.equal(textes.types.revelation.nom, 'Révélation');
   const html = lirePublic('index.html');
-  for (const symbole of ['epee', 'etoile', 'bouclier', 'bouclier-grand', 'sort-jete', 'retour', 'coche', 'lueur', 'etincelle', 'filigrane']) {
+  for (const symbole of ['retour', 'coche', 'lueur', 'etincelle', 'filigrane']) {
     assert.match(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole ${symbole}`);
+  }
+  // Phase 7 : l'épée et l'étoile sont les images de la propriétaire (plus de symbole SVG).
+  for (const symbole of ['epee', 'etoile', 'bouclier']) {
+    assert.doesNotMatch(html, new RegExp(`<symbol id="i-${symbole}"`), `symbole SVG ${symbole} retiré`);
+    assert.match(lirePublic('js', 'dom.js'), new RegExp(`${symbole}: 'img/${symbole}\\.webp'`), `image ${symbole} posée par icone()`);
   }
   assert.ok(propriete('.carte', '--rarete').includes('var(--c-braise)'), 'Épreuve = braise');
   assert.ok(propriete('.carte-revelation', '--rarete').includes('var(--c-lune)'), 'Révélation = lune');
@@ -492,7 +513,7 @@ test('design : chaque type de carte a une couleur ET un symbole ET un mot (Épre
   assert.match(ecrans, /icone\(T\.types\[type\]\.symbole, 'dos-symbole'\)/, 'symbole sur les dos de carte');
 });
 
-test('logo : image du disque central (fond transparent), version complète et compacte', () => {
+test('logo : image de la propriétaire (fond transparent), version complète et compacte', () => {
   const html = lirePublic('index.html');
   assert.doesNotMatch(html, /i-logo/, 'plus de symbole SVG provisoire');
   assert.match(lirePublic('js', 'dom.js'), /export function logo\(classe = ''\) \{\s*return h\('img', \{ classe, src: 'img\/logo\.webp', alt: '', 'aria-hidden': 'true' \}\);/, 'logo décoratif en image');
@@ -500,7 +521,7 @@ test('logo : image du disque central (fond transparent), version complète et co
   assert.ok(fs.existsSync(fichier), 'public/img/logo.webp présent');
   assert.ok(fs.statSync(fichier).size < 100 * 1024, 'logo léger (moins de 100 Ko)');
   assert.ok(!fs.existsSync(path.join(PUBLIC, 'data', 'logo.jpeg')), 'la source JPEG n\'est pas servie par le site');
-  assert.match(html, /<img class="logo-compact" src="img\/logo\.webp" alt="Romantasy" width="40" height="40">/, 'version compacte de 40 px dans la barre');
+  assert.match(html, /<img class="logo-compact" src="img\/logo\.webp" alt="Romantasy" width="52" height="52">/, 'version compacte de 52 px dans la barre (phase 7)');
   assert.match(lirePublic('js', 'ecrans.js'), /classe: 'logo-complet', role: 'img', 'aria-label': T\.logoNom/, 'version complète sur l\'accueil, nom accessible neutre');
   assert.equal(lirePublic('js', 'textes.js').match(/logoNom = '([^']*)'/)[1], 'Logo du jeu', 'nom accessible neutre (pas de nom écrit)');
   // Remarque de la propriétaire (itération 2) : aucun titre sur l'accueil, donc plus de nom écrit sous le logo.
@@ -510,42 +531,48 @@ test('logo : image du disque central (fond transparent), version complète et co
   assert.doesNotMatch(accueilSource, /<h[1-6]|h\('h[1-6]'|Romantasy/, 'aucun titre sur l\'accueil');
 });
 
-test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (sauf bouclier et sort jeté) ; un seul calque de grain par écran', () => {
+// Phase 7 : images de la propriétaire (logo, emblèmes, épée, étoile), légères, présentes, toutes utilisées.
+test('images : chaque emblème a son image, les images référencées existent, aucune image orpheline ni à la racine', () => {
+  const emblemes = JSON.parse(lirePublic('data', 'emblemes.json'));
+  const references = new Set(['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp', ...emblemes.map((e) => e.image)]);
+  // Phase 7 (remarque 42) : bandes d'étoiles à 4 branches du fond, référencées par la feuille de style.
+  for (const cote of ['gauche', 'droite', 'haut', 'bas']) {
+    assert.ok(css.includes(`url('../img/etoiles-${cote}.svg')`), `étoiles-${cote}.svg utilisée par style.css`);
+    assert.ok(fs.existsSync(path.join(PUBLIC, 'img', `etoiles-${cote}.svg`)));
+  }
+  const fonds = ['img/etoiles-gauche.svg', 'img/etoiles-droite.svg', 'img/etoiles-haut.svg', 'img/etoiles-bas.svg'];
+  const code = [lirePublic('index.html'), lirePublic('demo.html'), ...listerFichiers(path.join(PUBLIC, 'js'), /\.js$/).map((f) => fs.readFileSync(f, 'utf8'))].join('\n');
+  for (const chemin of ['img/logo.webp', 'img/epee.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp']) assert.ok(code.includes(chemin), `${chemin} utilisée`);
+  for (const chemin of references) {
+    const fichier = path.join(PUBLIC, chemin);
+    assert.ok(fs.existsSync(fichier), `${chemin} absente`);
+    const brut = fs.readFileSync(fichier);
+    assert.equal(brut.toString('latin1', 0, 4) + brut.toString('latin1', 8, 12), 'RIFFWEBP', `${chemin} : WebP`);
+    // Logo, étoile et bouclier (aussi en grand sur la transition) : 384 px ; emblèmes : 512 px (itération 2 : nets sur téléphone) ; épée : 192 px.
+    const limite = ['img/logo.webp', 'img/etoile.webp', 'img/bouclier.webp', 'img/butin.webp'].includes(chemin) || chemin.startsWith('img/emblemes/') ? 100 : 40;
+    assert.ok(brut.length < limite * 1024, `${chemin} trop lourde`);
+  }
+  const presentes = listerFichiers(path.join(PUBLIC, 'img'), /\.\w+$/).map((f) => path.relative(PUBLIC, f).split(path.sep).join('/'));
+  assert.deepEqual(presentes.sort(), [...references, ...fonds].sort(), 'images de public/img/ = images référencées');
+  // Images déposées par la propriétaire à la racine (remarque 1 de la phase 7) : déplacées, il n'en reste aucune.
+  const deposees = ['logo.png', 'butin.png', 'épée.png', 'étoile.png', 'bouclier.png', 'Gemini_Generated_Image_ntcqu3ntcqu3ntcq(8).png',
+    ...Array.from({ length: 7 }, (_, i) => `avatar_${i + 1}.png`)];
+  assert.deepEqual(deposees.filter((n) => fs.existsSync(path.join(RACINE, n))), [], 'images de la remarque encore à la racine');
+});
+
+test('ornements et icônes : au trait fin de 1,5 px, jamais pleines (épée, étoile et bouclier en images) ; un seul calque de grain par écran', () => {
   const html = lirePublic('index.html');
-  for (const nom of ['epee', 'etoile', 'retour', 'coche', 'lueur']) {
+  for (const nom of ['retour', 'coche', 'lueur']) {
     const symbole = html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
     assert.match(symbole, /stroke="currentColor"/, `${nom} : trait currentColor`);
     assert.match(symbole, /stroke-width="1\.5"/, `${nom} : trait de 1,5 px`);
     assert.doesNotMatch(symbole, /fill="currentColor"/, `${nom} : icône pleine`);
   }
-  // Remarque de la propriétaire (itération 3) : le bouclier et le « sort est jeté » sont trop discrets au trait fin.
-  // Écart volontaire à la charte, noté dans docs/PROJET.md : formes pleines, grandes, avec halo ambre ou braise.
-  const symbole = (nom) => html.match(new RegExp(`<symbol id="i-${nom}"[^>]*>([\\s\\S]*?)</symbol>`))[1];
-  assert.match(symbole('bouclier'), /fill="currentColor"/, 'bouclier des boutons : forme pleine');
-  assert.doesNotMatch(symbole('bouclier'), /fill="none"/, 'bouclier des boutons : plus de forme creuse');
-  {
-    const s = symbole('bouclier-grand');
-    assert.doesNotMatch(s, /fill="none"|fill:none/, 'bouclier-grand : forme creuse');
-    assert.ok((s.match(/fill:var\(--c-(ambre|braise|etoile)\)/g) || []).length >= 3, 'bouclier-grand : formes pleines aux couleurs de la charte');
-    assert.match(s, /--c-ambre/);
-    assert.match(s, /--c-braise/);
-  }
-  // Itération 5, remarque 8 : le sort jeté est une vraie étoile à cinq branches, pleine, ambre (10 sommets, un seul tracé).
-  {
-    const s = symbole('sort-jete');
-    assert.doesNotMatch(s, /fill="none"|fill:none|<circle/, 'sort-jete : forme creuse ou cercle');
-    assert.equal((s.match(/<path/g) || []).length, 1, 'sort-jete : un seul tracé');
-    assert.match(s, /fill:var\(--c-ambre\)/, 'sort-jete : étoile ambre');
-    const sommets = s.match(/d="([^"]+)"/)[1].replace(/[MZ]/g, ' ').trim().split(/[\s,]+/).map(Number);
-    assert.equal(sommets.length, 20, 'sort-jete : 10 sommets (étoile à cinq branches)');
-    const rayons = [];
-    for (let i = 0; i < 20; i += 2) rayons.push(Math.hypot(sommets[i] - 50, sommets[i + 1] - 54.6)); // centre du cercle circonscrit, boîte centrée dans 100 x 100
-    for (let i = 0; i < 10; i++) {
-      assert.ok(Math.abs(rayons[i] - (i % 2 === 0 ? 48 : rayons[1])) < 0.2, `sort-jete : sommet ${i} irrégulier (${rayons[i].toFixed(1)})`);
-    }
-  }
+  // Phase 7 : le bouclier (boutons et transition) et le « sort est jeté » (transition) sont les images de la
+  // propriétaire (bouclier, étoile) : plus de symbole SVG plein.
+  for (const nom of ['bouclier', 'bouclier-grand', 'sort-jete']) assert.doesNotMatch(html, new RegExp(`<symbol id="i-${nom}"`), `symbole ${nom} retiré`);
   const transition = lirePublic('js', 'ecrans.js');
-  assert.match(transition, /icone\(bouclier \? 'bouclier-grand' : 'sort-jete', 'icone-presence'\)/, 'écran de transition : grandes formes pleines');
+  assert.match(transition, /icone\(bouclier \? 'bouclier' : 'etoile', 'icone-presence'\)/, 'écran de transition : images du bouclier et de l\'étoile');
   assert.ok(Math.max(...propriete('.transition-icone .icone', 'width').map((t) => enPixels(t, variables()))) >= 128, 'forme de transition : au moins 128 px');
   assert.ok(propriete('.transition-icone::before', 'background').join(' ').includes('#F0A35E'), 'halo ambre');
   assert.ok(propriete('.transition-bouclier .transition-icone::before', 'background').join(' ').includes('#D9693A'), 'halo braise');
@@ -602,7 +629,8 @@ test('ciel : constellations (étoiles reliées par des filets très fins, sans t
   // La page des règles : titres de section bien plus grands que le texte, filigrane ambre sous le titre, pleine largeur.
   assert.match(ecrans, /function titreSection\(texte\)[\s\S]*h\('h2', null, texte\),\s*h\('div', \{ classe: 'titre-section-ornement'[\s\S]*filigrane\(\)/);
   const titre = plancherEnPixels(propriete('.titre-section h2', 'font')[0].match(/(?:^|\s)([\d.]+rem)(?:\/)/)[1], variables());
-  assert.ok(titre >= 28 && titre <= 40, `titre de section de ${titre} px : bien visible mais sous les titres d'écran`);
+  // Phase 7 (remarque 40) : Cinzel Decorative, très large, à 24 px comme dans la maquette de la propriétaire.
+  assert.ok(titre >= 24 && titre <= 40, `titre de section de ${titre} px : bien visible mais sous les titres d'écran`);
   assert.ok(propriete('.titre-section h2', 'color').includes('var(--c-etoile)'));
   assert.ok(propriete('.titre-section-ornement', 'color').includes('var(--c-ambre)'));
   assert.ok(enPixels(propriete('.titre-section', 'margin')[0].split(/\s+/)[0], variables()) >= 40, 'grande marge supérieure');
@@ -639,14 +667,17 @@ test('animations : retournement 3D, fondu de 300 ms, étoiles, opacity et transf
       }
     }
   }
-  for (const m of css.matchAll(/(?:^|[;\s{])transition\s*:\s*([^;]+);/g)) {
+  // Seul écart voulu (phase 7, remarque 51) : le cartouche du prénom s'élargit en douceur (transition sur width).
+  assert.equal([...css.matchAll(/transition:\s*width\b/g)].length, 1, 'une seule transition de largeur');
+  assert.match(css, /\.cartouche \{[^}]*transition: width 250ms var\(--ease\);/, 'transition de largeur réservée au cartouche du prénom');
+  for (const m of css.replace(/(\.cartouche \{[^}]*)transition: width 250ms var\(--ease\);/, '$1').matchAll(/(?:^|[;\s{])transition\s*:\s*([^;]+);/g)) {
     assert.match(m[1], /^transform\b/, `transition sur autre chose que transform : ${m[1]}`);
   }
   assert.doesNotMatch(css, /transition-property|will-change/);
   assert.ok(propriete('.ecran', 'animation').some((a) => /^fondu var\(--t-rapide\)/.test(a)), 'fondu de 300 ms entre les écrans');
   assert.equal(variables()['--t-rapide'], '300ms');
   // Règle système de la charte (pas une option du jeu) : tout mouvement coupé si l'appareil le demande.
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\*\s*\{\s*animation:\s*none !important;\s*transition-duration:\s*1ms !important;\s*\}\s*\}/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\*, \*::before, \*::after\s*\{\s*animation:\s*none !important;\s*transition-duration:\s*1ms !important;\s*\}\s*\}/);
   // Étoiles du fond de l'accueil : scintillement lent, opacité seule.
   assert.match(css, /\.etoile\s*\{\s*animation:\s*scintille 5s/);
   assert.match(lirePublic('js', 'ecrans.js'), /ciel-accueil/);
@@ -675,9 +706,8 @@ test('textes : l\'interface reprend les textes validés de docs/regles.md', asyn
     T.tour.aToi, T.tour.sortJete, T.tour.bouclier, T.tour.confirmation,
     T.tour.transitionJete('[prénom]').replace('[prénom]', '[prénom]'),
     T.tour.transitionBouclier('[prénom]'),
-    T.tour.enAttente('[prénom]'),
     T.fin.titre, T.fin.texte, T.fin.bouton,
-    T.salle.accompagnement, T.salle.complete, T.salle.commencer,
+    T.salle.accompagnement, T.salle.complete, T.salle.commencer, T.salle.prenomQuestion,
   ];
   for (const texte of attendus) assert.ok(md.includes(norm(texte)), `absent de docs/regles.md : « ${texte} »`);
   assert.equal(T.tour.compteur(1, config.tours), `Tour 1 / ${config.tours}`);
@@ -702,7 +732,8 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   const fichiers = listerFichiers(PUBLIC, /\.(html|js|css)$/).filter((f) => !f.includes(`${path.sep}data${path.sep}`));
   assert.ok(fichiers.length >= 10);
   for (const f of fichiers) {
-    const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f);
+    // Exception voulue (phase 7, remarque 51) : « murmureront-elles », où « elles » désigne les étoiles, pas une personne.
+    const code = sansCommentaires(fs.readFileSync(f, 'utf8'), f).replace('les étoiles murmureront-elles', 'les étoiles murmureront');
     for (const [nom, motif] of Object.entries(interdits)) {
       assert.doesNotMatch(code, motif, `${path.relative(RACINE, f)} : forme interdite « ${nom} »`);
     }
@@ -711,7 +742,7 @@ test('textes : écriture inclusive allégée (formulation neutre d\'abord) et vo
   const textes = lirePublic('js', 'textes.js');
   // Seule exception voulue par la propriétaire (itération 4) : la salutation « Bienvenue, voyageur(se). ».
   assert.doesNotMatch(textes.replace('voyageur(se)', 'voyageur'), /\w\((e|se|euse|ne|ve|te|ère)\)|\w\(s\)|\/la\b/, 'parenthèses d\'accord ou « le/la » restantes dans les textes');
-  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je suis là', 'La compagnie']) {
+  for (const forme of ['Bienvenue, voyageur(se).', 'Chaque personne', 'tout le monde', 'la personne qui joue', 'Je rejoins la compagnie', 'A rejoint la compagnie']) {
     assert.ok(textes.includes(forme), `formulation neutre « ${forme} » absente`);
   }
   assert.match(textes, /butin/);
@@ -777,4 +808,21 @@ test('itération 4 : aucun surlignage violet (sélection, marque, surbrillance) 
     assert.doesNotMatch(r.corps, /violet|purple|magenta|pink|améthyste/i, `${r.selecteur} : couleur de surlignage violette`);
   }
   assert.doesNotMatch(css, /améthyste|amethyste/i, 'nom de couleur « améthyste » dans le CSS');
+});
+
+test('phase 7, remarques 53, 55 et 56 : étoiles jusqu\'aux bords réels de l\'écran, salle d\'attente centrée, emblèmes jamais ternis', () => {
+  const corps = (selecteur) => regles().filter((r) => r.selecteur.split(',').map((s) => s.trim()).includes(selecteur)).map((r) => r.corps).join(';');
+  // 53 : les calques d'étoiles débordent de la page sur les zones de sécurité du téléphone (sinon, bande de fond nu).
+  for (const calque of ['.page::before', '.page::after', '.ecran-zone::before']) {
+    assert.match(corps(calque), /top:\s*calc\(-1 \* var\(--haut\)\)/, `${calque} : doit couvrir la zone de sécurité du haut`);
+    assert.match(corps(calque), /bottom:\s*calc\(-1 \* var\(--bas\)\)/, `${calque} : doit couvrir la zone de sécurité du bas`);
+  }
+  // 55 : la salle d'attente est centrée verticalement.
+  assert.match(corps('.salle-corps .salle-attente'), /margin:\s*auto 0/, 'salle d\'attente centrée verticalement');
+  // 56 : aucun filtre (gris, terne) sur un emblème de l'écran d'attente, ni sur un bloc qui en contient un.
+  for (const r of regles().filter((x) => /filter\s*:/.test(x.corps) && /ecran-attente/.test(x.selecteur))) {
+    for (const s of r.selecteur.split(',')) {
+      assert.doesNotMatch(s, /embleme|\.titre-tour\s*$|nom-actif\s*$/, `${s.trim()} : un emblème de l'écran d'attente ne doit jamais être terni`);
+    }
+  }
 });

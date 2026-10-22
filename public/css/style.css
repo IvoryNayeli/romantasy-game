@@ -4,6 +4,13 @@
 
 /* ---------- Polices hébergées avec le site (licence OFL, voir public/fonts/) ---------- */
 @font-face {
+  font-family: 'Cinzel Decorative';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/CinzelDecorative-700.woff2') format('woff2');
+}
+@font-face {
   font-family: 'Cormorant Garamond';
   font-weight: 500;
   font-style: normal;
@@ -81,7 +88,7 @@
 
   /* Espacements et zones tactiles */
   --cible: 48px;            /* hauteur minimale de tout élément cliquable */
-  --marge: 16px;           /* marge latérale d'écran */
+  --marge: 24px;           /* marge latérale d'écran ; phase 7 : 24 px au lieu des 16 px de la charte (demande de la propriétaire) */
   --haut: env(safe-area-inset-top, 0px);
   --bas: env(safe-area-inset-bottom, 0px);
 }
@@ -89,6 +96,7 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
+  min-height: 100vh;
   min-height: 100dvh;
   padding: var(--haut) var(--marge) var(--bas);
   box-sizing: border-box;
@@ -122,13 +130,13 @@ body {
 }
 
 /* Scintillement des étoiles (éléments .etoile séparés, optionnel). Seulement opacity. */
-@keyframes scintille { 0%,100% {opacity:.35} 50% {opacity:1} }
+@keyframes scintille { 0%,100% {opacity:.12} 50% {opacity:1} }  /* phase 7 : scintillement plus marqué */
 .etoile { animation: scintille 5s var(--ease) infinite; }
 .etoile:nth-child(2n) { animation-duration: 7s; animation-delay: -2s; }
 
 /* Règle système (pas une option du jeu) : aucun mouvement si l'appareil le demande. */
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition-duration: 1ms !important; }
+  *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; }
 }
 
 /* ---------- Base ---------- */
@@ -161,7 +169,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .entete > :not(.ciel-entete) { position: relative; z-index: 1; }
 .entete::after { content: ''; width: var(--cible); flex: none; }
 .entete-gauche { display: flex; align-items: center; width: var(--cible); flex: none; }
-.logo-compact { width: 40px; height: 40px; flex: none; }
+.logo-compact { width: 52px; height: 52px; flex: none; }  /* phase 7 : 52 px (40 px avant) */
 body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Constellations (décor : quelques étoiles reliées par des filets très fins, sans texte) ----------
@@ -199,31 +207,125 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   pointer-events: none;
 }
 .ciel-libre .constellation { margin: 8px 0; max-height: calc(100% - 16px); }
-@container (max-height: 80px) { .ciel-libre .constellation { display: none; } }
+@container (max-height: 40px) { .ciel-libre .constellation { display: none; } }
 
 .ecran-zone { flex: 1; display: flex; flex-direction: column; outline: none; }
 
 /* Étoiles des marges : motif répété sur toute la hauteur de la page, dans les marges latérales seulement (x à moins de
    12 px du bord, le texte commence à 16 px), en pixels et non en pourcentage de la hauteur : jamais derrière le texte,
    quelle que soit la longueur de l'écran. Derrière le contenu (z-index -1), non interactif. */
-.page::before {
+/* Phase 7 (remarque 53) : les calques d'étoiles débordent de la page jusqu'aux bords réels de l'écran, zones de sécurité
+   du téléphone comprises (--haut, --bas : encoche, barre de navigation, indicateur d'accueil), sans quoi une bande de
+   fond nu restait visible en haut ou en bas. */
+.page::before, .page::after {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: calc(-1 * var(--haut));
+  bottom: calc(-1 * var(--bas));
   left: calc(-1 * var(--marge));
   right: calc(-1 * var(--marge));
   z-index: -1;
   pointer-events: none;
+  background-repeat: repeat-y;
+}
+.page::before {
   background-image:
     radial-gradient(circle at 6px 64px, var(--c-etoile) 0 1px, transparent 2px),
     radial-gradient(circle at calc(100% - 5px) 118px, var(--c-lune) 0 1px, transparent 2px),
     radial-gradient(circle at 10px 176px, var(--c-lune) 0 .8px, transparent 1.6px),
     radial-gradient(circle at calc(100% - 9px) 232px, var(--c-etoile) 0 1.2px, transparent 2.2px),
     radial-gradient(circle at 4px 296px, var(--c-etoile) 0 .8px, transparent 1.6px),
-    radial-gradient(circle at calc(100% - 4px) 352px, var(--c-lune) 0 1px, transparent 2px);
+    radial-gradient(circle at calc(100% - 4px) 352px, var(--c-lune) 0 1px, transparent 2px),
+    radial-gradient(circle at 9px 22px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at calc(100% - 11px) 40px, var(--c-etoile) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 3px 140px, var(--c-etoile) 0 .5px, transparent 1px),
+    radial-gradient(circle at calc(100% - 7px) 196px, var(--c-lune) 0 .6px, transparent 1.2px),
+    radial-gradient(circle at 11px 262px, var(--c-lune) 0 .5px, transparent 1px),
+    radial-gradient(circle at calc(100% - 3px) 318px, var(--c-etoile) 0 .6px, transparent 1.2px);
   background-size: 100% 380px;
+  animation: scintille 9s var(--ease) infinite;
+}
+/* Phase 7 (remarques 17 et 24) : étoiles sur toute la largeur, avec un dégradé progressif de densité (nombreuses
+   près des bords, de plus en plus rares vers le centre, positions tirées une fois pour toutes), plus petites et en
+   clair de lune vers le centre pour ne pas gêner la lecture. Deux calques (.page::after, .ecran-zone::before) qui
+   scintillent en décalé : on n'anime que leur opacité. */
+.ecran-zone::before {
+  content: '';
+  position: absolute;
+  top: calc(-1 * var(--haut));     /* remarque 53 : jusqu'aux bords réels de l'écran (voir .page::before) */
+  bottom: calc(-1 * var(--bas));
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 82.4% 54px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 92.2% 471px, var(--c-lune) 0 0.5px, transparent 1.3px),
+    radial-gradient(circle at 24.5% 464px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 81.1% 28px, var(--c-lune) 0 0.5px, transparent 1.3px),
+    radial-gradient(circle at 7.8% 473px, var(--c-etoile) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 76.3% 441px, var(--c-lune) 0 1.0px, transparent 1.8px),
+    radial-gradient(circle at 85.2% 114px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 13.2% 379px, var(--c-lune) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 85.8% 153px, var(--c-lune) 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 72.7% 167px, #C9D8EE99 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 1.6% 470px, var(--c-etoile) 0 1.2px, transparent 2.0px),
+    radial-gradient(circle at 78.8% 146px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 89.7% 315px, var(--c-lune) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 95.5% 296px, var(--c-lune) 0 1.4px, transparent 2.2px),
+    radial-gradient(circle at 96.5% 498px, var(--c-lune) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 44.6% 223px, #C9D8EE99 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 30.8% 48px, #C9D8EE99 0 0.6px, transparent 1.4px),
+    radial-gradient(circle at 70.0% 148px, #C9D8EE99 0 0.7px, transparent 1.5px);
+  background-size: 100% 520px;
   background-repeat: repeat-y;
+  animation: scintille 8s var(--ease) -5s infinite;
+  /* Phase 7 (remarque 48) : le dégradé de densité vaut aussi du haut et du bas vers le centre. Les étoiles du milieu
+     de l'écran s'effacent progressivement vers la mi-hauteur, sauf près des bords gauche et droit (bandes de 150 px),
+     où elles restent nombreuses à toute hauteur. Masque : seule l'opacité des couleurs compte (nuit opaque, nuit à 20 %). */
+  -webkit-mask-image:
+    linear-gradient(to right, var(--c-nuit) 0 90px, transparent 150px, transparent calc(100% - 150px), var(--c-nuit) calc(100% - 90px)),
+    linear-gradient(to bottom, var(--c-nuit) 0, #060B1E33 min(300px, 45%), #060B1E33 max(calc(100% - 300px), 55%), var(--c-nuit) 100%);
+  mask-image:
+    linear-gradient(to right, var(--c-nuit) 0 90px, transparent 150px, transparent calc(100% - 150px), var(--c-nuit) calc(100% - 90px)),
+    linear-gradient(to bottom, var(--c-nuit) 0, #060B1E33 min(300px, 45%), #060B1E33 max(calc(100% - 300px), 55%), var(--c-nuit) 100%);
+}
+/* Deuxième calque du dégradé de densité (voir .ecran-zone::before). */
+.page::after {
+  /* Phase 7 (remarque 42) : les plus grandes étoiles ont la forme d'étincelle à 4 branches (comme le symbole
+     i-etincelle), dans deux bandes de 150 px collées aux bords (img/etoiles-gauche.svg et etoiles-droite.svg, plus
+     denses et plus grandes près du bord) ; les toutes petites restent des points (une forme n'y serait pas lisible). */
+  /* Phase 7 (remarque 48) : même dégradé en haut et en bas de l'écran (img/etoiles-haut.svg et etoiles-bas.svg, bandes
+     de 150 px, plus denses et plus grandes près du bord), posé sur le haut et le bas de la page : sur les écrans fixes,
+     le haut et le bas de l'écran. */
+  background:
+    url('../img/etoiles-haut.svg') left top / 400px 150px repeat-x,
+    url('../img/etoiles-bas.svg') left bottom / 400px 150px repeat-x,
+    url('../img/etoiles-gauche.svg') left top / 150px 500px repeat-y,
+    url('../img/etoiles-droite.svg') right top / 150px 500px repeat-y,
+    radial-gradient(circle at 67.5% 258px, #C9D8EE99 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 25.7% 412px, #C9D8EE99 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 80.1% 269px, var(--c-lune) 0 0.8px, transparent 1.6px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 17.3% 391px, var(--c-lune) 0 0.5px, transparent 1.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 83.5% 352px, var(--c-lune) 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 61.8% 187px, #C9D8EE99 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 7.2% 98px, var(--c-lune) 0 1.5px, transparent 2.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 10.0% 154px, var(--c-etoile) 0 0.9px, transparent 1.7px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 94.5% 217px, var(--c-etoile) 0 1.1px, transparent 1.9px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 96.0% 174px, var(--c-lune) 0 1.3px, transparent 2.1px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 83.2% 349px, var(--c-lune) 0 0.5px, transparent 1.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 99.1% 80px, var(--c-lune) 0 1.6px, transparent 2.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 3.9% 319px, var(--c-lune) 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 78.1% 398px, var(--c-lune) 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 13.0% 224px, var(--c-lune) 0 0.6px, transparent 1.4px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 28.2% 336px, #C9D8EE99 0 0.8px, transparent 1.6px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 88.0% 66px, var(--c-lune) 0 1.1px, transparent 1.9px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 6.0% 362px, var(--c-etoile) 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 5.0% 227px, var(--c-lune) 0 0.7px, transparent 1.5px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 92.2% 474px, var(--c-lune) 0 1.5px, transparent 2.3px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 5.6% 158px, var(--c-lune) 0 1.2px, transparent 2.0px) 0 0 / 100% 500px repeat-y,
+    radial-gradient(circle at 11.8% 292px, var(--c-lune) 0 1.3px, transparent 2.1px) 0 0 / 100% 500px repeat-y;
+  animation: scintille 6s var(--ease) -3s infinite;
 }
 
 .ecran {
@@ -249,6 +351,8 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Icônes (au trait fin, jamais pleines : charte, section 7) ---------- */
 .icone { width: 1.5rem; height: 1.5rem; flex: none; }
+/* Épée et étoile : images de la propriétaire (phase 7), à la place des symboles SVG. */
+.icone-image { display: block; object-fit: contain; }
 .icone-etincelle { width: 10px; height: 10px; }
 
 /* Ornements : étincelle à 4 branches, séparateur filigrane */
@@ -261,7 +365,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 
 /* ---------- Logo (image du disque central, fond transparent : elle se fond dans --c-nuit) ---------- */
 .logo-complet { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.logo-grand { width: 96px; height: 96px; }
+.logo-grand { width: min(200px, 25dvh); height: min(200px, 25dvh); }  /* phase 7 : 200 px, un peu moins sur les écrans bas */
 .logo-grand, .logo-compact, .dos-logo { display: block; object-fit: contain; }
 
 /* ---------- Boutons (charte, section 7) ---------- */
@@ -284,6 +388,7 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
   transition: transform 150ms var(--ease);
 }
 .bouton .icone { width: 1.25rem; height: 1.25rem; }
+.bouton .icone-image { width: 1.75rem; height: 1.75rem; margin: -4px 0; }
 .bouton-principal {
   background: var(--c-ambre);
   color: var(--c-nuit);
@@ -323,17 +428,20 @@ body[data-ecran="accueil"] .logo-compact { visibility: hidden; }
 .bouton-retour:active { transform: scale(.97); }
 
 /* Barre d'actions en bas de l'écran, à portée du pouce (charte : fond nuit à 90 %, filet supérieur brume) */
+/* Phase 7 (remarque 47, qui remplace la remarque 38 des boutons « flottants ») : les boutons sont fixes en bas de la
+   page, sans bande ni fond derrière eux. Tous les écrans tiennent dans la hauteur de l'écran, boutons compris (pas de
+   défilement) ; seules les règles (et le choix de l'emblème, remarque 52) défilent, leurs boutons venant à la fin du
+   contenu. Au-dessus de la zone de sécurité du téléphone (--bas), réservée une seule fois, par le body.
+   Phase 7 (remarque 61) : boutons plus bas, à 8 px du bas de la page au lieu de 12 px + --bas (la zone de sécurité
+   était comptée deux fois : par le body et par la barre). */
 .barre-bas {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
+  position: static;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: auto calc(-1 * var(--marge)) 0;
-  padding: 12px var(--marge) calc(12px + var(--bas));
-  border-top: var(--filet) solid var(--c-brume);
-  background: #060B1EE6;
+  margin: auto 0 0;
+  padding: 12px 0 8px;
+  background: transparent;
 }
 
 /* ---------- Textes ---------- */
@@ -354,7 +462,17 @@ h2 {
 
 /* ---------- Accueil et fin ---------- */
 .accueil-corps, .fin-corps { margin: auto 0; padding: 24px 0; text-align: center; }
-.accueil-corps .logo-complet { margin-bottom: 28px; }
+.accueil-corps .logo-complet { margin-bottom: 16px; }
+/* Phase 7 (remarque 36) : la constellation au-dessus du logo garde toujours un peu de place sur l'accueil (elle était
+   masquée sur les téléphones de 360 px de large, faute d'espace libre). */
+.ciel-accueil + .ciel-libre { flex: 1 0 48px; }
+/* Phase 7 (remarque 47) : l'accueil tient dans l'écran, bouton compris, sans défilement (espacements resserrés). */
+.ecran-accueil .accueil-corps { padding: 4px 0 8px; }
+/* Réponse 2 : sur les téléphones de 360 px de large, la salutation (36 px) passait sur deux lignes pour 4 px ; elle
+   descend à 35 px environ (9,75vw) et tient sur une ligne. Le texte de 20 px et le logo ne changent pas. */
+.ecran-accueil .accueil-salut { font-size: min(2.25rem, 9.75vw); }
+.ecran-accueil .ornement { margin: 12px 0 14px; }
+.ecran-accueil .accueil-corps .texte:last-child { margin-bottom: 0; }
 .accueil-salut {
   margin: 0;
   color: var(--c-etoile);
@@ -362,6 +480,9 @@ h2 {
 }
 .ornement { margin: 16px 0 20px; color: var(--c-ambre); }
 .accueil-corps .texte, .fin-corps .texte { font-weight: 300; }
+/* Phase 7 (remarque 50) : image du butin sur l'écran de fin, au-dessus du titre ; plus petite sur les écrans bas pour
+   que tout tienne sans défilement. */
+.fin-butin { display: block; width: auto; height: min(200px, 24dvh); margin: 0 auto 16px; object-fit: contain; }
 /* Étincelles de l'accueil : dans les marges latérales (16 px), jamais derrière le texte. */
 .ciel-accueil { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--marge)); right: calc(-1 * var(--marge)); pointer-events: none; overflow: hidden; }
 .ciel-accueil .etoile { position: absolute; width: 10px; height: 10px; color: var(--c-etoile); }
@@ -370,6 +491,53 @@ h2 {
 
 /* ---------- Règles ---------- */
 .regles-corps { padding-bottom: 8px; }
+/* Phase 7 : « parchemin de nuit » (maquette de la propriétaire, variante v-nuit) : papier bleu nuit, encre clair de
+   lune, bordure ambre et double filet comme les cartes, étincelles aux coins, fermoirs au milieu des bords haut et bas,
+   poussière d'étoiles entre les deux filets. Le grain de papier de la maquette n'est pas repris : l'écran a déjà son
+   unique calque de grain (charte, section 8). Ombres en nuit, jamais en noir. */
+/* Phase 7 (remarque 39) : bleus du logo de la propriétaire (mesurés sur docs/images-source/logo.png), variables
+   locales au parchemin des règles et au cartouche du prénom (remarque 51) ; les variables de la charte ne changent pas. */
+.parchemin, .cartouche {
+  --parchemin-haut: #0F253E;
+  --parchemin-bas: #08162A;
+  --parchemin-halo: #45627D55;
+  --parchemin-ombre: #08162ACC;
+}
+.parchemin {
+  position: relative;
+  /* Phase 7 (remarque 49) : plus d'espace autour du parchemin, sur les côtés (36 px du bord de l'écran au lieu de
+     24 px), en haut (40 px au lieu de 24 px) et en bas (40 px au lieu de 28 px). */
+  margin: 40px 12px 40px;
+  padding: 36px 24px 40px;
+  border: var(--bordure) solid var(--c-ambre);
+  border-radius: var(--r-carte);
+  background:
+    radial-gradient(ellipse at 50% 30%, var(--parchemin-halo), transparent 70%),
+    linear-gradient(180deg, var(--parchemin-haut), var(--parchemin-bas));
+  box-shadow: inset 0 0 40px var(--parchemin-ombre), var(--lueur-ambre);
+}
+.parchemin::before {                    /* double filet ambre, comme les cartes */
+  content: ''; position: absolute; inset: 7px; pointer-events: none;
+  border: var(--filet) solid #F0A35E55; border-radius: 4px;
+}
+.parchemin::after {                     /* filet clair de lune intérieur */
+  content: ''; position: absolute; inset: 17px; pointer-events: none;
+  border: var(--filet) solid #C9D8EE44; border-radius: 2px;
+}
+.parchemin > .coin { width: 14px; height: 14px; color: var(--c-ambre); }
+.parchemin > .coin-hg { top: 10px; left: 10px; }
+.parchemin > .coin-hd { top: 10px; right: 10px; }
+.parchemin > .coin-bg { bottom: 10px; left: 10px; }
+.parchemin > .coin-bd { bottom: 10px; right: 10px; }
+.fermoir {
+  position: absolute; left: 50%; width: 24px; height: 24px; margin-left: -12px; padding: 4px;
+  border: var(--filet) solid var(--c-ambre); border-radius: 50%;
+  background: var(--parchemin-bas); color: var(--c-ambre); pointer-events: none;
+}
+.fermoir-h { top: -12px; }
+.fermoir-b { bottom: -12px; }
+.poussiere { position: absolute; width: 6px; height: 6px; color: #C9D8EEAA; pointer-events: none; }
+.parchemin .titre-section:first-child, .parchemin .poussiere + .titre-section { margin-top: 4px; }
 /* Titres de section : nettement plus visibles que le texte (30 px contre 20 px), alignés à gauche, filigrane ambre
    sous le titre sur toute la largeur (motif central, filets de part et d'autre), grande marge supérieure.
    Les titres d'écran restent à 32-40 px (charte, section 4). */
@@ -381,14 +549,14 @@ h2 {
 .titre-section h2 {
   margin: 0;
   color: var(--c-etoile);
-  font: 600 1.875rem/1.15 var(--f-titre);
-  letter-spacing: .06em;
+  font: 700 1.5rem/1.2 'Cinzel Decorative', var(--f-titre);   /* phase 7 : choix de la propriétaire (maquette du parchemin) */
+  letter-spacing: .02em;
   overflow-wrap: break-word;
 }
 .liste-types { margin: 0 0 16px; padding: 0; list-style: none; }
 .liste-types li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
 .liste-types .texte { margin: 0; }
-.type-puce { width: 1.75rem; height: 1.75rem; margin-top: 2px; }
+.type-puce { width: 2.25rem; height: 2.25rem; margin-top: 2px; }
 .type-epreuve .type-puce { color: var(--c-braise); }
 .type-revelation .type-puce { color: var(--c-lune); }
 
@@ -409,13 +577,26 @@ h2 {
   overflow-wrap: anywhere;
 }
 .ecran-attente .titre-tour { margin: 16px 0 8px; font-size: 2rem; }
-.nom-actif { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
+/* Phase 7 : « Au tour de [prénom] » sur une seule ligne. La taille baisse avec la longueur du titre (--lettres, posé
+   par ecrans.js ; une lettre vaut environ 0,6 em, capitales comprises), sans dépasser 2,25 rem ; la place de
+   l'emblème est réservée quand il suit le prénom. Coupé par des points de suspension en dernier recours. */
+.ecran-attente .titre-tour {
+  font-size: clamp(.9375rem, calc((min(100vw, 30rem) - 2 * var(--marge)) / var(--lettres, 14)), 2.25rem);
+  overflow-wrap: anywhere;
+}
+.ecran-attente:not(.attente-sans-carte) .titre-tour {
+  font-size: clamp(.9375rem, calc((min(100vw, 30rem) - 2 * var(--marge) - 3.5rem) / var(--lettres, 14)), 2.25rem);
+}
+.nom-actif { display: inline; }   /* phase 7 : même ligne de base que « Au tour de » */
+.nom-actif .embleme { display: inline-block; margin-left: 8px; vertical-align: middle; }
 
-.embleme { font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 1.75rem; line-height: 1; flex: none; }
-.embleme-grand { font-size: 3.5rem; }
+/* Emblèmes : images de la propriétaire (fond transparent), carrées ; agrandies en phase 7 pour qu'on les voie mieux. */
+.embleme { display: block; width: 2.75rem; height: 2.75rem; flex: none; object-fit: contain; }
+.embleme-grand { width: 7rem; height: 7rem; }
+.nom-actif .embleme { width: 2.75rem; height: 2.75rem; }
 .embleme-vide {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: var(--filet) dashed var(--c-lune-douce);
   border-radius: var(--r-bouton);
 }
@@ -466,6 +647,7 @@ h2 {
 .carte .coin { color: var(--rarete); }
 .dos-logo { width: 52cqw; height: 52cqw; }
 .dos-symbole { width: max(9cqw, 1.25rem); height: max(9cqw, 1.25rem); }
+.dos-symbole.icone-image { width: max(16cqw, 2rem); height: max(16cqw, 2rem); }  /* image détaillée : plus grande que le trait fin */
 .dos-nom {
   font: 500 max(4.3cqw, .75rem)/1.2 var(--f-texte);
   letter-spacing: .25em;
@@ -535,9 +717,10 @@ h2 {
   text-transform: uppercase;
 }
 .carte-entete .icone { width: max(7cqw, 1.25rem); height: max(7cqw, 1.25rem); }
+.carte-entete .icone-image { width: max(11cqw, 2rem); height: max(11cqw, 2rem); }
 .carte-filigrane { width: 48cqw; height: auto; aspect-ratio: 150 / 12; flex: none; color: var(--c-ambre); }
 .carte-texte {
-  margin: 0;
+  margin: auto 0;   /* phase 7 : type et filigrane en haut, texte centré dans la place restante */
   color: var(--c-lune);
   font: 400 max(6.5cqw, 1.25rem)/1.5 var(--f-texte);
   overflow-wrap: break-word;
@@ -569,14 +752,24 @@ h2 {
 .bandeau-texte { color: var(--c-etoile); font: 500 max(6.5cqw, 1.25rem)/1.3 var(--f-texte); overflow-wrap: break-word; }
 .bandeau-duree { color: var(--c-lune-douce); font: 400 1rem/1.3 var(--f-texte); }
 
-/* ---------- Attente ---------- */
-.attente-message {
-  margin: 8px 0 24px;
-  color: var(--c-lune-douce);
-  font: italic 500 1.5rem/1.25 var(--f-titre);
-  text-align: center;
-  overflow-wrap: anywhere;
+/* ---------- Attente (écran des autres personnes) ---------- */
+/* Phase 7 : carte révélée centrée verticalement entre le compteur et le pied (écran de la personne qui joue et des
+   autres). Sans carte encore choisie : « Au tour de [prénom] » et l'emblème en grand dessous, au centre. */
+.ecran-carte .carte { margin: auto; }
+.ecran-carte .compteur { margin-bottom: 16px; }
+.ecran-carte .pied-tour, .ecran-attente .pied-tour { margin-top: 20px; }
+/* Écran des autres : le bloc « Au tour de… » + carte (ou emblème en grand) est centré verticalement. */
+.ecran-attente .titre-tour { margin: auto 0 16px; }
+.ecran-attente .carte { margin: 0 auto auto; }
+.embleme-attente { align-self: center; width: min(17rem, 75vw); height: min(17rem, 75vw); margin: 8px auto auto; }
+/* Phase 7 : ce n'est pas votre tour. Le compteur et la carte sont un peu ternis (moins saturés, moins lumineux) ; le
+   texte reste très contrasté sur le fond nuit. Le pied (effets, absence) garde son éclat.
+   Remarque 56 : les emblèmes ne sont jamais ternis, ni l'emblème en grand ni celui du titre « Au tour de… » : le filtre
+   du titre ne porte plus que sur ses mots (.titre-mots), pas sur l'emblème qui suit le prénom. */
+.ecran-attente > .compteur, .ecran-attente > .carte, .ecran-attente > .titre-tour .titre-mots {
+  filter: saturate(.5) brightness(.82);
 }
+.ecran-attente > .titre-tour { color: var(--c-lune); }
 
 /* Phase 6 : bloc d'absence de l'écran d'attente ; ses enfants (message, barre du bas) se placent comme ceux de l'écran */
 .absence:not([hidden]) { display: contents; }
@@ -603,23 +796,66 @@ h2 {
   border: var(--filet) solid color-mix(in srgb, var(--rarete) 33%, transparent);
   border-radius: 4px;
 }
-.effets-en-cours { margin: 0 0 8px; }
+/* Pied des écrans de tour (phase 7) : en bas de l'écran, il porte le bandeau des effets en cours au-dessus des boutons
+   (remarque 47 : fixe en bas de la page, plus collé pendant un défilement). */
+.pied-tour {
+  display: flex;
+  flex-direction: column;
+  margin: auto 0 0;
+}
+.pied-tour .barre-bas { margin: 0; }
+.pied-tour:not(:has(.barre-bas:not([hidden]))) { padding-bottom: 8px; } /* --bas : déjà réservé par le body */
+.pied-tour .absence-message { margin: 0; padding: 12px var(--marge); }
+
+/* Bandeau « Effets en cours » : replié par défaut (une ligne), déroulé d'un toucher ; le détail défile s'il est long,
+   pour ne jamais pousser les boutons hors de l'écran. */
+.effets-en-cours { margin: 0 0 8px; padding: 0 16px; box-shadow: 0 -8px 24px #060B1ECC; }
 .effets-titre {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 12px;
+  min-height: var(--cible);
   color: var(--c-ambre);
   font: 500 .875rem/1.2 var(--f-texte);
   letter-spacing: .25em;
   text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+}
+.effets-titre::-webkit-details-marker { display: none; }
+.effets-titre::after {                   /* chevron : vers le haut replié, vers le bas déroulé */
+  content: ''; width: 8px; height: 8px; margin: 4px 4px 0 auto; flex: none;
+  border: solid currentColor; border-width: 1.5px 0 0 1.5px; transform: rotate(45deg);
+  transition: transform var(--t-rapide) var(--ease);
+}
+.effets-en-cours[open] > .effets-titre::after { transform: translateY(-4px) rotate(225deg); }
+.effets-nombre {
+  display: inline-grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 6px;
+  border: var(--filet) solid var(--c-ambre); border-radius: var(--r-bouton);
+  letter-spacing: 0; font-size: .875rem;
 }
 .effets-titre .icone { width: 1.25rem; height: 1.25rem; }
-.effets-liste { margin: 0; padding: 0; list-style: none; }
+.effets-liste { margin: 0; padding: 4px 0 16px; list-style: none; max-height: 45dvh; overflow-y: auto; }
+/* Phase 7 (remarque 47) : l'écran ne défile pas et les boutons restent fixes en bas ; déroulé, le détail des effets
+   s'ouvre donc vers le haut, au-dessus du titre du bandeau, par-dessus le contenu de l'écran (même panneau). */
+.effets-en-cours[open] { border-top-left-radius: 0; border-top-right-radius: 0; }
+.effets-en-cours[open] > .effets-liste {
+  position: absolute;
+  z-index: 3;
+  left: calc(-1 * var(--bordure));
+  right: calc(-1 * var(--bordure));
+  bottom: calc(100% - var(--bordure));
+  padding: 16px 16px 8px;
+  border: var(--bordure) solid var(--c-brume);
+  border-bottom: 0;
+  border-radius: var(--r-carte) var(--r-carte) 0 0;
+  background: linear-gradient(180deg, var(--c-minuit), var(--c-nuit));
+  box-shadow: 0 -8px 24px #060B1ECC;
+}
 .effets-item { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-top: var(--filet) solid #3C5A8C99; }
 .effets-item:first-child { padding-top: 0; border-top: 0; }
 .effets-joueur { display: flex; align-items: center; gap: 8px; color: var(--c-lune); font: 500 1rem/1.3 var(--f-texte); }
-.effets-joueur .embleme { font-size: 1.25rem; }
+.effets-joueur .embleme { width: 2.25rem; height: 2.25rem; }
 .effets-texte { color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: break-word; }
 /* Phase 5 : bouton discret de chaque effet en cours (partie en réseau), pour dire qu'il a provoqué un échange de butins.
    Même famille que le bouton secondaire, en plus petit ; cible tactile de 48 px. */
@@ -639,6 +875,12 @@ h2 {
   transition: transform 150ms var(--ease);
 }
 .bouton-echange:active { transform: scale(.97); }
+
+/* Phase 7 (remarque 34) : éclat d'étoiles quand un effet en cours disparaît (dom animé par ecrans.js, transform et
+   opacité seulement ; rien avec prefers-reduced-motion). */
+.eclat { position: fixed; z-index: 5; width: 0; height: 0; pointer-events: none; }
+.eclat-brin { position: absolute; left: 0; top: 0; width: 10px; height: 10px; color: var(--c-ambre); }
+.eclat-brin:nth-child(2n) { color: var(--c-etoile); width: 7px; height: 7px; }
 
 /* ---------- Transition de 2 secondes ---------- */
 .ecran-transition .transition-corps {
@@ -674,6 +916,8 @@ h2 {
   background: radial-gradient(circle closest-side, #D9693AAA 0, #D9693AAA 45%, #F0A35E66 62%, #D9693A33 82%, transparent 100%);
 }
 .transition-icone .icone { position: relative; width: 9rem; height: 9rem; }
+/* Phase 7 : étoile (sort jeté) et bouclier sont les images de la propriétaire. */
+.transition-icone .icone-image { object-fit: contain; }
 .transition-texte {
   margin: 0;
   color: var(--c-etoile);
@@ -690,6 +934,8 @@ h2 {
   letter-spacing: .2em;
   text-transform: uppercase;
 }
+/* Prénom : toujours en majuscules (affichage ici, conversion à la saisie dans ecrans.js et ecrans-reseau.js). */
+#champ-prenom { text-transform: uppercase; }
 .champ {
   display: block;
   width: 100%;
@@ -721,7 +967,7 @@ h2 {
 }
 
 .formulaire-code { flex: 1; display: flex; flex-direction: column; }
-.formulaire-code-corps { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 16px; }
+.formulaire-code-corps { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 8px; }
 .liste-codes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
 .code-option { position: relative; display: block; min-width: 0; }
 .code-radio { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; pointer-events: none; }
@@ -764,7 +1010,91 @@ h2 {
 /* ---------- Salle d'attente ---------- */
 /* Blocs masqués par l'attribut hidden (salle en réseau : formulaire ou avis « complète »). */
 .salle-corps [hidden], .barre-bas[hidden], .barre-bas [hidden] { display: none; }
-.salle-corps { padding-bottom: 8px; }
+.salle-corps { flex: 1; display: flex; flex-direction: column; padding-bottom: 8px; }
+/* Phase 7 : premier écran, le prénom (libellé et champ) centré verticalement ; deuxième écran, les emblèmes. */
+.salle-corps .salle-prenom { margin: auto 0; padding-bottom: 48px; }
+
+/* ---------- Écran du prénom (phase 7, remarque 51, maquette de la propriétaire demo-prenom.html) ---------- */
+/* Contexte d'empilement propre : le ciel des lettres passe sous le contenu de l'écran, au-dessus des étoiles du fond. */
+.ecran-salle { isolation: isolate; }
+.salle-corps .salle-prenom:not([hidden]) { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.prenom-question { margin: 0 0 30px; color: var(--c-etoile); font: italic 500 1.75rem/1.2 var(--f-titre); text-wrap: balance; }
+/* Cartouche : bordure ambre et double filet, fond dégradé des bleus du logo, étincelles aux coins et au milieu des bords
+   gauche et droit, étiquette posée sur le bord du haut, halo ambre plus fort quand le champ est actif (sans transition :
+   la charte n'anime pas les ombres). Largeur posée par ecrans.js (240 px vide, puis suit le prénom sans dépasser les
+   marges). */
+.cartouche {
+  position: relative;
+  width: 240px;
+  max-width: 100%;
+  padding: 28px 24px 22px;
+  border: var(--bordure) solid var(--c-ambre);
+  border-radius: var(--r-carte);
+  background:
+    radial-gradient(ellipse at 50% 40%, var(--parchemin-halo), transparent 70%),
+    linear-gradient(180deg, var(--parchemin-haut), var(--parchemin-bas));
+  box-shadow: inset 0 0 30px var(--parchemin-ombre), var(--lueur-ambre);
+  /* Seul écart à la charte (section 9, on n'anime que l'opacité et la transformation) : le cartouche « s'élargit en
+     douceur » avec le prénom, demande explicite de la propriétaire (remarque 51, maquette). */
+  transition: width 250ms var(--ease);
+}
+.cartouche::before { content: ''; position: absolute; inset: 6px; pointer-events: none; border: var(--filet) solid #F0A35E55; border-radius: 4px; }
+.cartouche:focus-within { box-shadow: inset 0 0 30px var(--parchemin-ombre), 0 0 30px #F0A35E77; }
+.cartouche > .coin { width: 10px; height: 10px; color: var(--c-ambre); }
+.cartouche > .coin-hg { top: 10px; left: 10px; }
+.cartouche > .coin-hd { top: 10px; right: 10px; }
+.cartouche > .coin-bg { bottom: 10px; left: 10px; }
+.cartouche > .coin-bd { bottom: 10px; right: 10px; }
+.cartouche-fermoir {
+  position: absolute; top: 50%; width: 14px; height: 14px; margin-top: -7px; color: var(--c-ambre); pointer-events: none;
+}
+.cartouche-fermoir-g { left: -8px; }
+.cartouche-fermoir-d { right: -8px; }
+.cartouche-etiquette {
+  position: absolute; top: 0; left: 50%; z-index: 1; transform: translate(-50%, -55%); margin: 0; padding: 2px 10px;  /* 2 px en haut et en bas : le fond nuit couvre tout le texte, posé sur la bordure */
+  background: var(--c-nuit); white-space: nowrap;
+  color: var(--c-ambre); font: 500 .75rem/1.2 var(--f-texte); letter-spacing: .2em; text-transform: uppercase;
+}
+/* Prénom : Cormorant Garamond en capitales espacées, sans halo ; taille réduite par ecrans.js (16 px au moins). */
+.cartouche .champ, .cartouche-mesure { font: 600 1.75rem/1.2 var(--f-titre); letter-spacing: .12em; text-transform: uppercase; }
+.cartouche .champ {
+  display: block; width: 100%; min-height: var(--cible); padding: 4px 0;
+  border: 0; border-radius: 0; background: transparent;
+  color: var(--c-etoile); caret-color: var(--c-ambre); text-align: center;
+}
+/* Le halo ambre du cartouche signale le champ actif (maquette), à la place du contour. */
+.cartouche .champ:focus, .cartouche .champ:focus-visible { border: 0; outline: 0; }
+.cartouche .champ::placeholder { color: #8FA6C866; }
+.cartouche-filet { height: var(--filet); margin: 2px 8px 0; background: linear-gradient(90deg, transparent, #F0A35E66 20%, #F0A35E66 80%, transparent); }
+.cartouche-mesure { position: absolute; top: 0; left: 0; visibility: hidden; white-space: pre; pointer-events: none; }
+/* Phase 7 (remarque 57) : l'écran du code reprend celui du prénom, sans constellations : cartouche ornementé centré
+   verticalement (remarque 62 : plus de consigne au-dessus), aide et message d'erreur centrés dessous. Le code garde sa
+   police (Jost, capitales espacées, réponse 1 de la propriétaire), à la taille du prénom (28 px, réduite par ecrans.js,
+   jamais sous 16 px). */
+.saisie-code { align-items: center; text-align: center; padding-bottom: 48px; }
+.cartouche-code .champ, .cartouche-code .cartouche-mesure { font: 400 1.75rem/1.2 var(--f-texte); letter-spacing: .15em; text-transform: uppercase; }
+.saisie-code .aide-champ { margin-top: 16px; }
+/* Ciel des lettres : toute la largeur de l'écran, sous le contenu ; constellations dessinées par ciel.js. */
+.ciel-lettres { position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--marge)); right: calc(-1 * var(--marge)); z-index: -1; pointer-events: none; }
+.ciel-lettres svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lettre-trait {
+  stroke: var(--c-lune); stroke-opacity: .28; stroke-width: .8;
+  transform-box: fill-box; transform-origin: left center;
+  animation: trace-trait 900ms var(--ease) backwards;
+}
+.lettre-astre {
+  fill: var(--c-etoile); opacity: .9;
+  transform-box: fill-box; transform-origin: center;
+  animation: naissance-astre 500ms var(--ease) backwards;
+}
+.lettre-astre-vive { fill: var(--c-ambre); }
+.lettre-halo { fill: var(--c-ambre); opacity: .3; }  /* lueur de l'étoile ambre (un disque pâle, sans filtre) */
+.ciel-lettres svg, .lettre-trait { fill: none; }
+.lettre-eteinte { animation: extinction 400ms var(--ease) forwards; }
+@keyframes trace-trait { from { transform: scaleX(0); } }
+@keyframes naissance-astre { from { opacity: 0; transform: scale(.2); } 60% { opacity: 1; transform: scale(1.6); } }
+@keyframes extinction { to { opacity: 0; } }
+.salle-corps .salle-emblemes { margin-top: 4px; }
 .code-partie {
   display: flex;
   flex-wrap: wrap;
@@ -777,25 +1107,32 @@ h2 {
 }
 .code-libelle { font: 400 .75rem/1.4 var(--f-texte); letter-spacing: .25em; text-transform: uppercase; }
 .code-valeur { font: 500 1rem/1.4 var(--f-texte); letter-spacing: .25em; text-transform: uppercase; overflow-wrap: anywhere; }
-.titre-liste { margin: 28px 0 12px; }
+/* Phase 7 (remarque 47) : salle d'attente resserrée pour que la liste de cinq personnes tienne à l'écran avec le bouton. */
+.titre-liste { margin: 12px 0 8px; }  /* réponse 2 : 12 px au lieu de 16 px */
+.salle-attente > .texte:last-child { margin-bottom: 0; }
+/* Remarque 55 : la salle d'attente (titre, liste, texte) est centrée verticalement entre le code et le bas de l'écran. */
+.salle-corps .salle-attente { margin: auto 0; }
 
-.liste-joueurs { display: flex; flex-direction: column; gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; }
+.liste-joueurs { display: flex; flex-direction: column; gap: 4px; margin: 0 0 8px; padding: 0; list-style: none; }
 .joueur-ligne {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
+  gap: 2px 12px;
   min-height: var(--cible);
-  padding: 6px 12px;
+  padding: 4px 12px;
   border: var(--filet) solid var(--c-brume);
   border-radius: var(--r-bouton);
   background: #0F1E4A99;
 }
+/* Réponse 2 de la propriétaire (remarque 47) : emblèmes réduits dans la liste (1,75 rem au lieu de 2,75 rem), pour que
+   la salle d'attente à cinq personnes tienne à l'écran avec son bouton. */
+.joueur-ligne .embleme, .joueur-ligne .embleme-vide { width: 1.75rem; height: 1.75rem; }
 .joueur-soi { border-color: var(--c-lune); }
 .joueur-libre { border-style: dashed; background: transparent; }
-.joueur-prenom { flex: 1 1 5rem; min-width: 0; color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: anywhere; }
+.joueur-prenom { flex: 0 1 auto; min-width: 0; color: var(--c-etoile); font: 500 1.25rem/1.3 var(--f-texte); overflow-wrap: anywhere; }
 .joueur-prenom-vide { color: var(--c-lune-douce); }
-.joueur-etiquettes { display: flex; flex-wrap: wrap; gap: 6px; }
+.joueur-etiquettes { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-left: auto; }
 .etiquette {
   display: inline-flex;
   align-items: center;
@@ -815,47 +1152,46 @@ h2 {
 
 .formulaire { margin-top: 8px; }
 .formulaire .etiquette-champ:first-child { margin-top: 12px; }
-.grille-emblemes { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: 8px; }
+.grille-emblemes { display: grid; grid-template-columns: repeat(var(--colonnes), minmax(0, 1fr)); gap: 8px; }  /* deux lignes (--colonnes : ecrans.js) */
+/* Phase 7 : emblèmes sans cadre ; l'emblème choisi s'allume d'un halo ambre ; l'emblème pris est grisé et pâli. */
 .embleme-choix {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
   min-width: 0;
-  min-height: 4.5rem;
-  padding: 6px 4px;
-  border: var(--filet) solid var(--c-lune-douce);
-  border-radius: var(--r-bouton);
+  min-height: var(--cible);
+  padding: 4px;
+  border: 0;
+  border-radius: var(--r-carte);
   background: transparent;
   color: var(--c-lune);
-  font-family: var(--f-texte);
   cursor: pointer;
   transition: transform 150ms var(--ease);
 }
 .embleme-choix:active { transform: scale(.97); }
-.embleme-emoji { font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 1.75rem; line-height: 1.1; }
-.embleme-nom { max-width: 100%; font: 400 .9375rem/1.1 var(--f-texte); overflow-wrap: anywhere; text-align: center; }
+.embleme-choix:focus-visible { outline: 2px solid var(--c-etoile); outline-offset: 3px; }
+/* L'image seule, aussi grande que la case le permet ; le nom de l'emblème est son texte alternatif. */
+/* Phase 7 (remarque 52) : neuf emblèmes, deux par ligne (cinq lignes), aussi larges que la colonne : l'écran du choix
+   de l'emblème défile, le bouton « Je rejoins l'aventure » vient après la grille. */
+.grille-emblemes > .embleme-choix:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 4px); }  /* le neuvième, centré */
+.embleme-image { display: block; width: 100%; max-width: 12rem; height: auto; aspect-ratio: 1; object-fit: contain; }
 .embleme-choix[aria-checked="true"] {
-  border: var(--bordure) solid var(--c-ambre);
-  background: #F0A35E1F;
-  box-shadow: var(--lueur-ambre);
+  /* Remarque 54 : halo un peu plus intense (#F0A35E77 et #F0A35E33 auparavant). */
+  background: radial-gradient(circle closest-side, #F0A35E99, #F0A35E4D 55%, transparent 100%);
 }
-.embleme-choix[aria-checked="true"] .embleme-nom { color: var(--c-ambre); font-weight: 500; }
-/* Verrouillé après « C'est bon » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
+/* Verrouillé après « Je rejoins l'aventure » : l'emblème choisi garde tout son éclat, les autres s'estompent. */
 .embleme-choix:disabled:not(.embleme-pris) { cursor: default; }
 .embleme-choix:disabled:not(.embleme-pris)[aria-checked="false"] { opacity: .45; }
 .embleme-pris, .embleme-pris:disabled {
-  border-style: dashed;
-  color: var(--c-lune-douce);
   cursor: not-allowed;
   filter: grayscale(1);
-  opacity: .45;
+  opacity: .4;
 }
 
 .avis-complete {
   --rarete: var(--c-braise);
-  margin: 24px 0;
+  margin: 12px 0 4px;   /* réponse 2 : 24 px avant et après auparavant */
+  padding: 14px 20px;
   border-color: var(--c-braise);
   color: var(--c-braise);
   font: 600 1.5rem/1.25 var(--f-titre);

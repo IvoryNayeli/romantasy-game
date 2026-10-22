@@ -1,9 +1,10 @@
-// Données fictives pour les écrans de la phase 2 (aucun réseau, aucune logique de jeu).
+// Données fictives pour les écrans de la phase 2 (aucun réseau, aucune logique de jeu). Prénoms en majuscules,
+// comme ceux saisis dans la salle (phase 7).
 // Tout ce qui dépend d'un nombre (personnes, tours) est calculé à partir de config.json.
 
 const PRENOMS = [
-  ['Léa', 'fee'], ['Tom', 'dragon'], ['Inès', 'licorne'], ['Noa', 'loup-garou'], ['Sacha', 'sirene'],
-  ['Camille', 'elfe'], ['Louis', 'vampire'], ['Maëlle', 'sorciere'], ['Yanis', 'phenix'], ['Alix', 'chevalier'],
+  ['LÉA', 'fee'], ['TOM', 'demon'], ['INÈS', 'dragon'], ['NOA', 'loup-garou'], ['SACHA', 'sirene'],
+  ['CAMILLE', 'elfe'], ['LOUIS', 'vampire'], ['MAËLLE', 'sorciere'],
 ];
 
 // Profils fictifs déjà présents dans le salon (l'ordre est l'ordre d'arrivée).

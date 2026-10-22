@@ -196,16 +196,16 @@ test('codes : mots du thème, sans accent, majuscules, uniques', () => {
   assert.equal(new Set(codes).size, codes.length, 'codes en double');
 });
 
-test('emblèmes : 10 emblèmes uniques, identifiants sans accent', () => {
+test('emblèmes : 9 emblèmes uniques, identifiants sans accent, une image chacun', () => {
   assert.ok(Array.isArray(emblemes));
-  assert.equal(emblemes.length, 10);
+  assert.equal(emblemes.length, 9);
   for (const e of emblemes) {
-    assert.deepEqual(Object.keys(e).sort(), ['emoji', 'id', 'nom']);
+    assert.deepEqual(Object.keys(e).sort(), ['id', 'image', 'nom']);
     assert.match(e.id, /^[a-z]+(-[a-z]+)*$/, `identifiant invalide : ${e.id}`);
     assert.ok(e.nom.length > 0);
-    assert.ok(e.emoji.length > 0);
+    assert.equal(e.image, `img/emblemes/${e.id}.webp`, `image nommée d'après l'identifiant : ${e.id}`);
   }
-  for (const champ of ['id', 'nom', 'emoji']) {
+  for (const champ of ['id', 'nom', 'image']) {
     const valeurs = emblemes.map((e) => e[champ]);
     assert.equal(new Set(valeurs).size, valeurs.length, `${champ} en double`);
   }
@@ -217,4 +217,11 @@ test('docs/cartes-a-relire.md : à jour par rapport à cartes.json', () => {
     genererTableau(cartes),
     'relancer : node scripts/generer-cartes-a-relire.js'
   );
+});
+
+// Phase 7 (remarque 59) : les emblèmes sont présentés dans l'ordre des fichiers numérotés de la propriétaire
+// (embleme_1.png à embleme_9.png, correspondance retrouvée par empreinte des originaux de docs/images-source/).
+test('emblèmes : dans l\'ordre des fichiers de la propriétaire (embleme_1 à embleme_9)', () => {
+  assert.deepEqual(emblemes.map((e) => e.id),
+    ['sirene', 'demon', 'elfe', 'sorciere', 'dragon', 'meduse', 'fee', 'vampire', 'loup-garou']);
 });

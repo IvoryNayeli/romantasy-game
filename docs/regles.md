@@ -56,7 +56,7 @@ Phrase sur les effets durables, validée, à placer sous « Déroulement », apr
 
 - Pour la personne dont c'est le tour, choix : « À toi de jouer ! » puis deux dos de cartes (Épreuve, Révélation).
 - Pour la personne dont c'est le tour, carte révélée : type de carte en en-tête, texte en grand, deux boutons.
-- Pour les autres : « Au tour de [emblème + prénom] », même carte affichée, sans boutons, « En attente de [prénom]… ».
+- Pour les autres : « Au tour de [prénom + emblème] », même carte affichée, sans boutons ; tant que la carte n'est pas choisie, l'emblème est affiché en grand sous « Au tour de [prénom] ».
 - Transition de 2 secondes visible par tout le monde : « Le sort est jeté pour [prénom]. » ou « [prénom] a invoqué un bouclier. »
 - Compteur : « Tour N / 4 » (tour de la partie).
 - Un bandeau visible par tout le monde affiche les effets durables en cours (par exemple « Léa : miaule jusqu'à son prochain tour »).
@@ -74,9 +74,11 @@ Aucune autre phrase : en particulier, ne pas ajouter de rappel sur les échanges
 ## Salle d'attente
 
 - Code de partie : un mot du thème, affiché en grand, sans bouton copier ni partager.
-- Prénom et emblème obligatoires pour confirmer sa présence (« Je suis là »).
+- Écran du prénom : au-dessus du champ, la phrase « Quel nom les étoiles murmureront-elles ce soir ? »
+- Écran de l'emblème : au-dessus des emblèmes, la question « Quelle puissance veille sur toi ? »
+- Prénom et emblème obligatoires pour confirmer sa présence (« Je rejoins la compagnie »).
 - Un emblème déjà pris est grisé.
 - 5 personnes au maximum ; une sixième personne voit « La partie est complète ».
 - Le bouton « Commencer la quête » n'est visible que de l'hôte, actif dès que 2 personnes ont confirmé leur présence.
 - Ordre des tours : ordre d'arrivée dans le salon.
-- Texte d'accompagnement : « Rassemblez votre troupe. La quête commencera quand l'hôte donnera le signal. »
+- Texte d'accompagnement : « La quête commencera quand l'hôte donnera le signal. »

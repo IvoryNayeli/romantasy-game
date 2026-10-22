@@ -29,7 +29,7 @@ export function estAdresseLocale(hote) {
 // Choix de la base d'après l'adresse de la page :
 // - page servie depuis l'ordinateur ou le réseau local : émulateur, sur la même machine que la page ;
 //   `?base=dev` force la base romantasy-dev (essais sur la vraie base de développement) ;
-// - page servie ailleurs : romantasy-dev jusqu'à la mise en ligne (phase 7, qui basculera sur prod).
+// - page servie ailleurs : romantasy-dev jusqu'à la mise en ligne (phase 8, qui basculera sur prod).
 export function choisirBase(hote, params) {
   const demande = params?.get?.('base');
   if (demande === 'dev') return { nom: 'dev', ...BASES.dev };

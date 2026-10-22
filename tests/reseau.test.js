@@ -183,7 +183,7 @@ test('écoutes : uniquement sur le chemin de la partie en cours, jamais sur la r
   assert.equal((salon.match(/fb\.ref\(/g) || []).length, 1, 'une seule fabrique de références');
 });
 
-test('choix de la base : émulateur pour une page locale ou du réseau local, jamais la prod avant la phase 7', async () => {
+test('choix de la base : émulateur pour une page locale ou du réseau local, jamais la prod avant la phase 8', async () => {
   const { config } = await E.chargerModules();
   const p = (q = '') => new URLSearchParams(q);
   for (const hote of ['localhost', '127.0.0.1', '192.168.1.23', '10.0.0.5', '172.20.1.2', 'mon-ordi.local']) {
@@ -195,7 +195,7 @@ test('choix de la base : émulateur pour une page locale ou du réseau local, ja
   assert.equal(config.choisirBase('192.168.1.23', p('base=dev')).nom, 'dev');
   assert.equal(config.choisirBase('ivorynayeli.github.io', p()).nom, 'dev');
   assert.equal(config.choisirBase('172.32.0.1', p()).nom, 'dev', '172.32 n\'est pas une adresse privée');
-  assert.equal(config.choisirBase('exemple.fr', p('base=prod')).nom, 'dev', 'prod non sélectionnable avant la phase 7');
+  assert.equal(config.choisirBase('exemple.fr', p('base=prod')).nom, 'dev', 'prod non sélectionnable avant la phase 8');
   assert.match(config.BASES.dev.databaseURL, /^https:\/\/romantasy-dev-default-rtdb\.europe-west1\.firebasedatabase\.app$/);
   assert.match(config.BASES.prod.databaseURL, /^https:\/\/romantasy-prod-default-rtdb\.europe-west1\.firebasedatabase\.app$/);
   assert.doesNotMatch(sansCommentaires(lireJs('firebase-config.js')), /apiKey|AIza|secret|token|password/i, 'aucune clé ni jeton');
@@ -213,4 +213,38 @@ test('Firebase CLI : projets dev (par défaut) et prod, règles de database.rule
   assert.match(paquet.scripts.test, /avec-emulateur\.js/);
   assert.match(lireRacine('scripts/avec-emulateur.js'), /'--project', 'demo-romantasy'/);
   assert.doesNotMatch(paquet.scripts['test:rapide'], /emulateur\.test|navigateur/);
+});
+
+// Phase 7 (remarque 60) : reprise d'une place par le prénom après la fermeture d'un onglet (règle de choix seule ;
+// le parcours complet est vérifié sur l'émulateur, tests/emulateur-robustesse.test.js).
+test('reprise par le prénom : place confirmée, même prénom (casse et espaces ignorés), absente en salle d\'attente', async () => {
+  const { salon: S } = await E.chargerModules();
+  assert.ok(S.memePrenom(' léa ', 'LÉA'));
+  assert.ok(!S.memePrenom('', ' '));
+  assert.ok(!S.memePrenom('LÉA', 'LEA'), 'les accents comptent');
+  const salle = {
+    statut: 'salle', max: 5, nb: 3,
+    joueurs: {
+      hote: { rang: 0, pret: true, prenom: 'NOA', embleme: 'sirene' },
+      lea: { rang: 1, pret: true, prenom: 'LÉA', embleme: 'demon' },
+      tom: { rang: 2, pret: false },
+    },
+    presents: { hote: { x: true }, lea: { y: true } },
+  };
+  assert.equal(S.placeAReprendre(salle, 'léa'), null, 'salle : LÉA encore connectée, place gardée (homonyme possible)');
+  const leaPartie = structuredClone(salle);
+  delete leaPartie.presents.lea;
+  assert.equal(S.placeAReprendre(leaPartie, ' Léa '), 'lea', 'salle : LÉA absente, place reprise');
+  assert.equal(S.placeAReprendre(leaPartie, 'Tom'), null, 'présence non confirmée : aucun prénom enregistré');
+  assert.equal(S.placeAReprendre(leaPartie, ''), null);
+  const commencee = { ...structuredClone(salle), statut: 'partie', ordre: ['hote', 'lea'] };
+  assert.equal(S.placeAReprendre(commencee, 'LÉA'), 'lea', 'partie commencée : reprise même si encore vue connectée');
+  assert.equal(S.placeAReprendre(commencee, 'Inconnu'), null);
+  // Salle complète : saisie du prénom proposée seulement si une place confirmée est à reprendre.
+  const complete = { ...structuredClone(salle), max: 3 };
+  assert.equal(S.placePossible(complete), false);
+  delete complete.presents.lea;
+  assert.equal(S.placePossible(complete), true);
+  assert.equal(S.placePossible(salle), true, 'places libres');
+  assert.equal(S.placePossible(commencee), true);
 });

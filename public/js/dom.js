@@ -31,9 +31,20 @@ function symbole(nom, classe) {
   return svg;
 }
 
-// Icône au trait fin (épée, étoile, bouclier, retour, coche, lueur).
+// Icônes dessinées par la propriétaire (images à fond transparent, phase 7) : épée, étoile (aussi sur la transition
+// « Le sort est jeté ») et bouclier (boutons et transition du bouclier). Elles remplacent les symboles SVG.
+const ICONES_IMAGES = { epee: 'img/epee.webp', etoile: 'img/etoile.webp', bouclier: 'img/bouclier.webp' };
+
+// Icône décorative : image de la propriétaire (épée, étoile, bouclier) ou symbole SVG au trait fin (retour, coche, lueur).
 export function icone(nom, classe = '') {
+  const src = ICONES_IMAGES[nom];
+  if (src) return h('img', { classe: `icone icone-image icone-${nom} ${classe}`.trim(), src, alt: '', 'aria-hidden': 'true' });
   return symbole(nom, `icone ${classe}`.trim());
+}
+
+// Image d'un emblème (emblemes.json : champ « image »). `alt` vide quand le nom est déjà écrit à côté.
+export function imageEmbleme(emb, classe = '', alt = emb.nom) {
+  return h('img', { classe, src: emb.image, alt });
 }
 
 // Quatre étincelles dans les coins d'une carte, d'un panneau ou d'une fenêtre (parent en position: relative).
@@ -41,12 +52,19 @@ export function coins() {
   return ['hg', 'hd', 'bg', 'bd'].map((place) => symbole('etincelle', `coin coin-${place}`));
 }
 
+// Étincelle seule (décor), par exemple les fermoirs et la poussière d'étoiles du parchemin des règles.
+export function etincelle(classe, style = null) {
+  const svg = symbole('etincelle', classe);
+  if (style) svg.setAttribute('style', style);
+  return svg;
+}
+
 // Séparateur filigrane.
 export function filigrane(classe = '') {
   return symbole('filigrane', `filigrane ${classe}`.trim());
 }
 
-// Logo (image img/logo.webp, disque central sur fond transparent) : décoratif ici, son nom accessible est porté par le conteneur.
+// Logo (image img/logo.webp de la propriétaire, médaillon rond sur fond transparent) : décoratif ici, son nom accessible est porté par le conteneur.
 export function logo(classe = '') {
   return h('img', { classe, src: 'img/logo.webp', alt: '', 'aria-hidden': 'true' });
 }
