@@ -27,16 +27,17 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
 | 7 | Ajustements visuels | validée le 2026-10-22 | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
-| 8 | Finition et mise en ligne | en cours | 1 | |
+| 8 | Finition et mise en ligne | en test | 1 | |
 
 ## Prochaine action
 
-Phase 8, itération 1 en cours : développement (développeur), puis tests (testeur obligatoire).
+Phase 8, itération 1 en test : vérification par le testeur (obligatoire).
 
 ## Journal
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
+- 2026-10-22, phase 8, itération 1 : base prod en ligne, flux GitHub Pages, outils de démonstration réservés au local, annonce aux lecteurs d'écran, README (lien, mise en ligne, consommation, crédits), check-list `docs/checklist-phase-8.md`. Passée en test.
 
 ## Défauts ouverts
 
@@ -46,10 +47,14 @@ Aucun.
 
 - Publication : lien court `https://ivorynayeli.github.io/romantasy-game/`, avec un flux GitHub Actions qui ne publie que `public/` (choisi par la propriétaire le 2026-10-22). Source de Pages à régler sur « GitHub Actions » par la propriétaire.
 - Icônes game-icons.net des emblèmes : retirées du travail de la phase 8 (décision de la phase 7), seuls les crédits restent.
+- Phase 8, base : page en ligne sur `romantasy-prod` ; `?base=dev` force `romantasy-dev` partout ; `?base=prod` jamais possible depuis une page locale.
+- Phase 8, outils de démonstration : gardés en local ; en ligne, `demo.html` et `js/demo.js` ne sont pas publiés (retirés par le flux), `?demo=1`, les écrans fictifs (`?ecran=choix|carte|attente|transition|fin`) et la salle fictive sont ignorés (accueil), via `public/js/navigation.js`.
+- Phase 8, accessibilité : zone invisible `aria-live` (`#annonce`) qui relit le texte affiché (titre, carte, transition) quand la partie en réseau change de vue ; aucun texte nouveau. Les tests de navigateur ignorent cette zone dans leurs mesures visuelles.
+- Phase 8, première mise en ligne : le flux ne publie que depuis `main` (push ou `Run workflow`, qui n'apparaît qu'une fois le fichier sur `main`), et l'environnement `github-pages` n'accepte par défaut que `main`. La check-list « en ligne sur le lien définitif » ne peut donc être faite qu'après la fusion de la phase 8 dans `main`, sauf choix contraire de la propriétaire (par exemple autoriser `phase-8` dans `Settings > Environments > github-pages` et ajouter temporairement `phase-8` aux déclencheurs). À trancher.
 
 ## Risques reportés
 
-- Phase 8 : `demo.html` et le paramètre `?ecran=` (outils de validation de la phase 2) à retirer ou masquer ; icônes SVG faites pour le projet (épée, étoile, bouclier) à remplacer ou garder selon le choix des icônes game-icons.net.
+- Phase 8 : `demo.html` et le paramètre `?ecran=` (outils de validation de la phase 2) : réservés au local par l'itération 1 (voir « Décisions à confirmer »).
 - Phase 8 : l'image de banque de données (avec crédit de licence) ne concerne que les emojis des emblèmes ; le logo est l'image de la propriétaire (itération 4 de la phase 2), déjà en place.
 - Risque accepté (phases 4 à 6) : sans authentification, une personne qui connaît un code peut modifier ou supprimer la partie par écriture directe (défaut D2 de la phase 4, risque accepté à la validation ; test marqué « à faire » dans `tests/emulateur-regles.test.js`), et depuis la phase 6 fausser la présence. L'authentification anonyme reste possible si la propriétaire le demande.
 - Essai à blanc de la chaîne : réussi le 2026-10-15 au démarrage de la phase 1 (développeur et testeur appelés, fichier d'essai créé puis supprimé). Remarque : le testeur a écrit hors de `tests/` et `docs/rapports/` parce que la demande l'y invitait explicitement ; ses garde-fous n'ont pas été éprouvés au-delà.
