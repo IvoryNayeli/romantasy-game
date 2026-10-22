@@ -27,11 +27,11 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
 | 7 | Ajustements visuels | validée le 2026-10-22 | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
-| 8 | Finition et mise en ligne | à faire | 0 | |
+| 8 | Finition et mise en ligne | en cours | 1 | |
 
 ## Prochaine action
 
-Phase 7 validée le 2026-10-22. Prochaine étape possible : « Lance la phase 8 » (finition et mise en ligne), sur demande de la propriétaire.
+Phase 8, itération 1 en cours : développement (développeur), puis tests (testeur obligatoire).
 
 ## Journal
 
@@ -44,7 +44,8 @@ Aucun.
 
 ## Décisions à confirmer
 
-Aucune.
+- Publication : lien court `https://ivorynayeli.github.io/romantasy-game/`, avec un flux GitHub Actions qui ne publie que `public/` (choisi par la propriétaire le 2026-10-22). Source de Pages à régler sur « GitHub Actions » par la propriétaire.
+- Icônes game-icons.net des emblèmes : retirées du travail de la phase 8 (décision de la phase 7), seuls les crédits restent.
 
 ## Risques reportés
 
