@@ -1033,7 +1033,16 @@ h2 {
 /* Contexte d'empilement propre : le ciel des lettres passe sous le contenu de l'écran, au-dessus des étoiles du fond. */
 .ecran-salle { isolation: isolate; }
 .salle-corps .salle-prenom:not([hidden]) { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.prenom-question { margin: 0 0 30px; color: var(--c-etoile); font: italic 500 1.75rem/1.2 var(--f-titre); text-wrap: balance; }
+/* Phase 8 (remarque 64) : même police et même taille que la question de l'emblème (.etiquette-champ : Jost 500, 14 px,
+   capitales espacées), couleur étoile conservée. */
+.prenom-question {
+  margin: 0 0 30px;
+  color: var(--c-etoile);
+  font: 500 .875rem/1.2 var(--f-texte);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
 /* Cartouche : bordure ambre et double filet, fond dégradé des bleus du logo, étincelles aux coins et au milieu des bords
    gauche et droit, étiquette posée sur le bord du haut, halo ambre plus fort quand le champ est actif (sans transition :
    la charte n'anime pas les ombres). Largeur posée par ecrans.js (240 px vide, puis suit le prénom sans dépasser les

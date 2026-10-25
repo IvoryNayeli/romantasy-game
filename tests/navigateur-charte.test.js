@@ -669,13 +669,19 @@ describe('navigateur : conformité à la charte graphique (docs/charte-graphique
       if (!['500', '600'].includes(t.graisse)) defauts.push(`[${nom}] graisse ${t.graisse}`);
       await fermer(page);
     }
-    // Phase 7 : la phrase de l'écran du prénom (Cormorant Garamond italique, 28 px, étoile), comme sa maquette (la
-    // consigne de l'écran du code, qui la reprenait, est retirée par la remarque 62).
-    for (const [nom, c, sel] of [['prénom', '?ecran=salle&hote=1&autres=1', '.prenom-question']]) {
-      const page = await ouvrir(`index.html${c}`, { reduit: true });
-      const t = await page.evaluate((s) => { const st = getComputedStyle(document.querySelector(s)); return { px: parseFloat(st.fontSize), famille: st.fontFamily, style: st.fontStyle, couleur: st.color }; }, sel);
-      if (t.px !== 28 || !/^"?Cormorant Garamond/.test(t.famille) || t.style !== 'italic' || t.couleur !== 'rgb(244, 241, 232)') defauts.push(`[${nom}] consigne ${JSON.stringify(t)}`);
-      await fermer(page);
+    // Phase 8 (remarque 64) : la phrase de l'écran du prénom prend la police et la taille de la question de l'emblème
+    // (famille, style, graisse, taille, capitales espacées), en gardant sa couleur étoile.
+    {
+      const police = (st) => ({ px: parseFloat(st.fontSize), famille: st.fontFamily, style: st.fontStyle, graisse: st.fontWeight, casse: st.textTransform, espace: st.letterSpacing });
+      const lire = (p, sel) => p.evaluate((s) => { const st = getComputedStyle(document.querySelector(s)); return { px: parseFloat(st.fontSize), famille: st.fontFamily, style: st.fontStyle, graisse: st.fontWeight, casse: st.textTransform, espace: st.letterSpacing, couleur: st.color }; }, sel);
+      const pPrenom = await ouvrir('index.html?ecran=salle&hote=1&autres=1', { reduit: true });
+      const prenom = await lire(pPrenom, '.prenom-question');
+      await fermer(pPrenom);
+      const pEmbleme = await ouvrir('index.html?ecran=salle&hote=1&autres=1&prenom=Noa&etape=embleme', { reduit: true });
+      const embleme = await lire(pEmbleme, '.salle-emblemes .etiquette-champ');
+      await fermer(pEmbleme);
+      if (JSON.stringify(police(prenom)) !== JSON.stringify(police(embleme))) defauts.push(`[prénom] police ${JSON.stringify(prenom)} différente de ${JSON.stringify(embleme)}`);
+      if (prenom.px !== 14 || prenom.couleur !== 'rgb(244, 241, 232)') defauts.push(`[prénom] consigne ${JSON.stringify(prenom)}`);
     }
     assert.deepEqual(defauts, []);
     // Aucun texte justifié ; lignes courtes ; légendes (compteur, types) en capitales espacées de .25em à .3em.
