@@ -75,7 +75,7 @@ Aucune autre phrase : en particulier, ne pas ajouter de rappel sur les échanges
 
 - Code de partie : un mot du thème, affiché en grand, sans bouton copier ni partager.
 - Écran du prénom : au-dessus du champ, la phrase « Quel nom les étoiles murmureront-elles ce soir ? »
-- Écran de l'emblème : au-dessus des emblèmes, la question « Quelle puissance veille sur toi ? »
+- Écran de l'emblème : au-dessus des emblèmes, la question « Quel sera ton emblème ? »
 - Prénom et emblème obligatoires pour confirmer sa présence (« Je rejoins la compagnie »).
 - Un emblème déjà pris est grisé.
 - 5 personnes au maximum ; une sixième personne voit « La partie est complète ».

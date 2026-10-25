@@ -86,8 +86,8 @@ export const salle = {
   prenomLibelle: 'Ton prénom',
   // Phase 7 (remarque 51) : phrase au-dessus du cartouche du prénom (docs/regles.md, salle d'attente).
   prenomQuestion: 'Quel nom les étoiles murmureront-elles ce soir ?',
-  // Phase 7 (remarque 58) : question au-dessus des emblèmes et bouton qui confirme la présence (docs/regles.md).
-  embleme: 'Quelle puissance veille sur toi ?',
+  // Phase 7 (remarque 58, texte de la remarque 65 en phase 8) : question au-dessus des emblèmes et bouton qui confirme la présence (docs/regles.md).
+  embleme: 'Quel sera ton emblème ?',
   pret: 'A rejoint la compagnie',
   suivant: 'Je suis là !',
   pretBouton: 'Je rejoins la compagnie',
