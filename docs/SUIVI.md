@@ -27,16 +27,17 @@ Seul le chef de phase écrit `validée`, uniquement après le message explicite 
 | 5 | Partie jouable en réseau | validée le 2026-10-19 | 1 | [phase-5-iteration-1](rapports/phase-5-iteration-1.md) |
 | 6 | Robustesse | validée le 2026-10-20 | 1 | [phase-6-iteration-1](rapports/phase-6-iteration-1.md) |
 | 7 | Ajustements visuels | validée le 2026-10-22 | 2 | [phase-7-iteration-2](rapports/phase-7-iteration-2.md) |
-| 8 | Finition et mise en ligne | validée le 2026-10-22 | 1 | [phase-8-iteration-1](rapports/phase-8-iteration-1.md) |
+| 8 | Finition et mise en ligne | en cours (itération 2) | 2 | [phase-8-iteration-1](rapports/phase-8-iteration-1.md) |
 
 ## Prochaine action
 
-Phase 8 validée le 2026-10-22 (possibilité A : mise en ligne par la fusion dans `main`). À faire par la propriétaire : source de Pages sur « GitHub Actions », `firebase deploy --only database --project prod`, puis la check-list `docs/checklist-phase-8.md` en ligne ; les remarques éventuelles rouvriront la phase 8.
+Phase 8 rouverte le 2026-10-25 (itération 2, remarques 64 à 66) : développement, puis tests (testeur obligatoire).
 
 ## Journal
 
 Une ligne par session : date, phase, ce qui a été fait, ce qui reste. Courte : le détail est dans le rapport, qu'on lie. Les lignes des phases validées sont déplacées dans [journal-archive](journal-archive.md) par le chef de phase à la validation.
 
+- 2026-10-25, phase 8 : rouverte à la demande de la propriétaire, remarques 64 à 66 consignées ([remarques](remarques/phase-8.md)), itération 2 lancée.
 
 ## Défauts ouverts
 
